@@ -1,0 +1,3 @@
+[submodule "tuhdosnippets"]
+	path = tuhdosnippets
+	url = https://github.com/tuhdo/yasnippet-snippets
