@@ -72,7 +72,7 @@
 
 (install-packages)
 (require 'powerline)
-(powerline-center-theme)
+(powerline-vim-theme)
 (require 'diminish)
 
 ;; this variables must be set before load helm-gtags
@@ -224,7 +224,7 @@
 (require 'setup-ycmd)
 (require 'lastpass)
 (diminish 'anzu-mode)
-(diminish 'projectile-mode "Proj")
+(diminish 'projectile-mode)
 (diminish 'undo-tree-mode)
 (diminish 'color-identifiers-mode)
 (diminish 'ws-butler-mode)
@@ -234,6 +234,10 @@
 (diminish 'ycmd-mode)
 (diminish 'company-mode)
 (diminish 'helm-mode)
+(diminish 'malinka-mode)
+(diminish 'abbrev-mode)
+(diminish 'hs-minor-mode)
+(diminish 'function-args-mode)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
