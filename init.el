@@ -3,16 +3,16 @@
 (menu-bar-mode -1)
 (when (display-graphic-p)
   (tool-bar-mode -1)
-(scroll-bar-mode -1))
+  (scroll-bar-mode -1))
 (set-default 'cursor-type 'hbar)
 (set 'column-number-mode t)
 (set 'line-number-mode t)
-;(set 'show-paren-mode t)
+                                        ;(set 'show-paren-mode t)
 
 
 (require 'package)
 (add-to-list 'package-archives
-	     '("melpa" . "http://melpa.milkbox.net/packages/") t)
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
 (setq gc-cons-threshold 100000000)
@@ -110,10 +110,10 @@
 (windmove-default-keybindings)
 
 ;; function-args
- (require 'function-args)
- (fa-config-default)
- (define-key c-mode-map  [(tab)] 'company-complete)
- (define-key c++-mode-map  [(tab)] 'company-complete)
+(require 'function-args)
+(fa-config-default)
+(define-key c-mode-map  [(tab)] 'company-complete)
+(define-key c++-mode-map  [(tab)] 'company-complete)
 
 ;; company
 (require 'company)
@@ -192,11 +192,22 @@
 (add-hook 'prog-mode-hook 'ws-butler-mode)
 
 ;; Package: yasnippet
-;(require 'yasnippet)
-;(add-to-list 'yas/root-directory "/home/einarelen/.emacs.d/tuhdosnippets")
-;(yas/initialize)
-;(yas-global-mode 1)
+(require 'yasnippet)
+(add-to-list 'yas/root-directory "/home/einarelen/.emacs.d/tuhdosnippets")
+(yas-global-mode 1)
+;; Add yasnippet support for all company backends
+;; https://github.com/syl20bnr/spacemacs/pull/179
+(defvar company-mode/enable-yas t
+  "Enable yasnippet for all backends.")
 
+(defun company-mode/backend-with-yas (backend)
+  (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+      backend
+    (append (if (consp backend) backend (list backend))
+            '(:with company-yasnippet))))
+
+(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+(global-set-key (kbd "C-c y") 'company-yasnippet)
 ;; Package: smartparens
 (require 'smartparens-config)
 (setq sp-base-key-bindings 'paredit)
@@ -249,10 +260,14 @@
 (require 'avy)
 (require 'avy-zap)
 (setq avy-all-windows 'all-frames)
-(global-set-key (kbd "C-;") 'avy-goto-word-1)
-(global-set-key (kbd "C-:") 'avy-goto-char)
+(global-set-key (kbd "C-:") 'avy-goto-word-1)
+(global-set-key (kbd "C-;") 'avy-goto-char)
 (global-set-key (kbd "M-;") 'avy-goto-line)
+
 (add-hook 'text-mode-hook 'auto-fill-mode)
+(require 'choose-random-theme)
+(choose-random-theme)
+(diminish 'color-identifiers-mode)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
