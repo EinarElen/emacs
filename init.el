@@ -85,7 +85,8 @@
 ;; this variables must be set before load helm-gtags
 ;; you can change to any prefix key of your choice
 (setq helm-gtags-prefix-key "\C-cg")
-(require 'magit)
+(if (not (equal system-type 'windows-nt))
+(require 'magit))
 (global-set-key (kbd "C-x g") 'magit-status)
 
 (setq
