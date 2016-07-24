@@ -9,7 +9,8 @@
 (set 'line-number-mode t)
                                         ;(set 'show-paren-mode t)
 
-
+(global-unset-key (kbd "C-x C-z"))
+(global-unset-key (kbd "C-z"))
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
@@ -259,9 +260,9 @@
 
 (require 'avy)
 (require 'avy-zap)
-(setq avy-all-windows 'all-frames)
-(global-set-key (kbd "C-:") 'avy-goto-word-1)
-(global-set-key (kbd "C-;") 'avy-goto-char)
+;(setq avy-all-windows 'all-frames)
+(global-set-key (kbd "C-:") 'avy-goto-char)
+(global-set-key (kbd "C-;") 'avy-goto-word-1)
 (global-set-key (kbd "M-;") 'avy-goto-line)
 
 (add-hook 'text-mode-hook 'auto-fill-mode)
