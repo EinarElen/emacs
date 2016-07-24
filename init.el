@@ -24,6 +24,7 @@
 (defconst demo-packages
   '(magit
     ycmd
+    exec-path-from-shell
     powerline
     company-ycmd
     flycheck-ycmd
@@ -269,6 +270,8 @@
 (require 'choose-random-theme)
 (choose-random-theme)
 (diminish 'color-identifiers-mode)
+(diminish 'yas-minor-mode)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
