@@ -31,7 +31,6 @@
     flycheck-ycmd
     yalinum
     flycheck-irony
-    cmake-ide
     solarized-theme
     company-c-headers
     malinka
@@ -91,7 +90,6 @@
 (when (not (string= system-type "windows-nt"))
            (require 'magit)
            (global-set-key (kbd "C-x g") 'magit-status))
-           
 (setq
  backup-by-copying t
  backup-directory-alist
