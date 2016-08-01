@@ -103,7 +103,7 @@
  kept-old-versions 4
  version-control t)
 
-
+(setq tramp-default-method "ssh")
 (add-to-list 'load-path "~/.emacs.d/custom")
 (global-yalinum-mode t)
 (require 'setup-helm)
@@ -180,11 +180,6 @@
 (require 'ws-butler)
 (add-hook 'prog-mode-hook 'ws-butler-mode)
 
-;; Package: yasnippet
-(require 'yasnippet)
-(add-to-list 'yas/root-directory "/home/einarelen/.emacs.d/tuhdosnippets")
-(add-hook 'c-mode-common-hook 'yas-minor-mode-hook)
-
 ;; Package: smartparens
 (require 'smartparens-config)
 (setq sp-base-key-bindings 'paredit)
@@ -240,6 +235,7 @@
 (require 'setup-flycheck)
 (require 'setup-terminal)
 (require 'setup-latex)
+(require 'setup-yasnippet)
 (require 'avy)
 (require 'avy-zap)
 (setq avy-all-windows nil)
