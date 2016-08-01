@@ -23,6 +23,7 @@
 (set-face-attribute 'default nil :height 140)
 (defconst demo-packages
   '(magit
+    multi-term
     ycmd
     exec-path-from-shell
     powerline
@@ -282,7 +283,7 @@
     ("c567c85efdb584afa78a1e45a6ca475f5b55f642dfcd6277050043a568d1ac6f" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "cab317d0125d7aab145bc7ee03a1e16804d5abdfa2aa8738198ac30dc5f7b569" "39dd7106e6387e0c45dfce8ed44351078f6acd29a345d8b22e7b8e54ac25bac4" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
  '(package-selected-packages
    (quote
-    (avy-zap avy monokai-theme helm-c-yasnippet yasnippet company-auctex auctex diminish powerline zygospore yalinum ws-butler volatile-highlights undo-tree solarized-theme smartparens malinka magit iedit helm-swoop helm-projectile helm-gtags ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony duplicate-thing dtrt-indent company-ycmd company-irony-c-headers company-irony company-c-headers comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format anzu ace-jump-mode))))
+    (multi-term avy-zap avy monokai-theme helm-c-yasnippet yasnippet diminish powerline zygospore yalinum ws-butler volatile-highlights undo-tree solarized-theme smartparens malinka magit iedit helm-swoop helm-projectile helm-gtags ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony duplicate-thing dtrt-indent company-ycmd company-irony-c-headers company-irony company-c-headers comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format anzu ace-jump-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
