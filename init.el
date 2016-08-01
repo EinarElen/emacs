@@ -67,6 +67,7 @@
     diminish
     auctex
     company-auctex
+    latex-preview-pane
     helm-c-yasnippet
     monokai-theme
     zygospore
@@ -238,6 +239,7 @@
 (require 'setup-irony)
 (require 'setup-flycheck)
 (require 'setup-terminal)
+(require 'setup-latex)
 (require 'avy)
 (require 'avy-zap)
 (setq avy-all-windows nil)
@@ -257,6 +259,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(TeX-view-program-list (quote (("emacs" ("emacsclient %o") ""))))
+ '(TeX-view-program-selection
+   (quote
+    (((output-dvi has-no-display-manager)
+      "dvi2tty")
+     ((output-dvi style-pstricks)
+      "dvips and gv")
+     (output-dvi "xdvi")
+     (output-pdf "emacs")
+     (output-html "xdg-open"))))
  '(custom-safe-themes
    (quote
     ("c567c85efdb584afa78a1e45a6ca475f5b55f642dfcd6277050043a568d1ac6f" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "cab317d0125d7aab145bc7ee03a1e16804d5abdfa2aa8738198ac30dc5f7b569" "39dd7106e6387e0c45dfce8ed44351078f6acd29a345d8b22e7b8e54ac25bac4" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
