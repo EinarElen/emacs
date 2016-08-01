@@ -237,6 +237,7 @@
 (require 'setup-ycmd)
 (require 'setup-irony)
 (require 'setup-flycheck)
+(require 'setup-terminal)
 (require 'avy)
 (require 'avy-zap)
 (setq avy-all-windows nil)
