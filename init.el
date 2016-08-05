@@ -1,3 +1,4 @@
+
 (set 'frame-title-format "Emacs")
 (set 'visible-bell t)
 (menu-bar-mode -1)
@@ -9,7 +10,8 @@
 (set 'line-number-mode t)
                                         ;(set 'show-paren-mode t)
 
-
+(global-unset-key (kbd "C-x C-z"))
+(global-unset-key (kbd "C-z"))
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
@@ -22,13 +24,16 @@
 (set-face-attribute 'default nil :height 140)
 (defconst demo-packages
   '(magit
+    sr-speedbar
+    multi-term
+    nyan-mode
     ycmd
+    exec-path-from-shell
     powerline
     company-ycmd
     flycheck-ycmd
     yalinum
     flycheck-irony
-    cmake-ide
     solarized-theme
     company-c-headers
     malinka
@@ -62,6 +67,7 @@
     diminish
     auctex
     company-auctex
+    latex-preview-pane
     helm-c-yasnippet
     monokai-theme
     zygospore
@@ -85,10 +91,9 @@
 ;; this variables must be set before load helm-gtags
 ;; you can change to any prefix key of your choice
 (setq helm-gtags-prefix-key "\C-cg")
-(if (not (equal system-type 'windows-nt))
-(require 'magit))
-(global-set-key (kbd "C-x g") 'magit-status)
-
+(when (not (string= system-type "windows-nt"))
+           (require 'magit)
+           (global-set-key (kbd "C-x g") 'magit-status))
 (setq
  backup-by-copying t
  backup-directory-alist
@@ -98,7 +103,7 @@
  kept-old-versions 4
  version-control t)
 
-
+(setq tramp-default-method "ssh")
 (add-to-list 'load-path "~/.emacs.d/custom")
 (global-yalinum-mode t)
 (require 'setup-helm)
@@ -113,26 +118,9 @@
 ;; function-args
 (require 'function-args)
 (fa-config-default)
-(define-key c-mode-map  [(tab)] 'company-complete)
-(define-key c++-mode-map  [(tab)] 'company-complete)
 
-;; company
-(require 'company)
-(add-hook 'after-init-hook 'global-company-mode)
-(delete 'company-semantic company-backends)
-(define-key c-mode-map  [(tab)] 'company-complete)
-(define-key c++-mode-map  [(tab)] 'company-complete)
-;; (define-key c-mode-map  [(control tab)] 'company-complete)
-;; (define-key c++-mode-map  [(control tab)] 'company-complete)
 
-;; company-c-headers
-(add-to-list 'company-backends 'company-c-headers)
-
-(require 'malinka-projects)
-(global-company-mode t)
-(add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/g++-v4/")
-(
- add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/")
+;;(require 'malinka-projects)
 ;; hs-minor-mode for folding source code
 (add-hook 'c-mode-common-hook 'hs-minor-mode)
 
@@ -192,23 +180,6 @@
 (require 'ws-butler)
 (add-hook 'prog-mode-hook 'ws-butler-mode)
 
-;; Package: yasnippet
-(require 'yasnippet)
-(add-to-list 'yas/root-directory "/home/einarelen/.emacs.d/tuhdosnippets")
-(yas-global-mode 1)
-;; Add yasnippet support for all company backends
-;; https://github.com/syl20bnr/spacemacs/pull/179
-(defvar company-mode/enable-yas t
-  "Enable yasnippet for all backends.")
-
-(defun company-mode/backend-with-yas (backend)
-  (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-      backend
-    (append (if (consp backend) backend (list backend))
-            '(:with company-yasnippet))))
-
-(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-(global-set-key (kbd "C-c y") 'company-yasnippet)
 ;; Package: smartparens
 (require 'smartparens-config)
 (setq sp-base-key-bindings 'paredit)
@@ -233,14 +204,13 @@
 (global-set-key (kbd "C-x 1") 'zygospore-toggle-delete-other-windows)
 
 
-(require 'setup-rtags)
+;; (require 'setup-rtags)
 (require 'clang-format)
 (define-key c++-mode-map (kbd "C-c f") 'clang-format-region)
 (define-key c++-mode-map (kbd "C-c C-f") 'clang-format-buffer)
 (define-key c-mode-map (kbd "C-c f") 'clang-format-region)
 (define-key c-mode-map (kbd "C-c C-f") 'clang-format-buffer)
 (add-hook 'after-init-hook 'global-color-identifiers-mode)
-(require 'setup-ycmd)
 (require 'lastpass)
 (diminish 'anzu-mode)
 (diminish 'projectile-mode)
@@ -258,28 +228,50 @@
 (diminish 'hs-minor-mode)
 (diminish 'function-args-mode)
 
+(require 'setup-company)
+(require 'setup-org)
+(require 'setup-ycmd)
+(require 'setup-irony)
+(require 'setup-flycheck)
+(require 'setup-terminal)
+(require 'setup-latex)
+(require 'setup-yasnippet)
 (require 'avy)
 (require 'avy-zap)
-(setq avy-all-windows 'all-frames)
-(global-set-key (kbd "C-:") 'avy-goto-word-1)
-(global-set-key (kbd "C-;") 'avy-goto-char)
+(setq avy-all-windows nil)
+                                        ;(setq avy-all-windows 'all-frames)
+(global-set-key (kbd "C-:") 'avy-goto-char)
+(global-set-key (kbd "C-;") 'avy-goto-word-1)
 (global-set-key (kbd "M-;") 'avy-goto-line)
 
 (add-hook 'text-mode-hook 'auto-fill-mode)
 (require 'choose-random-theme)
 (choose-random-theme)
 (diminish 'color-identifiers-mode)
+(diminish 'yas-minor-mode)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(TeX-view-program-list (quote (("emacs" ("emacsclient %o") ""))))
+ '(TeX-view-program-selection
+   (quote
+    (((output-dvi has-no-display-manager)
+      "dvi2tty")
+     ((output-dvi style-pstricks)
+      "dvips and gv")
+     (output-dvi "xdvi")
+     (output-pdf "emacs")
+     (output-html "xdg-open"))))
  '(custom-safe-themes
    (quote
     ("c567c85efdb584afa78a1e45a6ca475f5b55f642dfcd6277050043a568d1ac6f" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "cab317d0125d7aab145bc7ee03a1e16804d5abdfa2aa8738198ac30dc5f7b569" "39dd7106e6387e0c45dfce8ed44351078f6acd29a345d8b22e7b8e54ac25bac4" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
  '(package-selected-packages
    (quote
-    (avy-zap avy monokai-theme helm-c-yasnippet yasnippet company-auctex auctex diminish powerline zygospore yalinum ws-butler volatile-highlights undo-tree solarized-theme smartparens malinka magit iedit helm-swoop helm-projectile helm-gtags ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony duplicate-thing dtrt-indent company-ycmd company-irony-c-headers company-irony company-c-headers comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format anzu ace-jump-mode))))
+    (multi-term avy-zap avy monokai-theme helm-c-yasnippet yasnippet diminish powerline zygospore yalinum ws-butler volatile-highlights undo-tree solarized-theme smartparens malinka magit iedit helm-swoop helm-projectile helm-gtags ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony duplicate-thing dtrt-indent company-ycmd company-irony-c-headers company-irony company-c-headers comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format anzu ace-jump-mode)))
+ '(server-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
