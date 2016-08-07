@@ -49,7 +49,10 @@
     duplicate-thing
     ggtags
     helm
+    helm-descbinds
     helm-gtags
+    helm-dash
+    mu4e
     clang-format
     helm-projectile
     helm-swoop
@@ -74,7 +77,7 @@
     helm-c-yasnippet
     monokai-theme
     zygospore
-    org
+    org-plus-contrib
     helm-swoop
     ))
 (install-packages)
@@ -166,67 +169,66 @@
 * Helm
 ** Basic Configuration
 #+BEGIN_SRC emacs-lisp
-;; this variables must be set before load helm-gtags
-;; you can change to any prefix key of your choice
-(setq helm-gtags-prefix-key "\C-cg")
-(require 'helm-config)
-(require 'helm-grep)
-(global-set-key (kbd "C-c h") 'helm-command-prefix)
-(global-unset-key (kbd "C-x c"))
-(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
-(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
-(define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+  (setq helm-gtags-prefix-key "\C-cg")
 
-(define-key helm-grep-mode-map (kbd "<return>")  'helm-grep-mode-jump-other-window)
-(define-key helm-grep-mode-map (kbd "n")  'helm-grep-mode-jump-other-window-forward)
-(define-key helm-grep-mode-map (kbd "p")  'helm-grep-mode-jump-other-window-backward)
-
-(when (executable-find "curl")
-  (setq helm-google-suggest-use-curl-p t))
-
-(setq
- helm-scroll-amount 4 ; scroll 4 lines other window using M-<next>/M-<prior>
- helm-ff-search-library-in-sexp t ; search for library in `require' and `declare-function' sexp.
- helm-split-window-in-side-p t ;; open helm buffer inside current window, not occupy whole other window
- helm-candidate-number-limit 500 ; limit the number of displayed canidates
- helm-ff-file-name-history-use-recentf t
- helm-move-to-line-cycle-in-source t ; move to end or beginning of source when reaching top or bottom of source.
- helm-buffers-fuzzy-matching t          ; fuzzy matching buffer names when non-nil
-                                        ; useful in helm-mini that lists buffers
- )
-(add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
-
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "M-y") 'helm-show-kill-ring)
-(global-set-key (kbd "C-x b") 'helm-mini)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
-(global-set-key (kbd "C-c h o") 'helm-occur)
-
-(global-set-key (kbd "C-c h C-c w") 'helm-wikipedia-suggest)
-
-(global-set-key (kbd "C-c h x") 'helm-register)
-;; (global-set-key (kbd "C-x r j") 'jump-to-register)
-
-(define-key 'help-command (kbd "C-f") 'helm-apropos)
-(define-key 'help-command (kbd "r") 'helm-info-emacs)
-(define-key 'help-command (kbd "C-l") 'helm-locate-library)
-(add-hook 'eshell-mode-hook
-          #'(lambda ()
-              (define-key eshell-mode-map (kbd "M-l")  'helm-eshell-history)))
-
-(add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
-(define-key minibuffer-local-map (kbd "M-p") 'helm-minibuffer-history)
-(define-key minibuffer-local-map (kbd "M-n") 'helm-minibuffer-history)
-
-(define-key global-map [remap find-tag] 'helm-etags-select)
-
-(define-key global-map [remap list-buffers] 'helm-buffers-list)
-
+  (require 'helm-config)
+  (require 'helm-grep)
+  (when (executable-find "curl")
+    (setq helm-google-suggest-use-curl-p t))
+  (setq helm-scroll-amount 4
+   helm-ff-search-library-in-sexp t
+   helm-split-window-in-side-p t
+   helm-candidate-number-limit 500
+   helm-ff-file-name-history-use-recentf t
+   helm-move-to-line-cycle-in-source t
+   helm-buffers-fuzzy-matching t)
+  (setq helm-locate-fuzzy-match t helm-apropos-fuzzy-match t)
+  (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
+  (add-hook 'eshell-mode-hook
+            #'(lambda ()
+                (define-key eshell-mode-map (kbd "M-l")  'helm-eshell-history)))
+  (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
+  (helm-autoresize-mode t)
+  (require 'helm-descbinds)
+  (helm-descbinds-mode t)
+#+END_SRC
+** Keybindings
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c h") 'helm-command-prefix)
+  (global-unset-key (kbd "C-x c"))
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
+  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
+  (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+  (define-key helm-grep-mode-map (kbd "<return>")  'helm-grep-mode-jump-other-window)
+  (define-key helm-grep-mode-map (kbd "n")  'helm-grep-mode-jump-other-window-forward)
+  (define-key helm-grep-mode-map (kbd "p")  'helm-grep-mode-jump-other-window-backward)
+  (global-set-key (kbd "M-x") 'helm-M-x)
+  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+  (global-set-key (kbd "C-x b") 'helm-mini)
+  (global-set-key (kbd "C-x C-f") 'helm-find-files)
+  (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
+  (global-set-key (kbd "C-c h o") 'helm-occur)
+  (global-set-key (kbd "C-c h C-c w") 'helm-wikipedia-suggest)
+  (global-set-key (kbd "C-c h x") 'helm-register)
+  ;; (global-set-key (kbd "C-x r j") 'jump-to-register)
+  (define-key 'help-command (kbd "C-f") 'helm-apropos)
+  (define-key 'help-command (kbd "r") 'helm-info-emacs)
+  (define-key 'help-command (kbd "C-l") 'helm-locate-library)
+  (define-key minibuffer-local-map (kbd "M-p") 'helm-minibuffer-history)
+  (define-key minibuffer-local-map (kbd "M-n") 'helm-minibuffer-history)
+  (define-key global-map [remap find-tag] 'helm-etags-select)
+  (define-key global-map [remap list-buffers] 'helm-buffers-list)
 
 #+END_SRC
 ** Packages
+*** Helm-dash
+#+BEGIN_SRC emacs-lisp
+  (require 'helm-dash)
+
+#+END_SRC
 *** Helm-swoop
+#+BEGIN_SRC emacs-lisp
+
 (require 'helm-swoop)
 (global-set-key (kbd "C-c h o") 'helm-swoop)
 (global-set-key (kbd "C-c s") 'helm-multi-swoop-all)
@@ -237,7 +239,7 @@
 (setq helm-swoop-split-direction 'split-window-vertically)
 (setq helm-swoop-speed-or-color t)
 (helm-mode 1)
-
+#+END_SRC
 
 *** Helm-projectile
 #+BEGIN_SRC emacs-lisp
@@ -250,54 +252,43 @@
 * Text Editing
 ** Basic
 #+BEGIN_SRC emacs-lisp
-(setq global-mark-ring-max 5000         ; increase mark ring to contains 5000 entries
-      mark-ring-max 5000                ; increase kill ring to contains 5000 entries
-      mode-require-final-newline t      ; add a newline to end of file
-      tab-width 4                       ; default to 4 visible spaces to display a tab
-      )
-
-(add-hook 'sh-mode-hook (lambda ()
-                          (setq tab-width 4)))
-
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-language-environment "UTF-8")
-(prefer-coding-system 'utf-8)
-
-(setq-default indent-tabs-mode nil)
-(delete-selection-mode)
-(global-set-key (kbd "RET") 'newline-and-indent)
-
-;; GROUP: Editing -> Killing
-(setq kill-ring-max 5000 ; increase kill-ring capacity
-      kill-whole-line t  ; if NIL, kill whole line and move the next line up
-      )
-
-;; show whitespace in diff-mode
-(add-hook 'diff-mode-hook (lambda ()
-                            (setq-local whitespace-style
-                                        '(face
-                                          tabs
-                                          tab-mark
-                                          spaces
-                                          space-mark
-                                          trailing
-                                          indentation::space
-                                          indentation::tab
-                                          newline
-                                          newline-mark))
-                            (whitespace-mode 1)))
-(global-set-key (kbd "RET") 'newline-and-indent)
-(global-set-key (kbd "C-c w") 'whitespace-mode)
-(add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
-
-(global-set-key (kbd "<f5>") (lambda ()
-                               (interactive)
-                               (setq-local compilation-read-command nil)
-                               (call-interactively 'compile)))
-(add-hook 'text-mode-hook 'auto-fill-mode)
+  (setq global-mark-ring-max 5000
+        mark-ring-max 5000
+        mode-require-final-newline t
+        tab-width 4
+        )
+  (add-hook 'sh-mode-hook (lambda ()
+                            (setq tab-width 4)))
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-language-environment "UTF-8")
+  (prefer-coding-system 'utf-8)
+  (setq-default indent-tabs-mode nil)
+  (delete-selection-mode)
+  (global-set-key (kbd "RET") 'newline-and-indent)
+  (setq kill-ring-max 5000 kill-whole-line t)
+  (add-hook 'diff-mode-hook (lambda () (setq-local whitespace-style
+                                                   '(face
+                                                     tabs
+                                                     tab-mark
+                                                     spaces
+                                                     space-mark
+                                                     trailing
+                                                     indentation::space
+                                                     indentation::tab
+                                                     newline
+                                                     newline-mark))
+                              (whitespace-mode 1)))
+  (global-set-key (kbd "RET") 'newline-and-indent)
+  (global-set-key (kbd "C-c w") 'whitespace-mode)
+  (add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+  (global-set-key (kbd "<f5>") (lambda ()
+                                 (interactive)
+                                 (setq-local compilation-read-command nil)
+                                 (call-interactively 'compile)))
+  (add-hook 'text-mode-hook 'auto-fill-mode)
 
 #+END_SRC
 
@@ -306,20 +297,17 @@
 #+BEGIN_SRC emacs-lisp
 (require 'volatile-highlights)
 (volatile-highlights-mode t)
-
 #+END_SRC
 *** Clean Aindent Mode
 #+BEGIN_SRC emacs-lisp
 (require 'clean-aindent-mode)
 (add-hook 'prog-mode-hook 'clean-aindent-mode)
-
 #+END_SRC
 *** Dtrt-Indent
 #+BEGIN_SRC emacs-lisp
 (require 'dtrt-indent)
 (dtrt-indent-mode 1)
 (setq dtrt-indent-verbosity 0)
-
 #+END_SRC
 *** Whitespace Butler
 #+BEGIN_SRC emacs-lisp
@@ -327,7 +315,6 @@
 (add-hook 'c-mode-common-hook 'ws-butler-mode)
 (add-hook 'text-mode 'ws-butler-mode)
 (add-hook 'fundamental-mode 'ws-butler-mode)
-
 #+END_SRC
 *** Undo Tree
 #+BEGIN_SRC emacs-lisp
@@ -341,7 +328,6 @@
     (setq sp-autoskip-closing-pair 'always)
     (setq sp-hybrid-kill-entire-symbol nil)
     (sp-use-paredit-bindings)
-
     (show-smartparens-global-mode +1)
   (smartparens-global-mode 1)
   (define-key smartparens-mode-map (kbd "M-<down>") nil)
@@ -349,8 +335,6 @@
 #+END_SRC
 *** Comment-dwim-2
 #+BEGIN_SRC emacs-lisp
-
-;; PACKAGE: comment-dwim-2
 (global-set-key (kbd "M-;") 'comment-dwim-2)
 #+END_SRC
 *** Anzu
@@ -359,52 +343,40 @@
 (global-anzu-mode)
 (global-set-key (kbd "M-%") 'anzu-query-replace)
 (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
-
-
 #+END_SRC
-
 *** Iedit
 #+BEGIN_SRC emacs-lisp
-;; PACKAGE: iedit
 (setq iedit-toggle-key-default nil)
 (require 'iedit)
 (global-set-key (kbd "C-;") 'iedit-mode)
-
 #+END_SRC
 *** Duplicate Thing
 #+BEGIN_SRC emacs-lisp
 (require 'duplicate-thing)
 (global-set-key (kbd "M-c") 'duplicate-thing)
-
 #+END_SRC
 *** Customized Functions (Mainly From Prelude)
 #+BEGIN_SRC emacs-lisp
-;; Customized functions
 (defun prelude-move-beginning-of-line (arg)
   "Move point back to indentation of beginning of line.
-
 Move point to the first non-whitespace character on this line.
 If point is already there, move to the beginning of the line.
 Effectively toggle between the first non-whitespace character and
 the beginning of the line.
-
 If ARG is not nil or 1, move forward ARG - 1 lines first. If
 point reaches the beginning or end of the buffer, stop there."
   (interactive "^p")
   (setq arg (or arg 1))
-
   ;; Move lines first
   (when (/= arg 1)
     (let ((line-move-visual nil))
       (forward-line (1- arg))))
-
   (let ((orig-point (point)))
     (back-to-indentation)
     (when (= orig-point (point))
       (move-beginning-of-line 1))))
 
 (global-set-key (kbd "C-a") 'prelude-move-beginning-of-line)
-
 (defadvice kill-ring-save (before slick-copy activate compile)
   "When called interactively with no active region, copy a single
 line instead."
@@ -413,7 +385,6 @@ line instead."
      (message "Copied line")
      (list (line-beginning-position)
            (line-beginning-position 2)))))
-
 (defadvice kill-region (before slick-cut activate compile)
   "When called interactively with no active region, kill a single
   line instead."
@@ -421,7 +392,6 @@ line instead."
    (if mark-active (list (region-beginning) (region-end))
      (list (line-beginning-position)
            (line-beginning-position 2)))))
-
 ;; kill a line, including whitespace characters until next non-whiepsace character
 ;; of next line
 (defadvice kill-line (before check-position activate)
@@ -433,7 +403,6 @@ line instead."
           (progn (forward-char 1)
                  (just-one-space 0)
                  (backward-char 1)))))
-
 ;; taken from prelude-editor.el
 ;; automatically indenting yanked text if in programming-modes
 (defvar yank-indent-modes
@@ -542,14 +511,11 @@ Position the cursor at it's beginning, according to the current mode."
 *** Avy
 #+BEGIN_SRC emacs-lisp
 (require 'avy)
-
 (require 'avy-zap)
 (setq avy-all-windows nil)
 (global-set-key (kbd "C-:") 'avy-goto-char)
 (global-set-key (kbd "C-;") 'avy-goto-word-1)
 (global-set-key (kbd "M-;") 'avy-goto-line)
-
-
 #+END_SRC
 
 *** Yasnippet
@@ -561,7 +527,6 @@ Position the cursor at it's beginning, according to the current mode."
 #+END_SRC
 * Terminal Usage
 #+BEGIN_SRC emacs-lisp
-
 (require 'multi-term)
 (global-set-key (kbd "<f6>") 'multi-term-next)
 (global-set-key (kbd "C-<f6>") 'multi-term)
@@ -582,7 +547,6 @@ Position the cursor at it's beginning, according to the current mode."
               (cons "M-p" 'term-send-raw-meta)
               (cons "M-y" 'term-send-raw-meta)
               (cons "C-y" 'term-send-raw))))
-
 (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)
 #+END_SRC
 * Latex/Auctex
@@ -595,7 +559,6 @@ Position the cursor at it's beginning, according to the current mode."
 (set 'doc-view-continuous t)
 (require 'company-auctex)
 (company-auctex-init)
-
 #+END_SRC
 * Org Mode
 ** Basic Setup
@@ -885,6 +848,11 @@ s(Optional) Output buffer: ")
   (lp-get-password name t)
   )
 #+END_SRC
+* Email
+** Mu4e
+#+BEGIN_SRC emacs-lisp
+#+END_SRC
+** Gnus
 * Diminish
 #+BEGIN_SRC emacs-lisp
 (require 'diminish)
