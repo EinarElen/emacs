@@ -1,4 +1,4 @@
-\#+TITLE: Emacs Configuration
+#+TITLE: Emacs Configuration
 #+AUTHOR: Einar Elén
 #+EMAIL: einar.elen@gmail.com
 #+OPTIONS: toc:3
@@ -52,7 +52,6 @@
     helm-descbinds
     helm-gtags
     helm-dash
-    mu4e
     clang-format
     helm-projectile
     helm-swoop
@@ -851,6 +850,27 @@ s(Optional) Output buffer: ")
 * Email
 ** Mu4e
 #+BEGIN_SRC emacs-lisp
+  (when (featurep 'mu4e)
+    (require 'mu4e)
+    (setq mu4e-maildir "~/Maildir")
+    (setq mu4e-drafts-folder "/[Gmail].Drafts")
+    (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
+    (setq mu4e-trash-folder  "/[Gmail].Trash")
+    (setq mu4e-sent-messages-behavior 'delete)
+    (setq mu4e-maildir-shortcuts
+          '( ("/INBOX"               . ?i)
+             ("/[Gmail].Sent Mail"   . ?s)
+             ("/[Gmail].Trash"       . ?t)
+             ("/[Gmail].All Mail"    . ?a)))
+    (setq mu4e-get-mail-command "offlineimap")
+    (setq user-full-name "Einar Elén" user-mail-address "einar.elen@gmail.com")
+    (require 'smtpmail)
+    (setq message-send-mail-function 'smtpmail-send-it
+          smtpmail-stream-type 'starttls
+          smtpmail-default-smtp-server "smtp.gmail.com"
+          smtpmail-smtp-server "smtp.gmail.com"
+          smtpmail-smtp-service 587)
+    )
 #+END_SRC
 ** Gnus
 * Diminish
