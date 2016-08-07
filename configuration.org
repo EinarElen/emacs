@@ -1,4 +1,4 @@
-#+TITLE: Emacs Configuration
+\#+TITLE: Emacs Configuration
 #+AUTHOR: Einar Elén
 #+EMAIL: einar.elen@gmail.com
 #+OPTIONS: toc:3
@@ -6,19 +6,21 @@
 * Package Installation
 ** Initialization
 #+BEGIN_SRC emacs-lisp
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(package-initialize)
+  (require 'package)
+  (add-to-list 'package-archives
+               '("melpa" . "http://melpa.milkbox.net/packages/") t)
+  (add-to-list 'package-archives
+               '("org" . "http://orgmode.org/elpa/") t)
+  (package-initialize)
 
-(defun install-packages ()
-  "Install all required packages."
-  (interactive)
-  (unless package-archive-contents
-    (package-refresh-contents))
-  (dolist (package demo-packages)
-    (unless (package-installed-p package)
-      (package-install package))))
+  (defun install-packages ()
+    "Install all required packages."
+    (interactive)
+    (unless package-archive-contents
+      (package-refresh-contents))
+    (dolist (package demo-packages)
+      (unless (package-installed-p package)
+        (package-install package))))
 
 #+END_SRC
 ** Package List
@@ -72,6 +74,7 @@
     helm-c-yasnippet
     monokai-theme
     zygospore
+    org
     helm-swoop
     ))
 (install-packages)
@@ -595,10 +598,105 @@ Position the cursor at it's beginning, according to the current mode."
 
 #+END_SRC
 * Org Mode
+** Basic Setup
 #+BEGIN_SRC emacs-lisp
-(require 'org)
+    (require 'org)
+    (defun re-parse-configurations ()
+      "Reparse the main configuration file"
+      (interactive)
+      (org-babel-load-file "~/.emacs.d/configurations.org")
+      )
+    (global-set-key "\C-cl" 'org-store-link)
+    (global-set-key "\C-ca" 'org-agenda)
+    (global-set-key "\C-cb" 'org-iswitchb)
+  (global-set-key (kbd "C-c c") 'org-capture)
+(setq org-default-notes-file "~/.emacs.d/org/refile.org")
+  (setq org-use-fast-todo-selection t)
+#+END_SRC
+** Todo 
+#+BEGIN_SRC emacs-lisp
+
+(setq org-todo-keywords
+      (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+              (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+
+(setq org-todo-keyword-faces
+      (quote (("TODO" :foreground "red" :weight bold)
+              ("NEXT" :foreground "blue" :weight bold)
+              ("DONE" :foreground "forest green" :weight bold)
+              ("WAITING" :foreground "orange" :weight bold)
+              ("HOLD" :foreground "magenta" :weight bold)
+              ("CANCELLED" :foreground "forest green" :weight bold)
+              ("MEETING" :foreground "forest green" :weight bold)
+              ("PHONE" :foreground "forest green" :weight bold))))
+  (setq org-todo-state-tags-triggers
+        (quote (("CANCELLED" ("CANCELLED" . t))
+                ("WAITING" ("WAITING" . t))
+                ("HOLD" ("WAITING") ("HOLD" . t))
+                (done ("WAITING") ("HOLD"))
+                ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+                ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+                ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
+#+END_SRC
+** Agenda
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-dim-blocked-tasks nil)
+(setq org-agenda-compact-blocks t)
+#+END_SRC
+** Refile and Capture
+#+BEGIN_SRC emacs-lisp
+
+    (setq org-capture-templates
+          (quote (("t" "todo" entry (file "~/.emacs.d/org/refile.org")
+                   "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                  ("r" "respond" entry (file "~/.emacs.d/org/refile.org")
+                   "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t :immediate-finish t)
+                  ("n" "note" entry (file "~/.emacs.d/org/refile.org")
+                   "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+                  ("j" "Journal" entry (file+datetree "~/.emacs.d/org/diary.org")
+                   "* %?\n%U\n" :clock-in t :clock-resume t)
+                  ("w" "org-protocol" entry (file "~/.emacs.d/org/refile.org")
+                   "* TODO Review %c\n%U\n" :immediate-finish t)
+                  ("m" "Meeting" entry (file "~/.emacs.d/org/refile.org")
+                   "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+                  ("p" "Phone call" entry (file "~/.emacs.d/org/refile.org")
+                   "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
+                  ("h" "Habit" entry (file "~/.emacs.d/org/refile.org")
+                   "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
+                  ("d" "daily" entry (file+datetree "~/.emacs.d/org/dailies/what-normal-beings-do-and-dailies.org")
+                   ""))))
+
+    (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                     (org-agenda-files :maxlevel . 9))))
+    (setq org-refile-use-outline-path t)
+    (setq org-refile-allow-creating-parent-nodes 'confirm)
+
+    (setq org-indirect-buffer-display 'current-window)
 
 #+END_SRC
+
+** Daily Checks
+#+BEGIN_SRC emacs-lisp
+    (defun daily-checklist () "Open the daily checklist file"
+           (interactive)
+           (find-file "~/.emacs.d/org/dailies/what-normal-beings-do-and-dailies.org")
+           )
+  (setq org-publish-project-alist
+        '(("dailies-html"
+        :base-directory "~/.emacs.d/org/dailies/"
+        :base-extension "org"
+        :publishing-directory "~/.emacs.d/org/html/"
+        :publishing-function org-html-publish-to-html)
+        ("dailies-pdf"
+         :base-directory "~/.emacs.d/org/dailies/"
+         :base-extension "org"
+         :publishing-directory "~/.emacs.d/org/tex/"
+         :publishing-function org-latex-publish-to-pdf)))
+#+END_SRC
+#(setq org-agenda-files "~/.emacs.d/org")
+#(define-key org-mode-map (kbd "C-c [") nil)
+#(define-key org-mode-map (kbd "C-c ]") nil)
+** Publish 
 * Company
 ** Basic
 #+BEGIN_SRC emacs-lisp
@@ -616,6 +714,8 @@ Position the cursor at it's beginning, according to the current mode."
   (setq company-idle-delay 0.00001)
   (setq company-tooltip-idle-delay 0.00001)
 #+END_SRC
+
+
 ** Yasnippet
 #+BEGIN_SRC emacs-lisp
 
