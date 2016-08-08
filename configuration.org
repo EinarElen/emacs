@@ -84,32 +84,35 @@
  #+END_SRC
 ** Improve Basic Emacs Experience
  #+BEGIN_SRC emacs-lisp
- (set 'frame-title-format "Emacs")
- (set 'visible-bell t)
- (menu-bar-mode -1)
- (when (display-graphic-p)
-   (tool-bar-mode -1)
-   (scroll-bar-mode -1))
- (set-default 'cursor-type 'hbar)
- (set 'column-number-mode t)
- (set 'line-number-mode t)
- (global-unset-key (kbd "C-x C-z"))
- (global-unset-key (kbd "C-z"))
- (setq gc-cons-threshold 100000000)
- (setq inhibit-startup-message t)
+   (defun configuration-file() "Visit the main configuration file"
+          (interactive)
+          (find-file "~/.emacs.d/configuration.org"))
+    (set 'frame-title-format "Emacs")
+    (set 'visible-bell t)
+    (menu-bar-mode -1)
+    (when (display-graphic-p)
+      (tool-bar-mode -1)
+      (scroll-bar-mode -1))
+    (set-default 'cursor-type 'hbar)
+    (set 'column-number-mode t)
+    (set 'line-number-mode t)
+    (global-unset-key (kbd "C-x C-z"))
+    (global-unset-key (kbd "C-z"))
+    (setq gc-cons-threshold 100000000)
+    (setq inhibit-startup-message t)
 
- (defalias 'yes-or-no-p 'y-or-n-p)
- (set-face-attribute 'default nil :height 140)
- (setq
-  backup-by-copying t
-  backup-directory-alist
-  '(("." . "~/.saves"))
-  delete-old-versions t
-  kept-new-versions 6
-  kept-old-versions 4
-  version-control t)
+    (defalias 'yes-or-no-p 'y-or-n-p)
+    (set-face-attribute 'default nil :height 140)
+    (setq
+     backup-by-copying t
+     backup-directory-alist
+     '(("." . "~/.saves"))
+     delete-old-versions t
+     kept-new-versions 6
+     kept-old-versions 4
+     version-control t)
 
- (setq tramp-default-method "ssh")
+    (setq tramp-default-method "ssh")
 
  #+END_SRC
 ** Looks/Themes
@@ -713,106 +716,105 @@
  (define-key c-mode-map (kbd "C-c C-f") 'clang-format-buffer)
  #+END_SRC
 *** C/C++ Keybindings
-** Org Mode
-*** Basic Setup
- #+BEGIN_SRC emacs-lisp
-     (require 'org)
-     (defun re-parse-configurations ()
-       "Reparse the main configuration file"
-       (interactive)
-       (org-babel-load-file "~/.emacs.d/configurations.org")
-       )
-     (global-set-key "\C-cl" 'org-store-link)
-     (global-set-key "\C-ca" 'org-agenda)
-     (global-set-key "\C-cb" 'org-iswitchb)
-   (global-set-key (kbd "C-c c") 'org-capture)
- (setq org-default-notes-file "~/.emacs.d/org/refile.org")
-   (setq org-use-fast-todo-selection t)
- #+END_SRC
-*** Todo 
- #+BEGIN_SRC emacs-lisp
+* Org Mode
+** Basic Setup
+#+BEGIN_SRC emacs-lisp
+    (require 'org)
+    (defun re-parse-configurations ()
+      "Reparse the main configuration file"
+      (interactive)
+      (org-babel-load-file "~/.emacs.d/configurations.org")
+      )
+    (global-set-key "\C-cl" 'org-store-link)
+    (global-set-key "\C-ca" 'org-agenda)
+    (global-set-key "\C-cb" 'org-iswitchb)
+  (global-set-key (kbd "C-c c") 'org-capture)
+(setq org-default-notes-file "~/.emacs.d/org/refile.org")
+  (setq org-use-fast-todo-selection t)
+#+END_SRC
+** Todo 
+#+BEGIN_SRC emacs-lisp
 
- (setq org-todo-keywords
-       (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-               (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+(setq org-todo-keywords
+      (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+              (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 
- (setq org-todo-keyword-faces
-       (quote (("TODO" :foreground "red" :weight bold)
-               ("NEXT" :foreground "blue" :weight bold)
-               ("DONE" :foreground "forest green" :weight bold)
-               ("WAITING" :foreground "orange" :weight bold)
-               ("HOLD" :foreground "magenta" :weight bold)
-               ("CANCELLED" :foreground "forest green" :weight bold)
-               ("MEETING" :foreground "forest green" :weight bold)
-               ("PHONE" :foreground "forest green" :weight bold))))
-   (setq org-todo-state-tags-triggers
-         (quote (("CANCELLED" ("CANCELLED" . t))
-                 ("WAITING" ("WAITING" . t))
-                 ("HOLD" ("WAITING") ("HOLD" . t))
-                 (done ("WAITING") ("HOLD"))
-                 ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
-                 ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
-                 ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
- #+END_SRC
-*** Agenda
- #+BEGIN_SRC emacs-lisp
- (setq org-agenda-dim-blocked-tasks nil)
- (setq org-agenda-compact-blocks t)
- #+END_SRC
-*** Refile and Capture
- #+BEGIN_SRC emacs-lisp
+(setq org-todo-keyword-faces
+      (quote (("TODO" :foreground "red" :weight bold)
+              ("NEXT" :foreground "blue" :weight bold)
+              ("DONE" :foreground "forest green" :weight bold)
+              ("WAITING" :foreground "orange" :weight bold)
+              ("HOLD" :foreground "magenta" :weight bold)
+              ("CANCELLED" :foreground "forest green" :weight bold)
+              ("MEETING" :foreground "forest green" :weight bold)
+              ("PHONE" :foreground "forest green" :weight bold))))
+  (setq org-todo-state-tags-triggers
+        (quote (("CANCELLED" ("CANCELLED" . t))
+                ("WAITING" ("WAITING" . t))
+                ("HOLD" ("WAITING") ("HOLD" . t))
+                (done ("WAITING") ("HOLD"))
+                ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+                ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+                ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
+#+END_SRC
+** Agenda
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-dim-blocked-tasks nil)
+(setq org-agenda-compact-blocks t)
+#+END_SRC
+** Refile and Capture
+#+BEGIN_SRC emacs-lisp
 
-     (setq org-capture-templates
-           (quote (("t" "todo" entry (file "~/.emacs.d/org/refile.org")
-                    "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-                   ("r" "respond" entry (file "~/.emacs.d/org/refile.org")
-                    "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t :immediate-finish t)
-                   ("n" "note" entry (file "~/.emacs.d/org/refile.org")
-                    "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-                   ("j" "Journal" entry (file+datetree "~/.emacs.d/org/diary.org")
-                    "* %?\n%U\n" :clock-in t :clock-resume t)
-                   ("w" "org-protocol" entry (file "~/.emacs.d/org/refile.org")
-                    "* TODO Review %c\n%U\n" :immediate-finish t)
-                   ("m" "Meeting" entry (file "~/.emacs.d/org/refile.org")
-                    "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
-                   ("p" "Phone call" entry (file "~/.emacs.d/org/refile.org")
-                    "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
-                   ("h" "Habit" entry (file "~/.emacs.d/org/refile.org")
-                    "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
-                   ("d" "daily" entry (file+datetree "~/.emacs.d/org/dailies/what-normal-beings-do-and-dailies.org")
-                    ""))))
+    (setq org-capture-templates
+          (quote (("t" "todo" entry (file "~/.emacs.d/org/refile.org")
+                   "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                  ("r" "respond" entry (file "~/.emacs.d/org/refile.org")
+                   "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t :immediate-finish t)
+                  ("n" "note" entry (file "~/.emacs.d/org/refile.org")
+                   "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+                  ("j" "Journal" entry (file+datetree "~/.emacs.d/org/diary.org")
+                   "* %?\n%U\n" :clock-in t :clock-resume t)
+                  ("w" "org-protocol" entry (file "~/.emacs.d/org/refile.org")
+                   "* TODO Review %c\n%U\n" :immediate-finish t)
+                  ("m" "Meeting" entry (file "~/.emacs.d/org/refile.org")
+                   "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+                  ("p" "Phone call" entry (file "~/.emacs.d/org/refile.org")
+                   "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
+                  ("h" "Habit" entry (file "~/.emacs.d/org/refile.org")
+                   "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
+                  ("d" "daily" entry (file+datetree "~/.emacs.d/org/dailies/what-normal-beings-do-and-dailies.org")
+                   ""))))
 
-     (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                      (org-agenda-files :maxlevel . 9))))
-     (setq org-refile-use-outline-path t)
-     (setq org-refile-allow-creating-parent-nodes 'confirm)
+    (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                     (org-agenda-files :maxlevel . 9))))
+    (setq org-refile-use-outline-path t)
+    (setq org-refile-allow-creating-parent-nodes 'confirm)
 
-     (setq org-indirect-buffer-display 'current-window)
+    (setq org-indirect-buffer-display 'current-window)
 
- #+END_SRC
-
-*** Daily Checks
- #+BEGIN_SRC emacs-lisp
-     (defun daily-checklist () "Open the daily checklist file"
-            (interactive)
-            (find-file "~/.emacs.d/org/dailies/what-normal-beings-do-and-dailies.org")
-            )
-   (setq org-publish-project-alist
-         '(("dailies-html"
+#+END_SRC
+** Daily Checks
+#+BEGIN_SRC emacs-lisp
+    (defun daily-checklist () "Open the daily checklist file"
+           (interactive)
+           (find-file "~/.emacs.d/org/dailies/what-normal-beings-do-and-dailies.org")
+           )
+  (setq org-publish-project-alist
+        '(("dailies-html"
+        :base-directory "~/.emacs.d/org/dailies/"
+        :base-extension "org"
+        :publishing-directory "~/.emacs.d/org/html/"
+        :publishing-function org-html-publish-to-html)
+        ("dailies-pdf"
          :base-directory "~/.emacs.d/org/dailies/"
          :base-extension "org"
-         :publishing-directory "~/.emacs.d/org/html/"
-         :publishing-function org-html-publish-to-html)
-         ("dailies-pdf"
-          :base-directory "~/.emacs.d/org/dailies/"
-          :base-extension "org"
-          :publishing-directory "~/.emacs.d/org/tex/"
-          :publishing-function org-latex-publish-to-pdf)))
- #+END_SRC
- #(setq org-agenda-files "~/.emacs.d/org")
- #(define-key org-mode-map (kbd "C-c [") nil)
- #(define-key org-mode-map (kbd "C-c ]") nil)
-*** Publish 
+         :publishing-directory "~/.emacs.d/org/tex/"
+         :publishing-function org-latex-publish-to-pdf)))
+#+END_SRC
+#(setq org-agenda-files "~/.emacs.d/org")
+#(define-key org-mode-map (kbd "C-c [") nil)
+#(define-key org-mode-map (kbd "C-c ]") nil)
+** Publish 
 * Communication
 ** Email
 *** Mu4e
@@ -838,9 +840,18 @@
            smtpmail-default-smtp-server "smtp.gmail.com"
            smtpmail-smtp-server "smtp.gmail.com"
            smtpmail-smtp-service 587)
+     (setq mu4e-html2text-command "w3m -T text/html")
+     (defun run-mu4e-after-init ()      (mu4e))
+     (add-hook 'after-init-hook 'run-mu4e-after-init)
      )
  #+END_SRC
 *** Gnus
+** IRC
+#+BEGIN_SRC emacs-lisp
+
+  (setq erc-autojoin-channels-alist '(("freenode.net" "#emacs" "#c++")))
+  (erc :server "irc.freenode.net" :port "6667" :nick "einarelen")
+#+END_SRC
 * Utilities
 ** Lastpass
  #+BEGIN_SRC emacs-lisp
