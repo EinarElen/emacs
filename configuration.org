@@ -12,12 +12,7 @@
                    '("melpa" . "http://melpa.milkbox.net/packages/") t)
       (add-to-list 'package-archives
                    '("org" . "http://orgmode.org/elpa/") t)
-   (when (and (string= user-login-name "einarele") (and (= emacs-major-version 24) (= emacs-minor-version 3)))
-     (add-to-list 'package-archives
-                  '("magit-v1" . "https://magit.vc/elpa/v1/packages/") t)
-     (add-to-list 'package-pinned-packages '(magit . "magit-v1"))
-   )
-      (package-initialize)
+         (package-initialize)
 
       (defun install-packages ()
         "Install all required packages."
