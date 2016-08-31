@@ -1,15 +1,13 @@
 #+TITLE: Emacs Configuration
 #+AUTHOR: Einar Elén
 #+EMAIL: einar.elen@gmail.com
-#+OPTIONS: toc:3
-\clearpage
+#+OPTIONS: toc:3 html5-fancy org-html-preamble:nil
+#+HTML_DOCTYPE_HTML5: t
 * Emacs Setup
 ** Package Installation
 *** Initialization
  #+BEGIN_SRC emacs-lisp
          (require 'package)
-   ;      (add-to-list 'package-archives
-                                           ;                  '("melpa" . "http://melpa.milkbox.net/packages/") t)
    (add-to-list 'package-archives
                 '("melpa" . "http://melpa.org/packages/") t)
          (add-to-list 'package-archives
@@ -31,7 +29,11 @@
  (defconst demo-packages
    '(magit
      org-beautify-theme
+     pdf-tools
+     web-mode
+     htmlize
      sr-speedbar
+     ox-twbs
      multi-term
      nyan-mode
      ycmd
@@ -49,6 +51,7 @@
      avy-zap
      anzu
      company
+     org-gcal
      duplicate-thing
      ggtags
      helm
@@ -81,6 +84,9 @@
      zygospore
      org-plus-contrib
      helm-swoop
+     zoom-frm
+     gnuplot
+     hyperbole
      ))
  (install-packages)
  #+END_SRC
@@ -89,8 +95,15 @@
    (defun configuration-file() "Visit the main configuration file"
           (interactive)
           (find-file "~/.emacs.d/configuration.org"))
+    (global-set-key (kbd "<f8>") 'configuration-file)          
     (set 'frame-title-format "Emacs")
     (set 'visible-bell t)
+    (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
+(when (eq system-type 'gnu/linux) 
+(require 'pdf-tools)
+  (pdf-tools-install) ; nice PDF viewer (needs separate installation)
+  (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
+  (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view"))))
     (menu-bar-mode -1)
     (when (display-graphic-p)
       (tool-bar-mode -1)
@@ -136,6 +149,7 @@
    (global-set-key (kbd "C-x 1") 'zygospore-toggle-delete-other-windows)
    (require 'color-identifiers-mode)
    (add-hook 'after-init-hook 'color-diminish-hook)
+   (require 'hyperbole)
 
  #+END_SRC
 *** Random Themes
@@ -616,10 +630,13 @@
 
 
  #+END_SRC
+** Web Development
+#+BEGIN_SRC emacs-lisp
+(require 'web-mode)
+#+END_SRC
 ** C/C++
 *** Basic Settings
- #+BEGIN_SRC
-
+ #+BEGIN_SRC emacs-lisp
  (setq
   c-default-style "stroustrup" ;; set style to "stroustrup"
   )
@@ -645,7 +662,7 @@
 
  #+END_SRC
 **** Irony Mode
- #+BEGIN_SRC
+ #+BEGIN_SRC emacs-lisp
  (require 'irony)
  (require 'company-irony)
  (defun my-irony-mode-hook()
@@ -668,20 +685,22 @@
  #+END_SRC
 **** YCMD
  #+BEGIN_SRC emacs-lisp
- (when (file-exists-p "/home/einarelen/src/ycmd/ycmd/")
- (require 'ycmd)
- (require 'company-ycmd)
+    (when (file-exists-p "/home/einarelen/src/ycmd/ycmd/")
+    (require 'ycmd)
+    (require 'company-ycmd)
 
- (add-hook 'after-init-hook #'global-ycmd-mode)
- (defun diminish-ycmd-hook () "Diminish ycmd-mode"
-        (interactive)
-        (diminish 'ycmd-mode)
-        )
- (add-hook 'after-init-hook 'diminish-ycmd-hook)
- ;(add-hook 'c-mode-hook 'ycmd-mode-hook)
- (set-variable 'ycmd-server-command '("python" "/home/einarelen/src/ycmd/ycmd/"))
- (company-ycmd-setup)
- )
+   (add-hook 'c-mode-hook 'ycmd-mode)
+   (add-hook 'c++-mode-hook 'ycmd-mode)
+
+    (defun diminish-ycmd-hook () "Diminish ycmd-mode"
+           (interactive)
+           (diminish 'ycmd-mode)
+           )
+    (add-hook 'after-init-hook 'diminish-ycmd-hook)
+    ;(add-hook 'c-mode-hook 'ycmd-mode-hook)
+    (set-variable 'ycmd-server-command '("python" "/home/einarelen/src/ycmd/ycmd/"))
+    (company-ycmd-setup)
+    )
 
  #+END_SRC
 **** Flycheck
@@ -764,6 +783,16 @@
 (setq org-agenda-dim-blocked-tasks nil)
 (setq org-agenda-compact-blocks t)
 #+END_SRC
+** Calendar 
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+** Babel
+#+BEGIN_SRC emacs-lisp
+  (org-babel-do-load-languages 
+   'org-babel-load-languages
+   '((C . t) (emacs-lisp . t) (python . t) (sh . t) (gnuplot . t)))
+#+END_SRC
 ** Refile and Capture
 #+BEGIN_SRC emacs-lisp
 
@@ -813,16 +842,39 @@
          :publishing-directory "~/.emacs.d/org/tex/"
          :publishing-function org-latex-publish-to-pdf)))
 #+END_SRC
-#(setq org-agenda-files "~/.emacs.d/org")
-#(define-key org-mode-map (kbd "C-c [") nil)
-#(define-key org-mode-map (kbd "C-c ]") nil)
+# (setq org-agenda-files "~/.emacs.d/org")
+# (define-key org-mode-map (kbd "C-c [") nil)
+# (define-key org-mode-map (kbd "C-c ]") nil)
 ** Publish 
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
 * Communication
 ** Email
+*** Misc 
+#+BEGIN_SRC emacs-lisp
+  (require 'gnus-dired)
+  ;; make the `gnus-dired-mail-buffers' function also work on
+  ;; message-mode derived modes, such as mu4e-compose-mode
+  (defun gnus-dired-mail-buffers ()
+    "Return a list of active message buffers."
+    (let (buffers)
+      (save-current-buffer
+        (dolist (buffer (buffer-list t))
+          (set-buffer buffer)
+          (when (and (derived-mode-p 'message-mode)
+                     (null message-sent-message-via))
+            (push (buffer-name buffer) buffers))))
+      (nreverse buffers)))
+
+  (setq gnus-dired-mail-mode 'mu4e-user-agent)
+  (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
+#+END_SRC
 *** Mu4e
  #+BEGIN_SRC emacs-lisp
    (when (require 'mu4e nil 'noerror)
      (require 'mu4e)
+     (require 'mu4e-contrib)
      (setq mu4e-maildir "~/Maildir")
      (setq mu4e-drafts-folder "/[Gmail].Drafts")
      (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
@@ -834,7 +886,7 @@
               ("/[Gmail].Trash"       . ?t)
               ("/[Gmail].All Mail"    . ?a)))
      (setq mu4e-get-mail-command "offlineimap")
-     (setq mu4e-update-interval 150)
+     (setq mu4e-update-interval 450)
      (setq user-full-name "Einar Elén" user-mail-address "einar.elen@gmail.com")
      (require 'smtpmail)
      (setq message-send-mail-function 'smtpmail-send-it
@@ -842,7 +894,7 @@
            smtpmail-default-smtp-server "smtp.gmail.com"
            smtpmail-smtp-server "smtp.gmail.com"
            smtpmail-smtp-service 587)
-     (setq mu4e-html2text-command "w3m -T text/html")
+     (setq mu4e-html2text-command 'mu4e-shr2text)
      (defun run-mu4e-after-init ()      (mu4e))
      (add-hook 'after-init-hook 'run-mu4e-after-init)
      )
@@ -851,8 +903,8 @@
 ** IRC
 #+BEGIN_SRC emacs-lisp
 
-  (setq erc-autojoin-channels-alist '(("freenode.net" "#emacs" "#c++")))
-  (erc :server "irc.freenode.net" :port "6667" :nick "einarelen")
+  ;(setq erc-autojoin-channels-alist '(("freenode.net" "#emacs" "#c++")))
+  ;(erc :server "irc.freenode.net" :port "6667" :nick "einarelen")
 #+END_SRC
 * Utilities
 ** Lastpass
@@ -911,6 +963,50 @@
  (diminish 'function-args-mode)
 
  #+END_SRC
+#+BEGIN_SRC emacs-lisp
+    (defun switch-configuration() "Cycle between current buffer, configuration file and dailies" (interactive)
+           (when (and (not (boundp 'return-is-next)) (and (not (boundp 'stored-buffer)) (and (not (boundp 'dailies-is-next))) (not (boundp 'current-buffer))))
+             (setq stored-buffer nil current-buffer nil return-is-next nil dailies-is-next nil)
+             )
+           (when (not (bound-and-true-p stored-buffer))
+             (setq stored-buffer (current-buffer)
+                   dailies-is-next t vars-are-set t)
+             (configuration-file)
+             )
+           (when (and dailies-is-next (not vars-are-set))
+             (setq return-is-next t vars-are-set t dailies-is-next nil)
+             (daily-checklist)
+             )
+           (when (and return-is-next (not vars-are-set))
+             (let ((tmp stored-buffer))
+               (setq stored-buffer nil return-is-next nil)
+               (switch-to-buffer tmp)
+               )
+             )
+    (setq vars-are-set nil)
+    )
+  (defun switch-to-mu4e() "Cycle to mu4e and back without turning it off"
+         (interactive)
+         (when (and (not (boundp 'mu4e-is-next)) (not (boundp 'return-from-mu4e-is-next))) 
+         (setq return-from-mu4e-is-next nil mu4e-stored-buffer nil mu4e-is-next t))
+
+           (when (and (bound-and-true-p mu4e-stored-buffer) 
+           (bound-and-true-p return-from-mu4e-is-next))
+             (let ((tmp mu4e-stored-buffer))
+               (setq mu4e-stored-buffer nil mu4e-is-next t return-from-mu4e-is-next nil)
+               (switch-to-buffer tmp)
+               ))
+
+           (when (and (not (bound-and-true-p return-from-mu4e-is-next))
+           (and (not (bound-and-true-p mu4e-stored-buffer)) 
+           (bound-and-true-p mu4e-is-next)))
+             (setq mu4e-stored-buffer (current-buffer) 
+             return-from-mu4e-is-next t mu4e-is-next nil) (mu4e))
+
+)
+     (global-set-key (kbd "<f7>") 'switch-to-mu4e)
+    (global-set-key (kbd "<f8>") 'switch-configuration)
+#+END_SRC
 * Keybindings
 [[*Text Editing][Text Editing]]
 [[*Magit][Magit]]
