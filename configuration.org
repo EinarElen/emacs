@@ -41,7 +41,7 @@
      powerline
      company-ycmd
      flycheck-ycmd
-     yalinum
+     nlinum
      flycheck-irony
      solarized-theme
      company-c-headers
@@ -135,8 +135,30 @@
  #+BEGIN_SRC emacs-lisp
    (require 'powerline)
    (powerline-vim-theme)
-   (require 'yalinum)
-   (global-yalinum-mode t)
+   (require 'nlinum)
+(require 'linum)
+
+(global-nlinum-mode t)
+
+(defcustom linum-disabled-modes-list '(eshell-mode wl-summary-mode compilation-mode org-mode text-mode dired-mode doc-view-mode)
+  "* List of modes disabled when global linum mode is on"
+  :type '(repeat (sexp :tag "Major mode"))
+  :tag " Major modes where linum is disabled: "
+  :group 'linum
+  )
+(defcustom linum-disable-starred-buffers 't
+  "* Disable buffers that have stars in them like *Gnu Emacs*"
+  :type 'boolean
+  :group 'linum)
+
+(defun linum-on ()
+  "* When linum is running globally, disable line number in modes defined in `linum-disabled-modes-list'. Changed by linum-off. Also turns off numbering in starred modes like *scratch*"
+
+  (unless (or (minibufferp) (member major-mode linum-disabled-modes-list)
+              (and linum-disable-starred-buffers (string-match "*" (buffer-name)))
+              )
+(nlinum-mode 1)))
+
    (windmove-default-keybindings)
    (setq  gdb-many-windows t
     gdb-show-main t
@@ -847,7 +869,14 @@
 # (define-key org-mode-map (kbd "C-c ]") nil)
 ** Publish 
 #+BEGIN_SRC emacs-lisp
-
+  (require 'ox-latex)
+  (defun toggle-org-latex-export-on-save()
+    (interactive)
+    (if (memq 'org-latex-export-to-pdf after-save-hook)
+        (progn (remove-hook 'after-save-hook 'org-latex-export-to-pdf t) (message "Disabled org latex export on save for current buffer..."))
+      (add-hook 'after-save-hook 'org-latex-export-to-pdf nil t)
+      (message "Enabled org latex export on save for current buffer...")
+      ))
 #+END_SRC
 * Communication
 ** Email
