@@ -99,7 +99,7 @@
     (set 'frame-title-format "Emacs")
     (set 'visible-bell t)
     (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
-(when (eq system-type 'gnu/linux) 
+(when (eq system-type 'gnu/linux)
 (require 'pdf-tools)
   (pdf-tools-install) ; nice PDF viewer (needs separate installation)
   (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
@@ -901,32 +901,34 @@
 #+END_SRC
 *** Mu4e
  #+BEGIN_SRC emacs-lisp
-   (when (require 'mu4e nil 'noerror)
-     (require 'mu4e)
-     (require 'mu4e-contrib)
-     (setq mu4e-maildir "~/Maildir")
-     (setq mu4e-drafts-folder "/[Gmail].Drafts")
-     (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
-     (setq mu4e-trash-folder  "/[Gmail].Trash")
-     (setq mu4e-sent-messages-behavior 'delete)
-     (setq mu4e-maildir-shortcuts
-           '( ("/INBOX"               . ?i)
-              ("/[Gmail].Sent Mail"   . ?s)
-              ("/[Gmail].Trash"       . ?t)
-              ("/[Gmail].All Mail"    . ?a)))
-     (setq mu4e-get-mail-command "offlineimap")
-     (setq mu4e-update-interval 450)
-     (setq user-full-name "Einar Elén" user-mail-address "einar.elen@gmail.com")
-     (require 'smtpmail)
-     (setq message-send-mail-function 'smtpmail-send-it
-           smtpmail-stream-type 'starttls
-           smtpmail-default-smtp-server "smtp.gmail.com"
-           smtpmail-smtp-server "smtp.gmail.com"
-           smtpmail-smtp-service 587)
-     (setq mu4e-html2text-command 'mu4e-shr2text)
-     (defun run-mu4e-after-init ()      (mu4e))
-     (add-hook 'after-init-hook 'run-mu4e-after-init)
-     )
+   (when (file-exists-p "/usr/local/bin/mu")
+   (add-to-list 'load-path "~/.emacs.d/mu4e/")
+      (when (require 'mu4e nil 'noerror)
+        (require 'mu4e)
+        (require 'mu4e-contrib)
+        (setq mu4e-maildir "~/Maildir")
+        (setq mu4e-drafts-folder "/[Gmail].Drafts")
+        (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
+        (setq mu4e-trash-folder  "/[Gmail].Trash")
+        (setq mu4e-sent-messages-behavior 'delete)
+        (setq mu4e-maildir-shortcuts
+              '( ("/INBOX"               . ?i)
+                 ("/[Gmail].Sent Mail"   . ?s)
+                 ("/[Gmail].Trash"       . ?t)
+                 ("/[Gmail].All Mail"    . ?a)))
+        (setq mu4e-get-mail-command "offlineimap")
+        (setq mu4e-update-interval 450)
+        (setq user-full-name "Einar Elén" user-mail-address "einar.elen@gmail.com")
+        (require 'smtpmail)
+        (setq message-send-mail-function 'smtpmail-send-it
+              smtpmail-stream-type 'starttls
+              smtpmail-default-smtp-server "smtp.gmail.com"
+              smtpmail-smtp-server "smtp.gmail.com"
+              smtpmail-smtp-service 587)
+        (setq mu4e-html2text-command 'mu4e-shr2text)
+        (defun run-mu4e-after-init ()      (mu4e))
+        (add-hook 'after-init-hook 'run-mu4e-after-init)
+        ))
  #+END_SRC
 *** Gnus
 ** IRC
