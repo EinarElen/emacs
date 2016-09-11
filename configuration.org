@@ -29,6 +29,7 @@
  (defconst demo-packages
    '(magit
      org-beautify-theme
+     calfw
      pdf-tools
      web-mode
      htmlize
@@ -807,7 +808,13 @@
 #+END_SRC
 ** Calendar 
 #+BEGIN_SRC emacs-lisp
+  (require 'calfw)
+  (require 'calfw-org)
+  (require 'org-gcal)
+  (setq org-gcal-client-id "393897935817-6f7lc36osa9o9kqc10u65hhstu8idp4o.apps.googleusercontent.com" org-gcal-client-secret "GIgx5Re1yKKboMSPn1aUREs8" org-gcal-file-alist '(("einar.elen@gmail.com" . "/home/einarelen/ownCloud/org/cal/main.org")))
 
+
+  ;;; https://calendar.google.com/calendar/ical/einar.elen%40gmail.com/private-97060e03f66653b16c4d6c7164f8d633/basic.ics
 #+END_SRC
 ** Babel
 #+BEGIN_SRC emacs-lisp
