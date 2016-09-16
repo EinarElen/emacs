@@ -100,6 +100,7 @@
     (set 'frame-title-format "Emacs")
     (set 'visible-bell t)
     (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
+    (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
 (when (eq system-type 'gnu/linux)
 (require 'pdf-tools)
   (pdf-tools-install) ; nice PDF viewer (needs separate installation)
