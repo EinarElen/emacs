@@ -101,6 +101,7 @@
     (set 'visible-bell t)
     (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
 (when (or (eq system-type 'gnu/linux) (eq system-type 'cygwin))
+    (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
 (require 'pdf-tools)
   (pdf-tools-install) ; nice PDF viewer (needs separate installation)
   (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
