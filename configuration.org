@@ -100,7 +100,7 @@
     (set 'frame-title-format "Emacs")
     (set 'visible-bell t)
     (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
-(when (eq system-type 'gnu/linux)
+(when (or (eq system-type 'gnu/linux) (eq system-type 'cygwin))
 (require 'pdf-tools)
   (pdf-tools-install) ; nice PDF viewer (needs separate installation)
   (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
