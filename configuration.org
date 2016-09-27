@@ -119,7 +119,6 @@
     (setq inhibit-startup-message t)
 
     (defalias 'yes-or-no-p 'y-or-n-p)
-    (set-face-attribute 'default nil :height 140)
     (setq
      backup-by-copying t
      backup-directory-alist
