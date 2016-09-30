@@ -815,6 +815,10 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
  (define-key c-mode-map (kbd "C-c C-f") 'clang-format-buffer)
  #+END_SRC
 *** C/C++ Keybindings
+#+BEGIN_SRC emacs-lisp
+  (define-key c-mode-map (kbd "C-c o") 'ff-find-other-file)
+  (define-key c++-mode-map (kbd "C-c o") 'ff-find-other-file)
+#+END_SRC
 * Org Mode
 ** Basic Setup
 #+BEGIN_SRC emacs-lisp
