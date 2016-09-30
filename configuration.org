@@ -818,6 +818,8 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 #+BEGIN_SRC emacs-lisp
   (define-key c-mode-map (kbd "C-c o") 'ff-find-other-file)
   (define-key c++-mode-map (kbd "C-c o") 'ff-find-other-file)
+  (define-key c-mode-map (kbd "C-c C-c") 'comment-dwim-2)
+  (define-key c++-mode-map (kbd "C-c C-c") 'comment-dwim-2)
 #+END_SRC
 * Org Mode
 ** Basic Setup
