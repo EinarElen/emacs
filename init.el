@@ -18,7 +18,6 @@
  '(org-agenda-files
    (quote
     ("~/ownCloud/org/cal/main.org" "~/.emacs.d/org/refile.org" "~/.emacs.d/configuration.org")))
- '(org-babel-load-languages (quote ((java . t) (python . t) (emacs-lisp . t) (C . t))))
  '(org-twbs-extension "shtml")
  '(package-selected-packages
    (quote

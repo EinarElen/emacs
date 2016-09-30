@@ -5,6 +5,8 @@
 #+HTML_DOCTYPE_HTML5: t
 * Emacs Setup
 ** Package Installation
+This sets up everything necerssary to install new packages and adds
+two package archives, Melpa and Org, in addition to the default packages.
 *** Initialization
  #+BEGIN_SRC emacs-lisp
          (require 'package)
@@ -24,6 +26,8 @@
                (package-install package))))
 
  #+END_SRC
+This is a list of packages that will be installed automatically if
+they are not already installed. They are used by the function (install-packages).
 *** Package List
  #+BEGIN_SRC emacs-lisp
  (defconst demo-packages
@@ -91,6 +95,10 @@
      ))
  (install-packages)
  #+END_SRC
+This sets up some slightly more sane default values and adds a better
+pdf reader (which requires manual installation through the
+(pdf-tools-install) function, which is run automatically if possible)
+
 ** Improve Basic Emacs Experience
  #+BEGIN_SRC emacs-lisp
    (defun configuration-file() "Visit the main configuration file"
@@ -133,6 +141,8 @@
  #+END_SRC
 ** Looks/Themes
 *** Basic Configuration
+Adds line numbering to and a nice information bar below each buffer
+and some other neat things
  #+BEGIN_SRC emacs-lisp
    (require 'powerline)
    (powerline-vim-theme)
@@ -176,6 +186,9 @@
 
  #+END_SRC
 *** Random Themes
+I dont like using the same themes all the time so this little function
+switches between three different ones. Feel free to disable this by
+removing the call to the function (choose-random-theme). 
  #+BEGIN_SRC emacs-lisp
  (defvar themes-to-use (list "monokai" "solarized-dark" "solarized-light") "List of themes that will be loaded by choose-random-theme")
  (defvar current-theme-used (list "monokai") "Current theme chosen by choose-random theme")
@@ -194,7 +207,10 @@
      (load-theme 'solarized-light t)))
  (choose-random-theme)
  #+END_SRC
+
 ** Text Editing
+Everything in here is essentially from [[http://tuhdo.github.io][tuhdo]] and most of it is sane by
+default. Check out the individual packages in his C/C++ tutorial!
 *** Basic
  #+BEGIN_SRC emacs-lisp
    (setq global-mark-ring-max 5000
@@ -227,7 +243,6 @@
    (setq-default indent-tabs-mode nil)
    (setq-default tab-width 4)
    (add-hook 'text-mode-hook 'auto-fill-mode)
-
  #+END_SRC
 *** Keybindings
 #+BEGIN_SRC emacs-lisp
@@ -464,7 +479,9 @@
  (global-set-key (kbd "C-;") 'avy-goto-word-1)
  (global-set-key (kbd "M-;") 'avy-goto-line)
  #+END_SRC
+
 * Development/Writing
+Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 ** Project Management
 *** Projectile
  #+BEGIN_SRC emacs-lisp
@@ -482,6 +499,37 @@
 ** Helm
 *** Basic Configuration
  #+BEGIN_SRC emacs-lisp
+(require 'helm-gtags)
+(setq
+ helm-gtags-ignore-case t
+ helm-gtags-auto-update t
+ helm-gtags-use-input-at-cursor t
+ helm-gtags-pulse-at-cursor t
+ helm-gtags-prefix-key "\C-cg"
+ helm-gtags-suggested-key-mapping t
+ )
+
+;; Enable helm-gtags-mode in Dired so you can jump to any tag
+;; when navigate project tree with Dired
+(add-hook 'dired-mode-hook 'helm-gtags-mode)
+
+;; Enable helm-gtags-mode in Eshell for the same reason as above
+(add-hook 'eshell-mode-hook 'helm-gtags-mode)
+
+;; Enable helm-gtags-mode in languages that GNU Global supports
+(add-hook 'c-mode-hook 'helm-gtags-mode)
+(add-hook 'c++-mode-hook 'helm-gtags-mode)
+(add-hook 'java-mode-hook 'helm-gtags-mode)
+(add-hook 'asm-mode-hook 'helm-gtags-mode)
+
+;; key bindings
+(define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+(define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
+(define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
+(define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
+(define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+(define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
+
    (setq helm-gtags-prefix-key "\C-cg")
 
    (require 'helm-config)
@@ -618,8 +666,12 @@
    (add-hook 'after-init-hook 'diminished-global-company-mode)
    (delete 'company-semantic company-backends)
    (semantic-mode -1)
+
    (setq company-idle-delay 0.00001)
    (setq company-tooltip-idle-delay 0.00001)
+(setq company-clang-arguments (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic"))
+(setq flycheck-clang-args (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic"))
+(setq flycheck-gcc-args (list "-std=c++1z" "-Wall" "-Werror" "-pedantic-errors"))
  #+END_SRC
 
 
@@ -664,10 +716,12 @@
   c-default-style "stroustrup" ;; set style to "stroustrup"
   )
  (add-hook 'c-mode-common-hook 'hs-minor-mode)
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
  #+END_SRC
 *** Packages
 **** Company
  #+BEGIN_SRC emacs-lisp
+ 
  (define-key c-mode-map  [(tab)] 'company-complete)
  (define-key c++-mode-map  [(tab)] 'company-complete)
  (define-key c-mode-map (kbd "TAB") 'company-complete)
@@ -681,6 +735,7 @@
        (
         add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/")
        )
+(when (string= system-name "fed-lap") (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.1.1/"))
  (add-to-list 'company-backends 'company-c-headers)
 
  #+END_SRC
@@ -1003,6 +1058,7 @@
  (diminish 'function-args-mode)
 
  #+END_SRC
+** Other stuff
 #+BEGIN_SRC emacs-lisp
     (defun switch-configuration() "Cycle between current buffer, configuration file and dailies" (interactive)
            (when (and (not (boundp 'return-is-next)) (and (not (boundp 'stored-buffer)) (and (not (boundp 'dailies-is-next))) (not (boundp 'current-buffer))))
