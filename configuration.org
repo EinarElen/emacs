@@ -125,6 +125,7 @@ pdf reader (which requires manual installation through the
     (global-unset-key (kbd "C-z"))
     (setq gc-cons-threshold 100000000)
     (setq inhibit-startup-message t)
+(display-time)
 
     (defalias 'yes-or-no-p 'y-or-n-p)
     (setq
