@@ -29,7 +29,6 @@ two package archives, Melpa and Org, in addition to the default packages.
 This is a list of packages that will be installed automatically if
 they are not already installed. They are used by the function (install-packages).
 *** Package List
-    
  #+BEGIN_SRC emacs-lisp
    (defconst demo-packages
      '(magit
@@ -39,6 +38,8 @@ they are not already installed. They are used by the function (install-packages)
        pdf-tools
        web-mode
        winner
+       switch-window
+       clipmon
        htmlize
        sr-speedbar
        ox-twbs
@@ -102,7 +103,7 @@ This sets up some slightly more sane default values and adds a better
 pdf reader (which requires manual installation through the
 (pdf-tools-install) function, which is run automatically if possible)
 ** Personal
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
   (setq user-full-name "Einar Elén"
         user-mail-address "einar.elen@gmail.com")
 #+END_SRC
@@ -111,63 +112,71 @@ pdf reader (which requires manual installation through the
    (defun configuration-file() "Visit the main configuration file"
           (interactive)
           (find-file "~/.emacs.d/configuration.org"))
-   (global-set-key (kbd "<f8>") 'configuration-file)          
-   (set 'frame-title-format "Emacs")
-   (set 'visible-bell t)
+   (global-set-key (kbd "<f8>") 'configuration-file)
+   (setq frame-title-format "Emacs"
+         visible-bell t)
    (when (or (eq system-type 'gnu/linux) (eq system-type 'cygwin))
-     (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
-     (require 'pdf-tools)
-     (pdf-tools-install) ; nice PDF viewer (needs separate installation)
-     (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
-     (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view"))))
+     (use-package pdf-tools
+       :defer t
+       :init
+       (pdf-tools-install)
+       :config
+       (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
+       (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
+             TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))))
+
    (menu-bar-mode -1)
    (blink-cursor-mode nil)
    (when (display-graphic-p)
      (tool-bar-mode -1)
      (scroll-bar-mode -1))
-   (set 'column-number-mode t)
-   (set 'line-number-mode t)
    (global-unset-key (kbd "C-x C-z"))
    (global-unset-key (kbd "C-z"))
-   (setq gc-cons-threshold 100000000)
-   (setq inhibit-startup-message t)
-   (display-time)
-
-   (defalias 'yes-or-no-p 'y-or-n-p)
-   (setq
-    backup-by-copying t
-    backup-directory-alist
-    '(("." . "~/.saves"))
-    delete-old-versions -1
-    vc-make-backup-files t
-    auto-save-file-name-transform '((".*" "~/.saves/auto-save-list/" t))
-    history-length t
-    history-delete-duplicates t
-    savehist-save-minibuffer-history 1
-    savehist-additional-variables '(kill-ring
-                                    search-ring
-                                    regexp-search-ring)
-    version-control t
-    tramp-default-method "ssh"
-    x-stretch-cursor 1
-    )
+   (setq gc-cons-threshold 100000000
+         inhibit-startup-message t
+         column-number-mode t
+         line-number-mode t
+         backup-by-copying t
+         backup-directory-alist
+         '(("." . "~/.saves"))
+         delete-old-versions -1
+         vc-make-backup-files t
+         auto-save-file-name-transform '((".*" "~/.saves/auto-save-list/" t))
+         history-length t
+         history-delete-duplicates t
+         savehist-save-minibuffer-history 1
+         savehist-additional-variables '(kill-ring
+                                         search-ring
+                                         regexp-search-ring)
+         version-control t
+         tramp-default-method "ssh"
+         x-stretch-cursor 1)
    (global-font-lock-mode t)
    (setq-default
     fill-column 80
     cursor-type 'hbar
     )
-
-
+   (display-time)
+   (defalias 'yes-or-no-p 'y-or-n-p)
  #+END_SRC
 *** Window Management
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
   (use-package winner
     :defer t
-    :config 
+    :config
     (winner-mode t))
   (use-package switch-window
     :defer t
     :bind (("C-x o" . switch-window)))
+  (windmove-default-keybindings)
+  (use-package clipmon
+    :init (progn (setq
+                  clipmon-action 'kill-new
+                  clipmon-timeout nil
+                  clipmon-sound nil
+                  clipmon-cursor-color nil
+                  clipmon-suffix nil)
+                 (clipmon-mode)))
 #+END_SRC
 ** Looks/Themes
 *** Basic Configuration
@@ -176,10 +185,8 @@ and some other neat things
  #+BEGIN_SRC emacs-lisp
    (use-package powerline
      :init (powerline-vim-theme))
-
    (use-package nlinum
      :init (global-nlinum-mode t))
-   (global-nlinum-mode t)
 
    (defcustom linum-disabled-modes-list '(eshell-mode wl-summary-mode compilation-mode org-mode text-mode dired-mode doc-view-mode)
      "* List of modes disabled when global linum mode is on"
@@ -191,33 +198,26 @@ and some other neat things
      "* Disable buffers that have stars in them like *Gnu Emacs*"
      :type 'boolean
      :group 'linum)
-
    (defun linum-on ()
      "* When linum is running globally, disable line number in modes defined in `linum-disabled-modes-list'. Changed by linum-off. Also turns off numbering in starred modes like *scratch*"
-
      (unless (or (minibufferp) (member major-mode linum-disabled-modes-list)
-                 (and linum-disable-starred-buffers (string-match "*" (buffer-name)))
-                 )
+                 (and linum-disable-starred-buffers (string-match "*" (buffer-name))))
        (nlinum-mode 1)))
-
-   (windmove-default-keybindings)
    (setq  gdb-many-windows t
-          gdb-show-main t
-          )
-   (defun color-diminish-hook () "Diminish ci-mode" (interactive)
-          (require 'diminish)
-          (global-color-identifiers-mode t)
-          (diminish 'color-identifiers-mode)
-          )
+          gdb-show-main t)
+   (use-package color-identifiers-mode
+     :diminish color-identifiers-mode
+     :defer t
+     :config
+     (global-color-identifiers-mode t))
    (global-set-key (kbd "C-x 1") 'zygospore-toggle-delete-other-windows)
-   (require 'color-identifiers-mode)
-   (add-hook 'after-init-hook 'color-diminish-hook)
    (use-package hyperbole)
+
  #+END_SRC
 *** Random Themes
 I dont like using the same themes all the time so this little function
 switches between three different ones. Feel free to disable this by
-removing the call to the function (choose-random-theme). 
+removing the call to the function (choose-random-theme).
  #+BEGIN_SRC emacs-lisp
    (defvar themes-to-use (list "monokai" "solarized-dark" "solarized-light") "List of themes that will be loaded by choose-random-theme")
    (defvar current-theme-used (list "monokai") "Current theme chosen by choose-random theme")
@@ -245,16 +245,20 @@ default. Check out the individual packages in his C/C++ tutorial!
          mark-ring-max 5000
          mode-require-final-newline t
          tab-width 4
-         )
-   (add-hook 'sh-mode-hook (lambda ()
-                             (setq tab-width 4)))
+         kill-ring-max 5000
+         kill-whole-line t)
+   (setq-default indent-tabs-mode nil
+                 indent-tabs-mode nil
+                 tab-width 4)
+
+
    (set-terminal-coding-system 'utf-8)
    (set-keyboard-coding-system 'utf-8)
    (set-language-environment "UTF-8")
    (prefer-coding-system 'utf-8)
-   (setq-default indent-tabs-mode nil)
    (delete-selection-mode)
-   (setq kill-ring-max 5000 kill-whole-line t)
+   (add-hook 'sh-mode-hook (lambda ()
+                             (setq tab-width 4)))
    (add-hook 'diff-mode-hook (lambda () (setq-local whitespace-style
                                                     '(face
                                                       tabs
@@ -268,8 +272,6 @@ default. Check out the individual packages in his C/C++ tutorial!
                                                       newline-mark))
                                (whitespace-mode 1)))
    (add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
-   (setq-default indent-tabs-mode nil)
-   (setq-default tab-width 4)
    (add-hook 'text-mode-hook 'auto-fill-mode)
  #+END_SRC
 *** Keybindings
@@ -285,8 +287,10 @@ default. Check out the individual packages in his C/C++ tutorial!
 *** Packages
 **** Volatile Highlights
  #+BEGIN_SRC emacs-lisp
-   (require 'volatile-highlights)
-   (volatile-highlights-mode t)
+   (use-package volatile-highlights
+     :defer t
+     :init
+     (volatile-highlights-mode t))
  #+END_SRC
 **** Clean Aindent Mode
  #+BEGIN_SRC emacs-lisp
@@ -311,7 +315,7 @@ default. Check out the individual packages in his C/C++ tutorial!
    (use-package undo-tree
      :defer t
      :diminish undo-tree-mode
-     :init 
+     :init
      (global-undo-tree-mode)
      :config
      (setq undo-tree-visualizer-timestamps t)
@@ -516,7 +520,7 @@ default. Check out the individual packages in his C/C++ tutorial!
    (global-set-key (kbd "M-;") 'avy-goto-line)
  #+END_SRC
 ** Auto-mode List
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
   (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 #+END_SRC
@@ -526,21 +530,30 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 *** Projectile
  #+BEGIN_SRC emacs-lisp
    (use-package projectile
-     :init (progn (projectile-global-mode t) (setq projectile-enable-caching t) nil))
+     :init
+     (progn
+       (projectile-global-mode t)
+       (setq projectile-enable-caching t)
+       nil)
+     :config
+     (setq projectile-enable-caching t)
+     :diminish projectile-mode
+     )
  #+END_SRC
+
 *** Magit
  #+BEGIN_SRC emacs-lisp
    (when (not (string= system-type "windows-nt"))
      (use-package magit
        :bind ("C-x g" . magit-status)
-       :config 
+       :config
        (setq magit-diff-options '("-b"))
        ))
  #+END_SRC
 ** Helm
 *** Helm Gtags
-#+BEGIN_SRC emacs-lisp 
-  (use-package helm-gtags 
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-gtags
     :init (setq
            helm-gtags-ignore-case t
            helm-gtags-auto-update t
@@ -549,7 +562,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
            helm-gtags-prefix-key "\C-cg"
            helm-gtags-suggested-key-mapping t
            )
-    :config 
+    :config
     ;; Enable helm-gtags-mode in Dired so you can jump to any tag
     ;; when navigate project tree with Dired
     (add-hook 'dired-mode-hook 'helm-gtags-mode)
@@ -574,10 +587,10 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 *** Basic Configuration
  #+BEGIN_SRC emacs-lisp
    (use-package helm
-     :init 
+     :init
      (require 'helm-config)
      (require 'helm-grep)
-     :config 
+     :config
      (when (executable-find "curl")
        (setq helm-google-suggest-use-curl-p t))
      (setq helm-scroll-amount 4
@@ -607,14 +620,13 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
  #+END_SRC
 *** Packages
 **** Helm-descbinds
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
   (use-package helm-descbinds
     :defer t
     :init
     (helm-descbinds-mode t)
-    :)
+    )
 #+END_SRC
-
 **** Helm-dash
  #+BEGIN_SRC emacs-lisp
    (use-package helm-dash)
@@ -622,12 +634,12 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 **** Helm-swoop
  #+BEGIN_SRC emacs-lisp
    (use-package helm-swoop
-     :config 
+     :config
      (setq helm-multi-swoop-edit-save t
            helm-swoop-split-with-multiple-windows t
            helm-swoop-split-direction 'split-window-vertically
            helm-swoop-speed-or-color t
-           )
+           ))
  #+END_SRC
 **** Helm-projectile
  #+BEGIN_SRC emacs-lisp
@@ -676,7 +688,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
  #+BEGIN_SRC emacs-lisp
    (use-package yasnippet
      :defer t
-     :config 
+     :config
      (set 'yas-verbosity 1)
      (add-hook 'term-mode-hook (lambda() (setq yas-dont-activate t)))
      (yas-global-mode t)
@@ -689,7 +701,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
             ("C-<f6>" . multi-term))
      (:map term-raw-map
            ("C-c C-j" . term-line-mode))
-     :config 
+     :config
      (when (require 'term nil t) ; only if term can be loaded..
        (setq term-bind-key-alist
              (list (cons "C-c C-c" 'term-interrupt-subjob)
@@ -890,7 +902,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 #+END_SRC
 ** Emacs Lisp
 *** Eldoc
- #+BEGIN_SRC emacs-lisp 
+ #+BEGIN_SRC emacs-lisp
    (use-package "eldoc"
      :diminish eldoc-mode
      :defer t
@@ -920,7 +932,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
         )
 
 #+END_SRC
-** Todo 
+** Todo
 #+BEGIN_SRC emacs-lisp
 
 (setq org-todo-keywords
@@ -950,7 +962,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
   (setq org-agenda-dim-blocked-tasks nil)
   (setq org-agenda-compact-blocks t)
 #+END_SRC
-** Calendar 
+** Calendar
 #+BEGIN_SRC emacs-lisp
   (require 'calfw)
   (require 'calfw-org)
@@ -962,7 +974,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 #+END_SRC
 ** Babel
 #+BEGIN_SRC emacs-lisp
-  (org-babel-do-load-languages 
+  (org-babel-do-load-languages
    'org-babel-load-languages
    '((C . t) (emacs-lisp . t) (python . t) (sh . t) (gnuplot . t)))
 #+END_SRC
@@ -1018,7 +1030,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 # (setq org-agenda-files "~/.emacs.d/org")
 # (define-key org-mode-map (kbd "C-c [") nil)
 # (define-key org-mode-map (kbd "C-c ]") nil)
-** Publish 
+** Publish
 #+BEGIN_SRC emacs-lisp
   (require 'ox-latex)
   (defun toggle-org-latex-export-on-save()
@@ -1031,7 +1043,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 #+END_SRC
 * Communication
 ** Email
-*** Misc 
+*** Misc
 #+BEGIN_SRC emacs-lisp
   (require 'gnus-dired)
   ;; make the `gnus-dired-mail-buffers' function also work on
@@ -1170,10 +1182,10 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
          )
   (defun switch-to-mu4e() "Cycle to mu4e and back without turning it off"
          (interactive)
-         (when (and (not (boundp 'mu4e-is-next)) (not (boundp 'return-from-mu4e-is-next))) 
+         (when (and (not (boundp 'mu4e-is-next)) (not (boundp 'return-from-mu4e-is-next)))
            (setq return-from-mu4e-is-next nil mu4e-stored-buffer nil mu4e-is-next t))
 
-         (when (and (bound-and-true-p mu4e-stored-buffer) 
+         (when (and (bound-and-true-p mu4e-stored-buffer)
                     (bound-and-true-p return-from-mu4e-is-next))
            (let ((tmp mu4e-stored-buffer))
              (setq mu4e-stored-buffer nil mu4e-is-next t return-from-mu4e-is-next nil)
@@ -1181,9 +1193,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
              ))
 
          (when (and (not (bound-and-true-p return-from-mu4e-is-next))
-                    (and (not (bound-and-true-p mu4e-stored-buffer)) 
+                    (and (not (bound-and-true-p mu4e-stored-buffer))
                          (bound-and-true-p mu4e-is-next)))
-           (setq mu4e-stored-buffer (current-buffer) 
+           (setq mu4e-stored-buffer (current-buffer)
                  return-from-mu4e-is-next t mu4e-is-next nil) (mu4e))
 
          )
@@ -1196,5 +1208,5 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 [[*Helm Keybindings][Helm]]
 * Experimental
 ** Emacs Lisp
-  #+BEGIN_SRC emacs-lisp 
+  #+BEGIN_SRC emacs-lisp
   #+END_SRC
