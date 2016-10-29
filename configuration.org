@@ -294,21 +294,29 @@ default. Check out the individual packages in his C/C++ tutorial!
  #+END_SRC
 **** Clean Aindent Mode
  #+BEGIN_SRC emacs-lisp
-   (require 'clean-aindent-mode)
-   (add-hook 'prog-mode-hook 'clean-aindent-mode)
+   (use-package clean-aindent-mode
+     :defer t
+     :config
+     (add-hook 'prog-mode-hook 'clean-aindent-mode))
  #+END_SRC
 **** Dtrt-Indent
  #+BEGIN_SRC emacs-lisp
-   (require 'dtrt-indent)
-   (dtrt-indent-mode 1)
-   (setq dtrt-indent-verbosity 0)
+   (use-package dtrt-indent
+     :defer t
+     :config
+     (dtrt-indent-mode t)
+     (setq dtrt-indent-verbosity 0)
+     )
  #+END_SRC
 **** Whitespace Butler
  #+BEGIN_SRC emacs-lisp
-   (require 'ws-butler)
-   (add-hook 'c-mode-common-hook 'ws-butler-mode)
-   (add-hook 'text-mode 'ws-butler-mode)
-   (add-hook 'fundamental-mode 'ws-butler-mode)
+   (use-package ws-butler
+     :defer t
+     :config
+     (add-hook 'c-mode-common-hook 'ws-butler-mode)
+     (add-hook 'text-mode 'ws-butler-mode)
+     (add-hook 'fundamental-mode 'ws-butler-mode)
+     )
  #+END_SRC
 **** Undo Tree
  #+BEGIN_SRC emacs-lisp
@@ -318,22 +326,24 @@ default. Check out the individual packages in his C/C++ tutorial!
      :init
      (global-undo-tree-mode)
      :config
-     (setq undo-tree-visualizer-timestamps t)
-     undo-tree-visualizer-diff t)
-
-
+     (setq undo-tree-visualizer-timestamps t
+           undo-tree-visualizer-diff t)
+     )
  #+END_SRC
 **** Smartparens
  #+BEGIN_SRC emacs-lisp
-   (require 'smartparens-config)
-   (setq sp-base-key-bindings 'paredit)
-   (setq sp-autoskip-closing-pair 'always)
-   (setq sp-hybrid-kill-entire-symbol nil)
-   (sp-use-paredit-bindings)
-   (show-smartparens-global-mode +1)
-   (smartparens-global-mode 1)
-   (define-key smartparens-mode-map (kbd "M-<down>") nil)
-   (define-key smartparens-mode-map (kbd "M-<up>") nil)
+   (use-package smartparens
+     :defer t
+     :config
+     (require 'smartparens-config)
+     (setq sp-base-key-bindings 'paredit
+           sp-autoskip-closing-pair 'always
+           sp-hybrid-kill-entire-symbol nil)
+     (sp-use-paredit-bindings)
+     (show-smartparens-global-mode t)
+     (smartparens-global-mode t)
+     :bind (:map smartparens-mode-map (("M-<down>" . nil)
+                                       ("M-<up>" . nil))))
  #+END_SRC
 **** Comment-dwim-2
  #+BEGIN_SRC emacs-lisp
@@ -341,21 +351,26 @@ default. Check out the individual packages in his C/C++ tutorial!
  #+END_SRC
 **** Anzu
  #+BEGIN_SRC emacs-lisp
-   (require 'anzu)
-   (global-anzu-mode)
-   (global-set-key (kbd "M-%") 'anzu-query-replace)
-   (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
+   (use-package anzu
+     :defer t
+     :config
+     (global-anzu-mode t)
+     :bind (("M-%" . anzu-query-replace) ("C-M-%" . anzy-query-replace-regexp)))
  #+END_SRC
 **** Iedit
+This is really cool
  #+BEGIN_SRC emacs-lisp
-   (setq iedit-toggle-key-default nil)
-   (require 'iedit)
-   (global-set-key (kbd "C-;") 'iedit-mode)
+   (use-package iedit
+     :defer t
+     :config
+     (setq iedit-toggle-key-default nil)
+     :bind (("C-M-;" . iedit-mode)))
  #+END_SRC
 **** Duplicate Thing
  #+BEGIN_SRC emacs-lisp
-   (require 'duplicate-thing)
-   (global-set-key (kbd "M-c") 'duplicate-thing)
+   (use-package duplicate-thing
+     :defer t
+     :bind (("M-c" . duplicate-thing)))
  #+END_SRC
 **** Customized Functions (Mainly From Prelude)
  #+BEGIN_SRC emacs-lisp
