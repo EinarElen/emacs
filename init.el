@@ -21,10 +21,12 @@
  '(org-twbs-extension "shtml")
  '(package-selected-packages
    (quote
-    (calfw auctex-latexmk nlinum pdf-tools gnuplot ob-C org-gcal htmlize ox-twbs web-mode hideshowvis hyperbole zoom-frm twittering-mode org-plus-contrib helm-dash helm-descbinds org-beautify-theme zygospore yalinum ws-butler volatile-highlights undo-tree sr-speedbar solarized-theme smartparens powerline nyan-mode multi-term monokai-theme malinka magit latex-preview-pane iedit helm-swoop helm-projectile helm-gtags helm-c-yasnippet ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony exec-path-from-shell elscreen duplicate-thing dtrt-indent diminish company-ycmd company-irony-c-headers company-irony company-c-headers company-auctex comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format avy-zap anzu ace-jump-mode))))
+    (switch-window use-package calfw auctex-latexmk nlinum pdf-tools gnuplot ob-C org-gcal htmlize ox-twbs web-mode hideshowvis hyperbole zoom-frm twittering-mode org-plus-contrib helm-dash helm-descbinds org-beautify-theme zygospore yalinum ws-butler volatile-highlights undo-tree sr-speedbar solarized-theme smartparens powerline nyan-mode multi-term monokai-theme malinka magit latex-preview-pane iedit helm-swoop helm-projectile helm-gtags helm-c-yasnippet ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony exec-path-from-shell elscreen duplicate-thing dtrt-indent diminish company-ycmd company-irony-c-headers company-irony company-c-headers company-auctex comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format avy-zap anzu ace-jump-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'erase-buffer 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
