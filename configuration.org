@@ -7,6 +7,84 @@
 ** Package Installation
 This sets up everything necerssary to install new packages and adds
 two package archives, Melpa and Org, in addition to the default packages.
+*** Package List
+This is a list of packages that will be installed automatically if
+they are not already installed. They are used by the function (install-packages).
+ #+BEGIN_SRC emacs-lisp
+      (defconst demo-packages
+        '(magit
+          org-beautify-theme
+          use-package
+          macrostep
+          calfw
+          pdf-tools
+          web-mode
+          winner
+          bind-key
+          switch-window
+          clipmon
+          htmlize
+          sr-speedbar
+          ox-twbs
+          multi-term
+          nyan-mode
+          ycmd
+          exec-path-from-shell
+          powerline
+          company-ycmd
+          flycheck-ycmd
+          nlinum
+          flycheck-irony
+          solarized-theme
+          company-c-headers
+          flycheck
+          flycheck-pos-tip
+          avy
+          avy-zap
+          anzu
+          company
+          org-gcal
+          duplicate-thing
+          ggtags
+          helm
+          helm-descbinds
+          helm-gtags
+          helm-dash
+          clang-format
+          helm-projectile
+          helm-swoop
+          function-args
+          clean-aindent-mode
+          comment-dwim-2
+          dtrt-indent
+          ws-butler
+          color-identifiers-mode
+          iedit
+          smartparens
+          projectile
+          irony
+          company-irony
+          company-irony-c-headers
+          volatile-highlights
+          undo-tree
+          diminish
+          auctex
+          company-auctex
+          latex-preview-pane
+          helm-c-yasnippet
+          monokai-theme
+          zygospore
+          org-plus-contrib
+          helm-swoop
+          zoom-frm
+          gnuplot
+          hyperbole
+          ))
+
+ #+END_SRC
+This sets up some slightly more sane default values and adds a better
+pdf reader (which requires manual installation through the
+(pdf-tools-install) function, which is run automatically if possible)
 *** Initialization
  #+BEGIN_SRC emacs-lisp
    (require 'package)
@@ -24,84 +102,13 @@ two package archives, Melpa and Org, in addition to the default packages.
      (dolist (package demo-packages)
        (unless (package-installed-p package)
          (package-install package))))
+   (install-packages)
+   (require 'use-package)
+   (defvar use-package-verbose t)
+   (require 'diminish)
+
 
  #+END_SRC
-This is a list of packages that will be installed automatically if
-they are not already installed. They are used by the function (install-packages).
-*** Package List
- #+BEGIN_SRC emacs-lisp
-   (defconst demo-packages
-     '(magit
-       org-beautify-theme
-       use-package
-       calfw
-       pdf-tools
-       web-mode
-       winner
-       switch-window
-       clipmon
-       htmlize
-       sr-speedbar
-       ox-twbs
-       multi-term
-       nyan-mode
-       ycmd
-       exec-path-from-shell
-       powerline
-       company-ycmd
-       flycheck-ycmd
-       nlinum
-       flycheck-irony
-       solarized-theme
-       company-c-headers
-       flycheck
-       flycheck-pos-tip
-       avy
-       avy-zap
-       anzu
-       company
-       org-gcal
-       duplicate-thing
-       ggtags
-       helm
-       helm-descbinds
-       helm-gtags
-       helm-dash
-       clang-format
-       helm-projectile
-       helm-swoop
-       function-args
-       clean-aindent-mode
-       comment-dwim-2
-       dtrt-indent
-       ws-butler
-       color-identifiers-mode
-       iedit
-       smartparens
-       projectile
-       irony
-       company-irony
-       company-irony-c-headers
-       volatile-highlights
-       undo-tree
-       diminish
-       auctex
-       company-auctex
-       latex-preview-pane
-       helm-c-yasnippet
-       monokai-theme
-       zygospore
-       org-plus-contrib
-       helm-swoop
-       zoom-frm
-       gnuplot
-       hyperbole
-       ))
-   (install-packages)
- #+END_SRC
-This sets up some slightly more sane default values and adds a better
-pdf reader (which requires manual installation through the
-(pdf-tools-install) function, which is run automatically if possible)
 ** Personal
 #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Einar Elén"
@@ -115,16 +122,16 @@ pdf reader (which requires manual installation through the
    (global-set-key (kbd "<f8>") 'configuration-file)
    (setq frame-title-format "Emacs"
          visible-bell t)
-   (when (or (eq system-type 'gnu/linux) (eq system-type 'cygwin))
      (use-package pdf-tools
-       :defer t
+       :when (or (eq system-type 'gnu/linux) 
+                 (eq system-type'cygwin))
+       :defer 2
        :init
        (pdf-tools-install)
        :config
        (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
        (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
-             TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))))
-
+             TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view"))))
    (menu-bar-mode -1)
    (blink-cursor-mode nil)
    (when (display-graphic-p)
@@ -154,22 +161,22 @@ pdf reader (which requires manual installation through the
    (global-font-lock-mode t)
    (setq-default
     fill-column 80
-    cursor-type 'hbar
-    )
+    cursor-type 'hbar)
    (display-time)
    (defalias 'yes-or-no-p 'y-or-n-p)
  #+END_SRC
 *** Window Management
 #+BEGIN_SRC emacs-lisp
   (use-package winner
-    :defer t
+    :defer 5
     :config
     (winner-mode t))
   (use-package switch-window
-    :defer t
+    :defer 5
     :bind (("C-x o" . switch-window)))
   (windmove-default-keybindings)
   (use-package clipmon
+    :defer 5
     :init (progn (setq
                   clipmon-action 'kill-new
                   clipmon-timeout nil
@@ -177,6 +184,8 @@ pdf reader (which requires manual installation through the
                   clipmon-cursor-color nil
                   clipmon-suffix nil)
                  (clipmon-mode)))
+  (use-package hyperbole
+    :defer 5)
 #+END_SRC
 ** Looks/Themes
 *** Basic Configuration
@@ -184,16 +193,15 @@ Adds line numbering to and a nice information bar below each buffer
 and some other neat things
  #+BEGIN_SRC emacs-lisp
    (use-package powerline
+     :defer 1
      :init (powerline-vim-theme))
    (use-package nlinum
      :init (global-nlinum-mode t))
-
    (defcustom linum-disabled-modes-list '(eshell-mode wl-summary-mode compilation-mode org-mode text-mode dired-mode doc-view-mode)
      "* List of modes disabled when global linum mode is on"
      :type '(repeat (sexp :tag "Major mode"))
      :tag " Major modes where linum is disabled: "
-     :group 'linum
-     )
+     :group 'linum)
    (defcustom linum-disable-starred-buffers 't
      "* Disable buffers that have stars in them like *Gnu Emacs*"
      :type 'boolean
@@ -207,11 +215,10 @@ and some other neat things
           gdb-show-main t)
    (use-package color-identifiers-mode
      :diminish color-identifiers-mode
-     :defer t
+     :defer 4
      :config
      (global-color-identifiers-mode t))
    (global-set-key (kbd "C-x 1") 'zygospore-toggle-delete-other-windows)
-   (use-package hyperbole)
 
  #+END_SRC
 *** Random Themes
@@ -288,21 +295,25 @@ default. Check out the individual packages in his C/C++ tutorial!
 **** Volatile Highlights
  #+BEGIN_SRC emacs-lisp
    (use-package volatile-highlights
-     :defer t
+     
+     :diminish volatile-highlights-mode
+     :defer 5
      :init
      (volatile-highlights-mode t))
  #+END_SRC
 **** Clean Aindent Mode
  #+BEGIN_SRC emacs-lisp
    (use-package clean-aindent-mode
-     :defer t
+     
+     :defer 5
      :config
      (add-hook 'prog-mode-hook 'clean-aindent-mode))
  #+END_SRC
 **** Dtrt-Indent
  #+BEGIN_SRC emacs-lisp
    (use-package dtrt-indent
-     :defer t
+     
+     :defer 5
      :config
      (dtrt-indent-mode t)
      (setq dtrt-indent-verbosity 0)
@@ -311,7 +322,9 @@ default. Check out the individual packages in his C/C++ tutorial!
 **** Whitespace Butler
  #+BEGIN_SRC emacs-lisp
    (use-package ws-butler
-     :defer t
+     
+     :defer 5
+     :diminish ws-butler-mode
      :config
      (add-hook 'c-mode-common-hook 'ws-butler-mode)
      (add-hook 'text-mode 'ws-butler-mode)
@@ -321,7 +334,8 @@ default. Check out the individual packages in his C/C++ tutorial!
 **** Undo Tree
  #+BEGIN_SRC emacs-lisp
    (use-package undo-tree
-     :defer t
+     
+     :defer 5
      :diminish undo-tree-mode
      :init
      (global-undo-tree-mode)
@@ -332,18 +346,21 @@ default. Check out the individual packages in his C/C++ tutorial!
  #+END_SRC
 **** Smartparens
  #+BEGIN_SRC emacs-lisp
-   (use-package smartparens
-     :defer t
-     :config
-     (require 'smartparens-config)
-     (setq sp-base-key-bindings 'paredit
-           sp-autoskip-closing-pair 'always
-           sp-hybrid-kill-entire-symbol nil)
-     (sp-use-paredit-bindings)
-     (show-smartparens-global-mode t)
-     (smartparens-global-mode t)
-     :bind (:map smartparens-mode-map (("M-<down>" . nil)
-                                       ("M-<up>" . nil))))
+      (use-package smartparens
+        
+        :diminish smartparens-mode
+        :defer 5
+        :init
+        (smartparens-global-mode t)
+        :config
+        (require 'smartparens-config)
+        (setq sp-base-key-bindings 'paredit
+              sp-autoskip-closing-pair 'always
+              sp-hybrid-kill-entire-symbol nil)
+        (sp-use-paredit-bindings)
+        (show-smartparens-global-mode t)
+        :bind (:map smartparens-mode-map (("M-<down>" . nil)
+                                          ("M-<up>" . nil))))
  #+END_SRC
 **** Comment-dwim-2
  #+BEGIN_SRC emacs-lisp
@@ -352,7 +369,9 @@ default. Check out the individual packages in his C/C++ tutorial!
 **** Anzu
  #+BEGIN_SRC emacs-lisp
    (use-package anzu
-     :defer t
+     :diminish anzu-mode
+     
+     :defer 5
      :config
      (global-anzu-mode t)
      :bind (("M-%" . anzu-query-replace) ("C-M-%" . anzy-query-replace-regexp)))
@@ -361,7 +380,8 @@ default. Check out the individual packages in his C/C++ tutorial!
 This is really cool
  #+BEGIN_SRC emacs-lisp
    (use-package iedit
-     :defer t
+     
+     :defer 5
      :config
      (setq iedit-toggle-key-default nil)
      :bind (("C-M-;" . iedit-mode)))
@@ -369,7 +389,8 @@ This is really cool
 **** Duplicate Thing
  #+BEGIN_SRC emacs-lisp
    (use-package duplicate-thing
-     :defer t
+     
+     :defer 5
      :bind (("M-c" . duplicate-thing)))
  #+END_SRC
 **** Customized Functions (Mainly From Prelude)
@@ -392,7 +413,6 @@ This is really cool
        (back-to-indentation)
        (when (= orig-point (point))
          (move-beginning-of-line 1))))
-
    (global-set-key (kbd "C-a") 'prelude-move-beginning-of-line)
    (defadvice kill-ring-save (before slick-copy activate compile)
      "When called interactively with no active region, copy a single
@@ -458,7 +478,6 @@ This is really cool
                     (member major-mode yank-indent-modes)))
        (let ((transient-mark-mode nil))
          (yank-advised-indent-function (region-beginning) (region-end)))))
-
    ;; prelude-core.el
    (defun indent-buffer ()
      "Indent the currently visited buffer."
@@ -521,18 +540,19 @@ This is really cool
      (newline-and-indent)
      (forward-line -1)
      (indent-according-to-mode))
-
    (global-set-key (kbd "M-o") 'prelude-smart-open-line)
  #+END_SRC
-
 **** Avy
  #+BEGIN_SRC emacs-lisp
-   (require 'avy)
-   (require 'avy-zap)
-   (setq avy-all-windows nil)
-   (global-set-key (kbd "C-:") 'avy-goto-char)
-   (global-set-key (kbd "C-;") 'avy-goto-word-1)
-   (global-set-key (kbd "M-;") 'avy-goto-line)
+   (use-package avy
+     
+     :defer 5
+     :config
+     (setq avy-all-windows nil)
+     :bind (("C-:" . avy-goto-char) ("C-;" . avy-goto-word-1) ("M-;" . avy-goto-line)))
+   (use-package avy-zap
+     
+     :defer 5)
  #+END_SRC
 ** Auto-mode List
 #+BEGIN_SRC emacs-lisp
@@ -545,6 +565,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 *** Projectile
  #+BEGIN_SRC emacs-lisp
    (use-package projectile
+     
      :init
      (progn
        (projectile-global-mode t)
@@ -552,31 +573,28 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
        nil)
      :config
      (setq projectile-enable-caching t)
-     :diminish projectile-mode
-     )
+     :diminish projectile-mode)
  #+END_SRC
-
 *** Magit
  #+BEGIN_SRC emacs-lisp
    (when (not (string= system-type "windows-nt"))
      (use-package magit
+       
        :bind ("C-x g" . magit-status)
        :config
-       (setq magit-diff-options '("-b"))
-       ))
+       (setq magit-diff-options '("-b"))))
  #+END_SRC
 ** Helm
 *** Helm Gtags
 #+BEGIN_SRC emacs-lisp
   (use-package helm-gtags
-    :init (setq
+  :init (setq
            helm-gtags-ignore-case t
            helm-gtags-auto-update t
            helm-gtags-use-input-at-cursor t
            helm-gtags-pulse-at-cursor t
            helm-gtags-prefix-key "\C-cg"
-           helm-gtags-suggested-key-mapping t
-           )
+           helm-gtags-suggested-key-mapping t)
     :config
     ;; Enable helm-gtags-mode in Dired so you can jump to any tag
     ;; when navigate project tree with Dired
@@ -596,12 +614,12 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                 ("C-j" . helm-gtags-select)
                 ("C-c g a" . helm-gtags-tags-in-this-function)
                 )
-    (setq helm-gtags-prefix-key "\C-cg")
-    )
+    (setq helm-gtags-prefix-key "\C-cg"))
 #+END_SRC
 *** Basic Configuration
  #+BEGIN_SRC emacs-lisp
    (use-package helm
+     :diminish helm-mode
      :init
      (require 'helm-config)
      (require 'helm-grep)
@@ -630,14 +648,14 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
      (helm-autoresize-mode t)
      (ido-mode -1)
-     (helm-mode)
-     )
+     (helm-mode))
  #+END_SRC
 *** Packages
 **** Helm-descbinds
 #+BEGIN_SRC emacs-lisp
   (use-package helm-descbinds
-    :defer t
+    
+    :defer 5
     :init
     (helm-descbinds-mode t)
     )
@@ -645,10 +663,12 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 **** Helm-dash
  #+BEGIN_SRC emacs-lisp
    (use-package helm-dash)
+   
  #+END_SRC
 **** Helm-swoop
  #+BEGIN_SRC emacs-lisp
    (use-package helm-swoop
+     
      :config
      (setq helm-multi-swoop-edit-save t
            helm-swoop-split-with-multiple-windows t
@@ -659,6 +679,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 **** Helm-projectile
  #+BEGIN_SRC emacs-lisp
    (use-package helm-projectile
+     
      :init
      (helm-projectile-on)
      :config
@@ -666,9 +687,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      (setq projectile-indexing-method 'alien))
  #+END_SRC
 *** Helm Keybindings
-    :PROPERTIES:
-    :ID:       095241cf-a75d-4820-850f-b8d39baf56a4
-    :END:
  #+BEGIN_SRC emacs-lisp
    (global-set-key (kbd "C-c h") 'helm-command-prefix)
    (global-unset-key (kbd "C-x c"))
@@ -702,16 +720,18 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 ** Yasnippet
  #+BEGIN_SRC emacs-lisp
    (use-package yasnippet
-     :defer t
+     
+     :defer 5
      :config
      (set 'yas-verbosity 1)
-     (add-hook 'term-mode-hook (lambda() (setq yas-dont-activate t)))
-     (yas-global-mode t)
-     )
+     (add-to-list 'yas/root-directory "~/.emacs.d/tuhdosnippets/" )
+     (yas/initialize)
+     (yas-global-mode t))
  #+END_SRC
 ** Terminal Usage
  #+BEGIN_SRC emacs-lisp
    (use-package multi-term
+     
      :bind (("<f6>" . multi-term-next)
             ("C-<f6>" . multi-term))
      (:map term-raw-map
@@ -733,47 +753,44 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                    (cons "C-r" 'term-send-reverse-search-history)
                    (cons "M-p" 'term-send-raw-meta)
                    (cons "M-y" 'term-send-raw-meta)
-                   (cons "C-y" 'term-send-raw))))
-     )
+                   (cons "C-y" 'term-send-raw)))))
  #+END_SRC
 ** Latex/Auctex
  #+BEGIN_SRC emacs-lisp
    (require 'latex)
-   (set 'TeX-auto-save t)
-   (set 'TeX-parse-self t)
+   (setq TeX-auto-save t)
+   (setq TeX-parse-self t)
    (setq-default TeX-master nil)
-   (latex-preview-pane-enable)
-   (set 'doc-view-continuous t)
-   (require 'company-auctex)
-   (company-auctex-init)
+   (use-package latex-preview-pane
+     
+     :defer 5
+     :config
+     (latex-preview-pane-enable)
+     (setq doc-view-continuous t))
  #+END_SRC
 ** Company
 *** Basic
  #+BEGIN_SRC emacs-lisp
-   (require 'cc-mode)
-   (require 'company)
-   (defun diminished-global-company-mode ()
-     "Diminsh company mode properly"
-     (interactive)
+   (use-package company
+     :defer 1
+     :diminish company-mode
+     :config
      (global-company-mode t)
-     (diminish 'company-mode)
-     )
-   (add-hook 'after-init-hook 'diminished-global-company-mode)
-   (delete 'company-semantic company-backends)
-   (semantic-mode -1)
-
-   (setq company-idle-delay 0.00001)
-   (setq company-tooltip-idle-delay 0.00001)
-   (setq company-clang-arguments (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic"))
-   (setq flycheck-clang-args (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic"))
-   (setq flycheck-gcc-args (list "-std=c++1z" "-Wall" "-Werror" "-pedantic-errors"))
+     (require 'cc-mode)
+     (setq company-idle-delay 0.00001
+     company-tooltip-idle-delay 0.00001
+     company-clang-arguments (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic"))
+     (delete 'company-semantic company-backends))
  #+END_SRC
-
-
+*** Company Auctex
+#+BEGIN_SRC emacs-lisp 
+  (use-package company-auctex
+    :defer 5
+    :config
+    (company-auctex-init))
+#+END_SRC
 *** Yasnippet
  #+BEGIN_SRC emacs-lisp
-
-
    (when (featurep 'yasnippet)
      ;; Add yasnippet support for all company backends
      ;; https://github.com/syl20bnr/spacemacs/pull/179
@@ -784,38 +801,36 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
            backend
          (append (if (consp backend) backend (list backend))
                  '(:with company-yasnippet))))
-
      (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-     (global-set-key (kbd "C-c y") 'company-yasnippet)
-     )
-
-
+     (global-set-key (kbd "C-c y") 'company-yasnippet))
  #+END_SRC
 ** Flycheck
  #+BEGIN_SRC emacs-lisp
-   (require 'flycheck)
-   (require 'company)
-   (setq flycheck-idle-change-delay 0.00001)
-   (global-flycheck-mode)
-
-
- #+END_SRC
+   (use-package flycheck
+     
+     :defer 5
+     :config
+     (setq flycheck-idle-change-delay 0.00001
+           flycheck-clang-args (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic")
+           flycheck-gcc-args (list "-std=c++1z" "-Wall" "-Werror" "-pedantic-errors"))
+     (global-flycheck-mode))
+  #+END_SRC
 ** Web Development
 #+BEGIN_SRC emacs-lisp
-  (require 'web-mode)
+  (use-package web-mode
+    :defer 5
+    )
 #+END_SRC
 ** C/C++
 *** Basic Settings
  #+BEGIN_SRC emacs-lisp
-   (setq
-    c-default-style "stroustrup" ;; set style to "stroustrup"
-    )
+   (setq c-default-style "stroustrup") ;; set style to "stroustrup"
    (add-hook 'c-mode-common-hook 'hs-minor-mode)
  #+END_SRC
 *** Packages
 **** Company
  #+BEGIN_SRC emacs-lisp
-
+(require 'cc-mode)
    (define-key c-mode-map  [(tab)] 'company-complete)
    (define-key c++-mode-map  [(tab)] 'company-complete)
    (define-key c-mode-map (kbd "TAB") 'company-complete)
@@ -823,56 +838,58 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
  #+END_SRC
 ***** C-headers
  #+BEGIN_SRC emacs-lisp
-   (require 'company-c-headers)
-   (when (string= system-name "arch-desktop") (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.1.1/"))
-   (when (string= system-name "virtualbox") (add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/g++-v4/")
-         (
-          add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/")
-         )
-   (when (string= system-name "fed-lap") (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.1.1/"))
-   (add-to-list 'company-backends 'company-c-headers)
-
+   (use-package company-c-headers
+     
+     :defer 5
+     :config
+     (when (string= system-name "arch-desktop") (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.1.1/"))
+     (when (string= system-name "virtualbox") (add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/"))
+     (when (string= system-name "fed-lap") (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.1.2/"))
+     (add-to-list 'company-backends 'company-c-headers))
  #+END_SRC
 **** Irony Mode
  #+BEGIN_SRC emacs-lisp
-   (require 'irony)
-   (require 'company-irony)
    (defun my-irony-mode-hook()
      (define-key irony-mode-map [remap completion-at-point]
        'irony-completion-at-point-async)
      (define-key irony-mode-map [remap complete-symbol]
        'irony-completion-at-point-async))
-   (add-hook 'irony-mode-hook 'my-irony-mode-hook)
-   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-
-   (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
-
-   (require 'company-irony-c-headers)
-
-   (eval-after-load 'company
-     '(add-to-list
-       'company-backends '(company-irony-c-headers company-irony)))
-
-
+   (use-package irony
+     
+     :defer 5
+     :config
+     (add-hook 'irony-mode-hook 'my-irony-mode-hook)
+     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+   (use-package company-irony
+     
+     :defer 5
+     :config
+     (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands))
+   (use-package company-irony-c-headers
+     
+     :defer 5
+     :config
+     (eval-after-load 'company
+       '(add-to-list
+         'company-backends '(company-irony-c-headers company-irony))))
  #+END_SRC
 **** YCMD
  #+BEGIN_SRC emacs-lisp
    (when (file-exists-p "/home/einarelen/src/ycmd/ycmd/")
-     (require 'ycmd)
-     (require 'company-ycmd)
-
-     (add-hook 'c-mode-hook 'ycmd-mode)
-     (add-hook 'c++-mode-hook 'ycmd-mode)
-
-     (defun diminish-ycmd-hook () "Diminish ycmd-mode"
-            (interactive)
-            (diminish 'ycmd-mode)
-            )
-     (add-hook 'after-init-hook 'diminish-ycmd-hook)
-                                           ;(add-hook 'c-mode-hook 'ycmd-mode-hook)
-     (set-variable 'ycmd-server-command '("python" "/home/einarelen/src/ycmd/ycmd/"))
-     (company-ycmd-setup)
-     )
+     (use-package ycmd
+       
+       :diminish ycmd-mode
+       :defer 5
+       :config
+       (add-hook 'c-mode-hook 'ycmd-mode)
+       (add-hook 'c++-mode-hook 'ycmd-mode)
+       (set-variable 'ycmd-server-command
+                     '("python" "/home/einarelen/src/ycmd/ycmd/")))
+     (use-package company-ycmd
+       
+       :defer 5
+       :init
+       (company-ycmd-setup)))
 
  #+END_SRC
 **** Flycheck
@@ -886,27 +903,44 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      )
    (when (featurep 'flycheck-rtags)
      (add-hook 'c-mode-common-hook 'another-flycheck-rtags-setup))
-
    (setq-local flycheck-highlighting-mode nil)
-   (when (featurep 'irony) (require 'flycheck-irony)
-         (eval-after-load 'flycheck
-           '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
-         )
-   (when (and (featurep 'ycmd) (file-exists-p "/home/einarelen/src/ycmd/ycmd/"))
-     (require 'flycheck-ycmd)
-     (flycheck-ycmd-setup))
-
+   (when (featurep 'irony)
+     (use-package flycheck-irony
+       
+       :defer 5
+       :config
+       (add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
+   (when (and
+          (featurep 'ycmd)
+          (file-exists-p "/home/einarelen/src/ycmd/ycmd/"))
+     (use-package flycheck-ycmd
+       
+       :defer 5
+       :config
+       (flycheck-ycmd-setup)))
  #+END_SRC
 **** Function Args
- (require 'function-args)
- (fa-config-default)
+#+BEGIN_SRC emacs-lisp 
+
+  (use-package function-args
+    
+    :diminish function-args-mode
+    :defer 5
+    :config
+    (fa-config-default))
+#+END_SRC
 **** Clang Format
  #+BEGIN_SRC emacs-lisp
-   (require 'clang-format)
-   (define-key c++-mode-map (kbd "C-c f") 'clang-format-region)
-   (define-key c++-mode-map (kbd "C-c C-f") 'clang-format-buffer)
-   (define-key c-mode-map (kbd "C-c f") 'clang-format-region)
-   (define-key c-mode-map (kbd "C-c C-f") 'clang-format-buffer)
+   (use-package clang-format
+     
+     :defer 5
+     :bind (:map
+            c-mode-map
+            ("C-c f" . clang-format-region)
+            ("C-c C-f" . clang-format-buffer)
+            :map c++-mode-map
+            ("C-c f" . clang-format-region)
+            ("C-c C-f" . clang-format-buffer)))
  #+END_SRC
 *** C/C++ Keybindings
 #+BEGIN_SRC emacs-lisp
@@ -920,40 +954,44 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
  #+BEGIN_SRC emacs-lisp
    (use-package "eldoc"
      :diminish eldoc-mode
-     :defer t
+     
+     :defer 5
      :init
-     (progn (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode) (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode) (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode))
-     )
+     (progn (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode) (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode) (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)))
  #+END_SRC
 * Org Mode
 ** Basic Setup
 #+BEGIN_SRC emacs-lisp
-  (require 'org)
   (defun re-parse-configurations ()
     "Reparse the main configuration file"
     (interactive)
     (org-babel-load-file "~/.emacs.d/configurations.org")
     )
-  (global-set-key "\C-cl" 'org-store-link)
-  (global-set-key "\C-ca" 'org-agenda)
-  (global-set-key "\C-cb" 'org-iswitchb)
-  (global-set-key (kbd "C-c c") 'org-capture)
-  (define-key org-mode-map (kbd "C-c .") 'org-time-stamp)
-  (add-to-list 'org-structure-template-alist '("la" "#+BEGIN_LaTeX \n\\begin{align*}\n?\n\\end{align*}\n#+END_LaTeX"))
-  (add-to-list 'org-structure-template-alist '("el" "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
-  (setq org-default-notes-file "~/.emacs.d/org/refile.org"
-        org-use-fast-todo-selection t
-        org-src-window-setup 'current-window
-        )
-
+  (use-package org
+    
+    :defer 5
+    :config
+    (add-to-list 'org-structure-template-alist
+                 '("la"
+                   "#+BEGIN_LaTeX \n\\begin{align*}\n?\n\\end{align*}\n#+END_LaTeX"))
+    (add-to-list 'org-structure-template-alist
+                 '("el"
+                   "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
+    (setq org-default-notes-file "~/.emacs.d/org/refile.org"
+          org-use-fast-todo-selection t
+          org-src-window-setup 'current-window)
+    :bind (("\C-cl" . org-store-link)
+           ("\C-ca" . org-agenda)
+           ("\C-cb" . org-iswitchb)
+           ("C-c c" . org-capture)
+           :map org-mode-map
+           ("C-c ." . org-timestamp)))
 #+END_SRC
 ** Todo
 #+BEGIN_SRC emacs-lisp
-
 (setq org-todo-keywords
       (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
               (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
-
 (setq org-todo-keyword-faces
       (quote (("TODO" :foreground "red" :weight bold)
               ("NEXT" :foreground "blue" :weight bold)
@@ -979,12 +1017,16 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 #+END_SRC
 ** Calendar
 #+BEGIN_SRC emacs-lisp
-  (require 'calfw)
-  (require 'calfw-org)
-  (require 'org-gcal)
-  (setq org-gcal-client-id "393897935817-6f7lc36osa9o9kqc10u65hhstu8idp4o.apps.googleusercontent.com" org-gcal-client-secret "GIgx5Re1yKKboMSPn1aUREs8" org-gcal-file-alist '(("einar.elen@gmail.com" . "/home/einarelen/ownCloud/org/cal/main.org")))
-
-
+  (use-package calfw
+    
+    :defer 5
+    :init
+    (require 'calfw-org))
+  (use-package org-gcal
+    
+    :defer 5
+    :config
+    (setq org-gcal-client-id "393897935817-6f7lc36osa9o9kqc10u65hhstu8idp4o.apps.googleusercontent.com" org-gcal-client-secret "GIgx5Re1yKKboMSPn1aUREs8" org-gcal-file-alist '(("einar.elen@gmail.com" . "/home/einarelen/ownCloud/org/cal/main.org"))))
   ;;; https://calendar.google.com/calendar/ical/einar.elen%40gmail.com/private-97060e03f66653b16c4d6c7164f8d633/basic.ics
 #+END_SRC
 ** Babel
@@ -995,7 +1037,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 #+END_SRC
 ** Refile and Capture
 #+BEGIN_SRC emacs-lisp
-
   (setq org-capture-templates
         (quote (("t" "todo" entry (file "~/.emacs.d/org/refile.org")
                  "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
@@ -1015,14 +1056,11 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                  "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
                 ("d" "daily" entry (file+datetree "~/.emacs.d/org/dailies/what-normal-beings-do-and-dailies.org")
                  ""))))
-
   (setq org-refile-targets (quote ((nil :maxlevel . 9)
                                    (org-agenda-files :maxlevel . 9))))
   (setq org-refile-use-outline-path t)
   (setq org-refile-allow-creating-parent-nodes 'confirm)
-
   (setq org-indirect-buffer-display 'current-window)
-
 #+END_SRC
 ** Daily Checks
 #+BEGIN_SRC emacs-lisp
@@ -1042,19 +1080,17 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
            :publishing-directory "~/.emacs.d/org/tex/"
            :publishing-function org-latex-publish-to-pdf)))
 #+END_SRC
-# (setq org-agenda-files "~/.emacs.d/org")
-# (define-key org-mode-map (kbd "C-c [") nil)
-# (define-key org-mode-map (kbd "C-c ]") nil)
 ** Publish
 #+BEGIN_SRC emacs-lisp
   (require 'ox-latex)
   (defun toggle-org-latex-export-on-save()
     (interactive)
     (if (memq 'org-latex-export-to-pdf after-save-hook)
-        (progn (remove-hook 'after-save-hook 'org-latex-export-to-pdf t) (message "Disabled org latex export on save for current buffer..."))
-      (add-hook 'after-save-hook 'org-latex-export-to-pdf nil t)
-      (message "Enabled org latex export on save for current buffer...")
-      ))
+        (progn (remove-hook 'after-save-hook 'org-latex-export-to-pdf t)
+               (message
+                "Disabled org latex export on save for current buffer..."))
+      (progn (add-hook 'after-save-hook 'org-latex-export-to-pdf nil t)
+             (message "Enabled org latex export on save for current buffer..."))))
 #+END_SRC
 * Communication
 ** Email
@@ -1073,7 +1109,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                      (null message-sent-message-via))
             (push (buffer-name buffer) buffers))))
       (nreverse buffers)))
-
   (setq gnus-dired-mail-mode 'mu4e-user-agent)
   (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
 #+END_SRC
@@ -1082,38 +1117,35 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
    (when (file-exists-p "/usr/local/bin/mu")
      (add-to-list 'load-path "~/.emacs.d/mu4e/")
      (when (require 'mu4e nil 'noerror)
-       (require 'mu4e)
-       (require 'mu4e-contrib)
-       (setq mu4e-maildir "~/Maildir")
-       (setq mu4e-drafts-folder "/[Gmail].Drafts")
-       (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
-       (setq mu4e-trash-folder  "/[Gmail].Trash")
-       (setq mu4e-sent-messages-behavior 'delete)
-       (setq mu4e-maildir-shortcuts
-             '( ("/INBOX"               . ?i)
-                ("/[Gmail].Sent Mail"   . ?s)
-                ("/[Gmail].Trash"       . ?t)
-                ("/[Gmail].All Mail"    . ?a)))
-       (setq mu4e-get-mail-command "offlineimap")
-       (setq mu4e-update-interval 450)
-       (setq user-full-name "Einar Elén" user-mail-address "einar.elen@gmail.com")
-       (require 'smtpmail)
-       (setq message-send-mail-function 'smtpmail-send-it
-             smtpmail-stream-type 'starttls
-             smtpmail-default-smtp-server "smtp.gmail.com"
-             smtpmail-smtp-server "smtp.gmail.com"
-             smtpmail-smtp-service 587)
-       (setq mu4e-html2text-command 'mu4e-shr2text)
-       (defun run-mu4e-after-init ()      (mu4e))
-       (add-hook 'after-init-hook 'run-mu4e-after-init)
-       ))
+       (use-package mu4e
+         :defer 2
+         :config
+         (require 'mu4e-contrib)
+         (setq mu4e-maildir "~/Maildir"
+               mu4e-drafts-folder "/[Gmail].Drafts"
+               mu4e-sent-folder   "/[Gmail].Sent Mail"
+               mu4e-trash-folder  "/[Gmail].Trash"
+               mu4e-sent-messages-behavior 'delete
+               mu4e-maildir-shortcuts
+               '(("/INBOX"               . ?i)
+                 ("/[Gmail].Sent Mail"   . ?s)
+                 ("/[Gmail].Trash"       . ?t)
+                 ("/[Gmail].All Mail"    . ?a))
+               mu4e-get-mail-command "offlineimap"
+               mu4e-update-interval 450)
+         (require 'smtpmail)
+         (setq message-send-mail-function 'smtpmail-send-it
+               smtpmail-stream-type 'starttls
+               smtpmail-default-smtp-server "smtp.gmail.com"
+               smtpmail-smtp-server "smtp.gmail.com"
+               smtpmail-smtp-service 587)
+         (setq mu4e-html2text-command 'mu4e-shr2text)
+         (defun run-mu4e-after-init ()      (mu4e))
+         (add-hook 'after-init-hook 'run-mu4e-after-init))))
  #+END_SRC
 *** Gnus
 ** IRC
 #+BEGIN_SRC emacs-lisp
-
-                                          ;(setq erc-autojoin-channels-alist '(("freenode.net" "#emacs" "#c++")))
-                                          ;(erc :server "irc.freenode.net" :port "6667" :nick "einarelen")
 #+END_SRC
 * Utilities
 ** Lastpass
@@ -1122,7 +1154,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      "Testing"
      (interactive "sLastpass account: ")
      (shell-command (concat "lpass login " login-name)))
-
    (defun lp-ls
        (&optional args &optional output-buffer &optional error-buffer)
      "Derp"
@@ -1143,7 +1174,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
    (defun lp-insert-ls (&optional args)
      "Derp"
      (interactive "s(Optional) Groupname:") (lp-ls args t))
-
    (defun lp-get-password (name &optional output-buffer &optional error-buffer)
      (interactive "sName: ")
      (lp-show (concat name "| grep password | grep -v sudo | cut -d\" \" -f2 ") output-buffer error-buffer))
@@ -1152,25 +1182,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      (interactive "sName: ")
      (lp-get-password name t)
      )
- #+END_SRC
-** Diminish
- #+BEGIN_SRC emacs-lisp
-   (require 'diminish)
-   (diminish 'anzu-mode)
-   (diminish 'projectile-mode)
-   (diminish 'undo-tree-mode)
-   (diminish 'color-identifiers-mode)
-   (diminish 'ws-butler-mode)
-   (diminish 'smartparens-mode)
-   (diminish 'volatile-highlights-mode)
-   (diminish 'auto-revert-mode)
-   (diminish 'ycmd-mode)
-   (diminish 'company-mode)
-   (diminish 'helm-mode)
-   (diminish 'abbrev-mode)
-   (diminish 'hs-minor-mode)
-   (diminish 'function-args-mode)
-
  #+END_SRC
 ** Other stuff
 #+BEGIN_SRC emacs-lisp
@@ -1217,10 +1228,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
   (global-set-key (kbd "<f7>") 'switch-to-mu4e)
   (global-set-key (kbd "<f8>") 'switch-configuration)
 #+END_SRC
-* Keybindings
-[[*Text Editing][Text Editing]]
-[[*Magit][Magit]]
-[[*Helm Keybindings][Helm]]
 * Experimental
 ** Emacs Lisp
   #+BEGIN_SRC emacs-lisp
