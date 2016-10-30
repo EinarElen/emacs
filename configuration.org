@@ -33,6 +33,7 @@ they are not already installed. They are used by the function (install-packages)
  (defconst demo-packages
    '(magit
      org-beautify-theme
+     srefactor
      calfw
      pdf-tools
      web-mode
@@ -736,7 +737,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
        (
         add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/")
        )
-(when (string= system-name "fed-lap") (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.1.1/"))
+(when (string= system-name "fed-lap") (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.2.1/"))
  (add-to-list 'company-backends 'company-c-headers)
 
  #+END_SRC
@@ -815,6 +816,22 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
  (define-key c-mode-map (kbd "C-c f") 'clang-format-region)
  (define-key c-mode-map (kbd "C-c C-f") 'clang-format-buffer)
  #+END_SRC
+**** Semantic and Semantic Refactor
+#+BEGIN_SRC emacs-lisp
+(require 'cc-mode)
+(require 'semantic)
+(global-semanticdb-minor-mode 1)
+(global-semantic-idle-scheduler-mode 1)
+(setq semantic-idle-scheduler-idle-time 0.01)
+(semantic-mode 1)
+    (require 'srefactor)
+    (require 'srefactor-lisp)
+    (define-key c-mode-map (kbd "M-<return>") 'srefactor-refactor-at-point)
+    (define-key c++-mode-map (kbd "M-<return>") 'srefactor-refactor-at-point)
+(semantic-add-system-include "/usr/include/boost/" 'c++-mode)
+(when (string= system-name "fed-lap") (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.2.1/")
+(semantic-add-system-include "/usr/include/c++/6.2.1" 'c++-mode))
+#+END_SRC
 *** C/C++ Keybindings
 #+BEGIN_SRC emacs-lisp
   (define-key c-mode-map (kbd "C-c o") 'ff-find-other-file)
@@ -822,6 +839,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
   (define-key c-mode-map (kbd "C-c C-c") 'comment-dwim-2)
   (define-key c++-mode-map (kbd "C-c C-c") 'comment-dwim-2)
 #+END_SRC
+
 * Org Mode
 ** Basic Setup
 #+BEGIN_SRC emacs-lisp
