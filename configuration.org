@@ -1105,15 +1105,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 ** Publish
 #+BEGIN_SRC emacs-lisp
   (require 'ox-latex)
-  (defun toggle-org-latex-export-on-save (&optional arg)
-    (interactive)
-    (if (and (not arg) (memq 'org-latex-export-to-pdf after-save-hook))
-             (progn (while (memq 'org-latex-export-to-pdf after-save-hook)
-                      (remove-hook 'after-save-hook 'org-latex-export-to-pdf t))
-               (message
-                "Disabled org latex export on save for current buffer..."))
-      (progn (add-hook 'after-save-hook 'org-latex-export-to-pdf nil t)
-             (message "Enabled org latex export on save for current buffer..."))))
+  
 #+END_SRC
 * Communication
 ** Email
@@ -1125,7 +1117,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
   (defun gnus-dired-mail-buffers ()
     "Return a list of active message buffers."
     (let (buffers)
-      (save-current-buffer
+      (sa6ve-current-buffer
         (dolist (buffer (buffer-list t))
           (set-buffer buffer)
           (when (and (derived-mode-p 'message-mode)
@@ -1254,6 +1246,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 * Experimental
 ** Emacs Lisp
   #+BEGIN_SRC emacs-lisp
-(load-file "~/.emacs.d/orglorg.el")
-(require 'orglorg)
+(semantic-mode -1)
+    (add-to-list 'load-path "~/.emacs.d/orglorg/")
+    (require 'orglorg)
   #+END_SRC
