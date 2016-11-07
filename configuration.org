@@ -720,14 +720,18 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
  #+END_SRC
 ** Yasnippet
  #+BEGIN_SRC emacs-lisp
-   (use-package yasnippet
-     
-     :defer 2
-     :config
-     (set 'yas-verbosity 1)
-     (add-to-list 'yas/root-directory "~/.emacs.d/tuhdosnippets/" )
-     (yas/initialize)
-     (yas-global-mode t))
+   (defun disable-yas-in-mode-hook ()
+     "Hook to disable yasnippet when it causes issues for some other mode."
+     (yas-minor-mode -1))
+      (use-package yasnippet
+      :defer 2
+        :config
+        (set 'yas-verbosity 1)
+        (add-to-list 'yas/root-directory "~/.emacs.d/tuhdosnippets/" )
+        (yas/initialize)
+        (yas-global-mode t)
+        (add-hook 'term-mode-hook 'disable-yas-in-mode-hook)
+        (add-hook 'org-mode-hook 'disable-yas-in-mode-hook))
  #+END_SRC
 ** Terminal Usage
  #+BEGIN_SRC emacs-lisp
@@ -1246,7 +1250,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 * Experimental
 ** Emacs Lisp
   #+BEGIN_SRC emacs-lisp
-(semantic-mode -1)
-    (add-to-list 'load-path "~/.emacs.d/orglorg/")
-    (require 'orglorg)
+  (semantic-mode -1)
+  (add-to-list 'load-path "~/.emacs.d/orglorg/")
+  (require 'orglorg)
   #+END_SRC
