@@ -1254,3 +1254,80 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
   (add-to-list 'load-path "~/.emacs.d/orglorg/")
   (require 'orglorg)
   #+END_SRC
+* To be integrated
+#+BEGIN_SRC emacs-lisp 
+  (defun xah-change-bracket-pairs ( *fromType *toType *begin *end)
+    "Change bracket pairs from one type to another on current line or selection.
+  For example, change all parenthesis () to square brackets [].
+
+  When called in lisp program, *begin *end are region begin/end position, *fromType or *toType is a string of a bracket pair. \u2056 \"()\",  \"[]\", etc.
+  URL `http://ergoemacs.org/emacs/elisp_change_brackets.html'
+  Version 2016-11-04"
+    (interactive
+     (let ((-bracketsList
+            '("() paren"
+              "{} braces" "[] square"
+              "<> greater"
+              "\u201c\u201d curly quote"
+              "\u2018\u2019 single"
+              "\u2039\u203a french"
+              "«» double french"
+              "\u300c\u300d corner"
+              "\u300e\u300f double corner"
+              "\u3010\u3011 LENTICULAR"
+              "\u3016\u3017 white LENTICULAR"
+              "\u300a\u300b double angle"
+              "\u3008\u3009 angle "
+              "\u3014\u3015 TORTOISE"
+              "\u2985\u2986 white paren"
+              "\u301a\u301b white square"
+              "\u2983\u2984 white braces"
+              "\u2329\u232a"
+              "\u2991\u2992"
+              "\u29fc\u29fd"
+              "\u27e6\u27e7 math square"
+              "\u27e8\u27e9 math angle"
+              "\u27ea\u27eb"
+              "\u27ee\u27ef"
+              "\u27ec\u27ed"
+              "\u275b\u275c"
+              "\u275d\u275e"
+              "\u2768\u2769"
+              "\u276a\u276b"
+              "\u2774\u2775"
+              "\u276c\u276d"
+              "\u276e\u276f"
+              "\u2770\u2771"
+              "   none"
+              )))
+       (list
+        (helm-comp-read "Replace this:" -bracketsList )
+        (helm-comp-read "To:" -bracketsList )
+        (if (use-region-p) (region-beginning) nil)
+        (if (use-region-p) (region-end) nil))))
+    (save-excursion
+      (save-restriction
+        (when (null *begin)
+          (setq *begin (line-beginning-position))
+          (setq *end (line-end-position)))
+        (narrow-to-region *begin *end)
+        (let ( (case-fold-search nil)
+               (-fromLeft (substring *fromType 0 1))
+               (-toLeft (if (string-equal (substring *toType 0 1) " ")
+                            (progn "")
+                          (substring *toType 0 1)))
+               (-fromRight (substring *fromType 1 2))
+               (-toRight (if (string-equal (substring *toType 1 2) " ")
+                             (progn "")
+                           (substring *toType 1 2))))
+          (progn
+            (goto-char (point-min))
+            (while (search-forward -fromLeft nil t)
+              (overlay-put (make-overlay (match-beginning 0) (match-end 0)) 'face 'highlight)
+              (replace-match -toLeft 'FIXEDCASE 'LITERAL)))
+          (progn
+            (goto-char (point-min))
+            (while (search-forward -fromRight nil t)
+              (overlay-put (make-overlay (match-beginning 0) (match-end 0)) 'face 'highlight)
+              (replace-match -toRight 'FIXEDCASE 'LITERAL)))))))
+#+END_SRC
