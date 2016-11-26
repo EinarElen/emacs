@@ -1160,7 +1160,8 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                smtpmail-smtp-service 587)
          (setq mu4e-html2text-command 'mu4e-shr2text)
          (defun run-mu4e-after-init ()      (mu4e))
-         (add-hook 'after-init-hook 'run-mu4e-after-init))))
+         ;(add-hook 'after-init-hook 'run-mu4e-after-init)
+)))
  #+END_SRC
 *** Gnus
 ** IRC
@@ -1251,6 +1252,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 ** Emacs Lisp
   #+BEGIN_SRC emacs-lisp
   (semantic-mode -1)
-  (add-to-list 'load-path "~/.emacs.d/orglorg/")
-  (require 'orglorg)
+  (add-to-list 'load-path "~/.emacs.d/org-notes-mode/")
+  (require 'org-notes)
   #+END_SRC
