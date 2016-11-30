@@ -132,8 +132,8 @@ pdf reader (which requires manual installation through the
        (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
        (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
              TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view"))))
-   (menu-bar-mode -1)
-   (blink-cursor-mode nil)
+    (menu-bar-mode -1)
+    (blink-cursor-mode nil)
    (when (display-graphic-p)
      (tool-bar-mode -1)
      (scroll-bar-mode -1))
@@ -998,7 +998,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
     :config
     (add-to-list 'org-structure-template-alist
                  '("la"
-                   "#+BEGIN_LaTeX \n\\begin{align*}\n?\n\\end{align*}\n#+END_LaTeX"))
+                   "#+BEGIN_EXPORT latex \n\\begin{align*}\n?\n\\end{align*}\n#+END_EXPORT"))
     (add-to-list 'org-structure-template-alist
                  '("el"
                    "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
