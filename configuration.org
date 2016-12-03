@@ -1017,7 +1017,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                    "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
     (add-to-list 'org-structure-template-alist
                  '("lh"
-                   "#+LATEX_HEADER: \\usepackage{physics, braket, a4wide} \n#+LATEX_HEADER: \\usepackage[parfill]{parskip} \n#+LATEX_HEADER: \\usepackage{pxfonts} \n#+LATEX_HEADER:  \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar} #+OPTIONS: num:6 H:6
+                   "#+LATEX_HEADER: \\usepackage{physics, braket, a4wide} \n#+LATEX_HEADER: \\usepackage[parfill]{parskip} \n#+LATEX_HEADER: \\usepackage{pxfonts} \n#+LATEX_HEADER:  \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n #+OPTIONS: num:6 H:6
   "))
     (setq org-default-notes-file "~/.emacs.d/org/refile.org"
           org-use-fast-todo-selection t
