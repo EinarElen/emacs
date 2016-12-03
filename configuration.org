@@ -15,7 +15,8 @@ they are not already installed. They are used by the function (install-packages)
         '(magit
           org-beautify-theme
           use-package
-	  srefactor
+          rtags
+	      srefactor
           macrostep
           calfw
           pdf-tools
@@ -812,7 +813,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 ** Flycheck
  #+BEGIN_SRC emacs-lisp
    (use-package flycheck
-     
      :defer 2
      :config
      (setq flycheck-idle-change-delay 0.00001
@@ -883,11 +883,26 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
        '(add-to-list
          'company-backends '(company-irony-c-headers company-irony))))
  #+END_SRC
+**** Rtags
+#+BEGIN_SRC emacs-lisp 
+  (use-package rtags
+    :config
+    (require 'rtags)
+    (require 'company)
+    (setq rtags-autostart-diagnostics t)
+    (rtags-diagnostics)
+    (setq rtags-completions-enabled t)
+    (push 'company-rtags company-backends)
+    (require 'rtags-helm)
+    (setq rtags-use-helm t)
+    (add-hook 'c-mode-common-hook 'rtags-start-process-unless-running)
+    (add-hook 'c++-mode-common-hook 'rtags-start-process-unless-running))
+#+END_SRC
 **** YCMD
  #+BEGIN_SRC emacs-lisp
    (when (file-exists-p "/home/einarelen/src/ycmd/ycmd/")
      (use-package ycmd
-       
+       :disabled t
        :diminish ycmd-mode
        :defer 2
        :config
@@ -924,16 +939,14 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
           (featurep 'ycmd)
           (file-exists-p "/home/einarelen/src/ycmd/ycmd/"))
      (use-package flycheck-ycmd
-       
-       :defer 2
-       :config
+     :defer 2
+     :config
        (flycheck-ycmd-setup)))
  #+END_SRC
 **** Function Args
 #+BEGIN_SRC emacs-lisp 
-
   (use-package function-args
-    
+  :disabled t
     :diminish function-args-mode
     :defer 2
     :config
@@ -954,17 +967,17 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
  #+END_SRC
 **** Semantic and Semantic Refactor
 #+BEGIN_SRC emacs-lisp
-(require 'cc-mode)
-(require 'semantic)
-(global-semanticdb-minor-mode 1)
-(global-semantic-idle-scheduler-mode 1)
-(setq semantic-idle-scheduler-idle-time 0.01)
-(semantic-mode 1)
-    (require 'srefactor)
-    (require 'srefactor-lisp)
-    (define-key c-mode-map (kbd "M-<return>") 'srefactor-refactor-at-point)
-    (define-key c++-mode-map (kbd "M-<return>") 'srefactor-refactor-at-point)
-(semantic-add-system-include "/usr/include/boost/" 'c++-mode)
+  (require 'cc-mode)
+  ;; (require 'semantic)
+  ;; (global-semanticdb-minor-mode 1)
+  ;; (global-semantic-idle-scheduler-mode 1)
+  ;; (setq semantic-idle-scheduler-idle-time 0.01)
+  ;; (semantic-mode 1)
+  ;;     (require 'srefactor)
+  ;;     (require 'srefactor-lisp)
+  ;;     (define-key c-mode-map (kbd "M-<return>") 'srefactor-refactor-at-point)
+  ;;     (define-key c++-mode-map (kbd "M-<return>") 'srefactor-refactor-at-point)
+  ;; (semantic-add-system-include "/usr/include/boost/" 'c++-mode)
 #+END_SRC
 *** C/C++ Keybindings
 #+BEGIN_SRC emacs-lisp
@@ -993,7 +1006,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
     (org-babel-load-file "~/.emacs.d/configurations.org")
     )
   (use-package org
-    
+
     :defer 0.5
     :config
     (add-to-list 'org-structure-template-alist
@@ -1002,6 +1015,10 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
     (add-to-list 'org-structure-template-alist
                  '("el"
                    "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
+    (add-to-list 'org-structure-template-alist
+                 '("lh"
+                   "#+LATEX_HEADER: \\usepackage{physics, braket, a4wide} \n#+LATEX_HEADER: \\usepackage[parfill]{parskip} \n#+LATEX_HEADER: \\usepackage{pxfonts} \n#+LATEX_HEADER:  \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar} #+OPTIONS: num:6 H:6
+  "))
     (setq org-default-notes-file "~/.emacs.d/org/refile.org"
           org-use-fast-todo-selection t
           org-src-window-setup 'current-window)
@@ -1015,26 +1032,26 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 #+END_SRC
 ** Todo
 #+BEGIN_SRC emacs-lisp
-(setq org-todo-keywords
-      (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-              (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
-(setq org-todo-keyword-faces
-      (quote (("TODO" :foreground "red" :weight bold)
-              ("NEXT" :foreground "blue" :weight bold)
-              ("DONE" :foreground "forest green" :weight bold)
-              ("WAITING" :foreground "orange" :weight bold)
-              ("HOLD" :foreground "magenta" :weight bold)
-              ("CANCELLED" :foreground "forest green" :weight bold)
-              ("MEETING" :foreground "forest green" :weight bold)
-              ("PHONE" :foreground "forest green" :weight bold))))
-  (setq org-todo-state-tags-triggers
-        (quote (("CANCELLED" ("CANCELLED" . t))
-                ("WAITING" ("WAITING" . t))
-                ("HOLD" ("WAITING") ("HOLD" . t))
-                (done ("WAITING") ("HOLD"))
-                ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
-                ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
-                ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
+  (setq org-todo-keywords
+        (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+  (setq org-todo-keyword-faces
+        (quote (("TODO" :foreground "red" :weight bold)
+                ("NEXT" :foreground "blue" :weight bold)
+                ("DONE" :foreground "forest green" :weight bold)
+                ("WAITING" :foreground "orange" :weight bold)
+                ("HOLD" :foreground "magenta" :weight bold)
+                ("CANCELLED" :foreground "forest green" :weight bold)
+                ("MEETING" :foreground "forest green" :weight bold)
+                ("PHONE" :foreground "forest green" :weight bold))))
+    (setq org-todo-state-tags-triggers
+          (quote (("CANCELLED" ("CANCELLED" . t))
+                  ("WAITING" ("WAITING" . t))
+                  ("HOLD" ("WAITING") ("HOLD" . t))
+                  (done ("WAITING") ("HOLD"))
+                  ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+                  ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+                  ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
 #+END_SRC
 ** Agenda
 #+BEGIN_SRC emacs-lisp
