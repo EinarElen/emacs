@@ -597,7 +597,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
            helm-gtags-pulse-at-cursor t
            helm-gtags-prefix-key "\C-cg"
            helm-gtags-suggested-key-mapping t)
-    :config
     ;; Enable helm-gtags-mode in Dired so you can jump to any tag
     ;; when navigate project tree with Dired
     (add-hook 'dired-mode-hook 'helm-gtags-mode)
@@ -608,6 +607,8 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
     (add-hook 'c++-mode-hook 'helm-gtags-mode)
     (add-hook 'java-mode-hook 'helm-gtags-mode)
     (add-hook 'asm-mode-hook 'helm-gtags-mode)
+    :config
+
     :bind (:map helm-gtags-mode-map
                 ("C-c >" . helm-gtags-next-history)
                 ("C-c <" . helm-gtags-previous-history)
@@ -1017,8 +1018,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                    "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
     (add-to-list 'org-structure-template-alist
                  '("lh"
-                   "#+LATEX_HEADER: \\usepackage{physics, braket, a4wide} \n#+LATEX_HEADER: \\usepackage[parfill]{parskip} \n#+LATEX_HEADER: \\usepackage{pxfonts} \n#+LATEX_HEADER:  \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n #+OPTIONS: num:6 H:6
-  "))
+                   "#+LATEX_HEADER: \\usepackage{physics, braket, a4wide} \n#+LATEX_HEADER: \\usepackage[parfill]{parskip} \n#+LATEX_HEADER: \\usepackage{pxfonts} \n#+LATEX_HEADER:  \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n #+OPTIONS: num:6 H:6"))
     (setq org-default-notes-file "~/.emacs.d/org/refile.org"
           org-use-fast-todo-selection t
           org-src-window-setup 'current-window)
