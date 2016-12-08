@@ -13,6 +13,7 @@ they are not already installed. They are used by the function (install-packages)
  #+BEGIN_SRC emacs-lisp
       (defconst demo-packages
         '(magit
+          org-plus-contrib
           org-beautify-theme
           use-package
           rtags
@@ -76,7 +77,6 @@ they are not already installed. They are used by the function (install-packages)
           helm-c-yasnippet
           monokai-theme
           zygospore
-          org-plus-contrib
           helm-swoop
           zoom-frm
           gnuplot
@@ -356,6 +356,7 @@ default. Check out the individual packages in his C/C++ tutorial!
         (smartparens-global-mode t)
         :config
         (require 'smartparens-config)
+        (sp-pair "\\[" "\\]")
         (setq sp-base-key-bindings 'paredit
               sp-autoskip-closing-pair 'always
               sp-hybrid-kill-entire-symbol nil)
@@ -1027,7 +1028,8 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
            ("\C-cb" . org-iswitchb)
            ("C-c c" . org-capture)
            :map org-mode-map
-           ("C-c ." . org-timestamp)))
+           ("C-c ." . org-timestamp)
+           ("\M-\C-g" . org-plot/gnuplot)))
 
 #+END_SRC
 ** Todo
@@ -1057,6 +1059,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-dim-blocked-tasks nil)
   (setq org-agenda-compact-blocks t)
+#+END_SRC
+** Org-plot
+#+BEGIN_SRC emacs-lisp 
 #+END_SRC
 ** Calendar
 #+BEGIN_SRC emacs-lisp
@@ -1138,7 +1143,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
   (defun gnus-dired-mail-buffers ()
     "Return a list of active message buffers."
     (let (buffers)
-      (sa6ve-current-buffer
+      (save-current-buffer
         (dolist (buffer (buffer-list t))
           (set-buffer buffer)
           (when (and (derived-mode-p 'message-mode)
