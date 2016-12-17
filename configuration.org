@@ -1033,6 +1033,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                    ,#+LATEX_HEADER:  \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n\
                    ,#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n\
                    ,#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n\
+                   ,#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n\
                    ,#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n\
                    ,#+OPTIONS: num:6 H:6"))
     (setq org-default-notes-file "~/.emacs.d/org/refile.org"
