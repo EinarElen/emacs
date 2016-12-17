@@ -1023,7 +1023,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
     (add-to-list 'org-structure-template-alist
                  '("el"
                    "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
-    (add-to-list 'org-structure-template-alist '("eq" "#+begin_equation\n?\n#+end_equation\n"))
+    (add-to-list 'org-structure-template-alist '("eq" "\\begin{equation}\n?\n\\end{equation}\n"))
     (add-to-list 'org-structure-template-alist '("th" "#+begin_theorem\n?\n#+end_theorem\n"))
     (add-to-list 'org-structure-template-alist
                  '("lh"
