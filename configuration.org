@@ -81,6 +81,7 @@ they are not already installed. They are used by the function (install-packages)
           zoom-frm
           gnuplot
           hyperbole
+          fold-dwim
           ))
  #+END_SRC
 This sets up some slightly more sane default values and adds a better
@@ -557,6 +558,11 @@ This is really cool
      
      :defer 2)
  #+END_SRC
+**** Fold-dwim
+#+BEGIN_SRC emacs-lisp 
+(use-package fold-dwim 
+:bind (("C-c C-M-f" . fold-dwim-toggle)))
+#+END_SRC
 ** Auto-mode List
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
@@ -1017,9 +1023,18 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
     (add-to-list 'org-structure-template-alist
                  '("el"
                    "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
+    (add-to-list 'org-structure-template-alist '("eq" "#+begin_equation\n?\n#+end_equation\n"))
+    (add-to-list 'org-structure-template-alist '("th" "#+begin_theorem\n?\n#+end_theorem\n"))
     (add-to-list 'org-structure-template-alist
                  '("lh"
-                   "#+LATEX_HEADER: \\usepackage{physics, braket, a4wide} \n#+LATEX_HEADER: \\usepackage[parfill]{parskip} \n#+LATEX_HEADER: \\usepackage{pxfonts} \n#+LATEX_HEADER:  \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n #+OPTIONS: num:6 H:6"))
+                   "#+LATEX_HEADER: \\usepackage{physics, braket, a4wide} \n\
+                   ,#+LATEX_HEADER:\\usepackage[parfill]{parskip} \n\
+                   ,#+LATEX_HEADER: \\usepackage{pxfonts} \n\
+                   ,#+LATEX_HEADER:  \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n\
+                   ,#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n\
+                   ,#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n\
+                   ,#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n\
+                   ,#+OPTIONS: num:6 H:6"))
     (setq org-default-notes-file "~/.emacs.d/org/refile.org"
           org-use-fast-todo-selection t
           org-src-window-setup 'current-window)
