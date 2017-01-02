@@ -196,6 +196,7 @@ Adds line numbering to and a nice information bar below each buffer
 and some other neat things
  #+BEGIN_SRC emacs-lisp
    (use-package powerline
+     :disabled t
      :defer 1
      :init (powerline-vim-theme))
    (use-package nlinum
@@ -729,18 +730,22 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
  #+END_SRC
 ** Yasnippet
  #+BEGIN_SRC emacs-lisp
-   (defun disable-yas-in-mode-hook ()
-     "Hook to disable yasnippet when it causes issues for some other mode."
-     (yas-minor-mode -1))
-      (use-package yasnippet
-      :defer 2
-        :config
-        (set 'yas-verbosity 1)
-        (add-to-list 'yas/root-directory "~/.emacs.d/tuhdosnippets/" )
-        (yas/initialize)
-        (yas-global-mode t)
-        (add-hook 'term-mode-hook 'disable-yas-in-mode-hook)
-        (add-hook 'org-mode-hook 'disable-yas-in-mode-hook))
+      (defun disable-yas-in-mode-hook ()
+        "Hook to disable yasnippet when it causes issues for some other mode."
+        (yas-minor-mode -1))
+         (use-package yasnippet
+           :config
+           (set 'yas-verbosity 1)
+           (add-to-list 'yas/root-directory "~/.emacs.d/tuhdosnippets/" )
+           ;(yas-global-mode t)
+           ;(add-hook 'term-mode-hook 'disable-yas-in-mode-hook)
+                                           ;(add-hook 'org-mode-hook 'disable-yas-in-mode-hook))
+           (yas-reload-all t)
+           (add-hook 'c-mode-hook 'yas-minor-mode-on)
+           (add-hook 'c++-mode-hook 'yas-minor-mode-on)
+           (add-hook 'latex-mode-hook 'yas-minor-mode-on))
+
+
  #+END_SRC
 ** Terminal Usage
  #+BEGIN_SRC emacs-lisp
@@ -786,7 +791,6 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 *** Basic
  #+BEGIN_SRC emacs-lisp
    (use-package company
-     :defer 1
      :diminish company-mode
      :config
      (global-company-mode t)
@@ -805,7 +809,7 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 #+END_SRC
 *** Yasnippet
  #+BEGIN_SRC emacs-lisp
-   (when (featurep 'yasnippet)
+;   (when (featurep 'yasnippet)
      ;; Add yasnippet support for all company backends
      ;; https://github.com/syl20bnr/spacemacs/pull/179
      (defvar company-mode/enable-yas t
@@ -816,7 +820,8 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
          (append (if (consp backend) backend (list backend))
                  '(:with company-yasnippet))))
      (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-     (global-set-key (kbd "C-c y") 'company-yasnippet))
+     (global-set-key (kbd "C-c y") 'company-yasnippet)
+;)
  #+END_SRC
 ** Flycheck
  #+BEGIN_SRC emacs-lisp
@@ -1030,9 +1035,10 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                    "#+LATEX_HEADER: \\usepackage{physics, braket, a4wide} \n\
                    ,#+LATEX_HEADER:\\usepackage[parfill]{parskip} \n\
                    ,#+LATEX_HEADER: \\usepackage{pxfonts} \n\
-                   ,#+LATEX_HEADER:  \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n\
+                   ,#+LATEX_HEADER: \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n\
                    ,#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n\
                    ,#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n\
+                   ,#+LATEX_HEADER: \\newcommand{\\ehat}[1]{\\vhat{e}_{#1}}\n\
                    ,#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n\
                    ,#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n\
                    ,#+OPTIONS: num:6 H:6"))
