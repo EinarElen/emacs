@@ -784,9 +784,8 @@
    (setq TeX-parse-self t)
    (setq-default TeX-master nil)
    (use-package latex-preview-pane
-     
-     :defer 2
      :config
+     (setq TeX-save-query nil)
      (latex-preview-pane-enable)
      (setq doc-view-continuous t))
    #+END_SRC
