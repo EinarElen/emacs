@@ -5,15 +5,16 @@
 #+HTML_DOCTYPE_HTML5: t
 * Emacs Setup
 ** Package Installation
-This sets up everything necerssary to install new packages and adds
-two package archives, Melpa and Org, in addition to the default packages.
+   This sets up everything necerssary to install new packages and adds
+   two package archives, Melpa and Org, in addition to the default packages.
 *** Package List
-This is a list of packages that will be installed automatically if
-they are not already installed. They are used by the function (install-packages).
- #+BEGIN_SRC emacs-lisp
+    This is a list of packages that will be installed automatically if
+    they are not already installed. They are used by the function (install-packages).
+    #+BEGIN_SRC emacs-lisp
       (defconst demo-packages
         '(magit
           org-plus-contrib
+          wolfram
           org-beautify-theme
           use-package
           rtags
@@ -83,12 +84,12 @@ they are not already installed. They are used by the function (install-packages)
           hyperbole
           fold-dwim
           ))
- #+END_SRC
-This sets up some slightly more sane default values and adds a better
-pdf reader (which requires manual installation through the
-(pdf-tools-install) function, which is run automatically if possible)
+    #+END_SRC
+    This sets up some slightly more sane default values and adds a better
+    pdf reader (which requires manual installation through the
+    (pdf-tools-install) function, which is run automatically if possible)
 *** Initialization
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (require 'package)
    (add-to-list 'package-archives
                 '("melpa" . "http://melpa.org/packages/") t)
@@ -110,14 +111,14 @@ pdf reader (which requires manual installation through the
    (require 'diminish)
 
 
- #+END_SRC
+    #+END_SRC
 ** Personal
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Einar Elén"
         user-mail-address "einar.elen@gmail.com")
-#+END_SRC
+   #+END_SRC
 ** Improve Basic Emacs Experience
- #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
    (defun configuration-file() "Visit the main configuration file"
           (interactive)
           (find-file "~/.emacs.d/configuration.org"))
@@ -162,13 +163,13 @@ pdf reader (which requires manual installation through the
          x-stretch-cursor 1)
    (global-font-lock-mode t)
    (setq-default
-    fill-column 80
+    fill-column 60
     cursor-type 'hbar)
    (display-time)
    (defalias 'yes-or-no-p 'y-or-n-p)
- #+END_SRC
+   #+END_SRC
 *** Window Management
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package winner
     :defer 2
     :config
@@ -189,12 +190,12 @@ pdf reader (which requires manual installation through the
   (use-package hyperbole
   :disabled t
     :defer 2)
-#+END_SRC
+    #+END_SRC
 ** Looks/Themes
 *** Basic Configuration
-Adds line numbering to and a nice information bar below each buffer
-and some other neat things
- #+BEGIN_SRC emacs-lisp
+    Adds line numbering to and a nice information bar below each buffer
+    and some other neat things
+    #+BEGIN_SRC emacs-lisp
    (use-package powerline
      :disabled t
      :defer 1
@@ -224,12 +225,12 @@ and some other neat things
      (global-color-identifiers-mode t))
    (global-set-key (kbd "C-x 1") 'zygospore-toggle-delete-other-windows)
 
- #+END_SRC
+    #+END_SRC
 *** Random Themes
-I dont like using the same themes all the time so this little function
-switches between three different ones. Feel free to disable this by
-removing the call to the function (choose-random-theme).
- #+BEGIN_SRC emacs-lisp
+    I dont like using the same themes all the time so this little function
+    switches between three different ones. Feel free to disable this by
+    removing the call to the function (choose-random-theme).
+    #+BEGIN_SRC emacs-lisp
    (defvar themes-to-use (list "monokai" "solarized-dark" "solarized-light") "List of themes that will be loaded by choose-random-theme")
    (defvar current-theme-used (list "monokai") "Current theme chosen by choose-random theme")
    (defun choose-random-theme ()
@@ -246,12 +247,12 @@ removing the call to the function (choose-random-theme).
        (setq current-theme-used (list "solarized-light"))
        (load-theme 'solarized-light t)))
    (choose-random-theme)
- #+END_SRC
+    #+END_SRC
 ** Text Editing
-Everything in here is essentially from [[http://tuhdo.github.io][tuhdo]] and most of it is sane by
-default. Check out the individual packages in his C/C++ tutorial!
+   Everything in here is essentially from [[http://tuhdo.github.io][tuhdo]] and most of it is sane by
+   default. Check out the individual packages in his C/C++ tutorial!
 *** Basic
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (setq global-mark-ring-max 5000
          mark-ring-max 5000
          mode-require-final-newline t
@@ -284,9 +285,9 @@ default. Check out the individual packages in his C/C++ tutorial!
                                (whitespace-mode 1)))
    (add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
    (add-hook 'text-mode-hook 'auto-fill-mode)
- #+END_SRC
+    #+END_SRC
 *** Keybindings
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "RET") 'newline-and-indent)
   (global-set-key (kbd "RET") 'newline-and-indent)
   (global-set-key (kbd "C-c w") 'whitespace-mode)
@@ -294,27 +295,27 @@ default. Check out the individual packages in his C/C++ tutorial!
                                  (interactive)
                                  (setq-local compilation-read-command nil)
                                  (call-interactively 'compile)))
-#+END_SRC
+    #+END_SRC
 *** Packages
 **** Volatile Highlights
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package volatile-highlights
      
      :diminish volatile-highlights-mode
      :defer 2
      :init
      (volatile-highlights-mode t))
- #+END_SRC
+     #+END_SRC
 **** Clean Aindent Mode
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package clean-aindent-mode
      
      :defer 2
      :config
      (add-hook 'prog-mode-hook 'clean-aindent-mode))
- #+END_SRC
+     #+END_SRC
 **** Dtrt-Indent
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package dtrt-indent
      
      :defer 2
@@ -322,9 +323,9 @@ default. Check out the individual packages in his C/C++ tutorial!
      (dtrt-indent-mode t)
      (setq dtrt-indent-verbosity 0)
      )
- #+END_SRC
+     #+END_SRC
 **** Whitespace Butler
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package ws-butler
      
      :defer 2
@@ -334,9 +335,9 @@ default. Check out the individual packages in his C/C++ tutorial!
      (add-hook 'text-mode 'ws-butler-mode)
      (add-hook 'fundamental-mode 'ws-butler-mode)
      )
- #+END_SRC
+     #+END_SRC
 **** Undo Tree
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package undo-tree
      
      :defer 2
@@ -347,9 +348,9 @@ default. Check out the individual packages in his C/C++ tutorial!
      (setq undo-tree-visualizer-timestamps t
            undo-tree-visualizer-diff t)
      )
- #+END_SRC
+     #+END_SRC
 **** Smartparens
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
       (use-package smartparens
         
         :diminish smartparens-mode
@@ -366,13 +367,13 @@ default. Check out the individual packages in his C/C++ tutorial!
         (show-smartparens-global-mode t)
         :bind (:map smartparens-mode-map (("M-<down>" . nil)
                                           ("M-<up>" . nil))))
- #+END_SRC
+     #+END_SRC
 **** Comment-dwim-2
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (global-set-key (kbd "M-;") 'comment-dwim-2)
- #+END_SRC
+     #+END_SRC
 **** Anzu
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package anzu
      :diminish anzu-mode
      
@@ -380,26 +381,26 @@ default. Check out the individual packages in his C/C++ tutorial!
      :config
      (global-anzu-mode t)
      :bind (("M-%" . anzu-query-replace) ("C-M-%" . anzy-query-replace-regexp)))
- #+END_SRC
+     #+END_SRC
 **** Iedit
-This is really cool
- #+BEGIN_SRC emacs-lisp
+     This is really cool
+     #+BEGIN_SRC emacs-lisp
    (use-package iedit
      
      :defer 2
      :config
      (setq iedit-toggle-key-default nil)
      :bind (("C-M-;" . iedit-mode)))
- #+END_SRC
+     #+END_SRC
 **** Duplicate Thing
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package duplicate-thing
      
      :defer 2
      :bind (("M-c" . duplicate-thing)))
- #+END_SRC
+     #+END_SRC
 **** Customized Functions (Mainly From Prelude)
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (defun prelude-move-beginning-of-line (arg)
      "Move point back to indentation of beginning of line.
    Move point to the first non-whitespace character on this line.
@@ -546,9 +547,9 @@ This is really cool
      (forward-line -1)
      (indent-according-to-mode))
    (global-set-key (kbd "M-o") 'prelude-smart-open-line)
- #+END_SRC
+     #+END_SRC
 **** Avy
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package avy
      
      :defer 2
@@ -558,22 +559,22 @@ This is really cool
    (use-package avy-zap
      
      :defer 2)
- #+END_SRC
+     #+END_SRC
 **** Fold-dwim
-#+BEGIN_SRC emacs-lisp 
+     #+BEGIN_SRC emacs-lisp 
 (use-package fold-dwim 
 :bind (("C-c C-M-f" . fold-dwim-toggle)))
-#+END_SRC
+     #+END_SRC
 ** Auto-mode List
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
   (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-#+END_SRC
+   #+END_SRC
 * Development/Writing
-Again, visit [[tuhdo]] but check out the stuff about helm specifically!
+  Again, visit [[tuhdo]] but check out the stuff about helm specifically!
 ** Project Management
 *** Projectile
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (use-package projectile
      
      :init
@@ -584,19 +585,19 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      :config
      (setq projectile-enable-caching t)
      :diminish projectile-mode)
- #+END_SRC
+    #+END_SRC
 *** Magit
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (when (not (string= system-type "windows-nt"))
      (use-package magit
        
        :bind ("C-x g" . magit-status)
        :config
        (setq magit-diff-options '("-b"))))
- #+END_SRC
+    #+END_SRC
 ** Helm
 *** Helm Gtags
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package helm-gtags
   :init (setq
            helm-gtags-ignore-case t
@@ -626,9 +627,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                 ("C-c g a" . helm-gtags-tags-in-this-function)
                 )
     (setq helm-gtags-prefix-key "\C-cg"))
-#+END_SRC
+    #+END_SRC
 *** Basic Configuration
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (use-package helm
      :diminish helm-mode
      :init
@@ -660,24 +661,24 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      (helm-autoresize-mode t)
      (ido-mode -1)
      (helm-mode))
- #+END_SRC
+    #+END_SRC
 *** Packages
 **** Helm-descbinds
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (use-package helm-descbinds
     
     :defer 2
     :init
     (helm-descbinds-mode t)
     )
-#+END_SRC
+     #+END_SRC
 **** Helm-dash
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package helm-dash)
    
- #+END_SRC
+     #+END_SRC
 **** Helm-swoop
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package helm-swoop
      
      :config
@@ -686,9 +687,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
            helm-swoop-split-direction 'split-window-vertically
            helm-swoop-speed-or-color t
            ))
- #+END_SRC
+     #+END_SRC
 **** Helm-projectile
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package helm-projectile
      
      :init
@@ -696,9 +697,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      :config
      (setq projectile-completion-system 'helm)
      (setq projectile-indexing-method 'alien))
- #+END_SRC
+     #+END_SRC
 *** Helm Keybindings
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (global-set-key (kbd "C-c h") 'helm-command-prefix)
    (global-unset-key (kbd "C-x c"))
    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
@@ -727,9 +728,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
    (global-set-key (kbd "C-c s") 'helm-multi-swoop-all)
    (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
    (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
- #+END_SRC
+    #+END_SRC
 ** Yasnippet
- #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
       (defun disable-yas-in-mode-hook ()
         "Hook to disable yasnippet when it causes issues for some other mode."
         (yas-minor-mode -1))
@@ -746,16 +747,18 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
            (add-hook 'latex-mode-hook 'yas-minor-mode-on))
 
 
- #+END_SRC
+   #+END_SRC
 ** Terminal Usage
- #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
    (use-package multi-term
-     
+
      :bind (("<f6>" . multi-term-next)
             ("C-<f6>" . multi-term))
      (:map term-raw-map
            ("C-c C-j" . term-line-mode))
      :config
+     (if (file-exists-p "/usr/bin/fish")
+         (setq multi-term-program "/usr/bin/fish"))
      (when (require 'term nil t) ; only if term can be loaded..
        (setq term-bind-key-alist
              (list (cons "C-c C-c" 'term-interrupt-subjob)
@@ -773,9 +776,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                    (cons "M-p" 'term-send-raw-meta)
                    (cons "M-y" 'term-send-raw-meta)
                    (cons "C-y" 'term-send-raw)))))
- #+END_SRC
+   #+END_SRC
 ** Latex/Auctex
- #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
    (require 'latex)
    (setq TeX-auto-save t)
    (setq TeX-parse-self t)
@@ -786,10 +789,10 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      :config
      (latex-preview-pane-enable)
      (setq doc-view-continuous t))
- #+END_SRC
+   #+END_SRC
 ** Company
 *** Basic
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (use-package company
      :diminish company-mode
      :config
@@ -799,16 +802,16 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      company-tooltip-idle-delay 0.1
      company-clang-arguments (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic"))
      (delete 'company-semantic company-backends))
- #+END_SRC
+    #+END_SRC
 *** Company Auctex
-#+BEGIN_SRC emacs-lisp 
+    #+BEGIN_SRC emacs-lisp 
   (use-package company-auctex
     :defer 2
     :config
     (company-auctex-init))
-#+END_SRC
+    #+END_SRC
 *** Yasnippet
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 ;   (when (featurep 'yasnippet)
      ;; Add yasnippet support for all company backends
      ;; https://github.com/syl20bnr/spacemacs/pull/179
@@ -822,9 +825,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
      (global-set-key (kbd "C-c y") 'company-yasnippet)
 ;)
- #+END_SRC
+    #+END_SRC
 ** Flycheck
- #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
    (use-package flycheck
      :defer 2
      :config
@@ -832,30 +835,30 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
            flycheck-clang-args (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic")
            flycheck-gcc-args (list "-std=c++1z" "-Wall" "-Werror" "-pedantic-errors"))
      (global-flycheck-mode))
-  #+END_SRC
+   #+END_SRC
 ** Web Development
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (use-package web-mode
     :defer 2
     )
-#+END_SRC
+   #+END_SRC
 ** C/C++
 *** Basic Settings
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (setq c-default-style "stroustrup") ;; set style to "stroustrup"
    (add-hook 'c-mode-common-hook 'hs-minor-mode)
- #+END_SRC
+    #+END_SRC
 *** Packages
 **** Company
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
 (require 'cc-mode)
    (define-key c-mode-map  [(tab)] 'company-complete)
    (define-key c++-mode-map  [(tab)] 'company-complete)
    (define-key c-mode-map (kbd "TAB") 'company-complete)
    (define-key c++-mode-map (kbd "TAB") 'company-complete)
- #+END_SRC
+     #+END_SRC
 ***** C-headers
- #+BEGIN_SRC emacs-lisp
+      #+BEGIN_SRC emacs-lisp
 
       (use-package company-c-headers
         :defer 2
@@ -869,9 +872,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
           (add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/"))
         (add-to-list 'company-backends 'company-c-headers))
 
- #+END_SRC
+      #+END_SRC
 **** Irony Mode
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (defun my-irony-mode-hook()
      (define-key irony-mode-map [remap completion-at-point]
        'irony-completion-at-point-async)
@@ -895,9 +898,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      (eval-after-load 'company
        '(add-to-list
          'company-backends '(company-irony-c-headers company-irony))))
- #+END_SRC
+     #+END_SRC
 **** Rtags
-#+BEGIN_SRC emacs-lisp 
+     #+BEGIN_SRC emacs-lisp 
   (use-package rtags
     :config
     (require 'rtags)
@@ -910,9 +913,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
     (setq rtags-use-helm t)
     (add-hook 'c-mode-common-hook 'rtags-start-process-unless-running)
     (add-hook 'c++-mode-common-hook 'rtags-start-process-unless-running))
-#+END_SRC
+     #+END_SRC
 **** YCMD
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (when (file-exists-p "/home/einarelen/src/ycmd/ycmd/")
      (use-package ycmd
        :disabled t
@@ -929,9 +932,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
        :init
        (company-ycmd-setup)))
 
- #+END_SRC
+     #+END_SRC
 **** Flycheck
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (defun another-flycheck-rtags-setup()
      (interactive)
      (flycheck-select-checker 'rtags)
@@ -955,18 +958,18 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      :defer 2
      :config
        (flycheck-ycmd-setup)))
- #+END_SRC
+     #+END_SRC
 **** Function Args
-#+BEGIN_SRC emacs-lisp 
+     #+BEGIN_SRC emacs-lisp 
   (use-package function-args
   :disabled t
     :diminish function-args-mode
     :defer 2
     :config
     (fa-config-default))
-#+END_SRC
+     #+END_SRC
 **** Clang Format
- #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
    (use-package clang-format
      
      :defer 2
@@ -977,9 +980,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
             :map c++-mode-map
             ("C-c f" . clang-format-region)
             ("C-c C-f" . clang-format-buffer)))
- #+END_SRC
+     #+END_SRC
 **** Semantic and Semantic Refactor
-#+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp
   (require 'cc-mode)
   ;; (require 'semantic)
   ;; (global-semanticdb-minor-mode 1)
@@ -991,28 +994,28 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
   ;;     (define-key c-mode-map (kbd "M-<return>") 'srefactor-refactor-at-point)
   ;;     (define-key c++-mode-map (kbd "M-<return>") 'srefactor-refactor-at-point)
   ;; (semantic-add-system-include "/usr/include/boost/" 'c++-mode)
-#+END_SRC
+     #+END_SRC
 *** C/C++ Keybindings
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (define-key c-mode-map (kbd "C-c o") 'ff-find-other-file)
   (define-key c++-mode-map (kbd "C-c o") 'ff-find-other-file)
   (define-key c-mode-map (kbd "C-c C-c") 'comment-dwim-2)
   (define-key c++-mode-map (kbd "C-c C-c") 'comment-dwim-2)
-#+END_SRC
+    #+END_SRC
 
 ** Emacs Lisp
 *** Eldoc
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (use-package "eldoc"
      :diminish eldoc-mode
      :defer 2
      :init
      (progn (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode) (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode) (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)))
- #+END_SRC
+    #+END_SRC
 
 * Org Mode
 ** Basic Setup
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (defun re-parse-configurations ()
     "Reparse the main configuration file"
     (interactive)
@@ -1053,9 +1056,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
            ("C-c ." . org-timestamp)
            ("\M-\C-g" . org-plot/gnuplot)))
 
-#+END_SRC
+   #+END_SRC
 ** Todo
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (setq org-todo-keywords
         (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
                 (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
@@ -1076,17 +1079,17 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
                   ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
                   ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
                   ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
-#+END_SRC
+   #+END_SRC
 ** Agenda
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (setq org-agenda-dim-blocked-tasks nil)
   (setq org-agenda-compact-blocks t)
-#+END_SRC
+   #+END_SRC
 ** Org-plot
-#+BEGIN_SRC emacs-lisp 
-#+END_SRC
+   #+BEGIN_SRC emacs-lisp 
+   #+END_SRC
 ** Calendar
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (use-package calfw
     
     :defer 2
@@ -1098,15 +1101,15 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
     :config
     (setq org-gcal-client-id "393897935817-6f7lc36osa9o9kqc10u65hhstu8idp4o.apps.googleusercontent.com" org-gcal-client-secret "GIgx5Re1yKKboMSPn1aUREs8" org-gcal-file-alist '(("einar.elen@gmail.com" . "/home/einarelen/ownCloud/org/cal/main.org"))))
   ;;; https://calendar.google.com/calendar/ical/einar.elen%40gmail.com/private-97060e03f66653b16c4d6c7164f8d633/basic.ics
-#+END_SRC
+   #+END_SRC
 ** Babel
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((C . t) (emacs-lisp . t) (python . t) (sh . t) (gnuplot . t)))
-#+END_SRC
+   #+END_SRC
 ** Refile and Capture
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (setq org-capture-templates
         (quote (("t" "todo" entry (file "~/.emacs.d/org/refile.org")
                  "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
@@ -1131,9 +1134,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
   (setq org-refile-use-outline-path t)
   (setq org-refile-allow-creating-parent-nodes 'confirm)
   (setq org-indirect-buffer-display 'current-window)
-#+END_SRC
+   #+END_SRC
 ** Daily Checks
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (defun daily-checklist () "Open the daily checklist file"
          (interactive)
          (find-file "~/.emacs.d/org/dailies/what-normal-beings-do-and-dailies.org")
@@ -1149,16 +1152,16 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
            :base-extension "org"
            :publishing-directory "~/.emacs.d/org/tex/"
            :publishing-function org-latex-publish-to-pdf)))
-#+END_SRC
+   #+END_SRC
 ** Publish
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (require 'ox-latex)
   
-#+END_SRC
+   #+END_SRC
 * Communication
 ** Email
 *** Misc
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (require 'gnus-dired)
   ;; make the `gnus-dired-mail-buffers' function also work on
   ;; message-mode derived modes, such as mu4e-compose-mode
@@ -1174,9 +1177,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
       (nreverse buffers)))
   (setq gnus-dired-mail-mode 'mu4e-user-agent)
   (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
-#+END_SRC
+    #+END_SRC
 *** Mu4e
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (when (file-exists-p "/usr/local/bin/mu")
      (add-to-list 'load-path "~/.emacs.d/mu4e/")
      (when (require 'mu4e nil 'noerror)
@@ -1206,14 +1209,14 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
          (defun run-mu4e-after-init ()      (mu4e))
          ;(add-hook 'after-init-hook 'run-mu4e-after-init)
 )))
- #+END_SRC
+    #+END_SRC
 *** Gnus
 ** IRC
-#+BEGIN_SRC emacs-lisp
-#+END_SRC
+   #+BEGIN_SRC emacs-lisp
+   #+END_SRC
 * Utilities
 ** Lastpass
- #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
    (defun lp-login (login-name)
      "Testing"
      (interactive "sLastpass account: ")
@@ -1246,9 +1249,9 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
      (interactive "sName: ")
      (lp-get-password name t)
      )
- #+END_SRC
+   #+END_SRC
 ** Other stuff
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (defun switch-configuration() "Cycle between current buffer, configuration file and dailies" (interactive)
          (when (and (not (boundp 'return-is-next)) (and (not (boundp 'stored-buffer)) (and (not (boundp 'dailies-is-next))) (not (boundp 'current-buffer))))
            (setq stored-buffer nil current-buffer nil return-is-next nil dailies-is-next nil)
@@ -1291,16 +1294,16 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
          )
   (global-set-key (kbd "<f7>") 'switch-to-mu4e)
   (global-set-key (kbd "<f8>") 'switch-configuration)
-#+END_SRC
+   #+END_SRC
 * Experimental
 ** Emacs Lisp
-  #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (semantic-mode -1)
   (add-to-list 'load-path "~/.emacs.d/org-notes-mode/")
   (require 'org-notes)
-  #+END_SRC
+   #+END_SRC
 * To be integrated
-#+BEGIN_SRC emacs-lisp 
+  #+BEGIN_SRC emacs-lisp 
   (defun xah-change-bracket-pairs ( *fromType *toType *begin *end)
     "Change bracket pairs from one type to another on current line or selection.
   For example, change all parenthesis () to square brackets [].
@@ -1375,4 +1378,8 @@ Again, visit [[tuhdo]] but check out the stuff about helm specifically!
             (while (search-forward -fromRight nil t)
               (overlay-put (make-overlay (match-beginning 0) (match-end 0)) 'face 'highlight)
               (replace-match -toRight 'FIXEDCASE 'LITERAL)))))))
+  #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (setq wolfram-alpha-app-id "76X366-G2P5J5J626")
+  (require 'wolfram)
 #+END_SRC
