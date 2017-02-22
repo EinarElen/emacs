@@ -798,8 +798,8 @@
      :config
      (global-company-mode t)
      (require 'cc-mode)
-     (setq company-idle-delay 0.1
-     company-tooltip-idle-delay 0.1
+     (setq company-idle-delay 0.001
+     company-tooltip-idle-delay 0.001
      company-clang-arguments (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic"))
      (delete 'company-semantic company-backends))
     #+END_SRC
