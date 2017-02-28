@@ -164,7 +164,7 @@
    (global-font-lock-mode t)
    (setq-default
     fill-column 60
-    cursor-type 'hbar)
+    cursor-type 'bar)
    (display-time)
    (defalias 'yes-or-no-p 'y-or-n-p)
    #+END_SRC
