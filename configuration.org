@@ -14,11 +14,20 @@
       (defconst demo-packages
         '(magit
           org-plus-contrib
+          dumb-jump
+          cmake-ide
+          cmake-mode
+          cpputils-cmake
+          exwm
+          ox-twbs
+          org-gcal
+          cmake-project
+          cmake-font-lock
           wolfram
           org-beautify-theme
           use-package
           rtags
-	      srefactor
+          srefactor
           macrostep
           calfw
           pdf-tools
@@ -566,6 +575,12 @@
 (use-package fold-dwim 
 :bind (("C-c C-M-f" . fold-dwim-toggle)))
      #+END_SRC
+**** Dumb-Jump
+#+BEGIN_SRC emacs-lisp 
+  (use-package dumb-jump
+    :init
+    (dumb-jump-mode t))
+#+END_SRC
 ** Auto-mode List
    #+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
@@ -606,7 +621,8 @@
            helm-gtags-use-input-at-cursor t
            helm-gtags-pulse-at-cursor t
            helm-gtags-prefix-key "\C-cg"
-           helm-gtags-suggested-key-mapping t)
+           ;helm-gtags-suggested-key-mapping t
+)
     ;; Enable helm-gtags-mode in Dired so you can jump to any tag
     ;; when navigate project tree with Dired
     (add-hook 'dired-mode-hook 'helm-gtags-mode)
@@ -618,14 +634,13 @@
     (add-hook 'java-mode-hook 'helm-gtags-mode)
     (add-hook 'asm-mode-hook 'helm-gtags-mode)
     :config
-
     :bind (:map helm-gtags-mode-map
-                ("C-c >" . helm-gtags-next-history)
-                ("C-c <" . helm-gtags-previous-history)
-                ("M-," . helm-gtags-pop-stack)
-                ("M-." . helm-gtags-dwim)
-                ("C-j" . helm-gtags-select)
-                ("C-c g a" . helm-gtags-tags-in-this-function)
+                ;("C-c >" . helm-gtags-next-history)
+                ;("C-c <" . helm-gtags-previous-history)
+                ;("M-," . helm-gtags-pop-stack)
+                ;("M-." . helm-gtags-dwim)
+                ;("C-j" . helm-gtags-select)
+                ;("C-c g a" . helm-gtags-tags-in-this-function)
                 )
     (setq helm-gtags-prefix-key "\C-cg"))
     #+END_SRC
@@ -831,9 +846,7 @@
    (use-package flycheck
      :defer 2
      :config
-     (setq flycheck-idle-change-delay 0.00001
-           flycheck-clang-args (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic")
-           flycheck-gcc-args (list "-std=c++1z" "-Wall" "-Werror" "-pedantic-errors"))
+     (setq flycheck-idle-change-delay 0.00001)
      (global-flycheck-mode))
    #+END_SRC
 ** Web Development
@@ -875,29 +888,29 @@
       #+END_SRC
 **** Irony Mode
      #+BEGIN_SRC emacs-lisp
-   (defun my-irony-mode-hook()
-     (define-key irony-mode-map [remap completion-at-point]
-       'irony-completion-at-point-async)
-     (define-key irony-mode-map [remap complete-symbol]
-       'irony-completion-at-point-async))
-   (use-package irony
-     
-     :defer 2
-     :config
-     (add-hook 'irony-mode-hook 'my-irony-mode-hook)
-     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
-   (use-package company-irony
-     
-     :defer 2
-     :config
-     (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands))
-   (use-package company-irony-c-headers
-     
-     :defer 2
-     :config
-     (eval-after-load 'company
-       '(add-to-list
-         'company-backends '(company-irony-c-headers company-irony))))
+       (require 'counsel)
+       (add-hook 'c++-mode-hook 'irony-mode)
+       (add-hook 'c-mode-hook 'irony-mode)
+
+       (defun my-irony-mode-hook()
+         (define-key irony-mode-map [remap completion-at-point]
+                                               ;'irony-completion-at-point-async)
+           'counsel-irony)
+         (define-key irony-mode-map [remap complete-symbol]
+                                               ;'irony-completion-at-point-async))
+           'counsel-irony))
+       (use-package irony
+         :config
+         (add-hook 'irony-mode-hook 'my-irony-mode-hook)
+         (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+       (use-package company-irony
+         :config
+         (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands))
+       (use-package company-irony-c-headers
+         :config
+         (eval-after-load 'company
+           '(add-to-list
+             'company-backends '(company-irony-c-headers company-irony))))
      #+END_SRC
 **** Rtags
      #+BEGIN_SRC emacs-lisp 
@@ -935,29 +948,29 @@
      #+END_SRC
 **** Flycheck
      #+BEGIN_SRC emacs-lisp
-   (defun another-flycheck-rtags-setup()
-     (interactive)
-     (flycheck-select-checker 'rtags)
-     (setq-local flycheck-highlighting-mode nil)
-     (setq-local flycheck-check-syntax-automatically nil)
-     (rtags-enable-standard-keybindings)
-     )
-   (when (featurep 'flycheck-rtags)
-     (add-hook 'c-mode-common-hook 'another-flycheck-rtags-setup))
-   (setq-local flycheck-highlighting-mode nil)
-   (when (featurep 'irony)
-     (use-package flycheck-irony
-       
-       :defer 2
-       :config
-       (add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
-   (when (and
-          (featurep 'ycmd)
-          (file-exists-p "/home/einarelen/src/ycmd/ycmd/"))
-     (use-package flycheck-ycmd
-     :defer 2
-     :config
-       (flycheck-ycmd-setup)))
+       (defun another-flycheck-rtags-setup()
+         (interactive)
+         (flycheck-select-checker 'rtags)
+         (setq-local flycheck-highlighting-mode nil)
+         (setq-local flycheck-check-syntax-automatically nil)
+         (rtags-enable-standard-keybindings))
+       (when (featurep 'rtags)
+       (require 'flycheck-rtags)
+         (add-hook 'c-mode-common-hook 'another-flycheck-rtags-setup))
+       (setq-local flycheck-highlighting-mode nil)
+       ;; (when (featurep 'irony)
+       ;;   (use-package flycheck-irony
+
+       ;;     :defer 2
+       ;;     :config
+       ;;     (add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
+       ;; (when (and
+       ;;        (featurep 'ycmd)
+       ;;        (file-exists-p "/home/einarelen/src/ycmd/ycmd/"))
+       ;;   (use-package flycheck-ycmd
+       ;;   :defer 2
+       ;;   :config
+       ;;     (flycheck-ycmd-setup)))
      #+END_SRC
 **** Function Args
      #+BEGIN_SRC emacs-lisp 
@@ -1035,7 +1048,7 @@
     (add-to-list 'org-structure-template-alist '("th" "#+begin_theorem\n?\n#+end_theorem\n"))
     (add-to-list 'org-structure-template-alist
                  '("lh"
-                   "#+LATEX_HEADER: \\usepackage{physics, braket, a4wide} \n\
+                   "#+LATEX_HEADER: \\usepackage{physics, braket} \n\
                    ,#+LATEX_HEADER:\\usepackage[parfill]{parskip} \n\
                    ,#+LATEX_HEADER: \\usepackage{pxfonts} \n\
                    ,#+LATEX_HEADER: \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n\
@@ -1104,6 +1117,7 @@
    #+END_SRC
 ** Babel
    #+BEGIN_SRC emacs-lisp
+(require 'ob-C)
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((C . t) (emacs-lisp . t) (python . t) (sh . t) (gnuplot . t)))
@@ -1303,6 +1317,35 @@
   (require 'org-notes)
    #+END_SRC
 * To be integrated
+#+BEGIN_SRC emacs-lisp
+  (require 'cmake-mode)
+  (require 'rtags)
+  (require 'cmake-ide)
+  (require 'cmake-font-lock)
+  (require 'dumb-jump)
+  (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
+  (add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
+  (cmake-ide-setup)
+  (require 'bind-key)
+  (bind-key "M-." 'rtags-find-symbol-at-point c++-mode-map)
+  (bind-key "M-." 'rtags-find-symbol-at-point c-mode-map)
+  (bind-key "M-," 'rtags-location-stack-back c-mode-map)
+  (bind-key "M-," 'rtags-location-stack-back c++-mode-map)
+  (setq rtags-use-helm t)
+  (bind-key "C-x ." 'rtags-find-symbol c-mode-map)
+  (bind-key "C-x ." 'rtags-find-symbol c++-mode-map)
+  (global-prettify-symbols-mode t)
+
+
+
+
+#+END_SRC
+#+BEGIN_SRC emacs-lisp 
+  (require 'exwm)
+  (require 'exwm-config)
+  (define-key exwm-mode-map (kbd "C-c C-j") 'exwm-input-grab-keyboard)
+  (exwm-enable)
+#+END_SRC
   #+BEGIN_SRC emacs-lisp 
   (defun xah-change-bracket-pairs ( *fromType *toType *begin *end)
     "Change bracket pairs from one type to another on current line or selection.
