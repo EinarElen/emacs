@@ -1335,10 +1335,6 @@
   (bind-key "C-x ." 'rtags-find-symbol c-mode-map)
   (bind-key "C-x ." 'rtags-find-symbol c++-mode-map)
   (global-prettify-symbols-mode t)
-
-
-
-
 #+END_SRC
 #+BEGIN_SRC emacs-lisp 
   (require 'exwm)
