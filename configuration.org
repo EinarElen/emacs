@@ -23,7 +23,6 @@
           org-gcal
           cmake-project
           cmake-font-lock
-          wolfram
           org-beautify-theme
           use-package
           rtags
@@ -34,18 +33,13 @@
           web-mode
           winner
           bind-key
-          switch-window
+;          switch-window
           clipmon
           htmlize
           sr-speedbar
-          ox-twbs
           multi-term
-          nyan-mode
-          ycmd
           exec-path-from-shell
           powerline
-          company-ycmd
-          flycheck-ycmd
           nlinum
           flycheck-irony
           solarized-theme
@@ -56,9 +50,7 @@
           avy-zap
           anzu
           company
-          org-gcal
           duplicate-thing
-          ggtags
           helm
           helm-descbinds
           helm-gtags
@@ -105,7 +97,6 @@
    (add-to-list 'package-archives
                 '("org" . "http://orgmode.org/elpa/") t)
    (package-initialize)
-
    (defun install-packages ()
      "Install all required packages."
      (interactive)
@@ -118,8 +109,6 @@
    (require 'use-package)
    (defvar use-package-verbose t)
    (require 'diminish)
-
-
     #+END_SRC
 ** Personal
    #+BEGIN_SRC emacs-lisp
@@ -127,34 +116,80 @@
         user-mail-address "einar.elen@gmail.com")
    #+END_SRC
 ** Improve Basic Emacs Experience
-   #+BEGIN_SRC emacs-lisp
-   (defun configuration-file() "Visit the main configuration file"
+*** Configuration file
+Creates a function which returns you to this file and binds
+it to f8
+#+BEGIN_SRC emacs-lisp 
+   (defun configuration-file() 
           (interactive)
           (find-file "~/.emacs.d/configuration.org"))
    (global-set-key (kbd "<f8>") 'configuration-file)
-   (setq frame-title-format "Emacs"
-         visible-bell t)
-     (use-package pdf-tools
+#+END_SRC
+*** PDF-Handling
+The basic emacs pdf viewing utility, docview, is kind of
+wonky. This installs a different utility, pdf-tools which is
+wonderful! It does require some things installed on your
+system to work (development version of all of them)
+- libpng
+- libpoppler-glib, libpoppler-private
+- imagemagick
+- libz
+- gcc, g++
+- make
+- automake
+- autoconf
+It is currently only enabled on linux and cygwin.
+#+BEGIN_SRC emacs-lisp 
+(use-package pdf-tools
        :when (or (eq system-type 'gnu/linux) 
-                 (eq system-type'cygwin))
-       :defer 2
+                 (eq system-type 'cygwin))
        :init
        (pdf-tools-install)
        :config
        (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
        (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
              TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view"))))
-    (menu-bar-mode -1)
-    (blink-cursor-mode nil)
-   (when (display-graphic-p)
-     (tool-bar-mode -1)
-     (scroll-bar-mode -1))
-   (global-unset-key (kbd "C-x C-z"))
-   (global-unset-key (kbd "C-z"))
+#+END_SRC
+*** Additional Settings
+Change the window-title to Emacs
+   #+BEGIN_SRC emacs-lisp
+   (setq frame-title-format "Emacs")
+#+END_SRC
+Disable scrollbar, menubar and toolbar, disable the keys
+that hide emacs (they are easy to hit on accident which is
+annoying). Also, show column and line number of the cursor
+in the modeline.
+#+BEGIN_SRC emacs-lisp 
+  (menu-bar-mode -1)
+  (when (display-graphic-p)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1))
+  (global-unset-key (kbd "C-x C-z"))
+  (global-unset-key (kbd "C-z"))
+  (setq column-number-mode t
+        line-number-mode t)
+#+END_SRC
+Flash the screen rather than making noise when complaining. 
+#+BEGIN_SRC emacs-lisp 
+   (setq visible-bell t)
+#+END_SRC
+Show a clock!
+#+BEGIN_SRC emacs-lisp 
+(display-time)
+#+END_SRC
+Always answer yes or no questions with just y or n, yes or
+no is annoying to type...
+#+BEGIN_SRC emacs-lisp 
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+Enable syntax highlighting in all modes where it is possible!
+#+BEGIN_SRC emacs-lisp 
+   (global-font-lock-mode t)
+#+END_SRC
+Other stuff which may or may not work...
+#+BEGIN_SRC emacs-lisp 
    (setq gc-cons-threshold 100000000
          inhibit-startup-message t
-         column-number-mode t
-         line-number-mode t
          backup-by-copying t
          backup-directory-alist
          '(("." . "~/.saves"))
@@ -170,70 +205,82 @@
          version-control t
          tramp-default-method "ssh"
          x-stretch-cursor 1)
-   (global-font-lock-mode t)
    (setq-default
     fill-column 60
     cursor-type 'bar)
-   (display-time)
-   (defalias 'yes-or-no-p 'y-or-n-p)
-   #+END_SRC
+#+END_SRC
 *** Window Management
+Winner allows you to restore previous window configurations
+and jump around in the window configuration history using
+C-c <left> and C-c <right> (the arrowkeys).
+
+Try it out by typing C-x 3, C-x o, C-x b (choose some
+buffer) and then C-c <left> twice to get back! Then try C-c
+<right> once and C-c <left again to return!
+
+Windmove keybindings allows you to switch between your
+windows with shift + arrowkeys which can be handy when
+you're tired. 
+
+Clipmon tries to help emacs synchronize copies and pastes
+between emacs and the rest of your operating system.
     #+BEGIN_SRC emacs-lisp
-  (use-package winner
-    :defer 2
-    :config
-    (winner-mode t))
-  (use-package switch-window
-    :defer 2
-    :bind (("C-x o" . switch-window)))
-  (windmove-default-keybindings)
-  (use-package clipmon
-    :defer 2
-    :init (progn (setq
-                  clipmon-action 'kill-new
-                  clipmon-timeout nil
-                  clipmon-sound nil
-                  clipmon-cursor-color nil
-                  clipmon-suffix nil)
-                 (clipmon-mode)))
-  (use-package hyperbole
-  :disabled t
-    :defer 2)
+      (use-package winner
+        :defer 2
+        :config
+        (winner-mode t))
+      ;; (use-package switch-window
+      ;;   :defer 2
+      ;;   :bind (("C-x o" . switch-window)))
+      ;; 
+       (windmove-default-keybindings)
+      (use-package clipmon
+        :defer 2
+        :init (progn (setq
+                      clipmon-action 'kill-new
+                      clipmon-timeout nil
+                      clipmon-sound nil
+                      clipmon-cursor-color nil
+                      clipmon-suffix nil)
+                     (clipmon-mode)))
+      (use-package hyperbole
+      :disabled t
+        :defer 2)
     #+END_SRC
 ** Looks/Themes
 *** Basic Configuration
     Adds line numbering to and a nice information bar below each buffer
     and some other neat things
     #+BEGIN_SRC emacs-lisp
-   (use-package powerline
-     :disabled t
-     :defer 1
-     :init (powerline-vim-theme))
-   (use-package nlinum
-     :init (global-nlinum-mode t))
-   (defcustom linum-disabled-modes-list '(eshell-mode wl-summary-mode compilation-mode org-mode text-mode dired-mode doc-view-mode)
-     "* List of modes disabled when global linum mode is on"
-     :type '(repeat (sexp :tag "Major mode"))
-     :tag " Major modes where linum is disabled: "
-     :group 'linum)
-   (defcustom linum-disable-starred-buffers 't
-     "* Disable buffers that have stars in them like *Gnu Emacs*"
-     :type 'boolean
-     :group 'linum)
-   (defun linum-on ()
-     "* When linum is running globally, disable line number in modes defined in `linum-disabled-modes-list'. Changed by linum-off. Also turns off numbering in starred modes like *scratch*"
-     (unless (or (minibufferp) (member major-mode linum-disabled-modes-list)
-                 (and linum-disable-starred-buffers (string-match "*" (buffer-name))))
-       (nlinum-mode 1)))
-   (setq  gdb-many-windows t
-          gdb-show-main t)
-   (use-package color-identifiers-mode
-     :diminish color-identifiers-mode
-     :defer 4
-     :config
-     (global-color-identifiers-mode t))
-   (global-set-key (kbd "C-x 1") 'zygospore-toggle-delete-other-windows)
+      (use-package powerline
+        :disabled t
+        :defer 1
+        :init (powerline-vim-theme))
+      (use-package nlinum
+        :init (global-nlinum-mode t))
+      (defcustom linum-disabled-modes-list '(eshell-mode wl-summary-mode compilation-mode org-mode text-mode dired-mode doc-view-mode)
+        "* List of modes disabled when global linum mode is on"
+        :type '(repeat (sexp :tag "Major mode"))
+        :tag " Major modes where linum is disabled: "
+        :group 'linum)
+      (defcustom linum-disable-starred-buffers 't
+        "* Disable buffers that have stars in them like *Gnu Emacs*"
+        :type 'boolean
+        :group 'linum)
+      (defun linum-on ()
+        "* When linum is running globally, disable line number in modes defined in
+        `linum-disabled-modes-list'. Changed by linum-off. Also turns off numbering
+       in starred modes like *scratch*"
+        (unless (or (minibufferp) (member major-mode linum-disabled-modes-list)
+                    (and linum-disable-starred-buffers (string-match "*" (buffer-name))))
+          (nlinum-mode 1)))
 
+      (use-package color-identifiers-mode
+        :diminish color-identifiers-mode
+        :defer 4
+        :config
+        (global-color-identifiers-mode t))
+      (global-set-key (kbd "C-x 1") 'zygospore-toggle-delete-other-windows)
     #+END_SRC
 *** Random Themes
     I dont like using the same themes all the time so this little function
@@ -861,6 +908,13 @@
    (setq c-default-style "stroustrup") ;; set style to "stroustrup"
    (add-hook 'c-mode-common-hook 'hs-minor-mode)
     #+END_SRC
+*** Debugging
+This is really cool. Try it with M-x gdb and choose the
+binary you want to debug.
+#+BEGIN_SRC emacs-lisp 
+      (setq  gdb-many-windows t
+             gdb-show-main t)
+#+END_SRC
 *** Packages
 **** Company
      #+BEGIN_SRC emacs-lisp
@@ -1335,6 +1389,7 @@
   (bind-key "C-x ." 'rtags-find-symbol c-mode-map)
   (bind-key "C-x ." 'rtags-find-symbol c++-mode-map)
   (global-prettify-symbols-mode t)
+  (bind-key "<f9>" 'eshell)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp 
   (require 'exwm)
@@ -1418,7 +1473,3 @@
               (overlay-put (make-overlay (match-beginning 0) (match-end 0)) 'face 'highlight)
               (replace-match -toRight 'FIXEDCASE 'LITERAL)))))))
   #+END_SRC
-#+BEGIN_SRC emacs-lisp
-  (setq wolfram-alpha-app-id "76X366-G2P5J5J626")
-  (require 'wolfram)
-#+END_SRC
