@@ -17,6 +17,7 @@
           dumb-jump
           cmake-ide
           cmake-mode
+          counsel
           cpputils-cmake
           exwm
           ox-twbs
@@ -344,14 +345,24 @@ between emacs and the rest of your operating system.
     #+END_SRC
 *** Keybindings
     #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "RET") 'newline-and-indent)
-  (global-set-key (kbd "RET") 'newline-and-indent)
-  (global-set-key (kbd "C-c w") 'whitespace-mode)
-  (global-set-key (kbd "M-c") 'capitalize-dwim)
-  (global-set-key (kbd "<f5>") (lambda ()
-                                 (interactive)
-                                 (setq-local compilation-read-command nil)
-                                 (call-interactively 'compile)))
+      (global-set-key (kbd "RET") 'newline-and-indent)
+      (global-set-key (kbd "RET") 'newline-and-indent)
+      (defun useless (&rest args)
+        (interactive)
+         "Does nothing ARGS."
+         nil)
+      (global-set-key (kbd "C-<down-mouse-1>") 'useless)
+      (global-set-key (kbd "C-<down-mouse-2>") 'useless)
+      (global-set-key (kbd "C-<down-mouse-3>") 'useless)
+      (global-set-key (kbd "C-<mouse-1>") 'useless)
+      (global-set-key (kbd "C-<mouse-2>") 'useless)
+      (global-set-key (kbd "C-<mouse-3>") 'useless)
+      (global-set-key (kbd "C-c w") 'whitespace-mode)
+      (global-set-key (kbd "M-c") 'capitalize-dwim)
+      (global-set-key (kbd "<f5>") (lambda ()
+                                     (interactive)
+                                     (setq-local compilation-read-command nil)
+                                     (call-interactively 'compile)))
     #+END_SRC
 *** Packages
 **** Volatile Highlights
@@ -437,7 +448,8 @@ between emacs and the rest of your operating system.
      :defer 2
      :config
      (global-anzu-mode t)
-     :bind (("M-%" . anzu-query-replace) ("C-M-%" . anzy-query-replace-regexp)))
+     :bind (("M-%" . anzu-query-replace) 
+            ("C-M-%" . anzy-query-replace-regexp)))
      #+END_SRC
 **** Iedit
      This is really cool
@@ -452,9 +464,8 @@ between emacs and the rest of your operating system.
 **** Duplicate Thing
      #+BEGIN_SRC emacs-lisp
    (use-package duplicate-thing
-     
      :defer 2
-     :bind (("M-c" . duplicate-thing)))
+     :bind (("C-M-c" . duplicate-thing)))
      #+END_SRC
 **** Customized Functions (Mainly From Prelude)
      #+BEGIN_SRC emacs-lisp
@@ -976,7 +987,7 @@ binary you want to debug.
     (rtags-diagnostics)
     (setq rtags-completions-enabled t)
     (push 'company-rtags company-backends)
-    (require 'rtags-helm)
+;    (require 'rtags-helm)
     (setq rtags-use-helm t)
     (add-hook 'c-mode-common-hook 'rtags-start-process-unless-running)
     (add-hook 'c++-mode-common-hook 'rtags-start-process-unless-running))
@@ -1083,45 +1094,46 @@ binary you want to debug.
 * Org Mode
 ** Basic Setup
    #+BEGIN_SRC emacs-lisp
-  (defun re-parse-configurations ()
-    "Reparse the main configuration file"
-    (interactive)
-    (org-babel-load-file "~/.emacs.d/configurations.org")
-    )
-  (use-package org
+     (defun re-parse-configurations ()
+       "Reparse the main configuration file"
+       (interactive)
+       (org-babel-load-file "~/.emacs.d/configurations.org")
+       )
+     (use-package org
 
-    :defer 0.5
-    :config
-    (add-to-list 'org-structure-template-alist
-                 '("la"
-                   "#+BEGIN_EXPORT latex \n\\begin{align*}\n?\n\\end{align*}\n#+END_EXPORT"))
-    (add-to-list 'org-structure-template-alist
-                 '("el"
-                   "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
-    (add-to-list 'org-structure-template-alist '("eq" "\\begin{equation}\n?\n\\end{equation}\n"))
-    (add-to-list 'org-structure-template-alist '("th" "#+begin_theorem\n?\n#+end_theorem\n"))
-    (add-to-list 'org-structure-template-alist
-                 '("lh"
-                   "#+LATEX_HEADER: \\usepackage{physics, braket} \n\
-                   ,#+LATEX_HEADER:\\usepackage[parfill]{parskip} \n\
-                   ,#+LATEX_HEADER: \\usepackage{pxfonts} \n\
-                   ,#+LATEX_HEADER: \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n\
-                   ,#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n\
-                   ,#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n\
-                   ,#+LATEX_HEADER: \\newcommand{\\ehat}[1]{\\vhat{e}_{#1}}\n\
-                   ,#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n\
-                   ,#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n\
-                   ,#+OPTIONS: num:6 H:6"))
-    (setq org-default-notes-file "~/.emacs.d/org/refile.org"
-          org-use-fast-todo-selection t
-          org-src-window-setup 'current-window)
-    :bind (("\C-cl" . org-store-link)
-           ("\C-ca" . org-agenda)
-           ("\C-cb" . org-iswitchb)
-           ("C-c c" . org-capture)
-           :map org-mode-map
-           ("C-c ." . org-timestamp)
-           ("\M-\C-g" . org-plot/gnuplot)))
+       :defer 0.5
+       :config
+       (add-to-list 'org-structure-template-alist
+                    '("la"
+                      "#+BEGIN_EXPORT latex \n\\begin{align*}\n?\n\\end{align*}\n#+END_EXPORT"))
+       (add-to-list 'org-structure-template-alist
+                    '("el"
+                      "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
+       (add-to-list 'org-structure-template-alist '("eq" "\\begin{equation}\n?\n\\end{equation}\n"))
+       (add-to-list 'org-structure-template-alist '("th" "#+begin_theorem\n?\n#+end_theorem\n"))
+       (add-to-list 'org-structure-template-alist '("ll" "@@latex:?@@"))
+                    '("lh"
+                      "#+LATEX_HEADER: \\usepackage{physics, braket} \n\
+                      ,#+LATEX_HEADER:\\usepackage[parfill]{parskip} \n\
+                      ,#+LATEX_HEADER: \\usepackage{pxfonts} \n\
+                      ,#+LATEX_HEADER: \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n\
+                      ,#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n\
+                      ,#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n\
+                      ,#+LATEX_HEADER: \\newcommand{\\ehat}[1]{\\vhat{e}_{#1}}\n\
+                      ,#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n\
+                      ,#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n\
+                      ,#+OPTIONS: num:6 H:6")
+       (add-to-list 'org-structure-template-alist "ll" "@@latex:")
+       (setq org-default-notes-file "~/.emacs.d/org/refile.org"
+             org-use-fast-todo-selection t
+             org-src-window-setup 'current-window)
+       :bind (("\C-cl" . org-store-link)
+              ("\C-ca" . org-agenda)
+              ("\C-cb" . org-iswitchb)
+              ("C-c c" . org-capture)
+              :map org-mode-map
+              ("C-c ." . org-timestamp)
+              ("\M-\C-g" . org-plot/gnuplot)))
 
    #+END_SRC
 ** Todo
@@ -1392,10 +1404,11 @@ binary you want to debug.
   (bind-key "<f9>" 'eshell)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp 
-  (require 'exwm)
-  (require 'exwm-config)
-  (define-key exwm-mode-map (kbd "C-c C-j") 'exwm-input-grab-keyboard)
-  (exwm-enable)
+  ;;   (require 'exwm)
+  ;;   (require 'exwm-config)
+  ;;   (define-key exwm-mode-map (kbd "C-c C-j") 'exwm-input-grab-keyboard)
+  ;;   (exwm-enable)
+  ;; (message "ted")
 #+END_SRC
   #+BEGIN_SRC emacs-lisp 
   (defun xah-change-bracket-pairs ( *fromType *toType *begin *end)
@@ -1472,4 +1485,6 @@ binary you want to debug.
             (while (search-forward -fromRight nil t)
               (overlay-put (make-overlay (match-beginning 0) (match-end 0)) 'face 'highlight)
               (replace-match -toRight 'FIXEDCASE 'LITERAL)))))))
+(message "steve")
+(server-start)
   #+END_SRC
