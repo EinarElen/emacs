@@ -1097,8 +1097,7 @@ binary you want to debug.
           (defun re-parse-configurations ()
             "Reparse the main configuration file"
             (interactive)
-            (org-babel-load-file "~/.emacs.d/configurations.org")
-            )
+            (org-babel-load-file "~/.emacs.d/configurations.org"))
           (use-package org
             :defer 1
             :config
