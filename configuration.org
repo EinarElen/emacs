@@ -1094,46 +1094,47 @@ binary you want to debug.
 * Org Mode
 ** Basic Setup
    #+BEGIN_SRC emacs-lisp
-     (defun re-parse-configurations ()
-       "Reparse the main configuration file"
-       (interactive)
-       (org-babel-load-file "~/.emacs.d/configurations.org")
-       )
-     (use-package org
-
-       :defer 0.5
-       :config
-       (add-to-list 'org-structure-template-alist
-                    '("la"
-                      "#+BEGIN_EXPORT latex \n\\begin{align*}\n?\n\\end{align*}\n#+END_EXPORT"))
-       (add-to-list 'org-structure-template-alist
-                    '("el"
-                      "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
-       (add-to-list 'org-structure-template-alist '("eq" "\\begin{equation}\n?\n\\end{equation}\n"))
-       (add-to-list 'org-structure-template-alist '("th" "#+begin_theorem\n?\n#+end_theorem\n"))
-       (add-to-list 'org-structure-template-alist '("ll" "@@latex:?@@"))
-       (add-to-list 'org-structure-template-alist '("lh"
-                      "#+LATEX_HEADER: \\usepackage{physics, braket} \n\
-                      ,#+LATEX_HEADER:\\usepackage[parfill]{parskip} \n\
-                      ,#+LATEX_HEADER: \\usepackage{pxfonts} \n\
-                      ,#+LATEX_HEADER: \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\ehat}[1]{\\vhat{e}_{#1}}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n\
-                      ,#+OPTIONS: num:6 H:6"))
-       (add-to-list 'org-structure-template-alist "ll" "@@latex:")
-       (setq org-default-notes-file "~/.emacs.d/org/refile.org"
-             org-use-fast-todo-selection t
-             org-src-window-setup 'current-window)
-       :bind (("\C-cl" . org-store-link)
-              ("\C-ca" . org-agenda)
-              ("\C-cb" . org-iswitchb)
-              ("C-c c" . org-capture)
-              :map org-mode-map
-              ("C-c ." . org-timestamp)
-              ("\M-\C-g" . org-plot/gnuplot)))
+          (defun re-parse-configurations ()
+            "Reparse the main configuration file"
+            (interactive)
+            (org-babel-load-file "~/.emacs.d/configurations.org")
+            )
+          (use-package org
+            :defer 1
+            :config
+            (plist-put org-format-latex-options :scale 2.5)
+            (add-to-list 'org-structure-template-alist
+                         '("la"
+                           "#+BEGIN_EXPORT latex \n\\begin{align*}\n?\n\\end{align*}\n#+END_EXPORT"))
+            (add-to-list 'org-structure-template-alist
+                         '("el"
+                           "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
+     ;       (add-to-list 'org-structure-template-alist '("eq" "\\begin{equation}\n?\n\\end{equation}\n"))
+            (add-to-list 'org-structure-template-alist '("eq" "#+NAME:?\n#+BEGIN_EQUATION\n #+END_EQUATION\n"))
+            (add-to-list 'org-structure-template-alist '("th" "#+begin_theorem\n?\n#+end_theorem\n"))
+            (add-to-list 'org-structure-template-alist '("ll" "@@latex:?@@"))
+            (add-to-list 'org-structure-template-alist '("lh"
+                           "#+LATEX_HEADER: \\usepackage{physics, braket} \n\
+                           ,#+LATEX_HEADER:\\usepackage[parfill]{parskip} \n\
+                           ,#+LATEX_HEADER: \\usepackage{pxfonts} \n\
+                           ,#+LATEX_HEADER: \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n\
+                           ,#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n\
+                           ,#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n\
+                           ,#+LATEX_HEADER: \\newcommand{\\ehat}[1]{\\vhat{e}_{#1}}\n\
+                           ,#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n\
+                           ,#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n\
+                           ,#+OPTIONS: num:6 H:6"))
+            (add-to-list 'org-structure-template-alist "ll" "@@latex:")
+            (setq org-default-notes-file "~/.emacs.d/org/refile.org"
+                  org-use-fast-todo-selection t
+                  org-src-window-setup 'current-window)
+            :bind (("\C-cl" . org-store-link)
+                   ("\C-ca" . org-agenda)
+                   ("\C-cb" . org-iswitchb)
+                   ("C-c c" . org-capture)
+                   :map org-mode-map
+                   ("C-c ." . org-timestamp)
+                   ("\M-\C-g" . org-plot/gnuplot)))
 
    #+END_SRC
 ** Todo
