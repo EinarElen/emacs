@@ -1105,11 +1105,12 @@ binary you want to debug.
             (add-to-list 'org-structure-template-alist
                          '("la"
                            "#+BEGIN_EXPORT latex \n\\begin{align*}\n?\n\\end{align*}\n#+END_EXPORT"))
+            (add-to-list 'org-structure-template-alist '("cc" "#+BEGIN_SRC C++ :flags -lginac -lcln -ldl :exports none\n?\n#+END_SRC"))
             (add-to-list 'org-structure-template-alist
                          '("el"
                            "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC"))
-     ;       (add-to-list 'org-structure-template-alist '("eq" "\\begin{equation}\n?\n\\end{equation}\n"))
-            (add-to-list 'org-structure-template-alist '("eq" "#+NAME:?\n#+BEGIN_EQUATION\n #+END_EQUATION\n"))
+            (add-to-list 'org-structure-template-alist '("eq" "\\begin{equation}\n?\n\\end{equation}\n"))
+            ;(add-to-list 'org-structure-template-alist '("eq" "#+NAME:?\n#+BEGIN_EQUATION\n #+END_EQUATION\n")) 
             (add-to-list 'org-structure-template-alist '("th" "#+begin_theorem\n?\n#+end_theorem\n"))
             (add-to-list 'org-structure-template-alist '("ll" "@@latex:?@@"))
             (add-to-list 'org-structure-template-alist '("lh"
@@ -1122,6 +1123,7 @@ binary you want to debug.
                            ,#+LATEX_HEADER: \\newcommand{\\ehat}[1]{\\vhat{e}_{#1}}\n\
                            ,#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n\
                            ,#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n\
+                           ,#+LATEX_HEADER: \\newcommand{\\onfrac}[1]{\\frac{-1}{#1}}\n\
                            ,#+OPTIONS: num:6 H:6"))
             (add-to-list 'org-structure-template-alist "ll" "@@latex:")
             (setq org-default-notes-file "~/.emacs.d/org/refile.org"
