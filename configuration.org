@@ -15,10 +15,12 @@
         '(magit
           org-plus-contrib
           dumb-jump
+          blackboard-theme
           cmake-ide
           cmake-mode
           counsel
           cpputils-cmake
+          helm-themes
           exwm
           ox-twbs
           org-gcal
@@ -207,7 +209,7 @@ Other stuff which may or may not work...
          tramp-default-method "ssh"
          x-stretch-cursor 1)
    (setq-default
-    fill-column 60
+    fill-column 80
     cursor-type 'bar)
 #+END_SRC
 *** Window Management
@@ -288,22 +290,25 @@ between emacs and the rest of your operating system.
     switches between three different ones. Feel free to disable this by
     removing the call to the function (choose-random-theme).
     #+BEGIN_SRC emacs-lisp
-   (defvar themes-to-use (list "monokai" "solarized-dark" "solarized-light") "List of themes that will be loaded by choose-random-theme")
-   (defvar current-theme-used (list "monokai") "Current theme chosen by choose-random theme")
-   (defun choose-random-theme ()
-     "Choose random theme from themes-to-use!"
-     (interactive)
-     (setq current-theme-number (random (length themes-to-use)))
-     (when (= current-theme-number 0)
-       (setq current-theme-used (list "monokai"))
-       (load-theme 'monokai t))
-     (when (= current-theme-number 1)
-       (setq current-theme-used (list "solarized-dark"))
-       (load-theme 'solarized-dark t))
-     (when (= current-theme-number 2)
-       (setq current-theme-used (list "solarized-light"))
-       (load-theme 'solarized-light t)))
-   (choose-random-theme)
+         (defvar themes-to-use (list "monokai" "solarized-dark" "solarized-light") "List of themes that will be loaded by choose-random-theme")
+         (defvar current-theme-used (list "monokai") "Current theme chosen by choose-random theme")
+         (defun choose-random-theme ()
+           "Choose random theme from themes-to-use!"
+           (interactive)
+           (setq current-theme-number (random (length themes-to-use)))
+           (when (= current-theme-number 0)
+             (setq current-theme-used (list "monokai"))
+             (load-theme 'monokai t))
+           (when (= current-theme-number 1)
+             (setq current-theme-used (list "solarized-dark"))
+             (load-theme 'solarized-dark t))
+           (when (= current-theme-number 2)
+             (setq current-theme-used (list "solarized-light"))
+             (load-theme 'solarized-light t)))
+                                              ;   (choose-random-theme)
+      (use-package helm-themes
+        :bind (("<f10>" . helm-themes)))
+      (global-set-key (kbd "<f10>") )
     #+END_SRC
 ** Text Editing
    Everything in here is essentially from [[http://tuhdo.github.io][tuhdo]] and most of it is sane by
