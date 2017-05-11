@@ -308,7 +308,7 @@ between emacs and the rest of your operating system.
                                               ;   (choose-random-theme)
       (use-package helm-themes
         :bind (("<f10>" . helm-themes)))
-      (global-set-key (kbd "<f10>") )
+
     #+END_SRC
 ** Text Editing
    Everything in here is essentially from [[http://tuhdo.github.io][tuhdo]] and most of it is sane by
