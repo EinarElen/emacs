@@ -14,6 +14,15 @@
       (defconst demo-packages
         '(magit
           org-plus-contrib
+          persp-mode
+          persp-projectile
+          winum
+          eyebrowse
+          spacemacs-theme
+          spaceline
+          all-the-icons
+          spaceline-all-the-icons
+          info+
           dumb-jump
           blackboard-theme
           cmake-ide
@@ -641,7 +650,8 @@ between emacs and the rest of your operating system.
 **** Dumb-Jump
 #+BEGIN_SRC emacs-lisp 
   (use-package dumb-jump
-    :init
+  :defer 2
+  :config
     (dumb-jump-mode t))
 #+END_SRC
 ** Auto-mode List
@@ -650,7 +660,7 @@ between emacs and the rest of your operating system.
   (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
    #+END_SRC
 * Development/Writing
-  Again, visit [[tuhdo]] but check out the stuff about helm specifically!
+  Again, visit [[http://tuhdo.github.io][tuhdo]] but check out the stuff about helm specifically!
 ** Project Management
 *** Projectile
     #+BEGIN_SRC emacs-lisp
@@ -810,20 +820,22 @@ between emacs and the rest of your operating system.
     #+END_SRC
 ** Yasnippet
    #+BEGIN_SRC emacs-lisp
-      (defun disable-yas-in-mode-hook ()
-        "Hook to disable yasnippet when it causes issues for some other mode."
-        (yas-minor-mode -1))
-         (use-package yasnippet
-           :config
-           (set 'yas-verbosity 1)
-           (add-to-list 'yas/root-directory "~/.emacs.d/tuhdosnippets/" )
-           ;(yas-global-mode t)
-           ;(add-hook 'term-mode-hook 'disable-yas-in-mode-hook)
-                                           ;(add-hook 'org-mode-hook 'disable-yas-in-mode-hook))
-           (yas-reload-all t)
-           (add-hook 'c-mode-hook 'yas-minor-mode-on)
-           (add-hook 'c++-mode-hook 'yas-minor-mode-on)
-           (add-hook 'latex-mode-hook 'yas-minor-mode-on))
+     (defun disable-yas-in-mode-hook ()
+       "Hook to disable yasnippet when it causes issues for some other mode."
+       (yas-minor-mode -1))
+       (require 'yasnippet)
+        (use-package yasnippet
+          :init
+          (set 'yas-verbosity 1)
+          (add-to-list 'yas-snippet-dirs "~/.emacs.d/tuhdosnippets/")
+         (yas-global-mode t)
+          (add-hook 'term-mode-hook 'disable-yas-in-mode-hook)
+                                          ;(add-hook 'org-mode-hook 'disable-yas-in-mode-hook)
+          (yas-reload-all t)
+          (add-hook 'c-mode-hook 'yas-minor-mode-on)
+          (add-hook 'c++-mode-hook 'yas-minor-mode-on)
+          (add-hook 'latex-mode-hook 'yas-minor-mode-on))
+
 
 
    #+END_SRC
@@ -1390,6 +1402,22 @@ binary you want to debug.
   (require 'org-notes)
    #+END_SRC
 * To be integrated
+#+BEGIN_SRC emacs-lisp
+  (require 'spaceline-config)
+    (use-package spaceline-config
+      :init (spaceline-spacemacs-theme))
+    (require 'spaceline-config)
+  (spaceline-spacemacs-theme)
+  (spaceline-helm-mode t)
+  (spaceline-info-mode t)
+    (use-package all-the-icons
+      :config (spaceline-all-the-icons-theme)
+    ;;; Remember (all-the-icons-install-fonts)
+      )
+
+
+
+#+END_SRC
 #+BEGIN_SRC emacs-lisp
   (require 'cmake-mode)
   (require 'rtags)
