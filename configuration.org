@@ -30,6 +30,7 @@
           counsel
           cpputils-cmake
           helm-themes
+	  xelb
           exwm
           ox-twbs
           org-gcal
@@ -37,7 +38,10 @@
           cmake-font-lock
           org-beautify-theme
           use-package
-          rtags
+	  rtags
+	  company-rtags
+	  helm-rtags
+	  flycheck-rtags
           srefactor
           macrostep
           calfw
