@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: alignstar
+# key: als
+# --
+\begin{align*}
+$0
+\end{align*}
