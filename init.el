@@ -4,17 +4,11 @@
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
 (package-initialize)
-
-(if (time-less-p
-     (file-attribute-modification-time (file-attributes
-                                        "~/.emacs.d/configuration.el"))
-     (file-attribute-modification-time
-      (file-attributes "~/.emacs.d/configuration.org")))
+(if (file-newer-than-file-p "~/.emacs.d/configuration.org"
+                            "~/.emacs.d/configuration.el")
     (progn (org-babel-load-file "~/.emacs.d/configuration.org")
-           (byte-compile-file "~/.emacs.d/configuration.el")
-           )
-  (load "~/.emacs.d/configuration"))
-
+           (byte-compile-file "~/.emacs.d/configuration.el")))
+(load "~/.emacs.d/configuration")
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
