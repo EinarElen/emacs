@@ -13,6 +13,7 @@
     #+BEGIN_SRC emacs-lisp
 (defconst demo-packages
   '(magit
+    xah-replace-pairs
     multiple-cursors
     pp-c-l
     paredit
