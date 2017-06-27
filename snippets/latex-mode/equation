@@ -3,5 +3,5 @@
 # key: eq
 # --
 \begin{equation}
-$0
+`(if (region-active-p) yas-selected-text)`$0
 \end{equation}

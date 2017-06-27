@@ -3,5 +3,5 @@
 # key: al
 # --
 \begin{align}
-$0
+`(if (region-active-p) yas-selected-text)`$0
 \end{align}

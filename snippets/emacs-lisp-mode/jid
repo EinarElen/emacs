@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: jsonidb
+# key: jid
+\\"file\\": \\"$1\\", \\"command\\": \\"$2\\"$0
+# --
