@@ -3,12 +3,43 @@
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
+
+  (require 'package)
+  (setq package-enable-at-startup nil)
+  (add-to-list 'package-archives
+               '("melpa" . "http://melpa.org/packages/") t)
+  (add-to-list 'package-archives
+               '("org" . "http://orgmode.org/elpa/") t)
 (package-initialize)
-(if (file-newer-than-file-p "~/.emacs.d/configuration.org"
-                            "~/.emacs.d/configuration.el")
-    (progn (org-babel-load-file "~/.emacs.d/configuration.org")
-           (byte-compile-file "~/.emacs.d/configuration.el")))
-(load "~/.emacs.d/configuration")
+  (require 'use-package)
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  ;(eval-when-compile (require 'use-package))
+  (setq use-package-debug nil)
+                                        ;(setq use-package-verbose 'debug)
+  (setq use-package-verbose nil)
+
+  (setq use-package-always-ensure t)
+  (if (file-newer-than-file-p "~/.emacs.d/configuration.org"
+                              "~/.emacs.d/configuration.el")
+      (progn
+        (require 'ob)
+        (org-babel-tangle-file "~/.emacs.d/configuration.org")
+        (byte-compile-file "~/.emacs.d/configuration.el")))
+(let ((time (current-time)))
+  (load-file "~/.emacs.d/configuration.el")
+  (with-current-buffer (get-buffer "*scratch*")
+    (insert (format "Setup took %f seconds!\n" (float-time (time-since time))))
+    (let ((buf (or (get-buffer "*warnings*")
+                   (get-buffer "*use-package*"))))
+      (if (and debug-on-error buf)
+          (progn
+            (insert (format "Debug information from use-package:\n"))
+            (insert-buffer (get-buffer "*use-package*")))))
+    )
+  )
+;(org-babel-load-file "~/.emacs.d/debug.org")
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
