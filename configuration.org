@@ -821,36 +821,6 @@ Hydra is a package which allows fancy keyboard bindings
      #+BEGIN_SRC emacs-lisp
 
      #+END_SRC
-**** Helm-projectile
-     #+BEGIN_SRC emacs-lisp
-     #+END_SRC
-*** Helm Keybindings
-    #+BEGIN_SRC emacs-lisp
-;; (global-set-key (kbd "C-c h") 'helm-command-prefix)
-;; (global-unset-key (kbd "C-x c"))
-;; (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
-;; (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
-;; (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
-;; (define-key helm-grep-mode-map (kbd "<return>")  'helm-grep-mode-jump-other-window)
-;; (define-key helm-grep-mode-map (kbd "n")  'helm-grep-mode-jump-other-window-forward)
-;; (define-key helm-grep-mode-map (kbd "p")  'helm-grep-mode-jump-other-window-backward)
-;; (global-set-key (kbd "M-x") 'helm-M-x)
-;; (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-;; (global-set-key (kbd "C-x b") 'helm-mini)
-;; (global-set-key (kbd "C-x C-f") 'helm-find-files)
-;; (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
-; (global-set-key (kbd "C-c h o") 'helm-occur)
-;; (global-set-key (kbd "C-c h C-c w") 'helm-wikipedia-suggest)
-;; (global-set-key (kbd "C-c h x") 'helm-register)
-;; ;; (global-set-key (kbd "C-x r j") 'jump-to-register)
-;; (define-key 'help-command (kbd "C-f") 'helm-apropos)
-;; (define-key 'help-command (kbd "r") 'helm-info-emacs)
-;; (define-key 'help-command (kbd "C-l") 'helm-locate-library)
-;; (define-key minibuffer-local-map (kbd "M-p") 'helm-minibuffer-history)
-;; (define-key minibuffer-local-map (kbd "M-n") 'helm-minibuffer-history)
-
-
-    #+END_SRC
 ** Yasnippet
    #+BEGIN_SRC emacs-lisp
 (defun disable-yas-in-mode-hook ()
@@ -858,6 +828,7 @@ Hydra is a package which allows fancy keyboard bindings
   (yas-minor-mode -1))
 (use-package yasnippet
   :defer 4
+  :after cc-mode
   :config
   (set 'yas-verbosity 1)
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/tuhdosnippets/")
@@ -903,7 +874,8 @@ Hydra is a package which allows fancy keyboard bindings
    #+BEGIN_SRC emacs-lisp
 (use-package tex
   :ensure auctex
-  :init
+  :defer 2
+  :config
   (use-package latex
     :ensure nil
     :mode (("\\.tex$" . TeX-mode))
@@ -948,12 +920,11 @@ Hydra is a package which allows fancy keyboard bindings
 *** Basic
     #+BEGIN_SRC emacs-lisp
       (use-package company
-        :defer 2
+        :after cc-mode
         :diminish company-mode
         :config
         (message "Company")
         (global-company-mode t)
-        (require 'cc-mode)
         (define-key c-mode-map  [(tab)] 'company-complete)
         (define-key c++-mode-map  [(tab)] 'company-complete)
         (define-key c-mode-map (kbd "TAB") 'company-complete)
@@ -1028,7 +999,7 @@ Hydra is a package which allows fancy keyboard bindings
 ***** C-headers
       #+BEGIN_SRC emacs-lisp
 (use-package company-c-headers
-  :after company
+  :after (cc-mode company)
   :config
   (when (string= system-name "fed-lap")
     (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.2.1/")
@@ -1053,6 +1024,7 @@ Hydra is a package which allows fancy keyboard bindings
     'counsel-irony))
 (use-package irony
   :defer 2
+  :after cc-mode
   :config
   (add-hook 'irony-mode-hook 'my-irony-mode-hook)
   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
@@ -1072,7 +1044,7 @@ Hydra is a package which allows fancy keyboard bindings
 **** Rtags
      #+BEGIN_SRC emacs-lisp 
 (use-package rtags
-  :after company
+  :after (company cc-mode)
   :when (executable-find "rdm")
   :config
   (require 'rtags)
@@ -1100,15 +1072,15 @@ Hydra is a package which allows fancy keyboard bindings
         :when (file-exists-p "/home/einarelen/src/ycmd/ycmd/")
     :disabled t
     :diminish ycmd-mode
-    :defer 2
+    :after cc-mode    
     :config
     (add-hook 'c-mode-hook 'ycmd-mode)
     (add-hook 'c++-mode-hook 'ycmd-mode)
     (set-variable 'ycmd-server-command
                   '("python" "/home/einarelen/src/ycmd/ycmd/"))
     (use-package company-ycmd
-      :defer 5
-      :init
+      :after (company cc-mode)
+      :config
       (company-ycmd-setup)))
      #+END_SRC
 **** Flycheck
@@ -1121,7 +1093,7 @@ Hydra is a package which allows fancy keyboard bindings
   (rtags-enable-standard-keybindings))
 (use-package flycheck-rtags
   :ensure nil
-  :after (flycheck rtags)
+  :after (cc-mode flycheck rtags)
   :config
   (add-hook 'c-mode-common-hook 'another-flycheck-rtags-setup)
   (setq-local flycheck-highlighting-mode nil))
@@ -1138,8 +1110,7 @@ Hydra is a package which allows fancy keyboard bindings
 **** Clang Format
      #+BEGIN_SRC emacs-lisp
 (use-package clang-format
-  
-  :defer 2
+  :after cc-mode
   :bind (:map
          c-mode-map
          ("C-c f" . clang-format-region)
@@ -1150,7 +1121,13 @@ Hydra is a package which allows fancy keyboard bindings
      #+END_SRC
 **** Semantic and Semantic Refactor
      #+BEGIN_SRC emacs-lisp
-(require 'cc-mode)
+(use-package cc-mode
+  :defer t
+  :config
+  (define-key c-mode-map (kbd "C-c o") 'ff-find-other-file)
+  (define-key c++-mode-map (kbd "C-c o") 'ff-find-other-file)
+  (define-key c-mode-map (kbd "C-c C-c") 'comment-dwim-2)
+  (define-key c++-mode-map (kbd "C-c C-c") 'comment-dwim-2))
 ;; (require 'semantic)
 ;; (global-semanticdb-minor-mode 1)
 ;; (global-semantic-idle-scheduler-mode 1)
@@ -1162,14 +1139,6 @@ Hydra is a package which allows fancy keyboard bindings
 ;;     (define-key c++-mode-map (kbd "M-<return>") 'srefactor-refactor-at-point)
 ;; (semantic-add-system-include "/usr/include/boost/" 'c++-mode)
      #+END_SRC
-*** C/C++ Keybindings
-    #+BEGIN_SRC emacs-lisp
-(define-key c-mode-map (kbd "C-c o") 'ff-find-other-file)
-(define-key c++-mode-map (kbd "C-c o") 'ff-find-other-file)
-(define-key c-mode-map (kbd "C-c C-c") 'comment-dwim-2)
-(define-key c++-mode-map (kbd "C-c C-c") 'comment-dwim-2)
-    #+END_SRC
-
 ** Emacs Lisp
 *** Eldoc
     #+BEGIN_SRC emacs-lisp
@@ -1183,7 +1152,7 @@ Hydra is a package which allows fancy keyboard bindings
 ;;   (progn (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode) (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode) (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)))
 
     #+END_SRC
-
+    
 * Org Mode
 ** Basic Setup
    #+BEGIN_SRC emacs-lisp
@@ -1192,6 +1161,7 @@ Hydra is a package which allows fancy keyboard bindings
   (interactive)
   (org-babel-load-file "~/.emacs.d/configurations.org"))
 (use-package org
+  :ensure org-plus-contrib
   :commands (org-mode org-babel-load-file org-babel-tangle-file)
   :config
   (setq org-src-preserve-indentation t)
@@ -1267,11 +1237,14 @@ Hydra is a package which allows fancy keyboard bindings
 ** Calendar
    #+BEGIN_SRC emacs-lisp
 (use-package calfw
+  :disabled t
   :after org
   :config
   (require 'calfw-org))
 (use-package org-gcal
   :commands org-gcal
+  :disabled t
+  :after calfw
   :config
   (setq org-gcal-client-id "393897935817-6f7lc36osa9o9kqc10u65hhstu8idp4o.apps.googleusercontent.com" org-gcal-client-secret "GIgx5Re1yKKboMSPn1aUREs8" org-gcal-file-alist '(("einar.elen@gmail.com" . "/home/einarelen/ownCloud/org/cal/main.org"))))
   ;;; https://calendar.google.com/calendar/ical/einar.elen%40gmail.com/private-97060e03f66653b16c4d6c7164f8d633/basic.ics
@@ -1507,6 +1480,8 @@ Hydra is a package which allows fancy keyboard bindings
    #+END_SRC
 ** Elisp Development
    #+BEGIN_SRC emacs-lisp 
+(use-package paredit
+        :defer t)
 (defun disable-smartparens ()
   (interactive)
   "Disables smartparens."
@@ -1546,6 +1521,7 @@ Hydra is a package which allows fancy keyboard bindings
       (use-package redshank
         :diminish redshank-mode)
       (use-package elisp-slime-nav
+        :disabled t
         :diminish elisp-slime-nav-mode)
       (use-package edebug)
       (use-package eldoc
@@ -1609,9 +1585,11 @@ Hydra is a package which allows fancy keyboard bindings
                :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
             lisp-modes))
     (auto-fill-mode 1)
+    (when (featurep 'elisp-slime-nav-mode)
+      (elisp-slime-nav-mode 1))
     (paredit-mode 1)
-    (redshank-mode 1)
-    (elisp-slime-nav-mode 1)
+    (when (featurep 'redshank-mode)
+      (redshank-mode 1))
     (local-set-key (kbd "<return>") 'paredit-newline)
     (bind-key "<tab>" #'my-elisp-indent-or-complete emacs-lisp-mode-map)
     (add-hook 'after-save-hook 'check-parens nil t)
@@ -1633,8 +1611,8 @@ Hydra is a package which allows fancy keyboard bindings
    #+END_SRC
 * To be integrated
   #+BEGIN_SRC emacs-lisp
-
-(require 'xah-replace-pairs)
+(use-package xah-replace-pairs
+  :defer t)
 (defvar multireplace-list nil "Nah.")
 (defvar multireplace-pair-first nil "nah.")
 (defvar multireplace-pair-second nil "nah.")
@@ -1651,10 +1629,11 @@ Hydra is a package which allows fancy keyboard bindings
   (xah-replace-pairs-region first second multireplace-list)
   (setq multireplace-list nil multireplace-pair-first nil multireplace-pair-second nil))
 
-(require 'multiple-cursors)
-(global-set-key (kbd "C-M-.") 'mc/mark-next-like-this)
+(use-package multiple-cursors
+  :bind (("C-M-." . mc/mark-next-like-this))
+)
 (use-package spaceline
-  :defer 3
+  :defer 1
   :config
   (use-package spaceline-config
     :ensure nil
@@ -1779,14 +1758,27 @@ Hydra is a package which allows fancy keyboard bindings
           (while (search-forward -fromRight nil t)
             (overlay-put (make-overlay (match-beginning 0) (match-end 0)) 'face 'highlight)
             (replace-match -toRight 'FIXEDCASE 'LITERAL)))))))
-(require 'server)
-(unless (server-running-p)
-  (server-start))
-(load-theme 'spacemacs-dark t)
+(use-package server
+  :defer t
+  :config
+  (unless (server-running-p)
+    (server-start)))
+(use-package macrostep
+  :after lisp-mode
+  )
+(use-package spacemacs-common
+  :ensure spacemacs-theme
+  :config (load-theme 'spacemacs-dark t)
+  )
+;; (use-package spacemacs-theme
+;; :ensure t
+;; :defer nil
+;; )
+;;  (load-theme 'spacemacs-dark t)
   #+END_SRC
-** COMMENT ESUP
-#+BEGIN_SRC emacs-lisp 
-n(use-package f
+** ESUP                                                           :CANCELLED:
+ #+BEGIN_SRC emacs-lisp 
+(use-package f
   :defer t
   )
 (use-package esup
@@ -1836,7 +1828,7 @@ n(use-package f
      (save-buffer)
      )))
 
-#+END_SRC
+ #+END_SRC
 
 
 
