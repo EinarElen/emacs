@@ -1049,9 +1049,6 @@ Hydra is a package which allows fancy keyboard bindings
   :config
   (require 'rtags)
   (use-package company-rtags
-    :ensure nil
-    :init
-    (message "Remember to set up company-rtags ensure!")
     :config
     (with-eval-after-load 'company
       '(add-to-list 'company-backends 'company-rtags))
@@ -1382,7 +1379,7 @@ Hydra is a package which allows fancy keyboard bindings
   (interactive "sLastpass account: ")
   (shell-command (concat "lpass login " login-name)))
 (defun lp-ls
-    &optional args output-buffer error-buffer
+    (&optional args output-buffer error-buffer)
   "Derp"
   (interactive "s(Optional) Groupname:
    s(Optional) Output buffer: ")
