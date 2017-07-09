@@ -126,15 +126,13 @@
     It is currently only enabled on linux and cygwin.
     #+BEGIN_SRC emacs-lisp 
       (use-package pdf-tools
-        :disabled t
           :when (or (eq system-type 'gnu/linux)
             (eq system-type 'cygwin))
-          :ensure auctex
-          :after tex
+          ;:ensure auctex
+          ;:after tex
           :mode (("\\.pdf\\'" . pdf-view-mode))
           :config
           (pdf-tools-install)
-          (message "In Pdf-tools")
           (setq-default pdf-view-display-size 'fit-page)
           (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
           (when TeX-view-program-selection (add-to-list 'TeX-view-program-selection '((output-pdf "pdf-tools"))))
@@ -290,11 +288,13 @@ Hydra is a package which allows fancy keyboard bindings
   :disabled t
   :defer 1
   :init (powerline-vim-theme))
-(use-package nlinum
-  :defer 3
-  :config
-  (message "nlinum")
-  (global-nlinum-mode t))
+(if (boundp display-line-numbers)
+    ;(setq display-line-numbers t)
+    (customize-set-value 'display-line-numbers "visible")
+    (use-package nlinum
+      :defer 3
+      :config
+      (global-nlinum-mode t)))
 (defcustom linum-disabled-modes-list
   '(eshell-mode wl-summary-mode compilation-mode org-mode text-mode dired-mode doc-view-mode)
   "List of modes disabled when global linum mode is on"
@@ -1048,10 +1048,17 @@ Hydra is a package which allows fancy keyboard bindings
   :when (executable-find "rdm")
   :config
   (require 'rtags)
+  (use-package company-rtags
+    :ensure nil
+    :init
+    (message "Remember to set up company-rtags ensure!")
+    :config
+    (with-eval-after-load 'company
+      '(add-to-list 'company-backends 'company-rtags))
+    )
+  (setq rtags-completions-enabled t)
   (setq rtags-autostart-diagnostics t)
   (rtags-diagnostics)
-  (setq rtags-completions-enabled t)
-  (push 'company-rtags company-backends)
   (bind-key "M-." 'rtags-find-symbol-at-point c++-mode-map)
   (bind-key "M-." 'rtags-find-symbol-at-point c-mode-map)
   (bind-key "M-," 'rtags-location-stack-back c-mode-map)
@@ -1375,7 +1382,7 @@ Hydra is a package which allows fancy keyboard bindings
   (interactive "sLastpass account: ")
   (shell-command (concat "lpass login " login-name)))
 (defun lp-ls
-    (&optional args &optional output-buffer &optional error-buffer)
+    &optional args output-buffer error-buffer
   "Derp"
   (interactive "s(Optional) Groupname:
    s(Optional) Output buffer: ")
@@ -1383,7 +1390,7 @@ Hydra is a package which allows fancy keyboard bindings
       (shell-command (concat "lpass ls " args))
     (shell-command (concat "lpass ls " args) output-buffer error-buffer)))
 
-(defun lp-show (name &optional output-buffer &optional error-buffer)
+(defun lp-show (name &optional output-buffer error-buffer)
   "darp"
   (interactive "sName: ")
   (if (string= output-buffer "") (shell-command (concat "lpass show" name))(shell-command (concat "lpass show " name) output-buffer error-buffer)))
@@ -1394,7 +1401,7 @@ Hydra is a package which allows fancy keyboard bindings
 (defun lp-insert-ls (&optional args)
   "Derp"
   (interactive "s(Optional) Groupname:") (lp-ls args t))
-(defun lp-get-password (name &optional output-buffer &optional error-buffer)
+(defun lp-get-password (name &optional output-buffer error-buffer)
   (interactive "sName: ")
   (lp-show (concat name "| grep password | grep -v sudo | cut -d\" \" -f2 ") output-buffer error-buffer))
 
@@ -1461,8 +1468,8 @@ Hydra is a package which allows fancy keyboard bindings
              org-notes-latex-help
              org-notes-math-help))
 (use-package meson-ide
-  :when (file-exists-p (expand-file-name "org-notes-mode/meson-ide"))
-  :load-path "~/.emacs.d/org-notes/meson-ide"
+  :when (file-exists-p (expand-file-name "~/meson-ide"))
+  :load-path "~/meson-ide"
   :ensure nil
   :defer 3
   :preface
