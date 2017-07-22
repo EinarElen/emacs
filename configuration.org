@@ -1457,7 +1457,8 @@ Hydra is a package which allows fancy keyboard bindings
    #+BEGIN_SRC emacs-lisp
 ;(semantic-mode -1)
 (use-package org-notes
-  :load-path "~/.emacs.d/org-notes/"
+  :when (file-exists-p "~/ownCloud/projects/elisp/")
+  :load-path "~/ownCloud/projects/elisp/"
   :ensure nil
   :commands (org-notes-mode
              toggle-org-latex-export-on-save
@@ -1676,6 +1677,39 @@ Hydra is a package which allows fancy keyboard bindings
 
 
 (global-prettify-symbols-mode t)
+(use-package "eshell"
+  :bind (("<f9>" . eshell-here))
+  :init
+  (defun eshell-here ()
+    "Opens up a new shell in the directory associated with the
+current buffer's file. The eshell is renamed to match that
+directory to make multiple eshell windows easier."
+    (interactive)
+    (let* ((parent (if (buffer-file-name)
+                       (file-name-directory (buffer-file-name))
+                     default-directory))
+           (height (/ (window-total-height) 3))
+           (name   (car (last (split-string parent "/" t)))))
+      (split-window-vertically (- height))
+      (other-window 1)
+      (eshell "new")
+      (rename-buffer (concat "*eshell: " name "*"))
+
+      (insert (concat "ls"))
+      (eshell-send-input)))
+  :config
+  (use-package "em-smart"
+    :ensure nil
+    :config
+    (setq eshell-where-to-jump 'begin)
+    (setq eshell-review-quick-commands nil)
+    (setq eshell-smart-space-goes-to-end t))
+  (defun eshell/x ()
+    (insert "exit")
+    (eshell-send-input)
+    (delete-window))
+  )
+
 (bind-key "<f9>" 'eshell)
 (use-package expand-region
   :defer t

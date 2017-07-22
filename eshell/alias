@@ -1,0 +1,6 @@
+ alias ff 'find-file $1'
+ alias d 'dired $1'
+ alias l 'ls -la'
+ alias la 'ls -a'
+ alias ll 'ls -l'
+ alias dnf 'sudo dnf'
