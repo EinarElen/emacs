@@ -1615,6 +1615,9 @@ Hydra is a package which allows fancy keyboard bindings
    #+END_SRC
 * To be integrated
   #+BEGIN_SRC emacs-lisp
+(use-package cask-mode
+  :defer t
+  )
 (use-package xah-replace-pairs
   :defer t)
 (defvar multireplace-list nil "Nah.")
