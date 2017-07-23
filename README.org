@@ -1,0 +1,6 @@
+* About
+
+This is my personal emacs configuration. It is likely full of mistakes and other
+disasters but might include something interesting in some places. Everything is
+bootstrapped in [[init.el]] and the configuration is in [[configuration.org]].
+
