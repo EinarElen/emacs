@@ -921,7 +921,6 @@ Hydra is a package which allows fancy keyboard bindings
 *** Basic
     #+BEGIN_SRC emacs-lisp
       (use-package company
-        :after cc-mode
         :diminish company-mode
         :config
         (message "Company")
@@ -930,6 +929,9 @@ Hydra is a package which allows fancy keyboard bindings
         (define-key c++-mode-map  [(tab)] 'company-complete)
         (define-key c-mode-map (kbd "TAB") 'company-complete)
         (define-key c++-mode-map (kbd "TAB") 'company-complete)
+        (define-key emacs-lisp-mode-map (kbd "TAB") 'company-complete)
+        (define-key python-mode-map (kbd "TAB") 'company-complete)
+
         (setq company-idle-delay 0.001
               company-tooltip-idle-delay 0.001
               company-clang-arguments (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic -I./ -I./include/ -I../include/ -I../"))
@@ -1336,30 +1338,49 @@ Hydra is a package which allows fancy keyboard bindings
 (setq gnus-dired-mail-mode 'mu4e-user-agent)
 (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
     #+END_SRC
-*** Mu4e
+*** COMMENT Mu4e
     #+BEGIN_SRC emacs-lisp
+(use-package offlineimap
+  :init
+  (defun offlineimap-get-password (host port)
+    (let* ((netrc (netrc-parse (expand-file-name "~/.netrc.gpg")))
+           (hostentry (netrc-machine netrc host port port)))
+      (when hostentry (netrc-get hostentry "password"))))
+
+
+  )
+
 (use-package mu4e
   :ensure nil
   :when (executable-find "mu")
-  :load-path "~/.emacs.d/mu4e"
+  :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
   :config
+  (global-set-key (kbd "<f12>") 'mu4e)
+  (require 'smtpmail)
   (use-package mu4e-contrib
     :ensure nil
-    :load-path "~/.emacs.d/mu4e/"
+    :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
+    )
+  (use-package mu4e-org
+    :ensure nil
+    :after org
     )
   (setq mu4e-maildir "~/Maildir"
-        mu4e-drafts-folder "/[Gmail].Drafts"
-        mu4e-sent-folder   "/[Gmail].Sent Mail"
-        mu4e-trash-folder  "/[Gmail].Trash"
+        mu4e-drafts-folder "/Drafts"
+        mu4e-sent-folder   "/Sent Mail"
+        mu4e-trash-folder  "/Trash"
         mu4e-sent-messages-behavior 'delete
-        mu4e-maildir-shortcuts
-        '(("/INBOX"               . ?i)
-          ("/[Gmail].Sent Mail"   . ?s)
-          ("/[Gmail].Trash"       . ?t)
-          ("/[Gmail].All Mail"    . ?a))
+        mu4e-use-fancy-chars t
+        mu4e-attachment-dir "~/Downloads/"
+        mu4e-view-show-images
+                                        ;mu4e-maildir-shortcuts
+        ;; '(("/INBOX"               . ?i)
+        ;;   ("/[Gmail].Sent Mail"   . ?s)
+        ;;   ("/[Gmail].Trash"       . ?t)
+        ;;   ("/[Gmail].All Mail"    . ?a))
         mu4e-get-mail-command "offlineimap"
         mu4e-update-interval 450)
-  (require 'smtpmail)
+  
   (setq message-send-mail-function 'smtpmail-send-it
         smtpmail-stream-type 'starttls
         smtpmail-default-smtp-server "smtp.gmail.com"
@@ -1367,34 +1388,53 @@ Hydra is a package which allows fancy keyboard bindings
         smtpmail-smtp-service 587)
   (setq mu4e-html2text-command 'mu4e-shr2text)
   (setq mu4e-contexts
-      `( ,(make-mu4e-context
-           :name "Lund"
-           :enter-func (lambda () (mu4e-message "Entering Lund Context"))
-           :leave-func (lambda () (mu4e-message "Leaving Lund Context"))
-           :match-func (lambda (message)
-                         (when message
-                           (or (mu4e-message-contact-field-matches
-                                message :to "nat13eel@student.lu.se")
-                               )))
-           :vars '((user-mail-address . "nat13eel@student.lu.se")
-                   (user-full-name . "Einar Elén")))
-         ,(make-mu4e-context
-           :name "Gmail"
-           :enter-func (lambda () (mu4e-message "Entering Gmail Context"))
-           :leave-func (lambda () (mu4e-message "Leaving Gmail Context"))
-           :match-func (lambda (message)
-                         (when message
-                           (or (mu4e-message-contact-field-matches
-                                message :to "einar.elen@gmail.com")
-                               (mu4e-message-contact-field-matches
-                                message :to "jol-ordf@luna.lu.se"))))
-           :vars '((user-mail-address . "einar.elen@gmail.com")
-                   (user-full-name . "Einar Elén"))))))
+        `( ,(make-mu4e-context
+             :name "Lund"
+             :enter-func (lambda () (mu4e-message "Entering Lund Context"))
+             :leave-func (lambda () (mu4e-message "Leaving Lund Context"))
+             :match-func (lambda (message)
+                           (when message
+                             (or (mu4e-message-contact-field-matches
+                                  message :to "nat13eel@student.lu.se")
+                                 )))
+             :vars '((user-mail-address . "nat13eel@student.lu.se")
+                     (user-full-name . "Einar Elén")))
+           ,(make-mu4e-context
+             :name "Gmail"
+             :enter-func (lambda () (mu4e-message "Entering Gmail Context"))
+             :leave-func (lambda () (mu4e-message "Leaving Gmail Context"))
+             :match-func (lambda (message)
+                           (when message
+                             (or (mu4e-message-contact-field-matches
+                                  message :to "einar.elen@gmail.com")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "jol-ordf@luna.lu.se"))))
+             :vars '((user-mail-address . "einar.elen@gmail.com")
+                     (user-full-name . "Einar Elén")))
+           ,(make-mu4e-context
+             :name "Outlook"
+             :enter-func (lambda () (mu4e-message "Entering Outlook Context"))
+             :leave-func (lambda () (mu4e-message "Leaving Outlook Context"))
+             :match-func (lambda (message)
+                           (when message
+                             (or (mu4e-message-contact-field-matches
+                                  message :to "einar_elen@live.se")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "Einar_elen@live.se")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "EINAR_ELEN@live.se")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "Einar_Elen@live.se")
+                                 )))
+             :vars '((user-mail-address . "einar_elen@live.se")
+                     (user-full-name . "Einar Elén")))
+           )))
 
     #+END_SRC
 *** Gnus
 ** IRC
    #+BEGIN_SRC emacs-lisp
+
    #+END_SRC
 * Utilities
 ** Lastpass
@@ -1474,7 +1514,7 @@ Hydra is a package which allows fancy keyboard bindings
                return-from-mu4e-is-next t mu4e-is-next nil) (mu4e))
 
        )
-(global-set-key (kbd "<f7>") 'switch-to-mu4e)
+
 (global-set-key (kbd "<f8>") 'switch-configuration))
    #+END_SRC
 * Experimental
