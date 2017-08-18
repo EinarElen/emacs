@@ -14,6 +14,7 @@
     #+BEGIN_SRC emacs-lisp
 (defconst demo-packages
   '(magit swiper-helm
+    nameless 
     esup
     company-ycmd hydra
     ace-window transpose-frame
@@ -272,9 +273,9 @@ Hydra is a package which allows fancy keyboard bindings
      "Horizontal")
     ("t" transpose-frame "'")
     ("1" delete-other-windows "Delete All" :color blue)
-    ("a" ace-window "Ace")
-    ("s" ace-swap-window "Swap")
-    ("d" ace-delete-window "Del")
+    ("A" ace-window "Ace")
+    ("S" ace-swap-window "Swap")
+    ("k" ace-delete-window "Kill")
     ("i" ace-maximize-window "Ace-max")
     ("b" helm-mini "Buffers")
     ("q" nil "cancel" :color blue)))
@@ -1028,8 +1029,8 @@ Hydra is a package which allows fancy keyboard bindings
   :config
   (add-hook 'irony-mode-hook 'my-irony-mode-hook)
   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-  (add-hook 'c++-mode-hook 'irony-mode)
-  (add-hook 'c-mode-hook 'irony-mode)
+;  (add-hook 'c++-mode-hook 'irony-mode)
+  ;(add-hook 'c-mode-hook 'irony-mode)
   (use-package company-irony
     :after company
     :config
@@ -1338,12 +1339,14 @@ Hydra is a package which allows fancy keyboard bindings
 *** Mu4e
     #+BEGIN_SRC emacs-lisp
 (use-package mu4e
-  :disabled t
   :ensure nil
-  :when (and (equal emacs-major-version 25) (file-exists-p "/usr/local/bin/mu"))
+  :when (executable-find "mu")
   :load-path "~/.emacs.d/mu4e"
   :config
-  (require 'mu4e-contrib)
+  (use-package mu4e-contrib
+    :ensure nil
+    :load-path "~/.emacs.d/mu4e/"
+    )
   (setq mu4e-maildir "~/Maildir"
         mu4e-drafts-folder "/[Gmail].Drafts"
         mu4e-sent-folder   "/[Gmail].Sent Mail"
@@ -1363,9 +1366,31 @@ Hydra is a package which allows fancy keyboard bindings
         smtpmail-smtp-server "smtp.gmail.com"
         smtpmail-smtp-service 587)
   (setq mu4e-html2text-command 'mu4e-shr2text)
-  (defun run-mu4e-after-init ()      (mu4e))
-                                        ;(add-hook 'after-init-hook 'run-mu4e-after-init)
-  )
+  (setq mu4e-contexts
+      `( ,(make-mu4e-context
+           :name "Lund"
+           :enter-func (lambda () (mu4e-message "Entering Lund Context"))
+           :leave-func (lambda () (mu4e-message "Leaving Lund Context"))
+           :match-func (lambda (message)
+                         (when message
+                           (or (mu4e-message-contact-field-matches
+                                message :to "nat13eel@student.lu.se")
+                               )))
+           :vars '((user-mail-address . "nat13eel@student.lu.se")
+                   (user-full-name . "Einar Elén")))
+         ,(make-mu4e-context
+           :name "Gmail"
+           :enter-func (lambda () (mu4e-message "Entering Gmail Context"))
+           :leave-func (lambda () (mu4e-message "Leaving Gmail Context"))
+           :match-func (lambda (message)
+                         (when message
+                           (or (mu4e-message-contact-field-matches
+                                message :to "einar.elen@gmail.com")
+                               (mu4e-message-contact-field-matches
+                                message :to "jol-ordf@luna.lu.se"))))
+           :vars '((user-mail-address . "einar.elen@gmail.com")
+                   (user-full-name . "Einar Elén"))))))
+
     #+END_SRC
 *** Gnus
 ** IRC
@@ -1467,11 +1492,12 @@ Hydra is a package which allows fancy keyboard bindings
              org-notes-math-help))
 (use-package meson-ide
   :when (file-exists-p (expand-file-name "~/meson-ide"))
+  :after org-mode
+  :disabled t
   :load-path "~/meson-ide"
   :ensure nil
   :defer 3
   :preface
-  :disabled t
   (defun compile-meson-ide ()
     (when nil (let ((default-directory "~/.emacs.d/org-notes-mode/meson-ide/"))
               (org-babel-tangle-file "meson-ide.org"))))
@@ -1616,6 +1642,32 @@ Hydra is a package which allows fancy keyboard bindings
    #+END_SRC
 * To be integrated
   #+BEGIN_SRC emacs-lisp
+(setq help-window-select t)
+(use-package window-purpose
+  :disabled t
+  :init
+  (use-package helm-purpose
+    :after helm
+    :config
+    (purpose-mode)
+    (helm-purpose-setup)
+    (setq purpose-preferred-prompt 'helm)
+    )
+  :config
+  )
+(use-package swiper
+  :bind (("C-s" . swiper)
+         ("C-r" . swiper))
+  :config
+  ;; (use-package swiper-helm
+  ;;   )
+  )
+(use-package nameless
+  :after (lisp-mode org-mode)
+  :config
+  (add-hook 'emacs-lisp-mode-hook #'nameless-mode)
+  (add-hook 'org-mode-hook #'nameless-mode)
+  )
 (use-package cask-mode
   :defer t
   )
@@ -1677,10 +1729,7 @@ Hydra is a package which allows fancy keyboard bindings
 
 
 (global-prettify-symbols-mode t)
-(use-package "eshell"
-  :bind (("<f9>" . eshell-here))
-  :init
-  (defun eshell-here ()
+(defun eshell-here ()
     "Opens up a new shell in the directory associated with the
 current buffer's file. The eshell is renamed to match that
 directory to make multiple eshell windows easier."
@@ -1689,14 +1738,49 @@ directory to make multiple eshell windows easier."
                        (file-name-directory (buffer-file-name))
                      default-directory))
            (height (/ (window-total-height) 3))
-           (name   (car (last (split-string parent "/" t)))))
+           (name   (car (last (split-string parent "/" t))))
+           (_eshell-name (concat "*eshell: " name "*"))
+           (already-existing (get-buffer _eshell-name)))
       (split-window-vertically (- height))
       (other-window 1)
-      (eshell "new")
-      (rename-buffer (concat "*eshell: " name "*"))
-
+      (if already-existing
+          (switch-to-buffer _eshell-name)
+          (eshell "new")
+          (rename-buffer _eshell-name))
       (insert (concat "ls"))
       (eshell-send-input)))
+(defun scratch-here (&optional region-begin region-end)
+  "Opens a new scratch-buffer associated with the current buffer to the side of
+the current buffer.
+
+If region is active, or REGION-BEGIN and REGION-END are set, insert content of
+region into scratch buffer. If associated scratch buffer already exists, open it
+and insert region contents at top."
+  (interactive (if (use-region-p)
+                   (list (region-beginning) (region-end))
+                 (list nil nil)))
+  (let* ((curr-buffer-name (buffer-name (current-buffer)))
+         (scratch-buffer-name (concat "*scratch " curr-buffer-name "*"))
+         (scratch-buffer (get-buffer-create scratch-buffer-name))
+         (region-string (if (and region-begin region-end)
+                            (buffer-substring-no-properties region-begin
+                                                            region-end) nil))
+         (scratch-window-open (get-buffer-window scratch-buffer)))
+    (if scratch-window-open
+        (select-window scratch-window-open)
+      (split-window-horizontally)
+      (other-window 1)
+      (switch-to-buffer scratch-buffer))
+    (emacs-lisp-mode)
+    (when region-string (insert region-string)))
+  (goto-char (point-min)))
+
+(bind-key "<f7>" 'scratch-here)
+(use-package "eshell"
+  :ensure nil
+  :commands (eshell-here eshell)
+  :init
+  (bind-key "<f9>" 'eshell-here)
   :config
   (use-package "em-smart"
     :ensure nil
@@ -1710,7 +1794,6 @@ directory to make multiple eshell windows easier."
     (delete-window))
   )
 
-(bind-key "<f9>" 'eshell)
 (use-package expand-region
   :defer t
   :config 
@@ -1801,9 +1884,18 @@ directory to make multiple eshell windows easier."
             (replace-match -toRight 'FIXEDCASE 'LITERAL)))))))
 (use-package server
   :defer t
+  :after eshell
   :config
   (unless (server-running-p)
-    (server-start)))
+    (server-start)
+    ))
+(unless (get-buffer "*Standalone Eshell*")
+  (save-window-excursion
+    (eshell)
+    (rename-buffer "*Standalone Eshell*")))
+(defun goto-standalone-eshell ()
+  (interactive)
+  (switch-to-buffer "*Standalone Eshell*"))
 (use-package macrostep
   :after lisp-mode
   )
@@ -1862,9 +1954,9 @@ directory to make multiple eshell windows easier."
     (let ((to-delete (find-file generate-init-file-name)))
       (erase-buffer)
       (insert-file-contents "~/.emacs.d/debug-helper.el")
-      (end-of-buffer)
+      (goto-char (point-max))
       (insert-file-contents "~/.emacs.d/configuration.el")
-      (end-of-buffer)
+      (goto-char (point-max))
      (insert "\n")
      (save-buffer)
      )))
