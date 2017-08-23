@@ -285,40 +285,41 @@ Hydra is a package which allows fancy keyboard bindings
     Adds line numbering to and a nice information bar below each buffer
     and some other neat things
     #+BEGIN_SRC emacs-lisp
-(use-package powerline
-  :disabled t
-  :defer 1
-  :init (powerline-vim-theme))
-(if (boundp display-line-numbers)
-    ;(setq display-line-numbers t)
-    (customize-set-value 'display-line-numbers "visible")
-    (use-package nlinum
-      :defer 3
-      :config
-      (global-nlinum-mode t)))
-(defcustom linum-disabled-modes-list
-  '(eshell-mode wl-summary-mode compilation-mode org-mode text-mode dired-mode doc-view-mode)
-  "List of modes disabled when global linum mode is on"
-  :type '(repeat (sexp :tag "Major mode"))
-  :tag " Major modes where linum is disabled: "
-  :group 'linum)
-(defcustom linum-disable-starred-buffers 't
-  "* Disable buffers that have stars in them like *Gnu Emacs*"
-  :type 'boolean
-  :group 'linum)
-(defun linum-on ()
-  "* When linum is running globally, disable line number in modes defined in
-        `linum-disabled-modes-list'. Changed by linum-off. Also turns off numbering
-       in starred modes like *scratch*"
-  (unless (or (minibufferp) (member major-mode linum-disabled-modes-list)
-              (and linum-disable-starred-buffers (string-match "*" (buffer-name))))
-    (nlinum-mode 1)))
 
-(use-package color-identifiers-mode
-  :diminish color-identifiers-mode
-  :defer 4
-  :config
-  (global-color-identifiers-mode t))
+      (use-package powerline
+        :disabled t
+        :defer 1
+        :init (powerline-vim-theme))
+      (if (boundp 'display-line-numbers)
+          ;(setq display-line-numbers t)
+          (customize-set-value 'display-line-numbers "visible")
+          (use-package nlinum
+            :defer 3
+            :config
+            (global-nlinum-mode t)))
+      (defcustom linum-disabled-modes-list
+        '(eshell-mode wl-summary-mode compilation-mode org-mode text-mode dired-mode doc-view-mode)
+        "List of modes disabled when global linum mode is on"
+        :type '(repeat (sexp :tag "Major mode"))
+        :tag " Major modes where linum is disabled: "
+        :group 'linum)
+      (defcustom linum-disable-starred-buffers 't
+        "* Disable buffers that have stars in them like *Gnu Emacs*"
+        :type 'boolean
+        :group 'linum)
+      (defun linum-on ()
+        "* When linum is running globally, disable line number in modes defined in
+              `linum-disabled-modes-list'. Changed by linum-off. Also turns off numbering
+             in starred modes like *scratch*"
+        (unless (or (minibufferp) (member major-mode linum-disabled-modes-list)
+                    (and linum-disable-starred-buffers (string-match "*" (buffer-name))))
+          (nlinum-mode 1)))
+
+      (use-package color-identifiers-mode
+        :diminish color-identifiers-mode
+        :defer 4
+        :config
+        (global-color-identifiers-mode t))
 
     #+END_SRC
 *** Random Themes
