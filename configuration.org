@@ -1332,7 +1332,13 @@ Hydra is a package which allows fancy keyboard bindings
 (use-package mu4e
   :ensure nil
   :when (executable-find "mu")
-  :load-path "~/.emacs.d/mu4e"
+  :load-path (or
+              (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu4e")
+                "/usr/local/share/emacs/site-lisp/mu4e")
+              (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu/mu4e")
+                "/usr/local/share/emacs/site-lisp/mu/mu4e")
+              (when (file-exists-p "~/.emacs.d/mu4e")
+                "~/.emacs.d/mu4e"))
   :config
   (use-package mu4e-contrib
     :ensure nil
