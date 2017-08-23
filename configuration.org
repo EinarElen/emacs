@@ -1185,17 +1185,7 @@ Hydra is a package which allows fancy keyboard bindings
   (add-to-list 'org-structure-template-alist '("th" "#+begin_theorem\n?\n#+end_theorem\n"))
   (add-to-list 'org-structure-template-alist '("ll" "@@latex:?@@"))
   (add-to-list 'org-structure-template-alist '("lh"
-                                               "#+LATEX_HEADER: \\usepackage{physics, braket} \n\
-                      ,#+LATEX_HEADER:\\usepackage[parfill]{parskip} \n\
-                      ,#+LATEX_HEADER: \\usepackage{pxfonts} \n\
-                      ,#+LATEX_HEADER: \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\ehat}[1]{\\vhat{e}_{#1}}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n\
-                      ,#+LATEX_HEADER: \\newcommand{\\onfrac}[1]{\\frac{-1}{#1}}\n\
-                      ,#+OPTIONS: num:6 H:6"))
+                                               "#+LATEX_HEADER: \\usepackage{physics, braket} \n#+LATEX_HEADER:\\usepackage[parfill]{parskip}\n#+LATEX_HEADER: \\usepackage{pxfonts} \n#+LATEX_HEADER: \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n#+LATEX_HEADER: \\newcommand{\\ehat}[1]{\\vhat{e}_{#1}}\n#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n#+LATEX_HEADER: \\newcommand{\\onfrac}[1]{\\frac{-1}{#1}}\n#+OPTIONS: num:6 H:6"))
   (add-to-list 'org-structure-template-alist "ll" "@@latex:")
   (setq org-default-notes-file "~/.emacs.d/org/refile.org"
         org-use-fast-todo-selection t
