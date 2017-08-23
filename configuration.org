@@ -1329,21 +1329,19 @@ Hydra is a package which allows fancy keyboard bindings
     #+END_SRC
 *** Mu4e
     #+BEGIN_SRC emacs-lisp
+(setq mu4e-lisp-location (or (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu4e")
+                                 "/usr/local/share/emacs/site-lisp/mu4e")
+                               (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu/mu4e")
+                                 "/usr/local/share/emacs/site-lisp/mu/mu4e")
+                               (when (file-exists-p "~/.emacs.d/mu4e") "~/.emacs.d/mu4e")))
 (use-package mu4e
   :ensure nil
   :when (executable-find "mu")
-  :load-path (or
-              (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu4e")
-                "/usr/local/share/emacs/site-lisp/mu4e")
-              (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu/mu4e")
-                "/usr/local/share/emacs/site-lisp/mu/mu4e")
-              (when (file-exists-p "~/.emacs.d/mu4e")
-                "~/.emacs.d/mu4e"))
+  :load-path mu4e-lisp-location
   :config
   (use-package mu4e-contrib
     :ensure nil
-    :load-path "~/.emacs.d/mu4e/"
-    )
+    :load-path mu4e-lisp-location)
   (setq mu4e-maildir "~/Maildir"
         mu4e-drafts-folder "/[Gmail].Drafts"
         mu4e-sent-folder   "/[Gmail].Sent Mail"
