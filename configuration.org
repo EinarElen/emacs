@@ -130,7 +130,7 @@
           :when (or (eq system-type 'gnu/linux)
             (eq system-type 'cygwin))
           ;:ensure auctex
-          ;:after tex
+          :after tex
           :mode (("\\.pdf\\'" . pdf-view-mode))
           :config
           (pdf-tools-install)
@@ -829,19 +829,19 @@ Hydra is a package which allows fancy keyboard bindings
   "Hook to disable yasnippet when it causes issues for some other mode."
   (yas-minor-mode -1))
 (use-package yasnippet
-  :defer 4
-  :after cc-mode
+  :defer 1
   :config
   (set 'yas-verbosity 1)
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/tuhdosnippets/")
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets/")
-  ;(yas-global-mode t)
-  (add-hook 'term-mode-hook 'disable-yas-in-mode-hook)
+    (add-hook 'term-mode-hook 'disable-yas-in-mode-hook)
                                         ;(add-hook 'org-mode-hook 'disable-yas-in-mode-hook)
-;  (yas-reload-all t)
+  (yas-reload-all t)
   (add-hook 'c-mode-hook 'yas-minor-mode-on)
   (add-hook 'c++-mode-hook 'yas-minor-mode-on)
-  (add-hook 'latex-mode-hook 'yas-minor-mode-on))
+  (add-hook 'latex-mode-hook 'yas-minor-mode-on)
+  (add-hook 'tex-mode-hook 'yas-minor-mode-on)
+)
 
    #+END_SRC
 ** Terminal Usage
@@ -922,15 +922,22 @@ Hydra is a package which allows fancy keyboard bindings
 *** Basic
     #+BEGIN_SRC emacs-lisp
       (use-package company
-        :after cc-mode
         :diminish company-mode
+        :defer nil
         :config
         (message "Company")
+        (use-package cc-mode
+          :ensure nil)
         (global-company-mode t)
         (define-key c-mode-map  [(tab)] 'company-complete)
         (define-key c++-mode-map  [(tab)] 'company-complete)
         (define-key c-mode-map (kbd "TAB") 'company-complete)
         (define-key c++-mode-map (kbd "TAB") 'company-complete)
+        (define-key emacs-lisp-mode-map (kbd "TAB") 'company-complete)
+        (define-key python-mode-map (kbd "TAB") 'company-complete)
+        (define-key TeX-mode-map (kbd "TAB") 'company-complete)
+        (define-key TeX-mode-map (kbd "TAB") 'company-complete)
+
         (setq company-idle-delay 0.001
               company-tooltip-idle-delay 0.001
               company-clang-arguments (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic -I./ -I./include/ -I../include/ -I../"))
@@ -1187,7 +1194,7 @@ Hydra is a package which allows fancy keyboard bindings
   (add-to-list 'org-structure-template-alist '("lh"
                                                "#+LATEX_HEADER: \\usepackage{physics, braket} \n#+LATEX_HEADER:\\usepackage[parfill]{parskip}\n#+LATEX_HEADER: \\usepackage{pxfonts} \n#+LATEX_HEADER: \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n#+LATEX_HEADER: \\newcommand{\\ehat}[1]{\\vhat{e}_{#1}}\n#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n#+LATEX_HEADER: \\newcommand{\\onfrac}[1]{\\frac{-1}{#1}}\n#+OPTIONS: num:6 H:6"))
   (add-to-list 'org-structure-template-alist "ll" "@@latex:")
-  (setq org-default-notes-file "~/.emacs.d/org/refile.org"
+  (setq org-default-notes-file "~/.emacs.d/ownCloud/org/refile.org"
         org-use-fast-todo-selection t
         org-src-window-setup 'current-window)
   :bind (("\C-cl" . org-store-link)
@@ -1226,6 +1233,7 @@ Hydra is a package which allows fancy keyboard bindings
    #+BEGIN_SRC emacs-lisp
 (setq org-agenda-dim-blocked-tasks nil)
 (setq org-agenda-compact-blocks t)
+(setq org-agenda-files (list "~/ownCloud/org/refile.org" "~/ownCloud/org/cal/main.org"))
    #+END_SRC
 ** Org-plot
    #+BEGIN_SRC emacs-lisp 
@@ -1233,16 +1241,24 @@ Hydra is a package which allows fancy keyboard bindings
 ** Calendar
    #+BEGIN_SRC emacs-lisp
 (use-package calfw
-  :disabled t
   :after org
   :config
-  (require 'calfw-org))
-(use-package org-gcal
-  :commands org-gcal
-  :disabled t
-  :after calfw
-  :config
-  (setq org-gcal-client-id "393897935817-6f7lc36osa9o9kqc10u65hhstu8idp4o.apps.googleusercontent.com" org-gcal-client-secret "GIgx5Re1yKKboMSPn1aUREs8" org-gcal-file-alist '(("einar.elen@gmail.com" . "/home/einarelen/ownCloud/org/cal/main.org"))))
+  (use-package calfw-org)
+  (use-package calfw-gcal)
+  (use-package org-gcal
+    :commands org-gcal
+    :after calfw
+    :config
+    (setq org-gcal-client-id
+  "393897935817-6f7lc36osa9o9kqc10u65hhstu8idp4o.apps.googleusercontent.com"
+  org-gcal-client-secret "GIgx5Re1yKKboMSPn1aUREs8" org-gcal-file-alist
+  '(("einar.elen@gmail.com" . "/home/einarelen/ownCloud/org/cal/main.org")))
+    )
+  (defun org-gcal-syncing-hook () (org-gcal-sync))
+  (add-hook 'org-agenda-mode-hook 'org-gcal-syncing-hook)
+  (add-hook 'org-capture-after-finalize-hook 'org-gcal-syncing-hook)
+  )
+
   ;;; https://calendar.google.com/calendar/ical/einar.elen%40gmail.com/private-97060e03f66653b16c4d6c7164f8d633/basic.ics
    #+END_SRC
 ** Babel
@@ -1259,21 +1275,21 @@ Hydra is a package which allows fancy keyboard bindings
 ** Refile and Capture
    #+BEGIN_SRC emacs-lisp
 (setq org-capture-templates
-      (quote (("t" "todo" entry (file "~/.emacs.d/org/refile.org")
+      (quote (("t" "todo" entry (file "~/ownCloud/org/refile.org")
                "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-              ("r" "respond" entry (file "~/.emacs.d/org/refile.org")
+              ("r" "respond" entry (file "~/ownCloud/org/refile.org")
                "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t :immediate-finish t)
-              ("n" "note" entry (file "~/.emacs.d/org/refile.org")
+              ("n" "note" entry (file "~/ownCloud/org/refile.org")
                "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-              ("j" "Journal" entry (file+datetree "~/.emacs.d/org/diary.org")
+              ("j" "Journal" entry (file+datetree "~/ownCloud/org/diary.org")
                "* %?\n%U\n" :clock-in t :clock-resume t)
-              ("w" "org-protocol" entry (file "~/.emacs.d/org/refile.org")
+              ("w" "org-protocol" entry (file "~/ownCloud/org/refile.org")
                "* TODO Review %c\n%U\n" :immediate-finish t)
-              ("m" "Meeting" entry (file "~/.emacs.d/org/refile.org")
+              ("m" "Meeting" entry (file "~/ownCloud/org/refile.org")
                "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
-              ("p" "Phone call" entry (file "~/.emacs.d/org/refile.org")
+              ("p" "Phone call" entry (file "~/ownCloud/org/refile.org")
                "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
-              ("h" "Habit" entry (file "~/.emacs.d/org/refile.org")
+              ("h" "Habit" entry (file "~/ownCloud/org/refile.org")
                "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
               ("d" "daily" entry (file+datetree "~/.emacs.d/org/dailies/what-normal-beings-do-and-dailies.org")
                ""))))
@@ -1328,33 +1344,52 @@ Hydra is a package which allows fancy keyboard bindings
 (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
     #+END_SRC
 *** Mu4e
+    - State "DONE"       from "WAITING"    [2017-08-18 Fri 17:27]
     #+BEGIN_SRC emacs-lisp
 (setq mu4e-lisp-location (or (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu4e")
                                  "/usr/local/share/emacs/site-lisp/mu4e")
                                (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu/mu4e")
                                  "/usr/local/share/emacs/site-lisp/mu/mu4e")
                                (when (file-exists-p "~/.emacs.d/mu4e") "~/.emacs.d/mu4e")))
+(use-package offlineimap
+  :init
+  (defun offlineimap-get-password (host port)
+    (let* ((netrc (netrc-parse (expand-file-name "~/.netrc.gpg")))
+           (hostentry (netrc-machine netrc host port port)))
+      (when hostentry (netrc-get hostentry "password"))))
+
+
+  )
 (use-package mu4e
   :ensure nil
   :when (executable-find "mu")
   :load-path mu4e-lisp-location
   :config
+  (global-set-key (kbd "<f12>") 'mu4e)
+  (require 'smtpmail)
   (use-package mu4e-contrib
     :ensure nil
-    :load-path mu4e-lisp-location)
+    :load-path mu4e-lisp-location
+    )
+  (use-package mu4e-org
+    :ensure nil
+    :after org
+    )
   (setq mu4e-maildir "~/Maildir"
-        mu4e-drafts-folder "/[Gmail].Drafts"
-        mu4e-sent-folder   "/[Gmail].Sent Mail"
-        mu4e-trash-folder  "/[Gmail].Trash"
+        mu4e-drafts-folder "/Drafts"
+        mu4e-sent-folder   "/Sent Mail"
+        mu4e-trash-folder  "/Trash"
         mu4e-sent-messages-behavior 'delete
-        mu4e-maildir-shortcuts
-        '(("/INBOX"               . ?i)
-          ("/[Gmail].Sent Mail"   . ?s)
-          ("/[Gmail].Trash"       . ?t)
-          ("/[Gmail].All Mail"    . ?a))
+        mu4e-use-fancy-chars t
+        mu4e-attachment-dir "~/Downloads/"
+        mu4e-view-show-images t
+                                        ;mu4e-maildir-shortcuts
+        ;; '(("/INBOX"               . ?i)
+        ;;   ("/[Gmail].Sent Mail"   . ?s)
+        ;;   ("/[Gmail].Trash"       . ?t)
+        ;;   ("/[Gmail].All Mail"    . ?a))
         mu4e-get-mail-command "offlineimap"
         mu4e-update-interval 450)
-  (require 'smtpmail)
   (setq message-send-mail-function 'smtpmail-send-it
         smtpmail-stream-type 'starttls
         smtpmail-default-smtp-server "smtp.gmail.com"
@@ -1362,34 +1397,70 @@ Hydra is a package which allows fancy keyboard bindings
         smtpmail-smtp-service 587)
   (setq mu4e-html2text-command 'mu4e-shr2text)
   (setq mu4e-contexts
-      `( ,(make-mu4e-context
-           :name "Lund"
-           :enter-func (lambda () (mu4e-message "Entering Lund Context"))
-           :leave-func (lambda () (mu4e-message "Leaving Lund Context"))
-           :match-func (lambda (message)
-                         (when message
-                           (or (mu4e-message-contact-field-matches
-                                message :to "nat13eel@student.lu.se")
-                               )))
-           :vars '((user-mail-address . "nat13eel@student.lu.se")
-                   (user-full-name . "Einar Elén")))
-         ,(make-mu4e-context
-           :name "Gmail"
-           :enter-func (lambda () (mu4e-message "Entering Gmail Context"))
-           :leave-func (lambda () (mu4e-message "Leaving Gmail Context"))
-           :match-func (lambda (message)
-                         (when message
-                           (or (mu4e-message-contact-field-matches
-                                message :to "einar.elen@gmail.com")
-                               (mu4e-message-contact-field-matches
-                                message :to "jol-ordf@luna.lu.se"))))
-           :vars '((user-mail-address . "einar.elen@gmail.com")
-                   (user-full-name . "Einar Elén"))))))
+        `( ,(make-mu4e-context
+             :name "Lund"
+             :enter-func (lambda () (mu4e-message "Entering Lund Context"))
+             :leave-func (lambda () (mu4e-message "Leaving Lund Context"))
+             :match-func (lambda (message)
+                           (when message
+                             (or (mu4e-message-contact-field-matches
+                                  message :to "nat13eel@student.lu.se")
+                                 )))
+             :vars '((user-mail-address . "nat13eel@student.lu.se")
+                     (user-full-name . "Einar Elén")))
+           ,(make-mu4e-context
+             :name "Gmail"
+             :enter-func (lambda () (mu4e-message "Entering Gmail Context"))
+             :leave-func (lambda () (mu4e-message "Leaving Gmail Context"))
+             :match-func (lambda (message)
+                           (when message
+                             (or (mu4e-message-contact-field-matches
+                                  message :to "einar.elen@gmail.com")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "jol-ordf@luna.lu.se"))))
+             :vars '((user-mail-address . "einar.elen@gmail.com")
+                     (user-full-name . "Einar Elén")))
+           ,(make-mu4e-context
+             :name "Outlook"
+             :enter-func (lambda () (mu4e-message "Entering Outlook Context"))
+             :leave-func (lambda () (mu4e-message "Leaving Outlook Context"))
+             :match-func (lambda (message)
+                           (when message
+                             (or (mu4e-message-contact-field-matches
+                                  message :to "einar_elen@live.se")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "Einar_elen@live.se")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "EINAR_ELEN@live.se")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "Einar_Elen@live.se")
+                                 )))
+             :vars '((user-mail-address . "einar_elen@live.se")
+                     (user-full-name . "Einar Elén")))
+           ,(make-mu4e-context
+             :name "Luna"
+             :enter-func (lambda () (mu4e-message "Entering Luna Context"))
+             :leave-func (lambda () (mu4e-message "Leaving Luna Context"))
+             :match-func (lambda (message)
+                           (when message
+                             (or (mu4e-message-contact-field-matches
+                                  message :to "ordf@luna.lu.se")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "Ordf@luna.lu.se")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "ORDF@luna.lu.se")
+                                 (mu4e-message-contact-field-matches
+                                  message :to "ORDF@LUNA.LU.SE")
+                                 )))
+             :vars '((user-mail-address . "ordf@luna.lu.se")
+                     (user-full-name . "Einar Elén")))
+           )))
 
     #+END_SRC
 *** Gnus
 ** IRC
    #+BEGIN_SRC emacs-lisp
+
    #+END_SRC
 * Utilities
 ** Lastpass
@@ -1469,7 +1540,7 @@ Hydra is a package which allows fancy keyboard bindings
                return-from-mu4e-is-next t mu4e-is-next nil) (mu4e))
 
        )
-(global-set-key (kbd "<f7>") 'switch-to-mu4e)
+
 (global-set-key (kbd "<f8>") 'switch-configuration))
    #+END_SRC
 * Experimental
