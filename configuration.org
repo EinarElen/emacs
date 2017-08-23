@@ -1687,22 +1687,44 @@ Hydra is a package which allows fancy keyboard bindings
 (use-package multiple-cursors
   :bind (("C-M-." . mc/mark-next-like-this))
 )
-(use-package spaceline
-  :defer 1
-  :config
-  (use-package spaceline-config
-    :ensure nil
-    :config
-    (spaceline-spacemacs-theme)
-    (spaceline-helm-mode t)
-    (spaceline-info-mode t)
-    (use-package all-the-icons
+
+(setq spaceline-defer-load
+      (if (eq system-type 'darwin) t nil))
+(if spaceline-defer-load
+    (use-package spaceline
+      :defer nil
       :config
-      (use-package spaceline-all-the-icons
+      (use-package spaceline-config
+        :ensure nil
         :config
-        (spaceline-all-the-icons-theme))
+        (spaceline-spacemacs-theme)
+        (spaceline-helm-mode t)
+        (spaceline-info-mode t)
+        (use-package all-the-icons
+          :config
+          (use-package spaceline-all-the-icons
+            :config
+            (spaceline-all-the-icons-theme))
 ;;; Remembe (all-the-icons-install-fonts)
-      ))
+          ))
+      )
+  (use-package spaceline
+    :defer 1
+    :config
+    (use-package spaceline-config
+      :ensure nil
+      :config
+      (spaceline-spacemacs-theme)
+      (spaceline-helm-mode t)
+      (spaceline-info-mode t)
+      (use-package all-the-icons
+        :config
+        (use-package spaceline-all-the-icons
+          :config
+          (spaceline-all-the-icons-theme))
+;;; Remembe (all-the-icons-install-fonts)
+        ))
+    )
   )
 
 
