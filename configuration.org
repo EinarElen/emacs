@@ -1438,7 +1438,7 @@ Hydra is a package which allows fancy keyboard bindings
              :vars '((user-mail-address . "einar_elen@live.se")
                      (user-full-name . "Einar Elén")))
            ,(make-mu4e-context
-             :name "Luna"
+             :name "Work"
              :enter-func (lambda () (mu4e-message "Entering Luna Context"))
              :leave-func (lambda () (mu4e-message "Leaving Luna Context"))
              :match-func (lambda (message)
