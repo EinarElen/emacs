@@ -195,6 +195,11 @@
 (setq-default
  fill-column 80
  cursor-type 'bar)
+
+
+
+(setq mac-command-modifier 'meta)
+
     #+END_SRC
 *** Window Management
     Winner allows you to restore previous window configurations
