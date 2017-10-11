@@ -1208,7 +1208,7 @@ Hydra is a package which allows fancy keyboard bindings
          ("\C-cb" . org-iswitchb)
          ("C-c c" . org-capture)
          :map org-mode-map
-         ("C-c ." . org-timestamp)
+         ("C-c ." . org-time-stamp)
          ("\M-\C-g" . org-plot/gnuplot)))
 
    #+END_SRC
