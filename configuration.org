@@ -731,7 +731,7 @@ Hydra is a package which allows fancy keyboard bindings
 *** Basic Configuration
     #+BEGIN_SRC emacs-lisp
       (use-package helm
-        :commands (helm-M-x helm-mini helm-find-files)
+        :commands (helm-M-x helm-mini helm-find-files helm-themes)
         :diminish helm-mode
         :init
         :bind (("M-x" . helm-M-x)
@@ -1202,7 +1202,8 @@ Hydra is a package which allows fancy keyboard bindings
   (add-to-list 'org-structure-template-alist "ll" "@@latex:")
   (setq org-default-notes-file "~/.emacs.d/ownCloud/org/refile.org"
         org-use-fast-todo-selection t
-        org-src-window-setup 'current-window)
+        org-src-window-setup 'current-window
+        org-export-in-background t)
   :bind (("\C-cl" . org-store-link)
          ("\C-ca" . org-agenda)
          ("\C-cb" . org-iswitchb)
