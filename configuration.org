@@ -1203,7 +1203,8 @@ Hydra is a package which allows fancy keyboard bindings
   (setq org-default-notes-file "~/.emacs.d/ownCloud/org/refile.org"
         org-use-fast-todo-selection t
         org-src-window-setup 'current-window
-        org-export-in-background t)
+        ;org-export-in-background nil
+        )
   :bind (("\C-cl" . org-store-link)
          ("\C-ca" . org-agenda)
          ("\C-cb" . org-iswitchb)
@@ -1258,8 +1259,11 @@ Hydra is a package which allows fancy keyboard bindings
     :config
     (setq org-gcal-client-id
   "393897935817-6f7lc36osa9o9kqc10u65hhstu8idp4o.apps.googleusercontent.com"
-  org-gcal-client-secret "GIgx5Re1yKKboMSPn1aUREs8" org-gcal-file-alist
-  '(("einar.elen@gmail.com" . "/home/einarelen/ownCloud/org/cal/main.org")))
+  org-gcal-client-secret "GIgx5Re1yKKboMSPn1aUREs8" 
+  org-gcal-file-alist '(("einar.elen@gmail.com"
+                         . "/home/einarelen/ownCloud/org/cal/main.org")
+                        ("ordf@luna.lu.se" . "/home/einarelen/ownCloud/org/cal/main.org")
+                        ))
     )
   (defun org-gcal-syncing-hook () (org-gcal-sync))
   (add-hook 'org-agenda-mode-hook 'org-gcal-syncing-hook)
@@ -1277,7 +1281,9 @@ Hydra is a package which allows fancy keyboard bindings
   (require 'ob-C)
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((C . t) (emacs-lisp . t) (python . t) (sh . t) (gnuplot . t))))
+   '((C . t) (emacs-lisp . t) (python . t) 
+     ;(sh . t)
+     (gnuplot . t))))
    #+END_SRC
 ** Refile and Capture
    #+BEGIN_SRC emacs-lisp
