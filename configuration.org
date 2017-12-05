@@ -150,6 +150,7 @@
     Other stuff which may or may not work...
     #+BEGIN_SRC emacs-lisp 
 (use-package tramp
+  :defer 3
   :config
   (setq tramp-default-method "ssh"))
 (setq gc-cons-threshold 100000000
@@ -197,11 +198,11 @@
 ;;   :bind (("C-x o" . switch-window)))
 ;; 
 (use-package clipmon
+  :defer 1
   :config (setq clipmon-autoinsert-timeout nil
               clipmon-autoinsert-sound nil
               clipmon-autoinsert-color nil
               clipmon-transform-suffix nil)
-  :config
   (clipmon-mode))
 
 (use-package windmove
@@ -663,6 +664,7 @@ Hydra is a package which allows fancy keyboard bindings
       (use-package pdf-tools
           :when (or (eq system-type 'gnu/linux)
             (eq system-type 'cygwin))
+          :defer 2
           ;:ensure auctex
           :config
           (pdf-tools-install)
@@ -675,6 +677,7 @@ Hydra is a package which allows fancy keyboard bindings
 *** Projectile
     #+BEGIN_SRC emacs-lisp
 (use-package projectile
+  :defer 2
   :config
   (projectile-mode t)
   (setq projectile-enable-caching t)
@@ -1001,6 +1004,7 @@ Hydra is a package which allows fancy keyboard bindings
 ** Python
 #+BEGIN_SRC emacs-lisp 
 (use-package python
+  :defer 3
   :after company
   :config 
   (define-key python-mode-map (kbd "TAB") 'company-complete)
@@ -1012,6 +1016,7 @@ Hydra is a package which allows fancy keyboard bindings
     #+BEGIN_SRC emacs-lisp
 (use-package cc-mode
   :after (company)
+  :defer 2
   :config
   (setq c-default-style "stroustrup") ;; set style to "stroustrup"
   (add-hook 'c-mode-common-hook 'hs-minor-mode)
@@ -1858,13 +1863,13 @@ and insert region contents at top."
   (unless (server-running-p)
     (server-start)
     ))
-(unless (get-buffer "*Standalone Eshell*")
-  (save-window-excursion
-    (eshell)
-    (rename-buffer "*Standalone Eshell*")))
-(defun goto-standalone-eshell ()
-  (interactive)
-  (switch-to-buffer "*Standalone Eshell*"))
+;; (unless (get-buffer "*Standalone Eshell*")
+;;   (save-window-excursion
+;;     (eshell)
+;;     (rename-buffer "*Standalone Eshell*")))
+;; (defun goto-standalone-eshell ()
+;;   (interactive)
+;;   (switch-to-buffer "*Standalone Eshell*"))
 (use-package macrostep
   :after lisp-mode
   )
@@ -1920,7 +1925,6 @@ and insert region contents at top."
   (save-window-excursion
     (let ((to-delete (find-file generate-init-file-name)))
       (erase-buffer)
-      (insert-file-contents "~/.emacs.d/debug-helper.el")
       (goto-char (point-max))
       (insert-file-contents "~/.emacs.d/configuration.el")
       (goto-char (point-max))

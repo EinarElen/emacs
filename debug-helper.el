@@ -12,4 +12,6 @@
 (setq use-package-debug nil)
 (setq use-package-verbose nil)
 (setq use-package-always-ensure t)
+(load-file "profile-dotemacs.el")
+(profile-dotemacs)
 
