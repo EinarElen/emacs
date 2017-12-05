@@ -3,6 +3,7 @@
 #+OPTIONS: toc:3 html5-fancy org-html-preamble:nil 
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes
+
 * Emacs Setup
 ** Package Installation
    This sets up everything necerssary to install new packages and adds
@@ -835,15 +836,12 @@ Hydra is a package which allows fancy keyboard bindings
   "Hook to disable yasnippet when it causes issues for some other mode."
   (yas-minor-mode -1))
 (use-package yasnippet
+  :defer 2
   :config
   (set 'yas-verbosity 1)
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/tuhdosnippets/")
-  (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets/")
     (add-hook 'term-mode-hook 'disable-yas-in-mode-hook)
-                                        ;(add-hook 'org-mode-hook 'disable-yas-in-mode-hook)
-    (yas-reload-all t)
     (yas-global-mode t))
-
    #+END_SRC
 ** Terminal Usage
    #+BEGIN_SRC emacs-lisp
