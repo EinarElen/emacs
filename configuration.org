@@ -666,9 +666,7 @@ Hydra is a package which allows fancy keyboard bindings
           ;:ensure auctex
           :config
           (pdf-tools-install)
-          (setq-default pdf-view-display-size 'fit-page)
-          (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
-          )
+          (setq-default pdf-view-display-size 'fit-page))
     #+END_SRC
 
 * Development/Writing
