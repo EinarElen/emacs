@@ -1,4 +1,3 @@
-#+TITLE: Emacs Configuration
 #+AUTHOR: Einar Elén
 #+EMAIL: einar.elen@gmail.com
 #+OPTIONS: toc:3 html5-fancy org-html-preamble:nil 
@@ -111,35 +110,6 @@
   (find-file "~/.emacs.d/configuration.org"))
 (global-set-key (kbd "<f8>") 'configuration-file)
     #+END_SRC
-*** PDF-Handling
-    The basic emacs pdf viewing utility, docview, is kind of
-    wonky. This installs a different utility, pdf-tools which is
-    wonderful! It does require some things installed on your
-    system to work (development version of all of them)
-    - libpng
-    - libpoppler-glib, libpoppler-private
-    - imagemagick
-    - libz
-    - gcc, g++
-    - make
-    - automake
-    - autoconf
-    It is currently only enabled on linux and cygwin.
-    #+BEGIN_SRC emacs-lisp 
-      (use-package pdf-tools
-          :when (or (eq system-type 'gnu/linux)
-            (eq system-type 'cygwin))
-          ;:ensure auctex
-          :after tex
-          :mode (("\\.pdf\\'" . pdf-view-mode))
-          :config
-          (pdf-tools-install)
-          (setq-default pdf-view-display-size 'fit-page)
-          (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
-          (when TeX-view-program-selection (add-to-list 'TeX-view-program-selection '((output-pdf "pdf-tools"))))
-          ;(add-to-list 'TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
-          )
-    #+END_SRC
 *** Additional Settings
     Change the window-title to Emacs
     #+BEGIN_SRC emacs-lisp
@@ -178,19 +148,18 @@
     #+END_SRC
     Other stuff which may or may not work...
     #+BEGIN_SRC emacs-lisp 
+(use-package tramp
+  :config
+  (setq tramp-default-method "ssh"))
 (setq gc-cons-threshold 100000000
       inhibit-startup-message t
       backup-by-copying t
       backup-directory-alist '(("." . "~/.saves"))
       delete-old-versions -1
       vc-make-backup-files t
-      auto-save-file-name-transform '((".*" "~/.saves/auto-save-list/" t))
       history-length t
       history-delete-duplicates t
-      savehist-save-minibuffer-history 1
-      savehist-additional-variables '(kill-ring search-ring regexp-search-ring)
       version-control t
-      tramp-default-method "ssh"
       x-stretch-cursor 1)
 (setq-default
  fill-column 80
@@ -198,7 +167,8 @@
 
 
 
-(setq mac-command-modifier 'meta)
+(when (equal system-type 'darwin)
+  (setq mac-command-modifier 'meta))
 
     #+END_SRC
 *** Window Management
@@ -227,15 +197,12 @@
 ;;   :bind (("C-x o" . switch-window)))
 ;; 
 (use-package clipmon
-  :defer t
-  :init (setq clipmon-action 'kill-new
-              clipmon-timeout nil
-              clipmon-sound nil
-              clipmon-cursor-color nil
-              clipmon-suffix nil)
+  :config (setq clipmon-autoinsert-timeout nil
+              clipmon-autoinsert-sound nil
+              clipmon-autoinsert-color nil
+              clipmon-transform-suffix nil)
   :config
-  (clipmon-mode)
-  )
+  (clipmon-mode))
 
 (use-package windmove
   :defer 3
@@ -281,7 +248,7 @@ Hydra is a package which allows fancy keyboard bindings
     ("A" ace-window "Ace")
     ("S" ace-swap-window "Swap")
     ("k" ace-delete-window "Kill")
-    ("i" ace-maximize-window "Ace-max")
+    ("i" ace-delete-other-windows "Ace-max")
     ("b" helm-mini "Buffers")
     ("q" nil "cancel" :color blue)))
 #+END_SRC
@@ -290,7 +257,7 @@ Hydra is a package which allows fancy keyboard bindings
     Adds line numbering to and a nice information bar below each buffer
     and some other neat things
     #+BEGIN_SRC emacs-lisp
-
+(setq initial-buffer-choice (concat user-emacs-directory "configuration.org"))
       (use-package powerline
         :disabled t
         :defer 1
@@ -371,18 +338,21 @@ Hydra is a package which allows fancy keyboard bindings
 (delete-selection-mode)
 (add-hook 'sh-mode-hook (lambda ()
                           (setq tab-width 4)))
-(add-hook 'diff-mode-hook (lambda () (setq-local whitespace-style
-                                                 '(face
-                                                   tabs
-                                                   tab-mark
-                                                   spaces
-                                                   space-mark
-                                                   trailing
-                                                   indentation::space
-                                                   indentation::tab
-                                                   newline
-                                                   newline-mark))
-                            (whitespace-mode 1)))
+(use-package whitespace
+  :config
+  (add-hook 'diff-mode-hook (lambda () (setq-local whitespace-style
+                                                   '(face
+                                                     tabs
+                                                     tab-mark
+                                                     spaces
+                                                     space-mark
+                                                     trailing
+                                                     indentation::space
+                                                     indentation::tab
+                                                     newline
+                                                     newline-mark))
+                              (whitespace-mode 1))))
+(use-package diff-mode)
 (add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
 (add-hook 'text-mode-hook 'auto-fill-mode)
     #+END_SRC
@@ -465,6 +435,7 @@ Hydra is a package which allows fancy keyboard bindings
         sp-hybrid-kill-entire-symbol nil)
   (sp-use-paredit-bindings)
   (show-smartparens-global-mode t)
+  
   :bind (:map smartparens-mode-map (("M-<down>" . nil)
                                     ("M-<up>" . nil))))
      #+END_SRC
@@ -590,7 +561,8 @@ Hydra is a package which allows fancy keyboard bindings
 (defcustom prelude-indent-sensitive-modes
   '(coffee-mode python-mode slim-mode haml-mode yaml-mode)
   "Modes for which auto-indenting is suppressed."
-  :type 'list)
+  :type 'list
+  :group 'prelude)
 
 (defun indent-region-or-buffer ()
   "Indent a region if selected, otherwise the whole buffer."
@@ -673,15 +645,40 @@ Hydra is a package which allows fancy keyboard bindings
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
    #+END_SRC
 
+** PDF-Handling
+    The basic emacs pdf viewing utility, docview, is kind of
+    wonky. This installs a different utility, pdf-tools which is
+    wonderful! It does require some things installed on your
+    system to work (development version of all of them)
+    - libpng
+    - libpoppler-glib, libpoppler-private
+    - imagemagick
+    - libz
+    - gcc, g++
+    - make
+    - automake
+    - autoconf
+    It is currently only enabled on linux and cygwin.
+    #+BEGIN_SRC emacs-lisp 
+      (use-package pdf-tools
+          :when (or (eq system-type 'gnu/linux)
+            (eq system-type 'cygwin))
+          ;:ensure auctex
+          :config
+          (pdf-tools-install)
+          (setq-default pdf-view-display-size 'fit-page)
+          (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
+          )
+    #+END_SRC
+
 * Development/Writing
   Again, visit [[http://tuhdo.github.io][tuhdo]] but check out the stuff about helm specifically!
 ** Project Management
 *** Projectile
     #+BEGIN_SRC emacs-lisp
 (use-package projectile
-  :defer 5
   :config
-  (projectile-global-mode t)
+  (projectile-mode t)
   (setq projectile-enable-caching t)
   :diminish projectile-mode)
     #+END_SRC
@@ -691,8 +688,7 @@ Hydra is a package which allows fancy keyboard bindings
   (use-package magit
     :commands magit-status
     :bind ("C-x g" . magit-status)
-    :config
-    (setq magit-diff-options '("-b"))))
+    ))
     #+END_SRC
 ** Helm
 *** Helm Gtags
@@ -764,43 +760,53 @@ Hydra is a package which allows fancy keyboard bindings
         (bind-key "C-c h x" #'helm-register)
         (define-key global-map [remap find-tag] 'helm-etags-select)
         (define-key global-map [remap list-buffers] 'helm-buffers-list)
-        (when (executable-find "curl")
-          (setq helm-google-suggest-use-curl-p t))
+        
+        (use-package helm-google
+          :config
+          (when (executable-find "curl")
+            (setq helm-net-prefer-curl t)))
+        (use-package helm-c-yasnippet
+          :after yasnippet
+          :config
+          (setq helm-yas-display-key-on-candidate t))
+        (use-package helm-ag)
+        (use-package helm-elisp
+	:ensure nil
+          :config
+          (setq helm-apropos-fuzzy-match t))
+        (use-package helm-command :ensure nil
+          :config (setq helm-M-x-requires-pattern nil))
+        (use-package helm-locate
+	  :ensure nil
+          :config
+          (setq helm-locate-fuzzy-match t))
+        (use-package helm-files
+          :ensure nil
+          :config
+          (setq helm-ff-search-library-in-sexp t
+                helm-ff-file-name-history-use-recentf t
+                helm-ff-skip-boring-files t))
         (setq helm-scroll-amount 4
-              helm-ff-search-library-in-sexp t
-              helm-split-window-in-side-p t
-              helm-idle-delay 0.0
+              helm-split-window-inside-p t
               helm-input-idle-delay 0.01
-              helm-yas-display-key-on-candidate t
-              helm-quick-update t
               helm-candidate-number-limit 500
-              helm-ff-file-name-history-use-recentf t
               helm-move-to-line-cycle-in-source t
-              helm-buffers-fuzzy-matching t
-              helm-locate-fuzzy-match t helm-apropos-fuzzy-match t
-              helm-M-x-requires-pattern nil
-              helm-ff-skip-boring-files t)
+              helm-buffers-fuzzy-matching t)
         (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
-        (add-hook 'eshell-mode-hook
-                  #'(lambda ()
-                      (define-key eshell-mode-map (kbd "M-l")  'helm-eshell-history)))
+        ;; (add-hook 'eshell-mode-hook
+        ;;           #'(lambda ()
+        ;;               (define-key eshell-mode-map (kbd "M-l")  'helm-eshell-history)))
         (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
         (helm-autoresize-mode t)
-        (ido-mode -1)
         (helm-mode)
         (use-package helm-descbinds
-          :defer 2
           :config
           (helm-descbinds-mode t))
         (use-package helm-themes
           :commands helm-themes
           :bind (("<f10>" . helm-themes)))
-        (use-package helm-dash
-          :after helm
-          :defer 2
-          )
+        (use-package helm-dash)
         (use-package helm-swoop
-          :after helm
           :bind
           (("C-c s" . helm-multi-swoop-all)
            :map isearch-mode-map
@@ -817,12 +823,11 @@ Hydra is a package which allows fancy keyboard bindings
                 helm-swoop-speed-or-color t
                 ))
         (use-package helm-projectile
-          :after (projectile helm)
+          :after (projectile)
           :config
           (helm-projectile-on)
           (setq projectile-completion-system 'helm)
           (setq projectile-indexing-method 'alien)))
-
     #+END_SRC
 *** Packages
 **** Helm-swoop
@@ -835,7 +840,7 @@ Hydra is a package which allows fancy keyboard bindings
   "Hook to disable yasnippet when it causes issues for some other mode."
   (yas-minor-mode -1))
 (use-package yasnippet
-  :defer 1
+  :demand 
   :config
   (set 'yas-verbosity 1)
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/tuhdosnippets/")
@@ -882,27 +887,24 @@ Hydra is a package which allows fancy keyboard bindings
    #+BEGIN_SRC emacs-lisp
 (use-package tex
   :ensure auctex
-  :defer 2
+  :mode (("\\.tex$" . TeX-mode))
   :config
-  (use-package latex
-    :ensure nil
-    :mode (("\\.tex$" . TeX-mode))
+  (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
+  (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
+  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+  (define-key TeX-mode-map (kbd "TAB") 'company-complete)
+  (define-key TeX-mode-map (kbd "TAB") 'company-complete)
+  (use-package latex-preview-pane
     :config
-    (use-package latex-preview-pane
-      :defer 2
-      :after (latex auctex)
-      :config
-      (message "Latex-preview-pane")
-      (setq TeX-save-query nil)
-      (latex-preview-pane-enable)
-      (setq doc-view-continuous t))
-    (use-package preview-latex
-      :disabled t
-      :defer 1)
-    (setq TeX-auto-save t)
-    (setq TeX-parse-self t)
-    (setq-default TeX-master nil)
-    (message "In Latex")))
+    (setq TeX-save-query nil)
+    (latex-preview-pane-enable))
+  (setq doc-view-continuous t)
+  (use-package preview-latex
+    :disabled t
+    :defer 1)
+  (setq TeX-auto-save t)
+  (setq TeX-parse-self t)
+  (setq-default TeX-master nil))
    #+END_SRC
 *** Asy
     #+BEGIN_SRC emacs-lisp
@@ -929,24 +931,15 @@ Hydra is a package which allows fancy keyboard bindings
     #+BEGIN_SRC emacs-lisp
       (use-package company
         :diminish company-mode
-        :defer nil
+        :demand
         :config
-        (message "Company")
-        (use-package cc-mode
-          :ensure nil)
         (global-company-mode t)
-        (define-key c-mode-map  [(tab)] 'company-complete)
-        (define-key c++-mode-map  [(tab)] 'company-complete)
-        (define-key c-mode-map (kbd "TAB") 'company-complete)
-        (define-key c++-mode-map (kbd "TAB") 'company-complete)
-        (define-key emacs-lisp-mode-map (kbd "TAB") 'company-complete)
-        (define-key python-mode-map (kbd "TAB") 'company-complete)
-        (define-key TeX-mode-map (kbd "TAB") 'company-complete)
-        (define-key TeX-mode-map (kbd "TAB") 'company-complete)
-
+        (use-package company-clang :ensure nil
+          :config
+          (setq company-clang-arguments (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic -I./ -I./include/ -I../include/ -I../")))
         (setq company-idle-delay 0.001
               company-tooltip-idle-delay 0.001
-              company-clang-arguments (list "-std=c++1z" "-Wall" "-Werror" "-Wpedantic -I./ -I./include/ -I../include/ -I../"))
+              )
         (when company-backends
           (progn 
             (delete 'company-semantic company-backends)
@@ -966,6 +959,20 @@ Hydra is a package which allows fancy keyboard bindings
         :after (company latex)
         :config
         (company-auctex-init))
+    #+END_SRC
+*** C-headers
+    #+BEGIN_SRC emacs-lisp
+(use-package company-c-headers
+  :after (cc-mode company)
+  :config
+  (when (string= (system-name) "fed-lap")
+    (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.2.1/")
+    (semantic-add-system-include "/usr/include/c++/6.2.1" 'c++-mode))
+  (when (string= (system-name) "arch-desktop")
+    (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.1.1/"))
+  (when (string= (system-name) "virtualbox")
+    (add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/"))
+  (add-to-list 'company-backends 'company-c-headers))
     #+END_SRC
 *** Yasnippet
     #+BEGIN_SRC emacs-lisp
@@ -987,6 +994,13 @@ Hydra is a package which allows fancy keyboard bindings
 (use-package flycheck
   :defer 2
   :disabled t
+  :preface
+  (defun another-flycheck-rtags-setup()
+    (interactive)
+    (flycheck-select-checker 'rtags)
+    (setq-local flycheck-highlighting-mode nil)
+    (setq-local flycheck-check-syntax-automatically nil)
+    (rtags-enable-standard-keybindings))
   :config
   (setq flycheck-idle-change-delay 0.00001)
   (add-hook 'org-src-mode-hook 'disable-flycheck-temporarily)
@@ -997,54 +1011,57 @@ Hydra is a package which allows fancy keyboard bindings
 (use-package web-mode
   :defer 2)
    #+END_SRC
+** Python
+#+BEGIN_SRC emacs-lisp 
+(use-package python
+  :after company
+  :config 
+  (define-key python-mode-map (kbd "TAB") 'company-complete)
+;:ensure nil
+)
+#+END_SRC
 ** C/C++
 *** Basic Settings
     #+BEGIN_SRC emacs-lisp
-(setq c-default-style "stroustrup") ;; set style to "stroustrup"
-(add-hook 'c-mode-common-hook 'hs-minor-mode)
+(use-package cc-mode
+  :after (company)
+  :config
+  (setq c-default-style "stroustrup") ;; set style to "stroustrup"
+  (add-hook 'c-mode-common-hook 'hs-minor-mode)
+  (define-key c-mode-map  [(tab)] 'company-complete)
+  (define-key c++-mode-map  [(tab)] 'company-complete)
+  (define-key c-mode-map (kbd "TAB") 'company-complete)
+  (define-key c++-mode-map (kbd "TAB") 'company-complete))
     #+END_SRC
 *** Debugging
     This is really cool. Try it with M-x gdb and choose the
     binary you want to debug.
     #+BEGIN_SRC emacs-lisp 
-(setq gdb-many-windows t
-       gdb-show-main t)
+(use-package gdb-mi
+  :config
+  (setq gdb-many-windows t
+        gdb-show-main t))
     #+END_SRC
 *** Packages
-***** C-headers
-      #+BEGIN_SRC emacs-lisp
-(use-package company-c-headers
-  :after (cc-mode company)
-  :config
-  (when (string= system-name "fed-lap")
-    (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.2.1/")
-    (semantic-add-system-include "/usr/include/c++/6.2.1" 'c++-mode))
-  (when (string= system-name "arch-desktop")
-    (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.1.1/"))
-  (when (string= system-name "virtualbox")
-    (add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/"))
-  (add-to-list 'company-backends 'company-c-headers))
-      #+END_SRC
 **** Irony Mode
      #+BEGIN_SRC emacs-lisp
 (use-package counsel
 :defer t)
 
-(defun my-irony-mode-hook()
-  (define-key irony-mode-map [remap completion-at-point]
-                                        ;'irony-completion-at-point-async)
-    'counsel-irony)
-  (define-key irony-mode-map [remap complete-symbol]
-                                        ;'irony-completion-at-point-async))
-    'counsel-irony))
+;; (defun my-irony-mode-hook()
+;;   (define-key irony-mode-map [remap completion-at-point]
+;;                                         ;'irony-completion-at-point-async)
+;;     'counsel-irony)
+;;   (define-key irony-mode-map [remap complete-symbol]
+;;                                         ;'irony-completion-at-point-async))
+;;     'counsel-irony))
 (use-package irony
-  :defer 2
   :after cc-mode
   :config
-  (add-hook 'irony-mode-hook 'my-irony-mode-hook)
+  ;(add-hook 'irony-mode-hook 'my-irony-mode-hook)
   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-;  (add-hook 'c++-mode-hook 'irony-mode)
-  ;(add-hook 'c-mode-hook 'irony-mode)
+  (add-hook 'c++-mode-hook 'irony-mode)
+ (add-hook 'c-mode-hook 'irony-mode)
   (use-package company-irony
     :after company
     :config
@@ -1052,22 +1069,18 @@ Hydra is a package which allows fancy keyboard bindings
   (use-package company-irony-c-headers
     :after company-c-headers
     :config
-    (with-eval-after-load "company"
-      '(add-to-list
-        'company-backends '(company-irony-c-headers company-irony)))))
+    (add-to-list
+        'company-backends '(company-irony-c-headers company-irony))))
      #+END_SRC
-**** Rtags
+**** COMMENT Rtags
      #+BEGIN_SRC emacs-lisp 
 (use-package rtags
   :after (company cc-mode)
   :when (executable-find "rdm")
   :config
-  (require 'rtags)
   (use-package company-rtags
     :config
-    (with-eval-after-load 'company
-      '(add-to-list 'company-backends 'company-rtags))
-    )
+    (add-to-list 'company-backends 'company-rtags))
   (setq rtags-completions-enabled t)
   (setq rtags-autostart-diagnostics t)
   (rtags-diagnostics)
@@ -1077,13 +1090,15 @@ Hydra is a package which allows fancy keyboard bindings
   (bind-key "M-," 'rtags-location-stack-back c++-mode-map)
   (bind-key "C-x ." 'rtags-find-symbol c-mode-map)
   (bind-key "C-x ." 'rtags-find-symbol c++-mode-map)
-  (use-package rtags-helm
-    :ensure nil
-    :defer t
-    :config
-    (setq rtags-use-helm t))
   (add-hook 'c-mode-common-hook 'rtags-start-process-unless-running)
-  (add-hook 'c++-mode-common-hook 'rtags-start-process-unless-running))
+  (add-hook 'c++-mode-common-hook 'rtags-start-process-unless-running)
+  (use-package helm-rtags
+    :after helm)
+  (use-package flycheck-rtags
+    :after flycheck
+    :config
+    (add-hook 'c-mode-common-hook 'another-flycheck-rtags-setup)
+    (setq-local flycheck-highlighting-mode nil)))
      #+END_SRC
 **** YCMD
      #+BEGIN_SRC emacs-lisp
@@ -1101,21 +1116,6 @@ Hydra is a package which allows fancy keyboard bindings
       :after (company cc-mode)
       :config
       (company-ycmd-setup)))
-     #+END_SRC
-**** Flycheck
-     #+BEGIN_SRC emacs-lisp
-(defun another-flycheck-rtags-setup()
-  (interactive)
-  (flycheck-select-checker 'rtags)
-  (setq-local flycheck-highlighting-mode nil)
-  (setq-local flycheck-check-syntax-automatically nil)
-  (rtags-enable-standard-keybindings))
-(use-package flycheck-rtags
-  :ensure nil
-  :after (cc-mode flycheck rtags)
-  :config
-  (add-hook 'c-mode-common-hook 'another-flycheck-rtags-setup)
-  (setq-local flycheck-highlighting-mode nil))
      #+END_SRC
 **** Function Args
      #+BEGIN_SRC emacs-lisp 
@@ -1159,6 +1159,141 @@ Hydra is a package which allows fancy keyboard bindings
 ;; (semantic-add-system-include "/usr/include/boost/" 'c++-mode)
      #+END_SRC
 ** Emacs Lisp
+*** Elisp Development
+    #+BEGIN_SRC emacs-lisp 
+(use-package paredit
+        :defer t)
+(defun disable-smartparens ()
+  (interactive)
+  "Disables smartparens."
+  (turn-off-smartparens-mode))
+(defun enable-paredit ()
+  (interactive)
+  "Enables paredit."
+  (paredit-mode t))
+(add-hook 'emacs-lisp-mode-hook 'disable-smartparens)
+(add-hook 'emacs-lisp-mode-hook 'enable-paredit)
+(defvar lisp-modes '(emacs-lisp-mode
+                     inferior-emacs-lisp-mode
+                     ielm-mode
+                     lisp-mode
+                     inferior-lisp-mode
+                     lisp-interaction-mode
+                     slime-repl-mode))
+(defvar lisp-mode-hooks
+  (mapcar (function
+           (lambda (mode)
+             (intern
+              (concat (symbol-name mode) "-hook"))))
+          lisp-modes))
+(defsubst hook-into-modes (func &rest modes)
+  (dolist (mode-hook modes) (add-hook mode-hook func)))
+(use-package info-look
+  :commands info-lookup-add-help)
+(use-package lisp-mode
+  :ensure nil
+  :after (company)
+  :defer t
+  :config
+  (define-key emacs-lisp-mode-map (kbd "TAB") 'company-complete)
+  :preface
+  (defvar smile-mode nil)
+  (defvar lisp-mode-initialized nil)
+  (defun my-lisp-mode-hook ()
+    (unless lisp-mode-initialized
+      (setq lisp-mode-initialized t)
+      (use-package redshank
+        :diminish redshank-mode)
+      (use-package elisp-slime-nav
+        :disabled t
+        :diminish elisp-slime-nav-mode)
+      (use-package edebug)
+      (use-package eldoc
+        :diminish eldoc-mode
+        :commands eldoc-mode
+        :config
+        (use-package eldoc-extension
+          :disabled t
+          :defer t
+          :init
+          (add-hook 'emacs-lisp-mode-hook #'(lambda () (require 'eldoc-extension)) t))
+        (eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
+      (use-package cldoc
+        :ensure nil
+        :disabled t
+        :commands (cldoc-mode turn-on-cldoc-mode)
+        :diminish cldoc-mode)
+      (use-package ert
+        :bind ("C-c e t" . ert-run-tests-interactively))
+      (use-package elint
+        :commands 'elint-initialize
+        :preface
+        (defun elint-current-buffer ()
+          (interactive)
+          (elint-initialize)
+          (elint-current-buffer))
+        :config
+        (add-to-list 'elint-standard-variables 'current-prefix-arg)
+        (add-to-list 'elint-standard-variables 'command-line-args-left)
+        (add-to-list 'elint-standard-variables 'buffer-file-coding-system)
+        (add-to-list 'elint-standard-variables 'emacs-major-version)
+        (add-to-list 'elint-standard-variables 'window-system))
+      (use-package highlight-cl
+        :disabled t
+        :init
+        (mapc (function
+               (lambda (mode-hook)
+                 (add-hook mode-hook 'highlight-cl-add-font-lock-keywords)))
+              lisp-mode-hooks))
+      (defun my-elisp-indent-or-complete (&optional arg)
+        (interactive "p")
+        (call-interactively 'lisp-indent-line)
+        (unless (or (looking-back "\\s-*") (bolp)
+                    (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
+          (call-interactively 'lisp-complete-symbol)))
+      (defun my-lisp-indent-or-complete (&optional arg)
+        (interactive "p")
+        (if (or (looking-back "^\\s-*") (bolp))
+            (call-interactively 'lisp-indent-line)
+          (call-interactively 'slime-indent-and-complete-symbol)))
+      (defun my-byte-recompile-file ()
+        (save-excursion
+          (byte-recompile-file buffer-file-name)))
+      (use-package testcover
+        :commands testcover-this-defun)
+      (mapc (lambda (mode)
+              (info-lookup-add-help
+               :mode mode
+               :regexp "[^][()'\" \t\n]+"
+               :ignore-case t
+               :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
+            lisp-modes))
+    (auto-fill-mode 1)
+    (when (featurep 'elisp-slime-nav-mode)
+      (elisp-slime-nav-mode 1))
+    (paredit-mode 1)
+    (when (featurep 'redshank-mode)
+      (redshank-mode 1))
+    (local-set-key (kbd "<return>") 'paredit-newline)
+    (bind-key "<tab>" #'my-elisp-indent-or-complete emacs-lisp-mode-map)
+    (add-hook 'after-save-hook 'check-parens nil t)
+    (unless (memq major-mode
+                  '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
+                                        ;        (turn-on-cldoc-mode)
+      (bind-key "M-q" #'slime-reindent-defun lisp-mode-map)
+      (bind-key "M-l" #'slime-selector lisp-mode-map)))
+  :init
+  (apply #'hook-into-modes 'my-lisp-mode-hook lisp-mode-hooks))
+
+(use-package pp-c-l
+  :disabled t
+  :commands pretty-control-l-mode
+  :init
+  (add-hook 'prog-mode-hook 'pretty-control-l-mode)
+  :config
+  (bind-key "C-x C-e" #'pp-eval-last-sexp))
+    #+END_SRC
+
 *** Eldoc
     #+BEGIN_SRC emacs-lisp
 (defun turn-off-eldoc ()
@@ -1179,9 +1314,12 @@ Hydra is a package which allows fancy keyboard bindings
   "Reparse the main configuration file"
   (interactive)
   (org-babel-load-file "~/.emacs.d/configurations.org"))
+(setq initial-major-mode 'org-mode)
 (use-package org
   :ensure org-plus-contrib
   :commands (org-mode org-babel-load-file org-babel-tangle-file)
+  :init
+  (setq-default major-mode 'org-mode)
   :config
   (setq org-src-preserve-indentation t)
   (setq org-src-tab-acts-natively t)
@@ -1203,7 +1341,7 @@ Hydra is a package which allows fancy keyboard bindings
   (setq org-default-notes-file "~/.emacs.d/ownCloud/org/refile.org"
         org-use-fast-todo-selection t
         org-src-window-setup 'current-window
-        ;org-export-in-background nil
+                                        ;org-export-in-background nil
         )
   :bind (("\C-cl" . org-store-link)
          ("\C-ca" . org-agenda)
@@ -1357,117 +1495,117 @@ Hydra is a package which allows fancy keyboard bindings
 (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
     #+END_SRC
 *** Mu4e
-    - State "DONE"       from "WAITING"    [2017-08-18 Fri 17:27]
     #+BEGIN_SRC emacs-lisp
-(setq mu4e-lisp-location (or (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu4e")
-                                 "/usr/local/share/emacs/site-lisp/mu4e")
-                               (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu/mu4e")
-                                 "/usr/local/share/emacs/site-lisp/mu/mu4e")
-                               (when (file-exists-p "~/.emacs.d/mu4e") "~/.emacs.d/mu4e")))
-(use-package offlineimap
-  :init
-  (defun offlineimap-get-password (host port)
-    (let* ((netrc (netrc-parse (expand-file-name "~/.netrc.gpg")))
-           (hostentry (netrc-machine netrc host port port)))
-      (when hostentry (netrc-get hostentry "password"))))
+;; (defvar mu4e-lisp-location " ")
+;; (setq mu4e-lisp-location (or (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu4e")
+;;                                "/usr/local/share/emacs/site-lisp/mu4e")
+;;                              (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu/mu4e")
+;;                                "/usr/local/share/emacs/site-lisp/mu/mu4e")
+;;                              (when (file-exists-p "~/.emacs.d/mu4e") "~/.emacs.d/mu4e")))
+;; (use-package offlineimap
+;;   :init
+;;   (defun offlineimap-get-password (host port)
+;;     (let* ((netrc (netrc-parse (expand-file-name "~/.netrc.gpg")))
+;;            (hostentry (netrc-machine netrc host port port)))
+;;       (when hostentry (netrc-get hostentry "password"))))
+;;   )
 
-
-  )
-(use-package mu4e
-  :ensure nil
-  :when (executable-find "mu")
-  :load-path mu4e-lisp-location
-  :config
-  (global-set-key (kbd "<f12>") 'mu4e)
-  (require 'smtpmail)
-  (use-package mu4e-contrib
-    :ensure nil
-    :load-path mu4e-lisp-location
-    )
-  (use-package mu4e-org
-    :ensure nil
-    :after org
-    )
-  (setq mu4e-maildir "~/Maildir"
-        mu4e-drafts-folder "/Drafts"
-        mu4e-sent-folder   "/Sent Mail"
-        mu4e-trash-folder  "/Trash"
-        mu4e-sent-messages-behavior 'delete
-        mu4e-use-fancy-chars t
-        mu4e-attachment-dir "~/Downloads/"
-        mu4e-view-show-images t
-                                        ;mu4e-maildir-shortcuts
-        ;; '(("/INBOX"               . ?i)
-        ;;   ("/[Gmail].Sent Mail"   . ?s)
-        ;;   ("/[Gmail].Trash"       . ?t)
-        ;;   ("/[Gmail].All Mail"    . ?a))
-        mu4e-get-mail-command "offlineimap"
-        mu4e-update-interval 450)
-  (setq message-send-mail-function 'smtpmail-send-it
-        smtpmail-stream-type 'starttls
-        smtpmail-default-smtp-server "smtp.gmail.com"
-        smtpmail-smtp-server "smtp.gmail.com"
-        smtpmail-smtp-service 587)
-  (setq mu4e-html2text-command 'mu4e-shr2text)
-  (setq mu4e-contexts
-        `( ,(make-mu4e-context
-             :name "Lund"
-             :enter-func (lambda () (mu4e-message "Entering Lund Context"))
-             :leave-func (lambda () (mu4e-message "Leaving Lund Context"))
-             :match-func (lambda (message)
-                           (when message
-                             (or (mu4e-message-contact-field-matches
-                                  message :to "nat13eel@student.lu.se")
-                                 )))
-             :vars '((user-mail-address . "nat13eel@student.lu.se")
-                     (user-full-name . "Einar Elén")))
-           ,(make-mu4e-context
-             :name "Gmail"
-             :enter-func (lambda () (mu4e-message "Entering Gmail Context"))
-             :leave-func (lambda () (mu4e-message "Leaving Gmail Context"))
-             :match-func (lambda (message)
-                           (when message
-                             (or (mu4e-message-contact-field-matches
-                                  message :to "einar.elen@gmail.com")
-                                 (mu4e-message-contact-field-matches
-                                  message :to "jol-ordf@luna.lu.se"))))
-             :vars '((user-mail-address . "einar.elen@gmail.com")
-                     (user-full-name . "Einar Elén")))
-           ,(make-mu4e-context
-             :name "Outlook"
-             :enter-func (lambda () (mu4e-message "Entering Outlook Context"))
-             :leave-func (lambda () (mu4e-message "Leaving Outlook Context"))
-             :match-func (lambda (message)
-                           (when message
-                             (or (mu4e-message-contact-field-matches
-                                  message :to "einar_elen@live.se")
-                                 (mu4e-message-contact-field-matches
-                                  message :to "Einar_elen@live.se")
-                                 (mu4e-message-contact-field-matches
-                                  message :to "EINAR_ELEN@live.se")
-                                 (mu4e-message-contact-field-matches
-                                  message :to "Einar_Elen@live.se")
-                                 )))
-             :vars '((user-mail-address . "einar_elen@live.se")
-                     (user-full-name . "Einar Elén")))
-           ,(make-mu4e-context
-             :name "Work"
-             :enter-func (lambda () (mu4e-message "Entering Luna Context"))
-             :leave-func (lambda () (mu4e-message "Leaving Luna Context"))
-             :match-func (lambda (message)
-                           (when message
-                             (or (mu4e-message-contact-field-matches
-                                  message :to "ordf@luna.lu.se")
-                                 (mu4e-message-contact-field-matches
-                                  message :to "Ordf@luna.lu.se")
-                                 (mu4e-message-contact-field-matches
-                                  message :to "ORDF@luna.lu.se")
-                                 (mu4e-message-contact-field-matches
-                                  message :to "ORDF@LUNA.LU.SE")
-                                 )))
-             :vars '((user-mail-address . "ordf@luna.lu.se")
-                     (user-full-name . "Einar Elén")))
-           )))
+;; (when (not (string= " " mu4e-lisp-location))
+;;   (use-package mu4e
+;;     :ensure nil
+;;     :when (executable-find "mu")
+;;     :load-path mu4e-lisp-location
+;;     :config
+;;     (global-set-key (kbd "<f12>") 'mu4e)
+;;     (require 'smtpmail)
+;;     (use-package mu4e-contrib
+;;       :ensure nil
+;;       :load-path mu4e-lisp-location
+;;       )
+;;     (use-package mu4e-org
+;;       :ensure nil
+;;       :after org
+;;       )
+;;     (setq mu4e-maildir "~/Maildir"
+;;           mu4e-drafts-folder "/Drafts"
+;;           mu4e-sent-folder   "/Sent Mail"
+;;           mu4e-trash-folder  "/Trash"
+;;           mu4e-sent-messages-behavior 'delete
+;;           mu4e-use-fancy-chars t
+;;           mu4e-attachment-dir "~/Downloads/"
+;;           mu4e-view-show-images t
+;;                                         ;mu4e-maildir-shortcuts
+;;           ;; '(("/INBOX"               . ?i)
+;;           ;;   ("/[Gmail].Sent Mail"   . ?s)
+;;           ;;   ("/[Gmail].Trash"       . ?t)
+;;           ;;   ("/[Gmail].All Mail"    . ?a))
+;;           mu4e-get-mail-command "offlineimap"
+;;           mu4e-update-interval 450)
+;;     (setq message-send-mail-function 'smtpmail-send-it
+;;           smtpmail-stream-type 'starttls
+;;           smtpmail-default-smtp-server "smtp.gmail.com"
+;;           smtpmail-smtp-server "smtp.gmail.com"
+;;           smtpmail-smtp-service 587)
+;;     (setq mu4e-html2text-command 'mu4e-shr2text)
+;;     (setq mu4e-contexts
+;;           `( ,(make-mu4e-context
+;;                :name "Lund"
+;;                :enter-func (lambda () (mu4e-message "Entering Lund Context"))
+;;                :leave-func (lambda () (mu4e-message "Leaving Lund Context"))
+;;                :match-func (lambda (message)
+;;                              (when message
+;;                                (or (mu4e-message-contact-field-matches
+;;                                     message :to "nat13eel@student.lu.se")
+;;                                    )))
+;;                :vars '((user-mail-address . "nat13eel@student.lu.se")
+;;                        (user-full-name . "Einar Elén")))
+;;              ,(make-mu4e-context
+;;                :name "Gmail"
+;;                :enter-func (lambda () (mu4e-message "Entering Gmail Context"))
+;;                :leave-func (lambda () (mu4e-message "Leaving Gmail Context"))
+;;                :match-func (lambda (message)
+;;                              (when message
+;;                                (or (mu4e-message-contact-field-matches
+;;                                     message :to "einar.elen@gmail.com")
+;;                                    (mu4e-message-contact-field-matches
+;;                                     message :to "jol-ordf@luna.lu.se"))))
+;;                :vars '((user-mail-address . "einar.elen@gmail.com")
+;;                        (user-full-name . "Einar Elén")))
+;;              ,(make-mu4e-context
+;;                :name "Outlook"
+;;                :enter-func (lambda () (mu4e-message "Entering Outlook Context"))
+;;                :leave-func (lambda () (mu4e-message "Leaving Outlook Context"))
+;;                :match-func (lambda (message)
+;;                              (when message
+;;                                (or (mu4e-message-contact-field-matches
+;;                                     message :to "einar_elen@live.se")
+;;                                    (mu4e-message-contact-field-matches
+;;                                     message :to "Einar_elen@live.se")
+;;                                    (mu4e-message-contact-field-matches
+;;                                     message :to "EINAR_ELEN@live.se")
+;;                                    (mu4e-message-contact-field-matches
+;;                                     message :to "Einar_Elen@live.se")
+;;                                    )))
+;;                :vars '((user-mail-address . "einar_elen@live.se")
+;;                        (user-full-name . "Einar Elén")))
+;;              ,(make-mu4e-context
+;;                :name "Work"
+;;                :enter-func (lambda () (mu4e-message "Entering Luna Context"))
+;;                :leave-func (lambda () (mu4e-message "Leaving Luna Context"))
+;;                :match-func (lambda (message)
+;;                              (when message
+;;                                (or (mu4e-message-contact-field-matches
+;;                                     message :to "ordf@luna.lu.se")
+;;                                    (mu4e-message-contact-field-matches
+;;                                     message :to "Ordf@luna.lu.se")
+;;                                    (mu4e-message-contact-field-matches
+;;                                     message :to "ORDF@luna.lu.se")
+;;                                    (mu4e-message-contact-field-matches
+;;                                     message :to "ORDF@LUNA.LU.SE")
+;;                                    )))
+;;                :vars '((user-mail-address . "ordf@luna.lu.se")
+;;                        (user-full-name . "Einar Elén")))
+;;              ))))
 
     #+END_SRC
 *** Gnus
@@ -1558,10 +1696,12 @@ Hydra is a package which allows fancy keyboard bindings
    #+END_SRC
 * Experimental
 ** Emacs Lisp
-   #+BEGIN_SRC emacs-lisp
+
+#+BEGIN_SRC emacs-lisp
 ;(semantic-mode -1)
 (use-package org-notes
   :when (file-exists-p "~/ownCloud/projects/elisp/")
+  :disabled t
   :load-path "~/ownCloud/projects/elisp/"
   :ensure nil
   :commands (org-notes-mode
@@ -1587,137 +1727,6 @@ Hydra is a package which allows fancy keyboard bindings
 (use-package ert
   :commands (ert-deftest ert)
   )
-   #+END_SRC
-** Elisp Development
-   #+BEGIN_SRC emacs-lisp 
-(use-package paredit
-        :defer t)
-(defun disable-smartparens ()
-  (interactive)
-  "Disables smartparens."
-  (turn-off-smartparens-mode))
-(defun enable-paredit ()
-  (interactive)
-  "Enables paredit."
-  (paredit-mode t))
-(add-hook 'emacs-lisp-mode-hook 'disable-smartparens)
-(add-hook 'emacs-lisp-mode-hook 'enable-paredit)
-(defvar lisp-modes '(emacs-lisp-mode
-                     inferior-emacs-lisp-mode
-                     ielm-mode
-                     lisp-mode
-                     inferior-lisp-mode
-                     lisp-interaction-mode
-                     slime-repl-mode))
-(defvar lisp-mode-hooks
-  (mapcar (function
-           (lambda (mode)
-             (intern
-              (concat (symbol-name mode) "-hook"))))
-          lisp-modes))
-(defsubst hook-into-modes (func &rest modes)
-  (dolist (mode-hook modes) (add-hook mode-hook func)))
-(use-package info-look
-  :commands info-lookup-add-help)
-(use-package lisp-mode
-  :ensure nil
-  :defer t
-  :preface
-  (defvar smile-mode nil)
-  (defvar lisp-mode-initialized nil)
-  (defun my-lisp-mode-hook ()
-    (unless lisp-mode-initialized
-      (setq lisp-mode-initialized t)
-      (use-package redshank
-        :diminish redshank-mode)
-      (use-package elisp-slime-nav
-        :disabled t
-        :diminish elisp-slime-nav-mode)
-      (use-package edebug)
-      (use-package eldoc
-        :diminish eldoc-mode
-        :commands eldoc-mode
-        :config
-        (use-package eldoc-extension
-          :disabled t
-          :defer t
-          :init
-          (add-hook 'emacs-lisp-mode-hook #'(lambda () (require 'eldoc-extension)) t))
-        (eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
-      (use-package cldoc
-        :ensure nil
-        :disabled t
-        :commands (cldoc-mode turn-on-cldoc-mode)
-        :diminish cldoc-mode)
-      (use-package ert
-        :bind ("C-c e t" . ert-run-tests-interactively))
-      (use-package elint
-        :commands 'elint-initialize
-        :preface
-        (defun elint-current-buffer ()
-          (interactive)
-          (elint-initialize)
-          (elint-current-buffer))
-        :config
-        (add-to-list 'elint-standard-variables 'current-prefix-arg)
-        (add-to-list 'elint-standard-variables 'command-line-args-left)
-        (add-to-list 'elint-standard-variables 'buffer-file-coding-system)
-        (add-to-list 'elint-standard-variables 'emacs-major-version)
-        (add-to-list 'elint-standard-variables 'window-system))
-      (use-package highlight-cl
-        :disabled t
-        :init
-        (mapc (function
-               (lambda (mode-hook)
-                 (add-hook mode-hook 'highlight-cl-add-font-lock-keywords)))
-              lisp-mode-hooks))
-      (defun my-elisp-indent-or-complete (&optional arg)
-        (interactive "p")
-        (call-interactively 'lisp-indent-line)
-        (unless (or (looking-back "\\s-*") (bolp)
-                    (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
-          (call-interactively 'lisp-complete-symbol)))
-      (defun my-lisp-indent-or-complete (&optional arg)
-        (interactive "p")
-        (if (or (looking-back "^\\s-*") (bolp))
-            (call-interactively 'lisp-indent-line)
-          (call-interactively 'slime-indent-and-complete-symbol)))
-      (defun my-byte-recompile-file ()
-        (save-excursion
-          (byte-recompile-file buffer-file-name)))
-      (use-package testcover
-        :commands testcover-this-defun)
-      (mapc (lambda (mode)
-              (info-lookup-add-help
-               :mode mode
-               :regexp "[^][()'\" \t\n]+"
-               :ignore-case t
-               :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
-            lisp-modes))
-    (auto-fill-mode 1)
-    (when (featurep 'elisp-slime-nav-mode)
-      (elisp-slime-nav-mode 1))
-    (paredit-mode 1)
-    (when (featurep 'redshank-mode)
-      (redshank-mode 1))
-    (local-set-key (kbd "<return>") 'paredit-newline)
-    (bind-key "<tab>" #'my-elisp-indent-or-complete emacs-lisp-mode-map)
-    (add-hook 'after-save-hook 'check-parens nil t)
-    (unless (memq major-mode
-                  '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
-                                        ;        (turn-on-cldoc-mode)
-      (bind-key "M-q" #'slime-reindent-defun lisp-mode-map)
-      (bind-key "M-l" #'slime-selector lisp-mode-map)))
-  :init
-  (apply #'hook-into-modes 'my-lisp-mode-hook lisp-mode-hooks))
-
-(use-package pp-c-l
-  :disabled t
-  :commands pretty-control-l-mode
-  :init
-  (add-hook 'prog-mode-hook 'pretty-control-l-mode)
-  :config
-  (bind-key "C-x C-e" #'pp-eval-last-sexp))
    #+END_SRC
 * To be integrated
   #+BEGIN_SRC emacs-lisp
@@ -1775,7 +1784,7 @@ Hydra is a package which allows fancy keyboard bindings
       (if (eq system-type 'darwin) t nil))
 (if spaceline-defer-load
     (use-package spaceline
-      :defer nil
+      :demand
       :config
       (use-package spaceline-config
         :ensure nil
@@ -2000,7 +2009,7 @@ and insert region contents at top."
   )
 (use-package spacemacs-common
   :ensure spacemacs-theme
-  :config (load-theme 'spacemacs-dark t)
+  :config ;(load-theme 'spacemacs-dark t)
   )
 ;; (use-package spacemacs-theme
 ;; :ensure t
