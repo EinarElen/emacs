@@ -692,14 +692,11 @@ Hydra is a package which allows fancy keyboard bindings
     #+BEGIN_SRC emacs-lisp
 (use-package helm-gtags
   :when (executable-find "gtags")
-  :init (setq
-         helm-gtags-ignore-case t
+  :init (setq helm-gtags-ignore-case t
          helm-gtags-auto-update t
          helm-gtags-use-input-at-cursor t
          helm-gtags-pulse-at-cursor t
-         helm-gtags-prefix-key "\C-cg"
-                                        ;helm-gtags-suggested-key-mapping t
-         )
+         helm-gtags-prefix-key "\C-cg")
   ;; Enable helm-gtags-mode in Dired so you can jump to any tag
   ;; when navigate project tree with Dired
   (add-hook 'dired-mode-hook 'helm-gtags-mode)
@@ -838,19 +835,14 @@ Hydra is a package which allows fancy keyboard bindings
   "Hook to disable yasnippet when it causes issues for some other mode."
   (yas-minor-mode -1))
 (use-package yasnippet
-  :demand 
   :config
   (set 'yas-verbosity 1)
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/tuhdosnippets/")
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets/")
     (add-hook 'term-mode-hook 'disable-yas-in-mode-hook)
                                         ;(add-hook 'org-mode-hook 'disable-yas-in-mode-hook)
-  (yas-reload-all t)
-  (add-hook 'c-mode-hook 'yas-minor-mode-on)
-  (add-hook 'c++-mode-hook 'yas-minor-mode-on)
-  (add-hook 'latex-mode-hook 'yas-minor-mode-on)
-  (add-hook 'tex-mode-hook 'yas-minor-mode-on)
-)
+    (yas-reload-all t)
+    (yas-global-mode t))
 
    #+END_SRC
 ** Terminal Usage
