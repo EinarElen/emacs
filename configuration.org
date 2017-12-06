@@ -3,7 +3,6 @@
 #+OPTIONS: toc:3 html5-fancy org-html-preamble:nil 
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes
-
 * Emacs Setup
 ** Package Installation
    This sets up everything necerssary to install new packages and adds
@@ -219,15 +218,14 @@ Hydra is a package which allows fancy keyboard bindings
 #+BEGIN_SRC emacs-lisp 
 (use-package hydra
   :after windmove
+  :functions (hydra-add-font-lock
+              hydra-default-pre hydra-keyboard-quit
+              hydra--call-interactively-remap-maybe
+              hydra-show-hint hydra-set-transient-map)
   :config
   (hydra-add-font-lock)
   (use-package ace-window)
   (use-package transpose-frame)
-  :bind (("C-M-o" . hydra-window/body)))
-#+END_SRC
-**** Window management
-#+BEGIN_SRC emacs-lisp 
-(with-eval-after-load "hydra"
   (defhydra hydra-window ()
     "Window management"
     ("a" windmove-left)
@@ -251,7 +249,12 @@ Hydra is a package which allows fancy keyboard bindings
     ("k" ace-delete-window "Kill")
     ("i" ace-delete-other-windows "Ace-max")
     ("b" helm-mini "Buffers")
-    ("q" nil "cancel" :color blue)))
+    ("q" nil "cancel" :color blue))
+  :bind (("C-M-o" . hydra-window/body)))
+#+END_SRC
+**** Window management
+#+BEGIN_SRC emacs-lisp 
+
 #+END_SRC
 ** Looks/Themes
 *** Basic Configuration
@@ -427,16 +430,16 @@ Hydra is a package which allows fancy keyboard bindings
 (use-package smartparens
   :diminish smartparens-mode
   :defer 2
+  :functions sp-pair 
   :config
   (require 'smartparens-config)
-  (smartparens-global-mode t)
   (sp-pair "\\[" "\\]")
-  (setq sp-base-key-bindings 'paredit
-        sp-autoskip-closing-pair 'always
-        sp-hybrid-kill-entire-symbol nil)
-  (sp-use-paredit-bindings)
-  (show-smartparens-global-mode t)
-  
+  (setq ;sp-base-key-bindings 'paredit
+   sp-autoskip-closing-pair 'always
+   sp-hybrid-kill-entire-symbol nil)
+  (smartparens-strict-mode)
+                                        ;(sp-use-paredit-bindings)
+  (smartparens-global-mode t)
   :bind (:map smartparens-mode-map (("M-<down>" . nil)
                                     ("M-<up>" . nil))))
      #+END_SRC
@@ -712,14 +715,14 @@ Hydra is a package which allows fancy keyboard bindings
   (add-hook 'java-mode-hook 'helm-gtags-mode)
   (add-hook 'asm-mode-hook 'helm-gtags-mode)
   :config
-  :bind (:map helm-gtags-mode-map
+  ;:bind (:map helm-gtags-mode-map
                                         ;("C-c >" . helm-gtags-next-history)
                                         ;("C-c <" . helm-gtags-previous-history)
                                         ;("M-," . helm-gtags-pop-stack)
                                         ;("M-." . helm-gtags-dwim)
                                         ;("C-j" . helm-gtags-select)
                                         ;("C-c g a" . helm-gtags-tags-in-this-function)
-              )
+   ;           )
   (setq helm-gtags-prefix-key "\C-cg"))
     #+END_SRC
 *** Basic Configuration
@@ -727,7 +730,7 @@ Hydra is a package which allows fancy keyboard bindings
       (use-package helm
         :commands (helm-M-x helm-mini helm-find-files helm-themes)
         :diminish helm-mode
-        :init
+        :functions helm-autoresize-mode
         :bind (("M-x" . helm-M-x)
                ("M-y" . helm-show-kill-ring)
                ("C-x b" . helm-mini)
@@ -879,14 +882,16 @@ Hydra is a package which allows fancy keyboard bindings
 (use-package tex
   :ensure auctex
   :mode (("\\.tex$" . TeX-mode))
+  :defines TeX-run-TeX
+  :functions (TeX-revert-document-buffer
+              TeX-command TeX-master-file)
   :config
   (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
   (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
   (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
   (define-key TeX-mode-map (kbd "TAB") 'company-complete)
   (define-key TeX-mode-map (kbd "TAB") 'company-complete)
-  (use-package tex-buf :ensure nil
-    )
+  (use-package tex-buf :ensure nil)
   (use-package latex-preview-pane
     :config
     (setq TeX-save-query nil)
@@ -954,14 +959,13 @@ Hydra is a package which allows fancy keyboard bindings
     #+BEGIN_SRC emacs-lisp
 (use-package company-c-headers
   :after (cc-mode company)
+  :defer 4
   :config
-  (when (string= (system-name) "fed-lap")
-    (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.2.1/")
-    (semantic-add-system-include "/usr/include/c++/6.2.1" 'c++-mode))
-  (when (string= (system-name) "arch-desktop")
-    (add-to-list 'company-c-headers-path-system "/usr/include/c++/6.1.1/"))
-  (when (string= (system-name) "virtualbox")
-    (add-to-list 'company-c-headers-path-system "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.3/include/"))
+  (use-package semantic
+    :config
+    (semantic-gcc-setup)
+    (dolist (name (semantic-gcc-get-include-paths "c++"))
+      (add-to-list 'company-c-headers-path-system name)))
   (add-to-list 'company-backends 'company-c-headers))
     #+END_SRC
 *** Yasnippet
@@ -1153,18 +1157,6 @@ Hydra is a package which allows fancy keyboard bindings
 ** Emacs Lisp
 *** Elisp Development
     #+BEGIN_SRC emacs-lisp 
-(use-package paredit
-        :defer t)
-(defun disable-smartparens ()
-  (interactive)
-  "Disables smartparens."
-  (turn-off-smartparens-mode))
-(defun enable-paredit ()
-  (interactive)
-  "Enables paredit."
-  (paredit-mode t))
-(add-hook 'emacs-lisp-mode-hook 'disable-smartparens)
-(add-hook 'emacs-lisp-mode-hook 'enable-paredit)
 (defvar lisp-modes '(emacs-lisp-mode
                      inferior-emacs-lisp-mode
                      ielm-mode
@@ -1187,8 +1179,41 @@ Hydra is a package which allows fancy keyboard bindings
   :after (company)
   :defer t
   :config
+  (use-package paredit
+    :defer t
+    :preface
+    (defun disable-smartparens ()
+      (interactive)
+      "Disables smartparens."
+      (turn-off-smartparens-mode))
+    (defun enable-paredit ()
+      (interactive)
+      "Enables paredit."
+      (paredit-mode t))
+    )
+  (use-package slime
+  :after (company lisp-mode)
+  :config
+  (use-package elisp-slime-nav)
+  (use-package slime-company))
+  (add-hook 'emacs-lisp-mode-hook 'disable-smartparens)
+  (add-hook 'emacs-lisp-mode-hook 'enable-paredit)
   (define-key emacs-lisp-mode-map (kbd "TAB") 'company-complete)
   :preface
+(defun my-elisp-indent-or-complete (&optional arg)
+        (interactive "p")
+        (call-interactively 'lisp-indent-line)
+        (unless (or (looking-back "\\s-*") (bolp) 
+                    (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
+          (call-interactively 'lisp-complete-symbol)))
+      ;; (defun my-lisp-indent-or-complete (&optional arg)
+      ;;   (interactive "p")
+      ;;   (if (or (looking-back "^\\s-*") (bolp))
+      ;;       (call-interactively 'lisp-indent-line)
+      ;;     (call-interactively 'slime-indent-and-complete-symbol)))
+      (defun my-byte-recompile-file ()
+        (save-excursion
+          (byte-recompile-file buffer-file-name)))
   (defvar smile-mode nil)
   (defvar lisp-mode-initialized nil)
   (defun my-lisp-mode-hook ()
@@ -1237,20 +1262,7 @@ Hydra is a package which allows fancy keyboard bindings
                (lambda (mode-hook)
                  (add-hook mode-hook 'highlight-cl-add-font-lock-keywords)))
               lisp-mode-hooks))
-      (defun my-elisp-indent-or-complete (&optional arg)
-        (interactive "p")
-        (call-interactively 'lisp-indent-line)
-        (unless (or (looking-back "\\s-*") (bolp)
-                    (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
-          (call-interactively 'lisp-complete-symbol)))
-      (defun my-lisp-indent-or-complete (&optional arg)
-        (interactive "p")
-        (if (or (looking-back "^\\s-*") (bolp))
-            (call-interactively 'lisp-indent-line)
-          (call-interactively 'slime-indent-and-complete-symbol)))
-      (defun my-byte-recompile-file ()
-        (save-excursion
-          (byte-recompile-file buffer-file-name)))
+      
       (use-package testcover
         :commands testcover-this-defun)
       (mapc (lambda (mode)
@@ -1272,7 +1284,7 @@ Hydra is a package which allows fancy keyboard bindings
     (unless (memq major-mode
                   '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
                                         ;        (turn-on-cldoc-mode)
-      (bind-key "M-q" #'slime-reindent-defun lisp-mode-map)
+      ;; (bind-key "M-q" #'slime-reindent-defun lisp-mode-map)
       (bind-key "M-l" #'slime-selector lisp-mode-map)))
   :init
   (apply #'hook-into-modes 'my-lisp-mode-hook lisp-mode-hooks))
@@ -1372,7 +1384,7 @@ Hydra is a package which allows fancy keyboard bindings
   (use-package calfw-gcal)
   (use-package org-gcal
     :commands org-gcal
-    :after calfw
+    :functions org-gcal-sync
     :config
     (setq org-gcal-client-id
   "393897935817-6f7lc36osa9o9kqc10u65hhstu8idp4o.apps.googleusercontent.com"
@@ -1381,11 +1393,9 @@ Hydra is a package which allows fancy keyboard bindings
                          . "/home/einarelen/ownCloud/org/cal/main.org")
                         ("ordf@luna.lu.se" . "/home/einarelen/ownCloud/org/cal/main.org")
                         ))
-    )
-  (defun org-gcal-syncing-hook () (org-gcal-sync))
-  (add-hook 'org-agenda-mode-hook 'org-gcal-syncing-hook)
-  (add-hook 'org-capture-after-finalize-hook 'org-gcal-syncing-hook)
-  )
+    (defun org-gcal-syncing-hook () (org-gcal-sync))
+    (add-hook 'org-agenda-mode-hook 'org-gcal-syncing-hook)
+    (add-hook 'org-capture-after-finalize-hook 'org-gcal-syncing-hook)))
 
   ;;; https://calendar.google.com/calendar/ical/einar.elen%40gmail.com/private-97060e03f66653b16c4d6c7164f8d633/basic.ics
    #+END_SRC
@@ -1625,32 +1635,37 @@ Hydra is a package which allows fancy keyboard bindings
   :defer t
   )
 (use-package xah-replace-pairs
+  :functions xah-replace-pairs-region
+  :preface
+  (defvar multireplace-list nil "Nah.")
+  (defvar multireplace-pair-first nil "nah.")
+  (defvar multireplace-pair-second nil "nah.")
+  (defun multireplace (first second)
+    (interactive "r")
+    (while (yes-or-no-p "More pairs?")
+      (print "1")
+      (setq multireplace-pair-first (read-from-minibuffer "First:"))
+      (print multireplace-pair-first)
+      (setq multireplace-pair-second (read-from-minibuffer "Second:"))
+      (print multireplace-pair-second)
+      (setq multireplace-list (cons (list multireplace-pair-first multireplace-pair-second) multireplace-list))
+      (setq multireplace-pair-first nil multireplace-pair-second nil))
+    (xah-replace-pairs-region first second multireplace-list)
+    (setq multireplace-list nil multireplace-pair-first nil
+          multireplace-pair-second nil))
   :defer t)
-(defvar multireplace-list nil "Nah.")
-(defvar multireplace-pair-first nil "nah.")
-(defvar multireplace-pair-second nil "nah.")
-(defun multireplace (first second)
-  (interactive "r")
-  (while (yes-or-no-p "More pairs?")
-    (print "1")
-    (setq multireplace-pair-first (read-from-minibuffer "First:"))
-    (print multireplace-pair-first)
-    (setq multireplace-pair-second (read-from-minibuffer "Second:"))
-    (print multireplace-pair-second)
-    (setq multireplace-list (cons (list multireplace-pair-first multireplace-pair-second) multireplace-list))
-    (setq multireplace-pair-first nil multireplace-pair-second nil))
-  (xah-replace-pairs-region first second multireplace-list)
-  (setq multireplace-list nil multireplace-pair-first nil multireplace-pair-second nil))
+
 
 (use-package multiple-cursors
   :bind (("C-M-." . mc/mark-next-like-this))
 )
 
-(setq spaceline-defer-load
-      (if (eq system-type 'darwin) t nil))
+(defvar spaceline-defer-load (if (eq system-type 'darwin) t nil))
 (if spaceline-defer-load
     (use-package spaceline
       :demand
+      :functions (spaceline-spacemacs-theme
+                  spaceline-helm-mode spaceline-info-mode)
       :config
       (use-package spaceline-config
         :ensure nil
@@ -1663,10 +1678,11 @@ Hydra is a package which allows fancy keyboard bindings
           (use-package spaceline-all-the-icons
             :config
             (spaceline-all-the-icons-theme))
-          ))
-      )
+          )))
   (use-package spaceline
     :defer 1
+    :functions (spaceline-spacemacs-theme
+                spaceline-helm-mode spaceline-info-mode)
     :config
     (use-package spaceline-config
       :ensure nil
@@ -1675,23 +1691,16 @@ Hydra is a package which allows fancy keyboard bindings
       (spaceline-helm-mode t)
       (spaceline-info-mode t)
       (use-package all-the-icons
-        :config
+        ;; :config
         (use-package spaceline-all-the-icons
           :config
-          (spaceline-all-the-icons-theme))
-;;; Remembe (all-the-icons-install-fonts)
-        ))
-    )
-  )
-
-
+          (spaceline-all-the-icons-theme))))))
   #+END_SRC
   #+BEGIN_SRC emacs-lisp
 (use-package cmake-ide
   :after rtags
   :config
-  (cmake-ide-setup)
-  )
+  (cmake-ide-setup))
 (use-package cmake-mode
   :defer t
   :config
@@ -1752,6 +1761,7 @@ and insert region contents at top."
 (bind-key "<f7>" 'scratch-here)
 (use-package "eshell"
   :ensure nil
+  :functions eshell-send-input
   :commands (eshell-here eshell)
   :init
   (bind-key "<f9>" 'eshell-here)
@@ -1858,6 +1868,7 @@ and insert region contents at top."
             (replace-match -toRight 'FIXEDCASE 'LITERAL)))))))
 (use-package server
   :defer t
+  :functions server-running-p
   :after eshell
   :config
   (unless (server-running-p)
@@ -1875,8 +1886,7 @@ and insert region contents at top."
   )
 (use-package spacemacs-common
   :ensure spacemacs-theme
-  :config ;(load-theme 'spacemacs-dark t)
-  )
+  :config (load-theme 'spacemacs-dark t))
 ;; (use-package spacemacs-theme
 ;; :ensure t
 ;; :defer nil
@@ -1933,3 +1943,13 @@ and insert region contents at top."
      )))
 
  #+END_SRC
+* Tmp
+#+BEGIN_SRC emacs-lisp 
+(defun byte-compile-me-daddy () 
+  (interactive)
+  (org-babel-tangle-file "~/.emacs.d/configuration.org")
+  (byte-compile-file "~/.emacs.d/configuration.el"))
+(bind-key "<f5>" 'byte-compile-me-daddy)
+#+END_SRC
+
+

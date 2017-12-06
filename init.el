@@ -28,16 +28,18 @@
            (byte-compile-file "~/.emacs.d/configuration.el")))
      (let ((time (current-time)))
        (load-file "~/.emacs.d/configuration.el")
-       (with-current-buffer (get-buffer "*scratch*")
-         (insert (format "Setup took %f seconds!\n" (float-time (time-since time))))
-         (let ((buf (or (get-buffer "*warnings*")
-                        (get-buffer "*use-package*"))))
-           (if (and debug-on-error buf)
-               (progn
-                 (insert (format "Debug information from use-package:\n"))
-                 (insert-buffer (get-buffer "*use-package*")))))))
+       ;; (with-current-buffer (get-buffer "*scratch*")
+       ;;   (insert (format "Setup took %f seconds!\n" (float-time (time-since time))))
+       ;;   (let ((buf (or (get-buffer "*warnings*")
+       ;;                  (get-buffer "*use-package*"))))
+       ;;     (if (and debug-on-error buf)
+       ;;         (progn
+       ;;           (insert (format "Debug information from use-package:\n"))
+       ;;           (insert-buffer (get-buffer "*use-package*"))))))
+       (message "%f" (float-time (time-since time)))
+       )
      (when (string= (getenv "DESKTOP_SESSION") "gnome")
-       (load-file "~/.emacs.d/gnome-server.el")
+       ;(load-file "~/.emacs.d/gnome-server.el")
        )
      )
   (load-file "~/.emacs.d/debug-helper.el"))
@@ -58,7 +60,7 @@
  '(org-twbs-extension "shtml")
  '(package-selected-packages
    (quote
-    (ob org-agenda tex-buf company-clang TeX-save-query helm-files helm-command helm-elisp helm-ag helm-apropos helm-google whitespace-mode helm-rtags flycheck-rtags ob-async transpose-frame ace-window hydra org-gcal calfw-gcal mu4e-org epa-file offlineimap mu4e-contrib helm-purpose window-purpose swiper-helm nameless em-smart cask-mode buttercup flycheck company-rtags pp-c-l highlight-cl eldoc-extension elisp-slime-nav redshank paredit-everywhere paredit-menu auto-complete-clang paredit meson-mode xah-replace-pairs multiple-cursors expand-region info+ all-the-icons winum eyebrowse persp-projectile persp-mode perspective spaceline-all-the-icons spacemacs-theme helm-themes blackboard-theme counsel cpputils-cmake org-beautify-theme ox-twbs cmake-font-lock cmake-project cmake-mode dumb-jump exwm ein glsl-mode wolfram fold-dwim org rtags pdf-tools srefactor macrostep ox-latex calfw-org latex latexx clipmon use-package calfw auctex-latexmk nlinum gnuplot ob-C htmlize web-mode hideshowvis hyperbole zoom-frm twittering-mode helm-dash helm-descbinds zygospore yalinum ws-butler volatile-highlights undo-tree sr-speedbar solarized-theme smartparens powerline nyan-mode multi-term monokai-theme malinka magit latex-preview-pane iedit helm-swoop helm-projectile helm-gtags helm-c-yasnippet ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony exec-path-from-shell elscreen duplicate-thing dtrt-indent diminish company-ycmd company-irony-c-headers company-irony company-c-headers company-auctex comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format avy-zap anzu ace-jump-mode)))
+    (slime-company elisp-slime-nav-mode slime ob org-agenda tex-buf company-clang TeX-save-query helm-files helm-command helm-elisp helm-ag helm-apropos helm-google whitespace-mode helm-rtags flycheck-rtags ob-async transpose-frame ace-window hydra org-gcal calfw-gcal mu4e-org epa-file offlineimap mu4e-contrib helm-purpose window-purpose swiper-helm nameless em-smart cask-mode buttercup flycheck company-rtags pp-c-l highlight-cl eldoc-extension elisp-slime-nav redshank paredit-everywhere paredit-menu auto-complete-clang paredit meson-mode xah-replace-pairs multiple-cursors expand-region info+ all-the-icons winum eyebrowse persp-projectile persp-mode perspective spaceline-all-the-icons spacemacs-theme helm-themes blackboard-theme counsel cpputils-cmake org-beautify-theme ox-twbs cmake-font-lock cmake-project cmake-mode dumb-jump exwm ein glsl-mode wolfram fold-dwim org rtags pdf-tools srefactor macrostep ox-latex calfw-org latex latexx clipmon use-package calfw auctex-latexmk nlinum gnuplot ob-C htmlize web-mode hideshowvis hyperbole zoom-frm twittering-mode helm-dash helm-descbinds zygospore yalinum ws-butler volatile-highlights undo-tree sr-speedbar solarized-theme smartparens powerline nyan-mode multi-term monokai-theme malinka magit latex-preview-pane iedit helm-swoop helm-projectile helm-gtags helm-c-yasnippet ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony exec-path-from-shell elscreen duplicate-thing dtrt-indent diminish company-ycmd company-irony-c-headers company-irony company-c-headers company-auctex comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format avy-zap anzu ace-jump-mode)))
  '(safe-local-variable-values
    (quote
     ((nameless-current-name . "meson-ide")
