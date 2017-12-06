@@ -31,7 +31,6 @@
     persp-projectile winum
     eyebrowse spacemacs-theme
     spaceline all-the-icons
-    spaceline-all-the-icons
     info+ dumb-jump
     blackboard-theme cmake-ide
     cmake-mode counsel
@@ -168,7 +167,7 @@
 
 
 (defvar mac-command-modifier 'meta)
-
+(setq mac-command-modifier 'meta)
 
     #+END_SRC
 *** Window Management
@@ -256,6 +255,13 @@ Hydra is a package which allows fancy keyboard bindings
 #+BEGIN_SRC emacs-lisp 
 
 #+END_SRC
+*** Mac-specific stuff
+  #+BEGIN_SRC emacs-lisp 
+(if (equal system-type 'darwin)
+    (progn (add-to-list 'exec-path "/usr/local/bin/")
+           (add-to-list 'exec-path "/Library/TeX/texbin/pdflatex")
+           (setenv "PATH" (concat "/usr/local/bin:/Library/TeX/texbin/:" (getenv "PATH")))))
+  #+END_SRC
 ** Looks/Themes
 *** Basic Configuration
     Adds line numbering to and a nice information bar below each buffer
@@ -1691,7 +1697,7 @@ Hydra is a package which allows fancy keyboard bindings
       (spaceline-helm-mode t)
       (spaceline-info-mode t)
       (use-package all-the-icons
-        ;; :config
+        :config
         (use-package spaceline-all-the-icons
           :config
           (spaceline-all-the-icons-theme))))))
