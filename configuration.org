@@ -120,13 +120,15 @@
     in the modeline.
     #+BEGIN_SRC emacs-lisp 
 (menu-bar-mode -1)
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
-;(when (display-graphic-p))
+
+(when (display-graphic-p)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1))
 (global-unset-key (kbd "C-x C-z"))
 (global-unset-key (kbd "C-z"))
 (setq column-number-mode t
       line-number-mode t)
+(global-visual-line-mode t)
     #+END_SRC
     Flash the screen rather than making noise when complaining. 
     #+BEGIN_SRC emacs-lisp 
@@ -262,6 +264,31 @@ Hydra is a package which allows fancy keyboard bindings
            (add-to-list 'exec-path "/Library/TeX/texbin/pdflatex")
            (setenv "PATH" (concat "/usr/local/bin:/Library/TeX/texbin/:" (getenv "PATH")))))
   #+END_SRC
+*** Treemacs
+#+BEGIN_SRC emacs-lisp 
+(use-package treemacs
+  :defer t
+  :config
+  (setq treemacs-follow-after-init t
+        treemacs-width 35
+        treemacs-indentation 2
+        treemacs-git-integration t
+        treemacs-collapse-dirs (if (executable-find "python") 3 0)
+        treemacs-silent-refresh t
+        treemacs-change-root-without-asking t
+        treemacs-is-never-other-window t)
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (use-package treemacs-projectile
+    :defer t
+    :config
+    (setq treemacs-header-function  #'treemacs-projectile-create-header))
+  :bind
+  (:map global-map
+        ([f1] . treemacs-toggle)
+        ("M-0" . treemacs-select-window)
+        ("C-c 1" . treemacs-delete-other-windows)))
+#+END_SRC
 ** Looks/Themes
 *** Basic Configuration
     Adds line numbering to and a nice information bar below each buffer
