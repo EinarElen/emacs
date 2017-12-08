@@ -277,8 +277,11 @@ Hydra is a package which allows fancy keyboard bindings
           (customize-set-value 'display-line-numbers "visible")
           (use-package nlinum
             :defer 3
+            :preface
+            (defun disable-nlinum-mode-hook () (nlinum-mode -1))
             :config
-            (global-nlinum-mode t)))
+            (global-nlinum-mode t)
+            (add-hook 'pdf-view-mode-hook 'disable-nlinum-mode-hook)))
       (defcustom linum-disabled-modes-list
         '(eshell-mode wl-summary-mode compilation-mode org-mode text-mode dired-mode doc-view-mode)
         "List of modes disabled when global linum mode is on"
