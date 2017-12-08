@@ -1104,7 +1104,7 @@ Hydra is a package which allows fancy keyboard bindings
     (add-to-list
         'company-backends '(company-irony-c-headers company-irony))))
      #+END_SRC
-**** COMMENT Rtags
+**** Rtags
      #+BEGIN_SRC emacs-lisp 
 (use-package rtags
   :after (company cc-mode)
@@ -1190,6 +1190,29 @@ Hydra is a package which allows fancy keyboard bindings
 ;;     (define-key c++-mode-map (kbd "M-<return>") 'srefactor-refactor-at-point)
 ;; (semantic-add-system-include "/usr/include/boost/" 'c++-mode)
      #+END_SRC
+**** Cmake 
+#+BEGIN_SRC emacs-lisp 
+(use-package cmake-mode
+  :defer t
+  :config
+  (use-package cmake-font-lock
+    :defer t
+    :config
+    (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
+    (add-hook 'cmake-mode-hook 'cmake-font-lock-activate)))
+#+END_SRC
+**** Meson 
+
+#+BEGIN_SRC emacs-lisp 
+(use-package meson-mode)
+#+END_SRC
+**** Cmake-ide
+#+BEGIN_SRC emacs-lisp 
+(use-package cmake-ide
+  :after rtags
+  :config
+  (cmake-ide-setup))
+#+END_SRC
 ** Emacs Lisp
 *** Elisp Development
     #+BEGIN_SRC emacs-lisp 
@@ -1733,20 +1756,6 @@ Hydra is a package which allows fancy keyboard bindings
           (spaceline-all-the-icons-theme))))))
   #+END_SRC
   #+BEGIN_SRC emacs-lisp
-(use-package cmake-ide
-  :after rtags
-  :config
-  (cmake-ide-setup))
-(use-package cmake-mode
-  :defer t
-  :config
-  (use-package cmake-font-lock
-    :defer t
-    :config
-    (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
-    (add-hook 'cmake-mode-hook 'cmake-font-lock-activate)))
-
-
 (global-prettify-symbols-mode t)
 (defun eshell-here ()
     "Opens up a new shell in the directory associated with the
@@ -1979,13 +1988,3 @@ and insert region contents at top."
      )))
 
  #+END_SRC
-* Tmp
-#+BEGIN_SRC emacs-lisp 
-(defun byte-compile-me-daddy () 
-  (interactive)
-  (org-babel-tangle-file "~/.emacs.d/configuration.org")
-  (byte-compile-file "~/.emacs.d/configuration.el"))
-(bind-key "<f5>" 'byte-compile-me-daddy)
-#+END_SRC
-
-
