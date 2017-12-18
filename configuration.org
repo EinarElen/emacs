@@ -702,7 +702,8 @@ Hydra is a package which allows fancy keyboard bindings
     #+BEGIN_SRC emacs-lisp 
       (use-package pdf-tools
           :when (or (eq system-type 'gnu/linux)
-            (eq system-type 'cygwin))
+                    (eq system-type 'cygwin)
+                    (eq system-type 'darwin))
           :defer 2
           ;:ensure auctex
           :config
@@ -1381,12 +1382,18 @@ Hydra is a package which allows fancy keyboard bindings
 (use-package org
   :ensure org-plus-contrib
   :commands (org-mode org-babel-load-file org-babel-tangle-file)
+  :preface
+  (fset 'org-call-export-to-beamer
+   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ("lP" 0 "%d")) arg)))
+
+
   :init
   (setq-default major-mode 'org-mode)
   :config
-
+  (setq org-export-async-init-file "~/.emacs.d/orginit.el"
+        org-export-in-background nil)
   (use-package ox-latex
-  :ensure nil)
+    :ensure nil)
   (use-package ox-twbs)
   (use-package org-agenda
     :ensure nil
@@ -1423,15 +1430,15 @@ Hydra is a package which allows fancy keyboard bindings
         org-src-window-setup 'current-window
                                         ;org-export-in-background nil
         )
-  :bind (("\C-cl" . org-store-link)
+  :bind (("<f5>" . org-call-export-to-beamer)
+         ("\C-cl" . org-store-link)
          ("\C-ca" . org-agenda)
          ("\C-cb" . org-iswitchb)
          ("C-c c" . org-capture)
          :map org-mode-map
          ("C-c ." . org-time-stamp)
-         ("\M-\C-g" . org-plot/gnuplot))
-  
-  )
+         ("\M-\C-g" . org-plot/gnuplot)))
+
 
    #+END_SRC
 ** Calendar
@@ -1988,3 +1995,18 @@ and insert region contents at top."
      )))
 
  #+END_SRC
+** Evil 
+#+BEGIN_SRC emacs-lisp 
+(use-package evil
+  :disabled t
+  :config
+  (evil-mode -1) 
+  (use-package org-evil)
+  )
+#+END_SRC
+** Writegood/room
+#+BEGIN_SRC emacs-lisp 
+(use-package writegood-mode
+  :config)
+(use-package writeroom-mode)
+#+END_SRC
