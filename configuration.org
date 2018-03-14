@@ -120,7 +120,6 @@
     in the modeline.
     #+BEGIN_SRC emacs-lisp 
 (menu-bar-mode -1)
-
 (when (display-graphic-p)
   (scroll-bar-mode -1)
   (tool-bar-mode -1))
@@ -147,6 +146,11 @@
     #+BEGIN_SRC emacs-lisp 
 (global-font-lock-mode t)
     #+END_SRC
+    If we are using an emacs with native line-numbering, use it! 
+#+BEGIN_SRC emacs-lisp 
+(if (featurep 'display-line-numbers)
+    (global-display-line-numbers-mode t))
+#+END_SRC
     Other stuff which may or may not work...
     #+BEGIN_SRC emacs-lisp 
 (use-package tramp
