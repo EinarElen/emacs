@@ -13,63 +13,63 @@
     #+BEGIN_SRC emacs-lisp
 (defconst demo-packages
   '(magit swiper-helm
-    nameless 
-    esup
-    company-ycmd hydra
-    ace-window transpose-frame
-    swiper xah-replace-pairs
-    multiple-cursors pp-c-l
-    paredit paredit-everywhere
-    redshank eldoc
-    eldoc-extension
-    ert elint
-    highlight-cl testcover
-    elisp-slime-nav paredit-menu
-    f auto-complete-clang
-    meson-mode org-plus-contrib
-    expand-region persp-mode
-    persp-projectile winum
-    eyebrowse spacemacs-theme
-    spaceline all-the-icons
-    info+ dumb-jump
-    blackboard-theme cmake-ide
-    cmake-mode counsel
-    cpputils-cmake helm-themes
-    xelb exwm
-    ox-twbs org-gcal
-    cmake-project cmake-font-lock
-    org-beautify-theme use-package
-    rtags company-rtags
-    helm-rtags flycheck-rtags
-    srefactor macrostep
-    calfw pdf-tools
-    web-mode winner
-    bind-key clipmon
-    htmlize sr-speedbar
-    multi-term exec-path-from-shell
-    powerline nlinum
-    flycheck-irony solarized-theme
-    company-c-headers flycheck
-    flycheck-pos-tip avy
-    avy-zap anzu
-    company duplicate-thing
-    helm helm-descbinds
-    helm-gtags helm-dash
-    clang-format helm-projectile
-    helm-swoop function-args
-    clean-aindent-mode comment-dwim-2
-    dtrt-indent ws-butler
-    color-identifiers-mode iedit
-    smartparens projectile
-    irony company-irony
-    company-irony-c-headers volatile-highlights
-    undo-tree diminish
-    auctex company-auctex
-    latex-preview-pane helm-c-yasnippet
-    monokai-theme auctex-latexmk
-    zygospore helm-swoop
-    zoom-frm gnuplot
-    hyperbole fold-dwim))
+          nameless 
+          esup
+          company-ycmd hydra
+          ace-window transpose-frame
+          swiper xah-replace-pairs
+          multiple-cursors pp-c-l
+          paredit paredit-everywhere
+          redshank eldoc
+          eldoc-extension
+          ert elint
+          highlight-cl testcover
+          elisp-slime-nav paredit-menu
+          f auto-complete-clang
+          meson-mode org-plus-contrib
+          expand-region persp-mode
+          persp-projectile winum
+          eyebrowse spacemacs-theme
+          spaceline all-the-icons
+          info+ dumb-jump
+          blackboard-theme cmake-ide
+          cmake-mode counsel
+          cpputils-cmake helm-themes
+          xelb exwm
+          ox-twbs org-gcal
+          cmake-project cmake-font-lock
+          org-beautify-theme use-package
+          rtags company-rtags
+          helm-rtags flycheck-rtags
+          srefactor macrostep
+          calfw pdf-tools
+          web-mode winner
+          bind-key clipmon
+          htmlize sr-speedbar
+          multi-term exec-path-from-shell
+          powerline nlinum
+          flycheck-irony solarized-theme
+          company-c-headers flycheck
+          flycheck-pos-tip avy
+          avy-zap anzu
+          company duplicate-thing
+          helm helm-descbinds
+          helm-gtags helm-dash
+          clang-format helm-projectile
+          helm-swoop function-args
+          clean-aindent-mode comment-dwim-2
+          dtrt-indent ws-butler
+          color-identifiers-mode iedit
+          smartparens projectile
+          irony company-irony
+          company-irony-c-headers volatile-highlights
+          undo-tree diminish
+          auctex company-auctex
+          latex-preview-pane helm-c-yasnippet
+          monokai-theme auctex-latexmk
+          zygospore helm-swoop
+          zoom-frm gnuplot
+          hyperbole fold-dwim))
     #+END_SRC
     This sets up some slightly more sane default values and adds a better
     pdf reader (which requires manual installation through the
@@ -885,6 +885,7 @@ Hydra is a package which allows fancy keyboard bindings
 (use-package yasnippet
   :defer 2
   :config
+  (use-package yasnippet-snippets)
   (set 'yas-verbosity 1)
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/tuhdosnippets/")
     (add-hook 'term-mode-hook 'disable-yas-in-mode-hook)
