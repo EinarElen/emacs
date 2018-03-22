@@ -1605,6 +1605,14 @@ Hydra is a package which allows fancy keyboard bindings
 
     #+END_SRC
 * Utilities
+** Language Tool
+#+BEGIN_SRC emacs-lisp 
+(use-package langtool
+  :when (executable-find "LanguageTool")
+  :config
+  (setq langtool-language-tool-jar (executable-find "LanguageTool"))
+  (setq langtool-default-language "en-UK"))
+#+END_SRC
 ** Lastpass
    #+BEGIN_SRC emacs-lisp
 (defun lp-login (login-name)
