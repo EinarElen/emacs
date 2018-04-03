@@ -379,7 +379,7 @@ Hydra is a package which allows fancy keyboard bindings
 (set-keyboard-coding-system 'utf-8)
 (set-language-environment "UTF-8")
 (prefer-coding-system 'utf-8)
-(delete-selection-mode)
+(delete-selection-mode t)
 (add-hook 'sh-mode-hook (lambda ()
                           (setq tab-width 4)))
 (use-package whitespace
@@ -395,26 +395,23 @@ Hydra is a package which allows fancy keyboard bindings
                                                      indentation::tab
                                                      newline
                                                      newline-mark))
-                              (whitespace-mode 1))))
+                              (whitespace-mode 1)))
+  (global-set-key (kbd "C-c w") 'whitespace-mode))
 (use-package diff-mode)
 (add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
 (add-hook 'text-mode-hook 'auto-fill-mode)
     #+END_SRC
 *** Keybindings
+Disable certain keybindings that are often clicked by mistake.
     #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "RET") 'newline-and-indent)
-(defun useless (&rest args)
-  (interactive)
-  "Does nothing ARGS."
-  nil)
-(global-set-key (kbd "C-<down-mouse-1>") 'useless)
-(global-set-key (kbd "C-<down-mouse-2>") 'useless)
-(global-set-key (kbd "C-<down-mouse-3>") 'useless)
-(global-set-key (kbd "C-<mouse-1>") 'useless)
-(global-set-key (kbd "C-<mouse-2>") 'useless)
-(global-set-key (kbd "C-<mouse-3>") 'useless)
-(global-set-key (kbd "C-c w") 'whitespace-mode)
+(global-set-key (kbd "C-<down-mouse-1>") 'ignore)
+(global-set-key (kbd "C-<down-mouse-2>") 'ignore)
+(global-set-key (kbd "C-<down-mouse-3>") 'ignore)
+(global-set-key (kbd "C-<mouse-1>") 'ignore)
+(global-set-key (kbd "C-<mouse-2>") 'ignore)
+(global-set-key (kbd "C-<mouse-3>") 'ignore)
 (global-set-key (kbd "M-c") 'capitalize-dwim)
 (global-set-key (kbd "<f5>") (lambda ()
                                (interactive)
