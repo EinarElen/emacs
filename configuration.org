@@ -410,6 +410,15 @@ for compilation (F5) and for capitalising (M-c).
                                (call-interactively 'compile)))
     #+END_SRC
 *** Packages
+**** Which-key
+#+BEGIN_SRC emacs-lisp 
+  (use-package which-key
+    :ensure t
+    :diminish which-key-mode
+    :config
+    (add-hook 'after-init-hook 'which-key-mode))
+
+#+END_SRC
 **** Volatile Highlights
      #+BEGIN_SRC emacs-lisp
 (use-package volatile-highlights
