@@ -402,7 +402,9 @@ Hydra is a package which allows fancy keyboard bindings
 (add-hook 'text-mode-hook 'auto-fill-mode)
     #+END_SRC
 *** Keybindings
-Disable certain keybindings that are often clicked by mistake.
+Disable certain keybindings that are often clicked by mistake. Add keybinding
+for compilation (F5) and for capitalising (M-c).
+
     #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "RET") 'newline-and-indent)
