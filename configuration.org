@@ -295,8 +295,8 @@ Hydra is a package which allows fancy keyboard bindings
 #+END_SRC
 ** Looks/Themes
 *** Basic Configuration
-    Adds line numbering to and a nice information bar below each buffer
-    and some other neat things
+Adds line numbering and colouring for variables in programming languages. Sets
+the starting buffer to this file. 
     #+BEGIN_SRC emacs-lisp
 (setq initial-buffer-choice (concat user-emacs-directory "configuration.org"))
       (use-package powerline
