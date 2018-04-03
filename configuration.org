@@ -711,7 +711,8 @@ Hydra is a package which allows fancy keyboard bindings
           :defer 2
           ;:ensure auctex
           :config
-          (pdf-tools-install)
+          (unless (executable-find "epdfinfo")
+            (pdf-tools-install))
           (setq-default pdf-view-display-size 'fit-page))
     #+END_SRC
 
@@ -1608,10 +1609,10 @@ Hydra is a package which allows fancy keyboard bindings
 ** Language Tool
 #+BEGIN_SRC emacs-lisp 
 (use-package langtool
-  :when (executable-find "LanguageTool")
+  :when (executable-find "languagetool")
   :config
-  (setq langtool-language-tool-jar (executable-find "LanguageTool"))
-  (setq langtool-default-language "en-UK"))
+  (setq langtool-bin (executable-find "languagetool"))
+  (setq langtool-default-language "en-GB"))
 #+END_SRC
 ** Lastpass
    #+BEGIN_SRC emacs-lisp
