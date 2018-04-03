@@ -166,12 +166,15 @@
   :defer 3
   :config
   (setq tramp-default-method "ssh"))
+ (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+    backup-by-copying t    ; Don't delink hardlinks
+    version-control t      ; Use version numbers on backups
+    delete-old-versions t  ; Automatically delete excess backups
+    kept-new-versions 20   ; how many of the newest versions to keep
+    kept-old-versions 5    ; and how many of the old
+    )
 (setq gc-cons-threshold 100000000
       inhibit-startup-message t
-      backup-by-copying t
-      backup-directory-alist '(("." . "~/.saves"))
-      delete-old-versions -1
-      vc-make-backup-files t
       history-length t
       history-delete-duplicates t
       version-control t
