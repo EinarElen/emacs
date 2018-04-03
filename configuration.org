@@ -146,10 +146,19 @@
     #+BEGIN_SRC emacs-lisp 
 (global-font-lock-mode t)
     #+END_SRC
-    If we are using an emacs with native line-numbering, use it! 
+    If we are using an emacs with native line-numbering, use it! Otherwise, use
+    nlinum for line-numbering. 
 #+BEGIN_SRC emacs-lisp 
 (if (featurep 'display-line-numbers)
-    (global-display-line-numbers-mode t))
+    (global-display-line-numbers-mode t)
+  (use-package nlinum
+    :defer 3
+    :preface
+    (defun disable-nlinum-mode-hook () (nlinum-mode -1))
+    :config
+    (global-nlinum-mode t)
+    (add-hook 'pdf-view-mode-hook 'disable-nlinum-mode-hook)))
+
 #+END_SRC
     Other stuff which may or may not work...
     #+BEGIN_SRC emacs-lisp 
@@ -299,23 +308,15 @@ M-0.
 #+END_SRC
 ** Looks/Themes
 *** Basic Configuration
-Adds line numbering and colouring for variables in programming languages. Sets
-the starting buffer to this file. 
+Adds colouring for variables in programming languages. Sets the starting buffer
+to this file.  
     #+BEGIN_SRC emacs-lisp
 (setq initial-buffer-choice (concat user-emacs-directory "configuration.org"))
       (use-package powerline
         :disabled t
         :defer 1
         :init (powerline-vim-theme))
-      (if (boundp 'display-line-numbers)
-          (setq display-line-numbers t)
-          (use-package nlinum
-            :defer 3
-            :preface
-            (defun disable-nlinum-mode-hook () (nlinum-mode -1))
-            :config
-            (global-nlinum-mode t)
-            (add-hook 'pdf-view-mode-hook 'disable-nlinum-mode-hook)))
+      
 (use-package color-identifiers-mode
   :diminish color-identifiers-mode
   :defer 4
