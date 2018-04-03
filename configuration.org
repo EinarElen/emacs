@@ -219,7 +219,8 @@
   :bind (("C-x 1" . zygospore-toggle-delete-other-windows)))
     #+END_SRC
 *** Hydra
-Hydra is a package which allows fancy keyboard bindings
+Hydra is a package which allows fancy keyboard bindings. The only one which
+currently exists is C-M-o for window management. 
 #+BEGIN_SRC emacs-lisp 
 (use-package hydra
   :after windmove
@@ -262,12 +263,12 @@ Hydra is a package which allows fancy keyboard bindings
 
 #+END_SRC
 *** Mac-specific stuff
-  #+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp 
 (if (equal system-type 'darwin)
     (progn (add-to-list 'exec-path "/usr/local/bin/")
            (add-to-list 'exec-path "/Library/TeX/texbin/pdflatex")
            (setenv "PATH" (concat "/usr/local/bin:/Library/TeX/texbin/:" (getenv "PATH")))))
-  #+END_SRC
+#+END_SRC
 *** Treemacs
 Treemacs creates a really powerful file-browser that can be created with F1. By
 default, the treemacs-buffer wont be selected by C-x o. It can be selected with
