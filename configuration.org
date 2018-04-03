@@ -269,6 +269,9 @@ Hydra is a package which allows fancy keyboard bindings
            (setenv "PATH" (concat "/usr/local/bin:/Library/TeX/texbin/:" (getenv "PATH")))))
   #+END_SRC
 *** Treemacs
+Treemacs creates a really powerful file-browser that can be created with F1. By
+default, the treemacs-buffer wont be selected by C-x o. It can be selected with
+M-0. 
 #+BEGIN_SRC emacs-lisp 
 (use-package treemacs
   :defer t
