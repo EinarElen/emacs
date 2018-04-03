@@ -304,8 +304,7 @@ Hydra is a package which allows fancy keyboard bindings
         :defer 1
         :init (powerline-vim-theme))
       (if (boundp 'display-line-numbers)
-          ;(setq display-line-numbers t)
-          (customize-set-value 'display-line-numbers "visible")
+          (setq display-line-numbers t)
           (use-package nlinum
             :defer 3
             :preface
@@ -313,35 +312,17 @@ Hydra is a package which allows fancy keyboard bindings
             :config
             (global-nlinum-mode t)
             (add-hook 'pdf-view-mode-hook 'disable-nlinum-mode-hook)))
-      (defcustom linum-disabled-modes-list
-        '(eshell-mode wl-summary-mode compilation-mode org-mode text-mode dired-mode doc-view-mode)
-        "List of modes disabled when global linum mode is on"
-        :type '(repeat (sexp :tag "Major mode"))
-        :tag " Major modes where linum is disabled: "
-        :group 'linum)
-      (defcustom linum-disable-starred-buffers 't
-        "* Disable buffers that have stars in them like *Gnu Emacs*"
-        :type 'boolean
-        :group 'linum)
-      (defun linum-on ()
-        "* When linum is running globally, disable line number in modes defined in
-              `linum-disabled-modes-list'. Changed by linum-off. Also turns off numbering
-             in starred modes like *scratch*"
-        (unless (or (minibufferp) (member major-mode linum-disabled-modes-list)
-                    (and linum-disable-starred-buffers (string-match "*" (buffer-name))))
-          (nlinum-mode 1)))
-
-      (use-package color-identifiers-mode
-        :diminish color-identifiers-mode
-        :defer 4
-        :config
-        (global-color-identifiers-mode t))
+(use-package color-identifiers-mode
+  :diminish color-identifiers-mode
+  :defer 4
+  :config
+  (global-color-identifiers-mode t))
 
     #+END_SRC
-*** Random Themes
+*** Random Themes                                                :Deprecated:
     I dont like using the same themes all the time so this little function
     switches between three different ones. Feel free to disable this by
-    removing the call to the function (choose-random-theme).
+    removing the call to the function (choose-random-theme). 
     #+BEGIN_SRC emacs-lisp
 ;(defvar themes-to-use (list "monokai" "solarized-dark" "solarized-light") "List of themes that will be loaded by choose-random-theme")
 ;(defvar current-theme-used (list "monokai") "Current theme chosen by choose-random theme")
