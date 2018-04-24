@@ -1653,8 +1653,11 @@ for compilation (F5) and for capitalising (M-c).
   :config
   (use-package google-translate-smooth-ui
     :ensure nil
-    :bind (("C-c t" . 'google-translate-at-point)
-           ("C-c M-t" . 'google-translate-query-translate))))
+    :bind (("C-c t" . 'google-translate-smooth-translate)
+           )
+    :config
+    (setq google-translate-translation-directions-alist
+          '(("sv" . "en") ("en" . "sv")))))
 #+END_SRC
 ** Language Tool
 #+BEGIN_SRC emacs-lisp 
