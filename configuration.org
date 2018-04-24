@@ -128,6 +128,7 @@
 (setq column-number-mode t
       line-number-mode t)
 (global-visual-line-mode t)
+(global-hl-line-mode t)
     #+END_SRC
     Flash the screen rather than making noise when complaining. 
     #+BEGIN_SRC emacs-lisp 
@@ -181,7 +182,7 @@
       x-stretch-cursor 1)
 (setq-default
  fill-column 80
- cursor-type 'bar)
+ cursor-type 'hbar)
 
 
 (defvar mac-command-modifier 'meta)
@@ -309,6 +310,28 @@ M-0.
         ("M-0" . treemacs-select-window)
         ("C-c 1" . treemacs-delete-other-windows)))
 #+END_SRC
+*** Fonts
+#+BEGIN_SRC emacs-lisp 
+  ;(set-frame-font )
+                                          ;(find-font )
+  ;(find-font "Source Code Pro")
+                                        ; (member "Source Code Pro" (font-family-list))
+(set-face-attribute 'default nil
+                                        :family "Source Code Pro"
+                                        ;:family "Garamond"
+                                        ;:family "Computer Modern Typewriter"
+;                    :family "Computer Modern TT"
+                                        ;:family "DejaVu Sans Mono"
+                                        ;:family "Inconsolata"
+                                        ;:family "Terminus"
+                    :height 110
+                    :weight 'normal
+                    :width 'normal
+                    )
+;(find-font (describe-font (font-spec :family "Source Code Pro")))
+;(font-family-list)
+
+#+END_SRC
 ** Looks/Themes
 *** Basic Configuration
 Adds colouring for variables in programming languages. Sets the starting buffer
@@ -410,6 +433,19 @@ for compilation (F5) and for capitalising (M-c).
                                (call-interactively 'compile)))
     #+END_SRC
 *** Packages
+**** Rainbow Delimeters 
+#+BEGIN_SRC emacs-lisp 
+(use-package rainbow-delimiters
+  :config
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode-enable)
+  )
+#+END_SRC
+**** Aggressive Indentation
+#+BEGIN_SRC emacs-lisp 
+(use-package aggressive-indent
+  :config
+  (global-aggressive-indent-mode t))
+#+END_SRC
 **** Which-key
 #+BEGIN_SRC emacs-lisp 
   (use-package which-key
@@ -677,9 +713,17 @@ for compilation (F5) and for capitalising (M-c).
      #+BEGIN_SRC emacs-lisp 
 (use-package dumb-jump
   :defer 2
+  :diminish dumb-jump-mode
+  :bind (("C-M-g" . dumb-jump-go)
+         ("C-M-p" . dumb-jump-back)
+         ("C-M-q" . dumb-jump-quick-look))
   :config
   (dumb-jump-mode t))
      #+END_SRC
+**** Writegood-mode
+#+BEGIN_SRC emacs-lisp 
+
+#+END_SRC
 ** Auto-mode List
    #+BEGIN_SRC emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
@@ -1603,6 +1647,15 @@ for compilation (F5) and for capitalising (M-c).
 
     #+END_SRC
 * Utilities
+** Google Translate 
+#+BEGIN_SRC emacs-lisp 
+(use-package google-translate
+  :config
+  (use-package google-translate-smooth-ui
+    :ensure nil
+    :bind (("C-c t" . 'google-translate-at-point)
+           ("C-c M-t" . 'google-translate-query-translate))))
+#+END_SRC
 ** Language Tool
 #+BEGIN_SRC emacs-lisp 
 (use-package langtool
