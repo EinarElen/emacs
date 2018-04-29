@@ -1349,9 +1349,9 @@ for compilation (F5) and for capitalising (M-c).
         :diminish cldoc-mode)
       (use-package ert
         :bind ("C-c e t" . ert-run-tests-interactively))
-      (use-package buttercup
-        :bind (("C-c b" . buttercup-run-at-point ))
-        )
+      ;;(use-package buttercup
+      ;;  :bind (("C-c b" . buttercup-run-at-point ))
+      ;;  )
       (use-package elint
         :commands 'elint-initialize
         :preface
@@ -1484,12 +1484,12 @@ for compilation (F5) and for capitalising (M-c).
         org-src-window-setup 'current-window
                                         ;org-export-in-background nil
         )
-  :bind (("<f5>" . org-call-export-to-beamer)
-         ("\C-cl" . org-store-link)
+  :bind (("\C-cl" . org-store-link)
          ("\C-ca" . org-agenda)
          ("\C-cb" . org-iswitchb)
          ("C-c c" . org-capture)
          :map org-mode-map
+         ("<f5>" . org-call-export-to-beamer)
          ("C-c ." . org-time-stamp)
          ("\M-\C-g" . org-plot/gnuplot)))
 
