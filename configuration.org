@@ -1348,7 +1348,10 @@ for compilation (F5) and for capitalising (M-c).
         :commands (cldoc-mode turn-on-cldoc-mode)
         :diminish cldoc-mode)
       (use-package ert
-        :bind ("C-c e t" . ert-run-tests-interactively))
+        :bind ("C-c e t" . ert-run-tests-interactively)
+        :config
+        (use-package el-mock))
+
       ;;(use-package buttercup
       ;;  :bind (("C-c b" . buttercup-run-at-point ))
       ;;  )
@@ -1421,10 +1424,6 @@ for compilation (F5) and for capitalising (M-c).
 
     #+END_SRC
     
-*** Testing 
-**** ERT
-
-**** Buttercup
 * Org Mode
 ** Basic Setup
    #+BEGIN_SRC emacs-lisp
