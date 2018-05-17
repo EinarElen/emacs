@@ -5,11 +5,13 @@
 #+PROPERTY: header-args :tangle yes
 * Emacs Setup
 ** Package Installation
-   This sets up everything necerssary to install new packages and adds
-   two package archives, Melpa and Org, in addition to the default packages.
+   This sets up everything necerssary to install new
+   packages and adds two package archives, Melpa and Org, in
+   addition to the default packages.
 *** Package List
-    This is a list of packages that will be installed automatically if
-    they are not already installed. They are used by the function (install-packages).
+    This is a list of packages that will be installed
+    automatically if they are not already installed. They
+    are used by the function (install-packages).
     #+BEGIN_SRC emacs-lisp
 (defconst demo-packages
   '(magit swiper-helm
@@ -71,9 +73,10 @@
           zoom-frm gnuplot
           hyperbole fold-dwim))
     #+END_SRC
-    This sets up some slightly more sane default values and adds a better
-    pdf reader (which requires manual installation through the
-    (pdf-tools-install) function, which is run automatically if possible)
+    This sets up some slightly more sane default values and
+    adds a better pdf reader (which requires manual
+    installation through the (pdf-tools-install) function,
+    which is run automatically if possible)
 *** Initialization
     #+BEGIN_SRC emacs-lisp
 ;(require 'package)
@@ -101,8 +104,8 @@
    #+END_SRC
 ** Improve Basic Emacs Experience
 *** Configuration file
-    Creates a function which returns you to this file and binds
-    it to f8
+    Creates a function which returns you to this file and
+    binds it to f8
     #+BEGIN_SRC emacs-lisp 
 (defun configuration-file() 
   (interactive)
@@ -115,9 +118,9 @@
 (setq frame-title-format "Emacs")
     #+END_SRC
     Disable scrollbar, menubar and toolbar, disable the keys
-    that hide emacs (they are easy to hit on accident which is
-    annoying). Also, show column and line number of the cursor
-    in the modeline.
+    that hide emacs (they are easy to hit on accident which
+    is annoying). Also, show column and line number of the
+    cursor in the modeline.
     #+BEGIN_SRC emacs-lisp 
 (menu-bar-mode -1)
 (when (display-graphic-p)
@@ -130,7 +133,8 @@
 (global-visual-line-mode t)
 (global-hl-line-mode t)
     #+END_SRC
-    Flash the screen rather than making noise when complaining. 
+    Flash the screen rather than making noise when
+    complaining.
     #+BEGIN_SRC emacs-lisp 
 (setq visible-bell t)
     #+END_SRC
@@ -138,17 +142,18 @@
     #+BEGIN_SRC emacs-lisp 
 (display-time)
     #+END_SRC
-    Always answer yes or no questions with just y or n, yes or
-    no is annoying to type...
+    Always answer yes or no questions with just y or n, yes
+    or no is annoying to type...
     #+BEGIN_SRC emacs-lisp 
 (defalias 'yes-or-no-p 'y-or-n-p)
     #+END_SRC
-    Enable syntax highlighting in all modes where it is possible!
+    Enable syntax highlighting in all modes where it is
+    possible!
     #+BEGIN_SRC emacs-lisp 
 (global-font-lock-mode t)
     #+END_SRC
-    If we are using an emacs with native line-numbering, use it! Otherwise, use
-    nlinum for line-numbering. 
+    If we are using an emacs with native line-numbering, use
+    it! Otherwise, use nlinum for line-numbering.
 #+BEGIN_SRC emacs-lisp 
 (if (featurep 'display-line-numbers)
     (global-display-line-numbers-mode t)
@@ -181,7 +186,7 @@
       version-control t
       x-stretch-cursor 1)
 (setq-default
- fill-column 80
+ fill-column 60
  cursor-type 'hbar)
 
 
@@ -190,20 +195,22 @@
 
     #+END_SRC
 *** Window Management
-    Winner allows you to restore previous window configurations
-    and jump around in the window configuration history using
-    C-c <left> and C-c <right> (the arrowkeys).
+    Winner allows you to restore previous window
+    configurations and jump around in the window
+    configuration history using C-c <left> and C-c <right>
+    (the arrowkeys).
 
     Try it out by typing C-x 3, C-x o, C-x b (choose some
-    buffer) and then C-c <left> twice to get back! Then try C-c
-    <right> once and C-c <left again to return!
+    buffer) and then C-c <left> twice to get back! Then try
+    C-c <right> once and C-c <left again to return!
 
     Windmove keybindings allows you to switch between your
     windows with shift + arrowkeys which can be handy when
-    you're tired. 
+    you're tired.
 
-    Clipmon tries to help emacs synchronize copies and pastes
-    between emacs and the rest of your operating system.
+    Clipmon tries to help emacs synchronize copies and
+    pastes between emacs and the rest of your operating
+    system.
     #+BEGIN_SRC emacs-lisp
 (use-package winner
   :bind (("C-c <left>" . winner-undo)
@@ -232,8 +239,9 @@
   :bind (("C-x 1" . zygospore-toggle-delete-other-windows)))
     #+END_SRC
 *** Hydra
-Hydra is a package which allows fancy keyboard bindings. The only one which
-currently exists is C-M-o for window management. 
+Hydra is a package which allows fancy keyboard bindings. The
+only one which currently exists is C-M-o for window
+management.
 #+BEGIN_SRC emacs-lisp 
 (use-package hydra
   :after windmove
@@ -283,9 +291,9 @@ currently exists is C-M-o for window management.
            (setenv "PATH" (concat "/usr/local/bin:/Library/TeX/texbin/:" (getenv "PATH")))))
 #+END_SRC
 *** Treemacs
-Treemacs creates a really powerful file-browser that can be created with F1. By
-default, the treemacs-buffer wont be selected by C-x o. It can be selected with
-M-0. 
+Treemacs creates a really powerful file-browser that can be
+created with F1. By default, the treemacs-buffer wont be
+selected by C-x o. It can be selected with M-0.
 #+BEGIN_SRC emacs-lisp 
 (use-package treemacs
   :defer t
@@ -317,10 +325,10 @@ M-0.
   ;(find-font "Source Code Pro")
                                         ; (member "Source Code Pro" (font-family-list))
 (set-face-attribute 'default nil
-                                        :family "Source Code Pro"
+                    :family "Source Code Pro"
                                         ;:family "Garamond"
                                         ;:family "Computer Modern Typewriter"
-;                    :family "Computer Modern TT"
+                                        ;                    :family "Computer Modern TT"
                                         ;:family "DejaVu Sans Mono"
                                         ;:family "Inconsolata"
                                         ;:family "Terminus"
@@ -334,8 +342,8 @@ M-0.
 #+END_SRC
 ** Looks/Themes
 *** Basic Configuration
-Adds colouring for variables in programming languages. Sets the starting buffer
-to this file.  
+Adds colouring for variables in programming languages. Sets
+the starting buffer to this file.
     #+BEGIN_SRC emacs-lisp
 (setq initial-buffer-choice (concat user-emacs-directory "configuration.org"))
       (use-package powerline
@@ -351,12 +359,13 @@ to this file.
 
     #+END_SRC
 *** Random Themes                                                :Deprecated:
-    I dont like using the same themes all the time so this little function
-    switches between three different ones. Feel free to disable this by
-    removing the call to the function (choose-random-theme). 
+    I dont like using the same themes all the time so this
+    little function switches between three different
+    ones. Feel free to disable this by removing the call to
+    the function (choose-random-theme).
     #+BEGIN_SRC emacs-lisp
-;(defvar themes-to-use (list "monokai" "solarized-dark" "solarized-light") "List of themes that will be loaded by choose-random-theme")
-;(defvar current-theme-used (list "monokai") "Current theme chosen by choose-random theme")
+                                        ;(defvar themes-to-use (list "monokai" "solarized-dark" "solarized-light") "List of themes that will be loaded by choose-random-theme")
+                                        ;(defvar current-theme-used (list "monokai") "Current theme chosen by choose-random theme")
 ;; (defun choose-random-theme ()
 ;;   "Choose random theme from themes-to-use!"
 ;;   (interactive)
@@ -374,8 +383,10 @@ to this file.
 
     #+END_SRC
 ** Text Editing
-   Everything in here is essentially from [[http://tuhdo.github.io][tuhdo]] and most of it is sane by
-   default. Check out the individual packages in his C/C++ tutorial!
+   Everything in here is essentially from
+   [[http://tuhdo.github.io][tuhdo]] and most of it is sane
+   by default. Check out the individual packages in his
+   C/C++ tutorial!
 *** Basic
     #+BEGIN_SRC emacs-lisp
 (setq global-mark-ring-max 5000
@@ -414,8 +425,9 @@ to this file.
 (add-hook 'text-mode-hook 'auto-fill-mode)
     #+END_SRC
 *** Keybindings
-Disable certain keybindings that are often clicked by mistake. Add keybinding
-for compilation (F5) and for capitalising (M-c).
+Disable certain keybindings that are often clicked by
+mistake. Add keybinding for compilation (F5) and for
+capitalising (M-c).
 
     #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "RET") 'newline-and-indent)
@@ -507,7 +519,7 @@ for compilation (F5) and for capitalising (M-c).
   :config
   (require 'smartparens-config)
   (sp-pair "\\[" "\\]")
-  (setq ;sp-base-key-bindings 'paredit
+  (setq                       ;sp-base-key-bindings 'paredit
    sp-autoskip-closing-pair 'always
    sp-hybrid-kill-entire-symbol nil)
   (smartparens-strict-mode)
@@ -701,7 +713,7 @@ for compilation (F5) and for capitalising (M-c).
   (use-package avy-zap
     :defer t)
   :bind (("C-:" . avy-goto-char) ("C-;" . avy-goto-word-1)
-         ;("" . avy-goto-line)
+                                        ;("" . avy-goto-line)
          ))
      #+END_SRC
 **** Fold-dwim
@@ -732,9 +744,10 @@ for compilation (F5) and for capitalising (M-c).
 
 ** PDF-Handling
     The basic emacs pdf viewing utility, docview, is kind of
-    wonky. This installs a different utility, pdf-tools which is
-    wonderful! It does require some things installed on your
-    system to work (development version of all of them)
+    wonky. This installs a different utility, pdf-tools
+    which is wonderful! It does require some things
+    installed on your system to work (development version of
+    all of them)
     - libpng
     - libpoppler-glib, libpoppler-private
     - imagemagick
@@ -746,15 +759,15 @@ for compilation (F5) and for capitalising (M-c).
     It is currently only enabled on linux and cygwin.
     #+BEGIN_SRC emacs-lisp 
       (use-package pdf-tools
-          :when (or (eq system-type 'gnu/linux)
-                    (eq system-type 'cygwin)
-                    (eq system-type 'darwin))
-          :defer 2
-          ;:ensure auctex
-          :config
-          (unless (executable-find "epdfinfo")
-            (pdf-tools-install))
-          (setq-default pdf-view-display-size 'fit-page))
+        :when (or (eq system-type 'gnu/linux)
+                  (eq system-type 'cygwin)
+                  (eq system-type 'darwin))
+        :defer 2
+                                        ;:ensure auctex
+        :config
+        (unless (executable-find "epdfinfo")
+          (pdf-tools-install))
+        (setq-default pdf-view-display-size 'fit-page))
     #+END_SRC
 
 * Development/Writing
@@ -919,6 +932,11 @@ for compilation (F5) and for capitalising (M-c).
      #+BEGIN_SRC emacs-lisp
 
      #+END_SRC
+** Elglot
+#+BEGIN_SRC emacs-lisp 
+(use-package eglot
+:disabled t)
+#+END_SRC
 ** Yasnippet
    #+BEGIN_SRC emacs-lisp
 (defun disable-yas-in-mode-hook ()
@@ -1708,6 +1726,21 @@ for compilation (F5) and for capitalising (M-c).
   (lp-get-password name t)
   )
    #+END_SRC
+** Presentations 
+#+BEGIN_SRC emacs-lisp 
+(use-package demo-it
+  :config)
+
+(use-package
+  ox-reveal
+  :after org
+  :config
+  (use-package htmlize))
+;(demo-it-create (demo-it-presentation "./configuration.org"))
+
+;(demo-it-start) 
+#+END_SRC
+
 * Experimental
 ** Emacs Lisp
 
