@@ -276,8 +276,12 @@ management.
     ("k" ace-delete-window "Kill")
     ("i" ace-delete-other-windows "Ace-max")
     ("b" helm-mini "Buffers")
-    ("q" nil "cancel" :color blue))
+    ("q" nil "cancel" :color blue)
+    ("C-t" text-scale-decrease "Scale--")
+    ("M-t" text-scale-increase "Scale++"))
   :bind (("C-M-o" . hydra-window/body)))
+
+
 #+END_SRC
 **** Window management
 #+BEGIN_SRC emacs-lisp 
@@ -1558,12 +1562,12 @@ capitalising (M-c).
     #+END_SRC
 *** Mu4e
     #+BEGIN_SRC emacs-lisp
-;; (defvar mu4e-lisp-location " ")
-;; (setq mu4e-lisp-location (or (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu4e")
-;;                                "/usr/local/share/emacs/site-lisp/mu4e")
-;;                              (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu/mu4e")
-;;                                "/usr/local/share/emacs/site-lisp/mu/mu4e")
-;;                              (when (file-exists-p "~/.emacs.d/mu4e") "~/.emacs.d/mu4e")))
+(defvar has-mu4e-installed (or (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu4e")
+                                 "/usr/local/share/emacs/site-lisp/mu4e")
+                               (when (file-exists-p "/usr/local/share/emacs/site-lisp/mu/mu4e")
+                                 "/usr/local/share/emacs/site-lisp/mu/mu4e")
+                               (when (file-exists-p "~/.emacs.d/mu4e") "~/.emacs.d/mu4e")))
+
 ;; (use-package offlineimap
 ;;   :init
 ;;   (defun offlineimap-get-password (host port)
@@ -1572,102 +1576,104 @@ capitalising (M-c).
 ;;       (when hostentry (netrc-get hostentry "password"))))
 ;;   )
 
-;; (when (not (string= " " mu4e-lisp-location))
-;;   (use-package mu4e
-;;     :ensure nil
-;;     :when (executable-find "mu")
-;;     :load-path mu4e-lisp-location
-;;     :config
-;;     (global-set-key (kbd "<f12>") 'mu4e)
-;;     (require 'smtpmail)
-;;     (use-package mu4e-contrib
-;;       :ensure nil
-;;       :load-path mu4e-lisp-location
-;;       )
-;;     (use-package mu4e-org
-;;       :ensure nil
-;;       :after org
-;;       )
-;;     (setq mu4e-maildir "~/Maildir"
-;;           mu4e-drafts-folder "/Drafts"
-;;           mu4e-sent-folder   "/Sent Mail"
-;;           mu4e-trash-folder  "/Trash"
-;;           mu4e-sent-messages-behavior 'delete
-;;           mu4e-use-fancy-chars t
-;;           mu4e-attachment-dir "~/Downloads/"
-;;           mu4e-view-show-images t
-;;                                         ;mu4e-maildir-shortcuts
-;;           ;; '(("/INBOX"               . ?i)
-;;           ;;   ("/[Gmail].Sent Mail"   . ?s)
-;;           ;;   ("/[Gmail].Trash"       . ?t)
-;;           ;;   ("/[Gmail].All Mail"    . ?a))
-;;           mu4e-get-mail-command "offlineimap"
-;;           mu4e-update-interval 450)
-;;     (setq message-send-mail-function 'smtpmail-send-it
-;;           smtpmail-stream-type 'starttls
-;;           smtpmail-default-smtp-server "smtp.gmail.com"
-;;           smtpmail-smtp-server "smtp.gmail.com"
-;;           smtpmail-smtp-service 587)
-;;     (setq mu4e-html2text-command 'mu4e-shr2text)
-;;     (setq mu4e-contexts
-;;           `( ,(make-mu4e-context
-;;                :name "Lund"
-;;                :enter-func (lambda () (mu4e-message "Entering Lund Context"))
-;;                :leave-func (lambda () (mu4e-message "Leaving Lund Context"))
-;;                :match-func (lambda (message)
-;;                              (when message
-;;                                (or (mu4e-message-contact-field-matches
-;;                                     message :to "nat13eel@student.lu.se")
-;;                                    )))
-;;                :vars '((user-mail-address . "nat13eel@student.lu.se")
-;;                        (user-full-name . "Einar Elén")))
-;;              ,(make-mu4e-context
-;;                :name "Gmail"
-;;                :enter-func (lambda () (mu4e-message "Entering Gmail Context"))
-;;                :leave-func (lambda () (mu4e-message "Leaving Gmail Context"))
-;;                :match-func (lambda (message)
-;;                              (when message
-;;                                (or (mu4e-message-contact-field-matches
-;;                                     message :to "einar.elen@gmail.com")
-;;                                    (mu4e-message-contact-field-matches
-;;                                     message :to "jol-ordf@luna.lu.se"))))
-;;                :vars '((user-mail-address . "einar.elen@gmail.com")
-;;                        (user-full-name . "Einar Elén")))
-;;              ,(make-mu4e-context
-;;                :name "Outlook"
-;;                :enter-func (lambda () (mu4e-message "Entering Outlook Context"))
-;;                :leave-func (lambda () (mu4e-message "Leaving Outlook Context"))
-;;                :match-func (lambda (message)
-;;                              (when message
-;;                                (or (mu4e-message-contact-field-matches
-;;                                     message :to "einar_elen@live.se")
-;;                                    (mu4e-message-contact-field-matches
-;;                                     message :to "Einar_elen@live.se")
-;;                                    (mu4e-message-contact-field-matches
-;;                                     message :to "EINAR_ELEN@live.se")
-;;                                    (mu4e-message-contact-field-matches
-;;                                     message :to "Einar_Elen@live.se")
-;;                                    )))
-;;                :vars '((user-mail-address . "einar_elen@live.se")
-;;                        (user-full-name . "Einar Elén")))
-;;              ,(make-mu4e-context
-;;                :name "Work"
-;;                :enter-func (lambda () (mu4e-message "Entering Luna Context"))
-;;                :leave-func (lambda () (mu4e-message "Leaving Luna Context"))
-;;                :match-func (lambda (message)
-;;                              (when message
-;;                                (or (mu4e-message-contact-field-matches
-;;                                     message :to "ordf@luna.lu.se")
-;;                                    (mu4e-message-contact-field-matches
-;;                                     message :to "Ordf@luna.lu.se")
-;;                                    (mu4e-message-contact-field-matches
-;;                                     message :to "ORDF@luna.lu.se")
-;;                                    (mu4e-message-contact-field-matches
-;;                                     message :to "ORDF@LUNA.LU.SE")
-;;                                    )))
-;;                :vars '((user-mail-address . "ordf@luna.lu.se")
-;;                        (user-full-name . "Einar Elén")))
-;;              ))))
+(when has-mu4e-installed
+  (use-package mu4e
+    :ensure nil
+    :when (executable-find "mu")
+    :load-path has-mu4e-installed
+    :config
+    (global-set-key (kbd "<f12>") 'mu4e)
+    (require 'smtpmail)
+    (use-package mu4e-contrib
+      :ensure nil
+      :load-path has-mu4e-installed)
+    ;; (use-package mu4e-org
+    ;;   :load-path has-mu4e-installed
+    ;;   :ensure nil
+    ;;   :after org)
+    (setq mu4e-maildir "~/Maildir"
+          mu4e-drafts-folder "/Drafts"
+          mu4e-sent-folder   "/Sent Mail"
+          mu4e-trash-folder  "/Trash"
+          mu4e-sent-messages-behavior 'delete
+          mu4e-use-fancy-chars t
+          mu4e-attachment-dir "~/Downloads/"
+          mu4e-view-show-images t
+                                        ;mu4e-maildir-shortcuts
+          ;; '(("/INBOX"               . ?i)
+          ;;   ("/[Gmail].Sent Mail"   . ?s)
+          ;;   ("/[Gmail].Trash"       . ?t)
+          ;;   ("/[Gmail].All Mail"    . ?a))
+          mu4e-get-mail-command "offlineimap"
+          mu4e-update-interval 450)
+    (setq message-send-mail-function 'smtpmail-send-it
+          smtpmail-stream-type 'starttls
+          smtpmail-default-smtp-server "smtp.gmail.com"
+          smtpmail-smtp-server "smtp.gmail.com"
+          smtpmail-smtp-service 587)
+    (setq mu4e-html2text-command 'mu4e-shr2text)
+    (setq mu4e-contexts
+          `( ,(make-mu4e-context
+               :name "Lund"
+               :enter-func (lambda () (mu4e-message "Entering Lund Context"))
+               :leave-func (lambda () (mu4e-message "Leaving Lund Context"))
+               :match-func (lambda (message)
+                             (when message
+                               (or (mu4e-message-contact-field-matches
+                                    message :to "nat13eel@student.lu.se")
+                                   )))
+               :vars '((user-mail-address . "nat13eel@student.lu.se")
+                       (user-full-name . "Einar Elén")))
+             ,(make-mu4e-context
+               :name "Gmail"
+               :enter-func (lambda () (mu4e-message "Entering Gmail Context"))
+               :leave-func (lambda () (mu4e-message "Leaving Gmail Context"))
+               :match-func (lambda (message)
+                             (when message
+                               (or (mu4e-message-contact-field-matches
+                                    message :to
+                                    "einar.elen@gmail.com")
+                                   (mu4e-message-contact-field-matches
+                                    message :to "info-ordf@luna.lu.se")
+                                   (mu4e-message-contact-field-matches
+                                    message :to "jol-ordf@luna.lu.se"))))
+               :vars '((user-mail-address . "einar.elen@gmail.com")
+                       (user-full-name . "Einar Elén")))
+             ;; ,(make-mu4e-context
+             ;;   :name "Outlook"
+             ;;   :enter-func (lambda () (mu4e-message "Entering Outlook Context"))
+             ;;   :leave-func (lambda () (mu4e-message "Leaving Outlook Context"))
+             ;;   :match-func (lambda (message)
+             ;;                 (when message
+             ;;                   (or (mu4e-message-contact-field-matches
+             ;;                        message :to "einar_elen@live.se")
+             ;;                       (mu4e-message-contact-field-matches
+             ;;                        message :to "Einar_elen@live.se")
+             ;;                       (mu4e-message-contact-field-matches
+             ;;                        message :to "EINAR_ELEN@live.se")
+             ;;                       (mu4e-message-contact-field-matches
+             ;;                        message :to "Einar_Elen@live.se")
+             ;;                       )))
+             ;;   :vars '((user-mail-address . "einar_elen@live.se")
+             ;;           (user-full-name . "Einar Elén")))
+             ;; ,(make-mu4e-context
+             ;;   :name "Work"
+             ;;   :enter-func (lambda () (mu4e-message "Entering Luna Context"))
+             ;;   :leave-func (lambda () (mu4e-message "Leaving Luna Context"))
+             ;;   :match-func (lambda (message)
+             ;;                 (when message
+             ;;                   (or (mu4e-message-contact-field-matches
+             ;;                        message :to "ordf@luna.lu.se")
+             ;;                       (mu4e-message-contact-field-matches
+             ;;                        message :to "Ordf@luna.lu.se")
+             ;;                       (mu4e-message-contact-field-matches
+             ;;                        message :to "ORDF@luna.lu.se")
+             ;;                       (mu4e-message-contact-field-matches
+             ;;                        message :to "ORDF@LUNA.LU.SE")
+             ;;                       )))
+             ;;   :vars '((user-mail-address . "ordf@luna.lu.se")
+             ;;           (user-full-name . "Einar Elén")))
+             ))))
 
     #+END_SRC
 * Utilities
