@@ -1534,7 +1534,11 @@
   :init
   (setq-default major-mode 'org-mode)
   (defvar user-org-todo-file-name "")
+  (defvar user-org-quotes-file-name "")
   :config
+  (setq user-org-todo-file-name
+        (expand-file-name (concat user-emacs-directory "../todo.org")))
+  (setq user-org-quotes-file-name (expand-file-name (concat user-emacs-directory "../citatsamling.org")))
   (setq org-export-async-init-file "~/.emacs.d/orginit.el"
 	org-export-in-background nil)
   (use-package ox-latex
@@ -1543,7 +1547,7 @@
   (use-package org-agenda
     :ensure nil
     :config
-    (setq user-org-todo-file-name (concat user-emacs-directory "../todo.org"))
+    
     (setq org-agenda-dim-blocked-tasks nil)
     (setq org-agenda-compact-blocks t)
     (setq org-agenda-files (list user-org-todo-file-name)))
@@ -1569,7 +1573,34 @@
   (add-to-list 'org-structure-template-alist '("ll" "@@latex:?@@"))
   (add-to-list 'org-structure-template-alist '("lh"
 					       "#+LATEX_HEADER: \\usepackage{physics, braket} \n#+LATEX_HEADER:\\usepackage[parfill]{parskip}\n#+LATEX_HEADER: \\usepackage{pxfonts} \n#+LATEX_HEADER: \\def\\dbar{{\\mathchar'26\\mkern-12mu d}}\n#+LATEX_HEADER: \\newcommand{\\hbat}{\\hbar}\n#+LATEX_HEADER: \\newcommand{\\vhat}[1]{\\vb{\\hat{#1}}}\n#+LATEX_HEADER: \\newcommand{\\ehat}[1]{\\vhat{e}_{#1}}\n#+LATEX_HEADER: \\newcommand{\\qfrac}[2]{{\\qty(\\frac{#1}{#2})}}\n#+LATEX_HEADER: \\newcommand{\\ofrac}[1]{\\frac{1}{#1}}\n#+LATEX_HEADER: \\newcommand{\\onfrac}[1]{\\frac{-1}{#1}}\n#+OPTIONS: num:6 H:6"))
-  (add-to-list 'org-structure-template-alist "ll" "@@latex:")
+  (add-to-list 'org-structure-template-alist "ll"
+               "@@latex:")
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline
+                             user-org-todo-file-name
+                             "To do")
+           "* TODO %?\n%U" :empty-lines 1)
+          ("T" "Todo with Clipboard" entry (file+headline
+                                            user-org-todo-file-name
+                                            "To do") 
+           "* TODO %?\n%U\n   %c" :empty-lines 1)
+          ("n" "Note" entry (file+headline
+                             user-org-todo-file-name "Notes")
+           "* NOTE %?\n%U" :empty-lines 1)
+          ("N" "Note with Clipboard" entry (file+headline
+                                            user-org-todo-file-name "Notes")
+           "* NOTE %?\n%U\n   %c" :empty-lines 1)
+          ("e" "Event" entry (file+headline user-org-todo-file-name "Events")
+           "* EVENT %?\n%U" :empty-lines 1)
+          ("E" "Event With Clipboard" entry (file+headline user-org-todo-file-name "Events")
+           "* EVENT %?\n%U\n   %c" :empty-lines 1)
+          ("E" "Event With Clipboard" entry (file+headline user-org-todo-file-name "Events")
+           "* EVENT %?\n%U\n   %c" :empty-lines 1)
+          ("q" "Quote " entry (file user-org-quotes-file-name)
+           "* %?\n%U\n   " :empty-lines 1)
+          ("Q" "Quote With Clipboard" entry (file user-org-quotes-file-name)
+           "* %?\n%U\n   %c" :empty-lines 1)
+          ))
   (setq org-default-notes-file user-org-todo-file-name org-use-fast-todo-selection t
 	org-src-window-setup 'current-window
                                         ;org-export-in-background nil
