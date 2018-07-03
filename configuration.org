@@ -8,7 +8,10 @@
 #+BEGIN_SRC emacs-lisp
 (eval-when-compile
   (defvar rtags-load-path
-    (or (when (file-exists-p (concat user-emacs-directory
+    (or (when (file-exists-p
+               "/usr/share/emacs/site-lisp/rtags/rtags.el")
+          "/usr/share/emacs/site-list/rtags/")
+        (when (file-exists-p (concat user-emacs-directory
                                      "../src/rtags/src/"))
           (concat user-emacs-directory "../src/rtags/src/"))
         load-path))
