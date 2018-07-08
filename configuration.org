@@ -5,7 +5,10 @@
 #+PROPERTY: header-args :tangle yes
 * Emacs Setup
 ** Definitions and Variables
-#+BEGIN_SRC emacs-lisp
+*** User variables
+ #+BEGIN_SRC emacs-lisp
+(setq user-full-name "Einar Elén"
+      user-mail-address "einar.elen@gmail.com")
 (eval-when-compile
   (defvar rtags-load-path
     (or (when (file-exists-p
@@ -26,197 +29,137 @@
     (or (when (file-exists-p "~/src/mu4e-multi/")
           (expand-file-name "~/src/mu4e-multi/")))))
 
+ #+END_SRC
+*** Definitions
+#+BEGIN_SRC emacs-lisp
+  (defvar mac-command-modifier)
+  (defvar flycheck-highlighting-mode)
+  (defvar flycheck-check-syntax-automatically)
+  ;; (declare-function semantic-gcc-get-include-paths)
+  ;; (declare-function server-start)
+  ;; (declare-function hydra-add-font-lock)
+  ;; (declare-function hydra-default-pre)
+  ;; (declare-function hydra-keyboard-quit)
+  ;; (declare-function hydra--call-interactively-remap-maybe)
+  ;; (declare-function hydra-show-hint)
+  ;; (declare-function hydra-set-transient-map)
+  ;; (declare-function sp-pair)
+  ;; (declare-function helm-find-files)
+  ;; (declare-function helm-info-emacs)
+  ;; (declare-function helm-autoresize-mode)
+  ;; (declare-function yas-global-mode)
+  ;; (declare-function TeX-revert-document-buffer)
+  ;; (declare-function TeX-command)
+  ;; (declare-function TeX-master-file)
+  ;; (declare-function semantic-gcc-setup)
+  ;; (declare-function flycheck-select-checker)
+  ;; (declare-function rtags-enable-standard-keybindings)
+  ;; (declare-function rtags-diagnostics)
+  ;; (declare-function paredit-mode)
+  ;; (declare-function org-babel-do-load-languages)
+  ;; (declare-function org-gcal-sync)
+  ;; (declare-function cfw:open-calendar-buffer)
+  ;; (declare-function cfw:org-create-file-source)
+  ;; (declare-function mu4e-read-option)
+  ;; (declare-function xah-replace-pairs-region)
+  ;; (declare-function spaceline-spacemacs-theme)
+  ;; (declare-function spaceline-helm-mode)
+  ;; (declare-function spaceline-info-mode)
+  ;; (declare-function spaceline-all-the-icons-theme)
+  ;; (declare-function eshell-send-input)
+  ;; (declare-function exwm-systemtray-enable)
+  ;; (declare-function server-running-p)
+
 #+END_SRC
-** Package Installation
-	 This sets up everything necerssary to install new
-	 packages and adds two package archives, Melpa and Org, in
-	 addition to the default packages.
-*** Package List
-		This is a list of packages that will be installed
-		automatically if they are not already installed. They
-		are used by the function (install-packages).
-		#+BEGIN_SRC emacs-lisp
-(defconst demo-packages
-	'(magit swiper-helm
-					nameless
-					esup
-					company-ycmd hydra
-					ace-window transpose-frame
-					swiper xah-replace-pairs
-					multiple-cursors pp-c-l
-					paredit paredit-everywhere
-					redshank eldoc
-					eldoc-extension
-					ert elint
-					highlight-cl testcover
-					elisp-slime-nav paredit-menu
-					f auto-complete-clang
-					meson-mode org-plus-contrib
-					expand-region persp-mode
-					persp-projectile winum
-					eyebrowse spacemacs-theme
-					spaceline all-the-icons
-					info+ dumb-jump
-					blackboard-theme cmake-ide
-					cmake-mode counsel
-					cpputils-cmake helm-themes
-					xelb exwm
-					ox-twbs org-gcal
-					cmake-project cmake-font-lock
-					org-beautify-theme use-package
-					rtags company-rtags
-					helm-rtags flycheck-rtags
-					srefactor macrostep
-					calfw pdf-tools
-					web-mode winner
-					bind-key clipmon
-					htmlize sr-speedbar
-					multi-term exec-path-from-shell
-					powerline nlinum
-					flycheck-irony solarized-theme
-					company-c-headers flycheck
-					flycheck-pos-tip avy
-					avy-zap anzu
-					company duplicate-thing
-					helm helm-descbinds
-					helm-gtags helm-dash
-					clang-format helm-projectile
-					helm-swoop function-args
-					clean-aindent-mode comment-dwim-2
-					dtrt-indent ws-butler
-					color-identifiers-mode iedit
-					smartparens projectile
-					irony company-irony
-					company-irony-c-headers volatile-highlights
-					undo-tree diminish
-					auctex company-auctex
-					latex-preview-pane helm-c-yasnippet
-					monokai-theme auctex-latexmk
-					zygospore helm-swoop
-					zoom-frm gnuplot
-					hyperbole fold-dwim))
-		#+END_SRC
-		This sets up some slightly more sane default values and
-		adds a better pdf reader (which requires manual
-		installation through the (pdf-tools-install) function,
-		which is run automatically if possible)
-*** Initialization
-		#+BEGIN_SRC emacs-lisp
-;(require 'package)
-;(add-to-list 'package-archives
-;             '("melpa" . "http://melpa.org/packages/") t)
-;(add-to-list 'package-archives
-;             '("org" . "http://orgmode.org/elpa/") t)
-;(package-initialize)
-(defun install-packages ()
-	"Install all required packages."
-	(interactive)
-	(unless package-archive-contents
-		(package-refresh-contents))
-	(dolist (package demo-packages)
-		(unless (package-installed-p package)
-			(package-install package))))
-;(install-packages)
-;(require 'use-package)
-;(require 'diminish)
-		#+END_SRC
-** Personal
-	 #+BEGIN_SRC emacs-lisp
-(setq user-full-name "Einar Elén"
-			user-mail-address "einar.elen@gmail.com")
-	 #+END_SRC
+
 ** Improve Basic Emacs Experience
 *** Configuration file
-		Creates a function which returns you to this file and
-		binds it to f8
-		#+BEGIN_SRC emacs-lisp
+Creates a function which returns you to this file and
+binds it to f8
+#+BEGIN_SRC emacs-lisp
 (defun configuration-file()
-	(interactive)
-	(find-file "~/.emacs.d/configuration.org"))
+  (interactive)
+  (find-file "~/.emacs.d/configuration.org"))
 (global-set-key (kbd "<f8>") 'configuration-file)
-		#+END_SRC
+#+END_SRC
 *** Additional Settings
-		Change the window-title to Emacs
-		#+BEGIN_SRC emacs-lisp
-;(setq frame-title-format "Emacs")
-		#+END_SRC
-		Disable scrollbar, menubar and toolbar, disable the keys
-		that hide emacs (they are easy to hit on accident which
-		is annoying). Also, show column and line number of the
-		cursor in the modeline.
-		#+BEGIN_SRC emacs-lisp
-(menu-bar-mode -1)
+Change the window-title to Emacs
+#+BEGIN_SRC emacs-lisp
+;;(setq frame-title-format "Emacs")
+	#+END_SRC
+Disable scrollbar, menubar and toolbar, disable the keys
+that hide emacs (they are easy to hit on accident which is
+annoying). Also, show column and line number of the cursor
+in the modeline.
+#+BEGIN_SRC emacs-lisp
+;;(menu-bar-mode -1)
 (when (display-graphic-p)
-	(scroll-bar-mode -1)
-	(tool-bar-mode -1))
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1))
 (global-unset-key (kbd "C-x C-z"))
 (global-unset-key (kbd "C-z"))
 (setq column-number-mode t
 			line-number-mode t)
 (global-visual-line-mode t)
 (global-hl-line-mode t)
-		#+END_SRC
-		Flash the screen rather than making noise when
-		complaining.
-		#+BEGIN_SRC emacs-lisp
+#+END_SRC
+Flash the screen rather than making noise when complaining.
+#+BEGIN_SRC emacs-lisp
 (setq visible-bell t)
-		#+END_SRC
-		Show a clock!
-		#+BEGIN_SRC emacs-lisp
+#+END_SRC
+Show a clock!
+#+BEGIN_SRC emacs-lisp
 (display-time)
-		#+END_SRC
-		Always answer yes or no questions with just y or n, yes
-		or no is annoying to type...
-		#+BEGIN_SRC emacs-lisp
+#+END_SRC
+Always answer yes or no questions with just y or n, yes
+or no is annoying to type...
+#+BEGIN_SRC emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
-		#+END_SRC
-		Enable syntax highlighting in all modes where it is
-		possible!
-		#+BEGIN_SRC emacs-lisp
+#+END_SRC
+Enable syntax highlighting in all modes where it is possible!
+#+BEGIN_SRC emacs-lisp
 (global-font-lock-mode t)
-		#+END_SRC
-		If we are using an emacs with native line-numbering, use
-		it! Otherwise, use nlinum for line-numbering.
-		#+BEGIN_SRC emacs-lisp
+#+END_SRC
+If we are using an emacs with native line-numbering, use it!
+Otherwise, use nlinum for line-numbering.
+#+BEGIN_SRC emacs-lisp
 (if (boundp 'display-line-numbers)
-		(global-display-line-numbers-mode t)
-	(use-package nlinum
-		:defer 3
-		:preface
-		(defun disable-nlinum-mode-hook () (nlinum-mode -1))
-		:config
-		(global-nlinum-mode t)
-		(add-hook 'pdf-view-mode-hook 'disable-nlinum-mode-hook)))
+    (global-display-line-numbers-mode t)
+  (use-package nlinum
+    :defer 3
+    :preface
+    (defun disable-nlinum-mode-hook () (nlinum-mode -1))
+    :config
+    (global-nlinum-mode t)
+    (add-hook 'pdf-view-mode-hook 'disable-nlinum-mode-hook)))
+#+END_SRC
 
-		#+END_SRC
-		Other stuff which may or may not work...
-		#+BEGIN_SRC emacs-lisp
-			(use-package tramp
-	:defer 3
-	:config
-	(setq tramp-default-method "ssh"))
-			 (setq backup-directory-alist `((".*" . ,temporary-file-directory))
-			 auto-save-file-name-transforms `((".*" ,temporary-file-directory t))
-			 backup-by-copying t    ; Don't delink hardlinks
-		version-control t      ; use version numbers on backups
-		delete-old-versions t  ; Automatically delete excess backups
-		kept-new-versions 20   ; how many of the newest versions to keep
-		kept-old-versions 5    ; and how many of the old
-		)
+Other stuff which may or may not work...
+#+BEGIN_SRC emacs-lisp
+(use-package tramp
+  :defer 3
+  :config
+  (setq tramp-default-method "ssh"))
+(setq backup-directory-alist `((".*" . ,temporary-file-directory))
+      auto-save-file-name-transforms `((".*" ,temporary-file-directory t))
+      backup-by-copying t    ;; Don't delink hardlinks
+      version-control t      ;; use version numbers on backups
+      delete-old-versions t  ;; Automatically delete excess backups
+      kept-new-versions 20   ;; how many of the newest versions to keep
+      kept-old-versions 5    ;; and how many of the old
+      )
 
-			(setq ;gc-cons-threshold 100000000
-			inhibit-startup-message t
-			history-length t
-			history-delete-duplicates t
-			version-control t
-			x-stretch-cursor nil)
-			(setq-default
-			 fill-column 60
-			 cursor-type 'hbar)
-
-			(setq mac-command-modifier 'meta)
-
-		#+END_SRC
+(setq ;gc-cons-threshold 100000000
+ inhibit-startup-message nil
+ history-length t
+ history-delete-duplicates t
+ version-control t
+ x-stretch-cursor nil)
+(setq-default
+ fill-column 60
+ cursor-type 'hbar)
+(setq mac-command-modifier 'meta)
+#+END_SRC
 *** Window Management
 		Winner allows you to restore previous window
 		configurations and jump around in the window
@@ -230,10 +173,10 @@
 
 		#+BEGIN_SRC emacs-lisp
 			(use-package winner
-	:bind (("C-c <left>" . winner-undo)
+	                  :bind (("C-c <left>" . winner-undo)
 				 ("C-c <right>" . winner-redo))
-	:config
-	(winner-mode t))
+	                  :config
+	                  (winner-mode t))
 			;; (use-package switch-window
 			;;   :defer 2
 			;;   :bind (("C-x o" . switch-window)))
@@ -245,13 +188,13 @@
 		pastes between emacs and the rest of your operating
 		system.
 #+BEGIN_SRC emacs-lisp
-	(use-package clipmon
-		:defer 1
-		:config (setq clipmon-autoinsert-timeout nil
-			clipmon-autoinsert-sound nil
-			clipmon-autoinsert-color nil
-			clipmon-transform-suffix nil)
-		(clipmon-mode))
+(use-package clipmon
+  :defer 1
+  :config (setq clipmon-autoinsert-timeout nil
+		clipmon-autoinsert-sound nil
+		clipmon-autoinsert-color nil
+		clipmon-transform-suffix nil)
+  (clipmon-mode))
 			#+END_SRC
 ****  Windmove
 		Windmove keybindings allows you to switch between your
@@ -259,13 +202,13 @@
 		you're tired.
 			#+BEGIN_SRC emacs-lisp
 			 (use-package windmove
-	 :defer 3
-	 :config
-	 (windmove-default-keybindings)
-	 (add-hook 'org-shiftup-final-hook 'windmove-up)
-	 (add-hook 'org-shiftdown-final-hook 'windmove-down)
-	 (add-hook 'org-shiftleft-final-hook 'windmove-left)
-	 (add-hook 'org-shiftright-final-hook 'windmove-right))
+	                   :defer 3
+	                   :config
+	                   (windmove-default-keybindings)
+	                   (add-hook 'org-shiftup-final-hook 'windmove-up)
+	                   (add-hook 'org-shiftdown-final-hook 'windmove-down)
+	                   (add-hook 'org-shiftleft-final-hook 'windmove-left)
+	                   (add-hook 'org-shiftright-final-hook 'windmove-right))
 			 (use-package hyperbole
 	 :disabled t
 	 :defer 2)
@@ -288,10 +231,10 @@
 
 
 *** Hydra
-		Hydra is a package which allows fancy keyboard bindings. The
-		only one which currently exists is C-M-o for window
-		management.
-		#+BEGIN_SRC emacs-lisp
+Hydra is a package which allows fancy keyboard bindings. The
+		only one which currently exists is C-M-o for
+		window 	management.
+#+BEGIN_SRC emacs-lisp
 	(use-package hydra
 		:after windmove
 		:functions (hydra-add-font-lock
@@ -330,118 +273,91 @@
 			("M-t" text-scale-increase "Scale++"))
 		:bind (("C-M-o" . hydra-window/body)))
 
+#+END_SRC
 
-		#+END_SRC
 *** Mac-specific stuff
-		Add latex, bash, and much more support because they are in weird places on macos systems.
-		Because why wouldn't they be.
-		#+BEGIN_SRC emacs-lisp
+Add latex, bash, and much more support because they are in
+weird places on macos systems.  Because why wouldn't they
+be.
+#+BEGIN_SRC emacs-lisp
 (if (equal system-type 'darwin)
 		(progn (add-to-list 'exec-path "/usr/local/bin/")
 					 (add-to-list 'exec-path "/Library/TeX/texbin/pdflatex")
 					 (setenv "PATH" (concat "/usr/local/bin:/Library/TeX/texbin/:" (getenv "PATH")))))
-		#+END_SRC
+#+END_SRC
 *** Treemacs
-		Treemacs creates a really powerful file-browser that can be
-		created with F1. By default, the treemacs-buffer wont be
-		selected by C-x o. It can be selected with M-0.
-		#+BEGIN_SRC emacs-lisp
-(use-package treemacs
-	:disabled t
-	:defer t
-	:config
-	(setq treemacs-follow-after-init t
-				treemacs-width 35
-				treemacs-indentation 2
-				treemacs-git-integration t
-				treemacs-collapse-dirs (if (executable-find "python") 3 0)
-				treemacs-silent-refresh t
-				treemacs-change-root-without-asking t
-				treemacs-is-never-other-window t)
-	(treemacs-follow-mode t)
-	(treemacs-filewatch-mode t)
-	(use-package treemacs-projectile
-		:defer t
-		:config
-		(setq treemacs-header-function  #'treemacs-projectile-create-header))
-	:bind
-	(:map global-map
-				([f1] . treemacs-toggle)
-				("M-0" . treemacs-select-window)
-				("C-c 1" . treemacs-delete-other-windows)))
-		#+END_SRC
-*** Fonts
-		#+BEGIN_SRC emacs-lisp
-	;(set-frame-font )
-																					;(find-font )
-	;(find-font "Source Code Pro")
-																				; (member "Source Code Pro" (font-family-list))
-(set-face-attribute 'default nil
-										:family "Source Code Pro"
-																				;:family "Garamond"
-																				;:family "Computer Modern Typewriter"
-																				;                    :family "Computer Modern TT"
-																				;:family "DejaVu Sans Mono"
-																				;:family "Inconsolata"
-																				;:family "Terminus"
-										:height 110
-										:weight 'normal
-										:width 'normal
-										)
-;(find-font (describe-font (font-spec :family "Source Code Pro")))
-;(font-family-list)
+Treemacs creates a really powerful file-browser that can be
+created with F1. By default, the treemacs-buffer wont be
+selected by C-x o. It can be selected with M-0.
 
-		#+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package treemacs
+  :disabled t
+  :defer t
+  :config
+  (setq treemacs-follow-after-init t
+	treemacs-width 35
+	treemacs-indentation 2
+	treemacs-git-integration t
+	treemacs-collapse-dirs (if (executable-find "python") 3 0)
+	treemacs-silent-refresh t
+	treemacs-change-root-without-asking t
+	treemacs-is-never-other-window t)
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (use-package treemacs-projectile
+    :defer t
+    :config
+    (setq treemacs-header-function  #'treemacs-projectile-create-header))
+  :bind
+  (:map global-map
+	([f1] . treemacs-toggle)
+	("M-0" . treemacs-select-window)
+	("C-c 1" . treemacs-delete-other-windows)))
+	#+END_SRC
+*** Fonts
+#+BEGIN_SRC emacs-lisp
+;; (set-frame-font )
+;; (find-font )
+;; (find-font "Source Code Pro")
+;; (member "Source Code Pro" (font-family-list))
+(set-face-attribute 'default nil
+		    :family "Source Code Pro"
+                    ;; :family "Garamond"
+                    ;; :family "Computer Modern Typewriter"
+                    ;; :family "Computer Modern TT"
+                    ;; :family "DejaVu Sans Mono"
+                    ;; :family "Inconsolata"
+                    ;; :family "Terminus"
+		    :height 110
+		    :weight 'normal
+		    :width 'normal)
+;; (find-font (describe-font (font-spec :family "Source Code Pro")))
+;; (font-family-list)
+#+END_SRC
 ** Looks/Themes
 *** Basic Configuration
-		Adds colouring for variables in programming languages. Sets
-		the starting buffer to this file.
-		#+BEGIN_SRC emacs-lisp
-			(setq initial-buffer-choice (concat user-emacs-directory "configuration.org"))
-			(use-package powerline
-	:disabled t
-	:defer 1
-	:init (powerline-vim-theme))
+Adds colouring for variables in programming languages. Sets
+the starting buffer to this file.
+#+BEGIN_SRC emacs-lisp
+(setq initial-buffer-choice (concat user-emacs-directory "configuration.org"))
+(use-package powerline
+  :disabled t
+  :defer 1
+  :init (powerline-vim-theme))
+(use-package color-identifiers-mode
+  :diminish color-identifiers-mode
+  :defer 4
+  :config
+  (global-color-identifiers-mode t))
 
-			(use-package color-identifiers-mode
-	:diminish color-identifiers-mode
-	:defer 4
-	:config
-	(global-color-identifiers-mode t))
-
-		#+END_SRC
-*** Random Themes                                                :Deprecated:
-		I dont like using the same themes all the time so this
-		little function switches between three different
-		ones. Feel free to disable this by removing the call to
-		the function (choose-random-theme). This has been
-		abandoned.
-		#+BEGIN_SRC emacs-lisp
-																				;(defvar themes-to-use (list "monokai" "solarized-dark" "solarized-light") "List of themes that will be loaded by choose-random-theme")
-																				;(defvar current-theme-used (list "monokai") "Current theme chosen by choose-random theme")
-;; (defun choose-random-theme ()
-;;   "Choose random theme from themes-to-use!"
-;;   (interactive)
-;;   (setq current-theme-number (random (length themes-to-use)))
-;;   (when (= current-theme-number 0)
-;;     (setq current-theme-used (list "monokai"))
-;;     (load-theme 'monokai t))
-;;   (when (= current-theme-number 1)
-;;     (setq current-theme-used (list "solarized-dark"))
-;;     (load-theme 'solarized-dark t))
-;;   (when (= current-theme-number 2)
-;;     (setq current-theme-used (list "solarized-light"))
-;;     (load-theme 'solarized-light t)))
-																				;   (choose-random-theme)
-
-		#+END_SRC
+#+END_SRC
 ** Text Editing
-	 Everything in here is essentially from
-	 [[http://tuhdo.github.io][tuhdo]] and most of it is sane
-	 by default. Check out the individual packages in his
-	 C/C++ tutorial!
+Everything in here is essentially from [[http://tuhdo.github.io][tuhdo]] and most of it
+is sane by default. Check out the individual packages in his
+C/C++ tutorial!
 *** Basic
-		#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (setq global-mark-ring-max 5000
       mark-ring-max 5000
       mode-require-final-newline t
@@ -454,11 +370,10 @@
 (set-keyboard-coding-system 'utf-8)
 (set-language-environment "UTF-8")
 (prefer-coding-system 'utf-8)
-
-			;;; Not sure if i want this feature, it causes you to delete
-			;;; things in selection if you start writing much like on
-			;;; most operating systems.
-			;;; (delete-selection-mode t)
+;; Not sure if i want this feature, it causes you to delete
+;; things in selection if you start writing much like on
+;; most operating systems.
+;; (delete-selection-mode t)
 
 ;; (add-hook 'sh-mode-hook (lambda ()
 ;;    k                      (setq
@@ -472,74 +387,82 @@
 (use-package whitespace
   :config
   (add-hook 'diff-mode-hook
-	    (lambda () (setq-local whitespace-style
-			      '(face
-				tabs
-				tab-mark
-				spaces
-				space-mark
-				trailing
-				indentation::space
-				indentation::tab
-				newline
-				newline-mark))
+	    (lambda ()
+              (setq-local
+               whitespace-style
+	       '(face
+		 tabs
+		 tab-mark
+		 spaces
+		 space-mark
+		 trailing
+		 indentation::space
+		 indentation::tab
+		 newline
+		 newline-mark))
 	      (whitespace-mode 1)))
+
   (global-set-key (kbd "C-c w") 'whitespace-mode))
-			;;;(use-package diff-mode)
-			;;;(add-hook 'prog-mode-hook (lambda () (interactive) (setq
+;;(use-package diff-mode)
+;;(add-hook 'prog-mode-hook (lambda () (interactive) (setq
 ;;                          show-trailing-whitespace 1)))
 
-			;;; (add-hook 'text-mode-hook 'auto-fill-mode)
-		#+END_SRC
+;; (add-hook 'text-mode-hook 'auto-fill-mode)
+#+END_SRC
 *** Keybindings
-		Disable certain keybindings that are often clicked by
-		mistake. Add keybinding for compilation (F5) and for
-		capitalising (M-c).
+Disable certain keybindings that are often clicked by
+mistake. Add keybinding for compilation (F5) and for
+capitalising (M-c).
 
-		#+BEGIN_SRC emacs-lisp
-			(global-set-key (kbd "RET") 'newline-and-indent)
-			(global-set-key (kbd "C-<down-mouse-1>") 'ignore)
-			(global-set-key (kbd "C-<down-mouse-2>") 'ignore)
-			(global-set-key (kbd "C-<down-mouse-3>") 'ignore)
-			(global-set-key (kbd "C-<mouse-1>") 'ignore)
-			(global-set-key (kbd "C-<mouse-2>") 'ignore)
-			(global-set-key (kbd "C-<mouse-3>") 'ignore)
-			(global-set-key (kbd "M-c") 'capitalize-dwim)
-			(global-set-key
-			 (kbd "<f5>")
-			 (lambda () (interactive)
-				 (setq-local compilation-read-command nil)
-				 (call-interactively 'compile)))
-		#+END_SRC
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "RET") 'newline-and-indent)
+(global-set-key (kbd "C-<down-mouse-1>") 'ignore)
+(global-set-key (kbd "C-<down-mouse-2>") 'ignore)
+(global-set-key (kbd "C-<down-mouse-3>") 'ignore)
+(global-set-key (kbd "C-<mouse-1>")
+                'ignore)
+
+(global-set-key (kbd "C-<mouse-2>") 'ignore)
+
+(global-set-key (kbd "C-<mouse-3>") 'ignore)
+
+(global-set-key (kbd "M-c") 'capitalize-dwim)
+
+(global-set-key (kbd "<f5>")
+                (lambda () (interactive)
+                  (setq-local compilation-read-command nil)
+                  (call-interactively 'compile)))
+#+END_SRC
 *** Packages
 **** Rainbow Delimeters
-		 Rainbow delimiters highlights braces, brackets, and their
-		 friends.
-		 #+BEGIN_SRC emacs-lisp
-	(use-package rainbow-delimiters
-		:config
-		(add-hook 'prog-mode-hook 'rainbow-delimiters-mode-enable))
+Rainbow delimiters highlights braces, brackets, and their
+friends.
+
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters
+  :config
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode-enable))
 		 #+END_SRC
 **** Aggressive Indentation
-		 Tries to keep your indentation in check by, being aggressive
-		 about it. It is related to electric-indent-mode but is, more
-		 aggressive.
-		 #+BEGIN_SRC emacs-lisp
-(use-package aggressive-indent
-	:config
-	(global-aggressive-indent-mode t))
-		 #+END_SRC
-**** Which-key
+Tries to keep your indentation in check by, being aggressive
+about it. It is related to electric-indent-mode but is, more
+aggressive.
 
-		 Which-key gives you suggestions if you have started a key
-		 combination but stopped. Real handy.
-		 #+BEGIN_SRC emacs-lisp
-	(use-package which-key
-		:ensure t
-		:diminish which-key-mode
-		:config
-		(add-hook 'after-init-hook 'which-key-mode))
-		 #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package aggressive-indent
+  :config
+  (global-aggressive-indent-mode t))
+#+END_SRC
+**** Which-key
+Which-key gives you suggestions if you have started a key
+combination but stopped. Real handy.
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :config
+  (add-hook 'after-init-hook 'which-key-mode))
+#+END_SRC
 **** Volatile Highlights
 		 Briefly highlights changes to the buffer for things like
 		 pasting.
@@ -924,7 +847,7 @@
 	 ("M-n" . helm-minibuffer-history)
 	 :map helm-map
 	 ("<tab>" . helm-execute-persistent-action)
-	 ("C-i" . helm-execute-persistent-action) ; C-i is the same as tab
+	 ("C-i" . helm-execute-persistent-action) ;; C-i is the same as tab
 	 ("C-z" . helm-select-action)
 	 :map helm-grep-mode-map
 	 ("<return>" . helm-grep-mode-jump-other-window)
@@ -1052,7 +975,7 @@
 			 :config
 			 (if (file-exists-p "/usr/bin/fish")
 					 (setq multi-term-program "/usr/bin/fish"))
-			 (when (require 'term nil t) ; only if term can be loaded..
+			 (when (require 'term nil t) ;; only if term can be loaded..
 				 (setq
 					term-bind-key-alist
 					(list
@@ -1360,124 +1283,124 @@
 (use-package info-look
 	:commands info-lookup-add-help)
 (use-package lisp-mode
-	:ensure nil
-	:defer t
+  :ensure nil
+  :defer t
+  :config
+  (use-package paredit
+    :defer t
+    :preface
+    (defun disable-smartparens ()
+      (interactive)
+      "Disables smartparens."
+      (turn-off-smartparens-mode))
+    (defun enable-paredit ()
+      (interactive)
+      "Enables paredit."
+      (paredit-mode t))
+    )
+  (use-package slime
+    :after (company lisp-mode)
+    :config
+    (use-package elisp-slime-nav)
+    (use-package slime-company))
+  (add-hook 'emacs-lisp-mode-hook 'disable-smartparens)
+  (add-hook 'emacs-lisp-mode-hook 'enable-paredit)
+
+  :preface
+  (defun my-elisp-indent-or-complete (&optional arg)
+    (interactive "p")
+    (call-interactively 'lisp-indent-line)
+    (unless (or (looking-back "\\s-*" 120) (bolp)
+		(not (looking-back "[-A-Za-z0-9_*+/=<>!?]+" 120)))
+      (call-interactively 'lisp-complete-symbol)))
+  ;; (defun my-lisp-indent-or-complete (&optional arg)
+  ;;   (interactive "p")
+  ;;   (if (or (looking-back "^\\s-*") (bolp))
+  ;;       (call-interactively 'lisp-indent-line)
+  ;;     (call-interactively 'slime-indent-and-complete-symbol)))
+  (defun my-byte-recompile-file ()
+    (save-excursion
+      (byte-recompile-file buffer-file-name)))
+  (defvar smile-mode nil)
+  (defvar lisp-mode-initialized nil)
+  (defun my-lisp-mode-hook ()
+    (unless lisp-mode-initialized
+      (setq lisp-mode-initialized t)
+      (use-package redshank
+	:diminish redshank-mode)
+      (use-package elisp-slime-nav
+	:disabled t
+	:diminish elisp-slime-nav-mode)
+      (use-package edebug)
+      (use-package eldoc
+	:diminish eldoc-mode
+	:commands eldoc-mode
 	:config
-	(use-package paredit
-		:defer t
-		:preface
-		(defun disable-smartparens ()
-			(interactive)
-			"Disables smartparens."
-			(turn-off-smartparens-mode))
-		(defun enable-paredit ()
-			(interactive)
-			"Enables paredit."
-			(paredit-mode t))
-		)
-	(use-package slime
-		:after (company lisp-mode)
-		:config
-		(use-package elisp-slime-nav)
-		(use-package slime-company))
-	(add-hook 'emacs-lisp-mode-hook 'disable-smartparens)
-	(add-hook 'emacs-lisp-mode-hook 'enable-paredit)
+	(use-package eldoc-extension
+	  :disabled t
+	  :defer t
+	  :init
+	  (add-hook 'emacs-lisp-mode-hook #'(lambda () (require 'eldoc-extension)) t))
+	(eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
+      (use-package cldoc
+	:ensure nil
+	:disabled t
+	:commands (cldoc-mode turn-on-cldoc-mode)
+	:diminish cldoc-mode)
+      (use-package ert
+	:bind ("C-c e t" . ert-run-tests-interactively)
+	:config
+	(use-package el-mock))
 
+      ;;(use-package buttercup
+      ;;  :bind (("C-c b" . buttercup-run-at-point ))
+      ;;  )
+      (use-package elint
+	:commands 'elint-initialize
 	:preface
-	(defun my-elisp-indent-or-complete (&optional arg)
-		(interactive "p")
-		(call-interactively 'lisp-indent-line)
-		(unless (or (looking-back "\\s-*") (bolp)
-								(not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
-			(call-interactively 'lisp-complete-symbol)))
-	;; (defun my-lisp-indent-or-complete (&optional arg)
-	;;   (interactive "p")
-	;;   (if (or (looking-back "^\\s-*") (bolp))
-	;;       (call-interactively 'lisp-indent-line)
-	;;     (call-interactively 'slime-indent-and-complete-symbol)))
-	(defun my-byte-recompile-file ()
-		(save-excursion
-			(byte-recompile-file buffer-file-name)))
-	(defvar smile-mode nil)
-	(defvar lisp-mode-initialized nil)
-	(defun my-lisp-mode-hook ()
-		(unless lisp-mode-initialized
-			(setq lisp-mode-initialized t)
-			(use-package redshank
-				:diminish redshank-mode)
-			(use-package elisp-slime-nav
-				:disabled t
-				:diminish elisp-slime-nav-mode)
-			(use-package edebug)
-			(use-package eldoc
-				:diminish eldoc-mode
-				:commands eldoc-mode
-				:config
-				(use-package eldoc-extension
-					:disabled t
-					:defer t
-					:init
-					(add-hook 'emacs-lisp-mode-hook #'(lambda () (require 'eldoc-extension)) t))
-				(eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
-			(use-package cldoc
-				:ensure nil
-				:disabled t
-				:commands (cldoc-mode turn-on-cldoc-mode)
-				:diminish cldoc-mode)
-			(use-package ert
-				:bind ("C-c e t" . ert-run-tests-interactively)
-				:config
-				(use-package el-mock))
-
-			;;(use-package buttercup
-			;;  :bind (("C-c b" . buttercup-run-at-point ))
-			;;  )
-			(use-package elint
-				:commands 'elint-initialize
-				:preface
-				(defun elint-current-buffer ()
-					(interactive)
-					(elint-initialize)
-					(elint-current-buffer))
-				:config
-				(add-to-list 'elint-standard-variables 'current-prefix-arg)
-				(add-to-list 'elint-standard-variables 'command-line-args-left)
-				(add-to-list 'elint-standard-variables 'buffer-file-coding-system)
-				(add-to-list 'elint-standard-variables 'emacs-major-version)
-				(add-to-list 'elint-standard-variables 'window-system))
-			(use-package highlight-cl
-				:disabled t
-				:init
-				(mapc (function
-							 (lambda (mode-hook)
-								 (add-hook mode-hook 'highlight-cl-add-font-lock-keywords)))
-							lisp-mode-hooks))
-
-			(use-package testcover
-				:commands testcover-this-defun)
-			(mapc (lambda (mode)
-							(info-lookup-add-help
-							 :mode mode
-							 :regexp "[^][()'\" \t\n]+"
-							 :ignore-case t
-							 :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
-						lisp-modes))
-		(auto-fill-mode 1)
-		(when (featurep 'elisp-slime-nav-mode)
-			(elisp-slime-nav-mode 1))
-		(paredit-mode 1)
-		(when (featurep 'redshank-mode)
-			(redshank-mode 1))
-		(local-set-key (kbd "<return>") 'paredit-newline)
-		(bind-key "<tab>" #'my-elisp-indent-or-complete emacs-lisp-mode-map)
-		(add-hook 'after-save-hook 'check-parens nil t)
-		(unless (memq major-mode
-									'(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
-																				;        (turn-on-cldoc-mode)
-			;; (bind-key "M-q" #'slime-reindent-defun lisp-mode-map)
-			(bind-key "M-l" #'slime-selector lisp-mode-map)))
+	(defun elint-current-buffer ()
+	  (interactive)
+	  (elint-initialize)
+	  (elint-current-buffer))
+	:config
+	(add-to-list 'elint-standard-variables 'current-prefix-arg)
+	(add-to-list 'elint-standard-variables 'command-line-args-left)
+	(add-to-list 'elint-standard-variables 'buffer-file-coding-system)
+	(add-to-list 'elint-standard-variables 'emacs-major-version)
+	(add-to-list 'elint-standard-variables 'window-system))
+      (use-package highlight-cl
+	:disabled t
 	:init
-	(apply #'hook-into-modes 'my-lisp-mode-hook lisp-mode-hooks))
+	(mapc (function
+	       (lambda (mode-hook)
+		 (add-hook mode-hook 'highlight-cl-add-font-lock-keywords)))
+	      lisp-mode-hooks))
+
+      (use-package testcover
+	:commands testcover-this-defun)
+      (mapc (lambda (mode)
+	      (info-lookup-add-help
+	       :mode mode
+	       :regexp "[^][()'\" \t\n]+"
+	       :ignore-case t
+	       :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
+	    lisp-modes))
+    (auto-fill-mode 1)
+    (when (featurep 'elisp-slime-nav-mode)
+      (elisp-slime-nav-mode 1))
+    (paredit-mode 1)
+    (when (featurep 'redshank-mode)
+      (redshank-mode 1))
+    (local-set-key (kbd "<return>") 'paredit-newline)
+    (bind-key "<tab>" #'my-elisp-indent-or-complete emacs-lisp-mode-map)
+    (add-hook 'after-save-hook 'check-parens nil t)
+    (unless (memq major-mode
+		  '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
+      ;; (turn-on-cldoc-mode)
+      ;; (bind-key "M-q" #'slime-reindent-defun lisp-mode-map)
+      (bind-key "M-l" #'slime-selector lisp-mode-map)))
+  :init
+  (apply #'hook-into-modes 'my-lisp-mode-hook lisp-mode-hooks))
 
 (use-package pp-c-l
 	:disabled t
@@ -1522,7 +1445,7 @@
 
 #+END_SRC
 * Org Mode
-** COMMENT Basic Setup
+** Basic Setup
 	 #+BEGIN_SRC emacs-lisp
 (defun re-parse-configurations ()
 	"Reparse the main configuration file"
@@ -1555,17 +1478,21 @@
   (setq-default major-mode 'org-mode)
   (setq initial-major-mode 'org-mode)
   :config
-  (setq org-export-async-init-file (expand-file-name
-                                    (concat
-                                     user-emacs-directory
-                                     "orginit.el"))
+  (setq org-pretty-entities t)
+  (setq org-pretty-entities-include-sub-superscripts t)
+  (setq org-startup-indented t)
+  (setq org-export-async-init-file
+        (expand-file-name
+         (concat user-emacs-directory
+                 "orginit.el"))
         org-export-in-background t
-        org-export-async-debug nil
-        )
+        org-export-async-debug nil)
   (use-package ox-latex
-    :ensure nil)
+    :ensure nil
+    :config
+    (setq org-startup-with-latex-preview t))
   (use-package ox-twbs)
-  
+
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((C . t) (emacs-lisp . t) (python . t)
@@ -1575,14 +1502,13 @@
   (setq org-src-preserve-indentation t)
   (setq org-src-tab-acts-natively t)
   (plist-put org-format-latex-options :scale 2.5)
-  
-  
+
+
   (setq org-default-notes-file user-org-todo-file-name org-use-fast-todo-selection t
 	org-src-window-setup 'current-window
                                         ;org-export-in-background nil
 	)
   :bind (("\C-cl" . org-store-link)
-	 ("\C-ca" . org-agenda)
 	 ("\C-cb" . org-iswitchb)
 	 :map org-mode-map
 	 ("<f5>" . org-call-export-to-beamer)
@@ -1649,6 +1575,7 @@
 (use-package org-agenda
   :ensure nil
   :commands org-agenda
+  :bind (("\C-ca" . org-agenda))
   :after org
   :config
   (setq org-agenda-dim-blocked-tasks nil)
@@ -1660,7 +1587,6 @@
 #+END_SRC
 ** Calendar
 	 #+BEGIN_SRC emacs-lisp
-(use-package oauth2)
 
 (use-package calfw
   :after org
