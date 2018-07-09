@@ -1,4 +1,5 @@
 (require 'package)
+(require 'cl)
 (setq package-enable-at-startup nil)
 (package-initialize)
 
@@ -10,5 +11,4 @@
 (require 'ox-odt)
 (require 'ox-reveal)
 (require 'ox)
-(require 'cl)
 (setq org-export-async-debug nil)
