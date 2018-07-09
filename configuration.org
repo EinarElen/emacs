@@ -312,7 +312,7 @@ Change the window-title to Emacs
 #+BEGIN_SRC emacs-lisp
 ;;(setq frame-title-format "Emacs")
 	#+END_SRC
-Disable scrollbar, menubar and toolbar, disable the keys
+Disable scroll bar, menu bar and toolbar, disable the keys
 that hide emacs (they are easy to hit on accident which is
 annoying). Also, show column and line number of the cursor
 in the modeline.
@@ -367,7 +367,7 @@ Other stuff which may or may not work...
   (setq tramp-default-method "ssh"))
 (setq backup-directory-alist `((".*" . ,temporary-file-directory))
       auto-save-file-name-transforms `((".*" ,temporary-file-directory t))
-      backup-by-copying t    ;; Don't delink hardlinks
+      backup-by-copying t    ;; Don't delink hard-links
       version-control t      ;; use version numbers on backups
       delete-old-versions t  ;; Automatically delete excess backups
       kept-new-versions 20   ;; how many of the newest versions to keep
@@ -389,7 +389,7 @@ Other stuff which may or may not work...
 		Winner allows you to restore previous window
 		configurations and jump around in the window
 		configuration history using C-c <left> and C-c <right>
-		(the arrowkeys).
+		(the arrow keys).
 
 		Try it out by typing C-x 3, C-x o, C-x b (choose some
 		buffer) and then C-c <left> twice to get back! Then try
@@ -423,7 +423,7 @@ Other stuff which may or may not work...
 			#+END_SRC
 ****  Windmove
 		Windmove keybindings allows you to switch between your
-		windows with shift + arrowkeys which can be handy when
+		windows with shift + arrow keys which can be handy when
 		you're tired.
 			#+BEGIN_SRC emacs-lisp
 			 (use-package windmove
@@ -439,7 +439,7 @@ Other stuff which may or may not work...
 	 :defer 2)
 		 #+END_SRC
 **** Zygospore
-		 Zygospore replaces the default killallotherwindows with
+		 Zygospore replaces the default kill all other windows with
 		 a version which lets you go back if you use it again.
 		 #+BEGIN_SRC emacs-lisp
 
@@ -460,49 +460,71 @@ Hydra is a package which allows fancy keyboard bindings. The
 		only one which currently exists is C-M-o for
 		window 	management.
 #+BEGIN_SRC emacs-lisp
-	(use-package hydra
-		:after windmove
-		:functions (hydra-add-font-lock
-		hydra-default-pre hydra-keyboard-quit
-		hydra--call-interactively-remap-maybe
-		hydra-show-hint hydra-set-transient-map)
-		:config
-		(hydra-add-font-lock)
-		(use-package ace-window)
-		(use-package transpose-frame)
-		(defhydra hydra-window ()
-			"Window management"
-			("a" windmove-left)
-			("s" windmove-down)
-			("d" windmove-right)
-			("w" windmove-up)
-			("3" (lambda ()
-			 (interactive)
-			 (split-window-right)
-			 (windmove-right))
-			 "Vertical")
-			("2" (lambda ()
-			 (interactive)
-			 (split-window-below)
-			 (windmove-down))
-			 "Horizontal")
-			("t" transpose-frame "'")
-			("1" delete-other-windows "Delete All" :color blue)
-			("A" ace-window "Ace")
-			("S" ace-swap-window "Swap")
-			("k" ace-delete-window "Kill")
-			("i" ace-delete-other-windows "Ace-max")
-			("b" helm-mini "Buffers")
-			("q" nil "cancel" :color blue)
-			("C-t" text-scale-decrease "Scale--")
-			("M-t" text-scale-increase "Scale++"))
-		:bind (("C-M-o" . hydra-window/body)))
+(use-package hydra
+  :after windmove
+  :functions (hydra-add-font-lock
+	      hydra-default-pre hydra-keyboard-quit
+	      hydra--call-interactively-remap-maybe
+	      hydra-show-hint hydra-set-transient-map)
+  :config
+  (hydra-add-font-lock)
+  (use-package ace-window)
+  (use-package transpose-frame)
+  (defhydra hydra-window ()
+    "Window management"
+    ("a" windmove-left)
+    ("s" windmove-down)
+    ("d" windmove-right)
+    ("w" windmove-up)
+    ("3" (lambda ()
+	   (interactive)
+	   (split-window-right)
+	   (windmove-right))
+     "Vertical")
+    ("2" (lambda ()
+	   (interactive)
+	   (split-window-below)
+	   (windmove-down))
+     "Horizontal")
+    ("t" transpose-frame "'")
+    ("1" delete-other-windows "Delete All" :color blue)
+    ("A" ace-window "Ace")
+    ("S" ace-swap-window "Swap")
+    ("k" ace-delete-window "Kill")
+    ("i" ace-delete-other-windows "Ace-max")
+    ("b" helm-mini "Buffers")
+    ("q" nil "cancel" :color blue)
+    ("C-t" text-scale-decrease "Scale--")
+    ("M-t" text-scale-increase
+     "Scale++"))
+  (eval-after-load "flyspell"
+    (defhydra hydra-spelling (:color blue)
+      "
+  ^
+  ^Spelling^          ^Errors^            ^Checker^
+  ^────────^──────────^──────^────────────^───────^───────
+  _q_ quit            _<_ previous        _c_ correction
+  ^^                  _>_ next            _d_ dictionary
+  ^^                  _f_ check           _m_ mode
+  ^^                  ^^                  ^^
+  "
+      ("q" nil)
+      ("<" flyspell-correct-previous :color pink)
+      (">" flyspell-correct-next :color pink)
+      ("c" ispell)
+      ("d" ispell-change-dictionary)
+      ("f" flyspell-buffer)
+      ("m" flyspell-mode))
+    )
+  :bind (("C-M-o" . hydra-window/body)
+         ("C-M-s" . hydra-spelling/body)
+         ))
 
 #+END_SRC
 
 *** Mac-specific stuff
 Add latex, bash, and much more support because they are in
-weird places on macos systems.  Because why wouldn't they
+weird places on Mac OS systems.  Because why wouldn't they
 be.
 #+BEGIN_SRC emacs-lisp
 (if (equal system-type 'darwin)
@@ -659,7 +681,7 @@ capitalising (M-c).
                   (call-interactively 'compile)))
 #+END_SRC
 *** Packages
-**** Rainbow Delimeters
+**** Rainbow Delimiters
 Rainbow delimiters highlights braces, brackets, and their
 friends.
 
@@ -704,7 +726,7 @@ Not sure if this is necessary with aggressive-indent.
   :disabled t
   :defer 2
   :config
-  (add-hook 'prog-mode-hqook 'clean-aindent-mode))
+  (add-hook 'prog-mode-hook 'clean-aindent-mode))
 #+END_SRC
 **** Dtrt-Indent
 Guess indentation for many newly opened files based on what
@@ -777,10 +799,10 @@ useful.
   :config
   (global-anzu-mode t)
   :bind (("M-%" . anzu-query-replace)
-	 ("C-M-%" . anzy-query-replace-regexp)))
+	 ("C-M-%" . anzu-query-replace-regexp)))
 #+END_SRC
 **** Iedit
-This is really cool. Mark a section and edit all occurances
+This is really cool. Mark a section and edit all occurrences
 of the section.
 #+BEGIN_SRC emacs-lisp
 (use-package iedit
@@ -830,7 +852,7 @@ single line instead."
    (if mark-active (list (region-beginning) (region-end))
      (list (line-beginning-position)
            (line-beginning-position 2)))))
-;; kill a line, including whitespace characters until next non-whiepsace character
+;; kill a line, including whitespace characters until next non-whitespace character
 ;; of next line
 (defadvice kill-line (before check-position activate)
   (if (member major-mode
@@ -1296,7 +1318,7 @@ pretty nifty.
 
   (setq company-idle-delay 0.1
 	company-tooltip-idle-delay 0.1)
-			;;; Backends
+			;;; Back-ends
 			;;; C/C++
   (use-package company-clang :ensure nil
     :config
@@ -1693,7 +1715,7 @@ pretty nifty.
 ** Basic Setup
 	 #+BEGIN_SRC emacs-lisp
 (defun re-parse-configurations ()
-  "Reparse the main configuration file"
+  "Re parse the main configuration file"
   (interactive)
   (org-babel-load-file config-file-file-name))
 
@@ -2204,8 +2226,17 @@ maildir:/info/[Gmail]/Skickat"
 *** Flyspell
 #+BEGIN_SRC emacs-lisp
 (use-package flyspell
-
+  :defer 1
+  :custom
+  (flyspell-abbrev-p t)
+  (flyspell-issue-message-flag nil)
+  (flyspell-issue-welcome-flag nil)
+  (flyspell-mode 1)
+  :config
+  (use-package helm-flyspell
+    :bind (("C-c ;" . helm-flyspell-correct)))
   )
+
 
 
 #+END_SRC
@@ -2245,7 +2276,7 @@ maildir:/info/[Gmail]/Skickat"
 (defun lp-ls
 		(&optional args output-buffer error-buffer)
 	"Derp"
-	(interactive "s(Optional) Groupname:
+	(interactive "s(Optional) Group name:
 	 s(Optional) Output buffer: ")
 	(if (string= output-buffer "")
 			(shell-command (concat "lpass ls " args))
@@ -2261,7 +2292,7 @@ maildir:/info/[Gmail]/Skickat"
 	(interactive "sName: ") (lp-show name t))
 (defun lp-insert-ls (&optional args)
 	"Derp"
-	(interactive "s(Optional) Groupname:") (lp-ls args t))
+	(interactive "s(Optional) Group name:") (lp-ls args t))
 (defun lp-get-password (name &optional output-buffer error-buffer)
 	(interactive "sName: ")
 	(lp-show (concat name "| grep password | grep -v sudo | cut -d\" \" -f2 ") output-buffer error-buffer))
