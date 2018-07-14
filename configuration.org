@@ -309,8 +309,8 @@ The packages and their load-paths are:
   (defvar elib:org-gcal-load-path (expand-file-name "~/src/org-gcal"))
   (defvar elib:rtags-load-path
     (potential-load-paths
-     '("/usr/share/emacs/site-lisp/rtags/rtags.el"
-       (concat user-emacs-directory
+     `("/usr/share/emacs/site-lisp/rtags/rtags.el"
+       ,(concat user-emacs-directory
                "../src/rtags/src/"))))
   (defvar elib:mu4e-load-path
     (potential-load-paths
