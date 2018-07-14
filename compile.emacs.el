@@ -16,7 +16,9 @@
                                         ;(setq use-package-verbose 'debug)
 (setq use-package-verbose nil)
 (setq use-package-always-ensure t)
-                                        ;(byte-compile-file "orginit.el")
+                                        ;(byte-compile-file
+                                        ;"orginit.el")
+;;(setq byte-compile-error-on-warn t)
 (byte-compile-file "configuration.el")
 
-(check-declare-file "configuration.el")
+;;(check-declare-file "configuration.el")
