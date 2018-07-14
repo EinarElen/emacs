@@ -20,6 +20,7 @@
   "A call to `alist-get' with testfn set to `equal'"
   `(alist-get ,key ,alist ,default ,remove 'equal))
 
+
 (defmacro alist-get-equal-simple (key alist)
   "A call to `alist-get' with default and remove set to
 nil and testfn set to `equal'
@@ -176,7 +177,6 @@ for. If you use some other
   - My student calendar in [[elisp:(find-variable 'org-gcal-calendar-lu-file-name)][`org-gcal-calendar-lu-file-name']]
 #+BEGIN_SRC emacs-lisp
   (eval-when-compile
-
     (defcustom tuhdo-snippets-directory
       (expand-file-name
        (concat user-emacs-directory
@@ -2112,6 +2112,8 @@ _h_tml            _i_ndex          _A_SCII:
 	 #+BEGIN_SRC emacs-lisp
 (use-package calfw
   :after org
+  :when (file-exists-p
+         (expand-file-name "~/nextcloud/org/orgsettings.el"))
   :commands (org-gcal
              org-gcal-sync org-gcal-fetch
              org-gcal-refresh-token
