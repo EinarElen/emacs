@@ -1,0 +1,126 @@
+* Modes, Key-bindings, Definitions
+** [[file:configuration.org::*Definitions%20and%20Variables][Definitions and Variables]]
+*** User Configuration                                             :config:
+- [[elisp:(find-variable 'user-full-name)][`user-full-name']] is... your name
+- [[elisp:(find-variable 'user-mail-address)][`user-mail-address']] is your primary mail-address
+- [[elisp:(find-variable 'user-mail-address-list)][`user-mail-address-list']] is a list of your primary and any
+  additional mail adresses you use
+- [[elisp:(find-variable 'user-org-quotes-file-name)][`user-org-quotes-file-name']] is a file where [[file:configuration.org::*Capture][Capture]] stores
+  quotes
+- [[elisp:(find-variable 'user-org-todo-file-name)][`user-org-todo-file-name']] is a file where [[file:configuration.org::*Capture][Capture]] stores
+  todo-items
+- [[elisp:(find-variable 'org-gcal-calendar-location)][`org-gcal-calendar-location']] is a folder where calendars
+  for [[elisp:(find-function 'calfw)][`calfw']] and [[elisp:(find-function 'org-gcal)][`org-gcal']] are stored
+  - [[elisp:(find-variable 'org-gcal-calendar-main-file-name)][`org-gcal-calendar-main-file-name']] calendar file for the
+    main calendar
+  - [[elisp:(find-variable 'org-gcal-calendar-info-ordf-file-name)][`org-gcal-calendar-info-ordf-file-name']] calendar for
+    info-ordf calendar
+  - [[elisp:(find-variable 'org-gcal-calendar-lu-file-name)][`org-gcal-calendar-lu-file-name']] calendar for my student
+    account
+
+*** Groups                                                         :groups:
+- [[elisp:(customize-group 'elib:)][`elib:']]
+  - The overarching group for all customization
+- [[elisp:(customize-group 'elib:file-paths)][`elib:file-paths']]
+  - A group with various file-paths such as load-paths
+- [[elisp:(customize-group 'elib:calendar)][`elib:calendar']]
+  - Customization group for my calendar functionality
+- [[elisp:(customize-group 'elib:org)][`elib:org']]
+  - Anything related to [[elisp:(find-function 'org-mode)][`org-mode']]
+- [[elisp:(customize-group 'elib:helm-tex)][`elib:helm-tex']]
+  - Overarching groups from [[file:configuration.org::*TeX%20Viewers][TeX Viewers]]
+  - [[elisp:(customize-group 'elib:helm-tex-pdf-tools)][`elib:helm-tex-pdf-tools']]
+  - [[elisp:(customize-group 'elib:helm-tex-evince)][`elib:helm-tex-evince']]
+  - [[elisp:(customize-group 'elib:helm-tex-okular)][`elib:helm-tex-okular']]
+*** Generic Variables Set of Modified
+- [[file:configuration.org::*Location%20of%20Files][Location of Files]]
+  - [[elisp:(find-variable 'tuhdo-snippets-directory)][`tuhdo-snippets-directory']] location of extra snippets for
+    the [[*Yasnippet][Yasnippet]] package
+  - [[elisp:(find-variable 'config-file-file-name)][`config-file-file-name']] location of the configuration
+    file
+  - [[elisp:(find-variable 'abbrev-location)][`abbrev-location']] location of the ".abbrev_defs"-file for
+    [[*Abbrev][Abbrev]]
+- [[file:configuration.org::*Load%20Paths][Load Paths]]
+  - [[elisp:(find-variable 'load-path-script-location)][`load-path-script-location']] Location of script to
+    install packages not installed by the package manager
+  - [[elisp:(find-variable 'elib:mu4e-load-path)][`elib:mu4e-load-path']] Load path for [[file:configuration.org::*Mu4e][Mu4e]]
+  - [[elisp:(find-variable 'elib:org-gcal-load-path)][`elib:org-gcal-load-path']] load path for [[file:configuration.org::*Calendar][Calendar]]
+  - [[elisp:(find-variable 'elib:asymptote-load-path)][`elib:asymptote-load-path']] load path for [[https://en.wikipedia.org/wiki/Asymptote_(vector_graphics_language)][Asymptote]]
+  - [[elisp:(find-variable 'elib:rtags-load-path)][`elib:rtags-load-path']] load path for [[*Rtags][Rtags]]
+- [[file:configuration.org::*TeX%20Viewers][TeX Viewers]] Programs for viewing pdf files created from
+  LaTeX.
+  - [[elisp:(find-variable 'elib:helm-tex-evince)][`elib:helm-tex-evince']] the Evince pdf-viewer
+  - [[elisp:(find-variable 'elib:helm-tex-okular)][`elib:helm-tex-okular']] the Okular pdf-viewer
+  - [[elisp:(find-variable 'elib:helm-tex-pdf-tools)][`elib:helm-tex-pdf-tools']]  the [[file:configuration.org::*PDF-Handling][PDF-tools]] pdf-viewer
+- Human viewable names for the pdf-viewers in
+  [[file:configuration.org::*Helm-TeX-View%20Selection][Helm-TeX-View Selection]]
+  - [[elisp:(find-variable 'elib:helm-tex-view-pdf-tools-human-readable)][`elib:helm-tex-view-pdf-tools-human-readable']] the
+    [[file:configuration.org::*PDF-Handling][PDF-tools]] viewer
+  - [[elisp:(find-variable 'elib:helm-tex-view-okular-human-readable)][`elib:helm-tex-view-okular-human-readable']] the okular-viewer
+  - [[elisp:(find-variable 'elib:helm-tex-view-evince-human-readable)][`elib:helm-tex-view-evince-human-readable']] the evince-viewer
+
+*** Other Lisp-code                                   :probablyignore:code:
+- [[elisp:(find-function 'potential-load-paths)][`potential-load-paths']] takes a list of file names and
+  returns the first which exists on your file system.
+- [[elisp:(find-function 'alist-get-equal)][`alist-get-equal']] and [[elisp:(find-function 'alist-get-equal-simple)][`alist-get-equal-simple']] do what the
+  macro [[elisp:(find-function 'alist-get)][`alist-get']] does but wihtout some boilerplate and
+  comparing with [[elisp:(find-function 'equal)][`equal']] instead of [[elisp:(find-function 'eq)][`eq']].
+- [[elisp:(find-function 'add-to-list-multi)][`add-to-list-multi']] does [[elisp:(find-function 'add-to-list)][`add-to-list']] to a list with
+  several items at once.
+
+** [[file:configuration.org::*Improve%20Basic%20Emacs%20Experience][Improve Basic Emacs Experience]]
+*** User Configuration                                             :config:
+*** Generic Variables Set or Modified                                :vars:
+-
+*** Modes                                                           :modes:
+- [[elisp:(find-function 'scroll-bar-mode)][`scroll-bar-mode']] and [[elisp:(find-function 'tool-bar-mode)][`tool-bar-mode']] are turned off
+*** Key-bindings                                                       :kb:
+**** Global
+- "<f8>"  is set to [[elisp:(find-function 'configuration-file)][`configuration-file']]
+- "C-x C-z" and "C-z" are unset so as to not call
+  [[elisp:(find-function 'suspend-frame)][`suspend-frame']] is not called accidentally
+-
+
+*** Other Lisp-code                                                  :code:
+- [[elisp:(find-function 'configuration-file)][`configuration-file']] A simple function which opens the
+  [[elisp:(find-variable 'config-file-file-name)][`config-file-file-name']] is bound globally to "<f8>"
+
+
+* Template
+
+** User Configuration                                               :config:
+
+** Groups                                                           :groups:
+
+** Generic Variables Set or Modified                                  :vars:
+
+** Modes                                                             :modes:
+
+** Key-bindings                                                         :kb:
+
+* Generic Variables
+- [[elisp:(find-variable 'mac-command-modifier)][`mac-command-modifier']] controls the behaviour of the
+  command key on Mac-computers. I set it to the meta-key
+  instead of the default hyper. Modified in [[*Mac-specific stuff][Mac-specific
+  stuff]].
+
+
+* Macros
+#+BEGIN_SRC emacs-lisp
+(fset 'variables
+   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item '([67108896 134217730 134217847 134217734 67108896 134217730 91 96 4 134217734 39 6 134217730 91 101 108 115 105 backspace backspace 105 115 112 58 40 41 2 102 105 110 100 45 118 97 114 105 97 98 108 101 32 39 4 25 6 6 134217730 67108896 134217734 134217734 91] 0 "%d") arg)))
+(fset 'fnc
+      (lambda (&optional arg) "Keyboard macro." (interactive "p")
+        (kmacro-exec-ring-item '([67108896 134217730 134217847
+                                           67108896 134217734 91 2 39 2 134217730 96 4 2 2 91 93 2
+                                           101 108 105 115 112 58 40 41 2 102 105 110 100 45 102 117
+                                           110 99 116 105 111 110 32 39 4 25 6 6 134217730 67108896
+                                           134217734 134217734 91] 0 "%d") arg)))
+
+(fset 'cgroups
+      (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item '([67108896 134217730 134217730 134217847 67108896 134217734 134217734 91 2 39 2 134217730 134217730 96 4 2 2 91 101 108 105 115 112 58 40 41 2 99 117 115 116 111 109 105 122 101 45 103 114 111 117 112 32 39 4 25 6 6 134217730 67108896 134217734 134217734 91] 0 "%d") arg)))
+
+(bind-key "C-<f12>" 'cgroups)
+(bind-key "C-<f9>" 'variables)
+(bind-key "C-<f10>" 'fnc)
+#+END_SRC
