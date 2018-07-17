@@ -602,10 +602,10 @@ mess around a lot with
 (global-set-key (kbd "<f8>") 'configuration-file)
 #+END_SRC
 *** Additional Settings
-Disable scroll bar and toolbar, disable the keys
-that hide emacs (they are easy to hit on accident which is
-/really/ annoying). Also, show column and line number of the
-cursor in the modeline.
+Disable scroll bar and toolbar, disable the keys that hide
+emacs (they are easy to hit on accident which is /really/
+annoying). Also, show column and line number of the cursor
+in the modeline.
 #+BEGIN_SRC emacs-lisp
 ;; Does not make sense in a terminal
 (when (display-graphic-p)
@@ -891,36 +891,29 @@ C/C++ tutorial!
 ;;                          tab-width
 ;;                          4)))
 
-(use-package simple
-  :ensure nil
-  :hook ((prog-mode text-mode org-mode)
-         . auto-fill-mode))
+;; (use-package simple
+;;   :ensure nil
+;;   :hook
+;;   ((prog-mode)
+;;    . auto-fill-mode))
 
-(use-package whitespace
-  :config
-  (add-hook 'diff-mode-hook
-	    (lambda ()
-              (setq-local
-               whitespace-style
-	       '(face
-		 tabs
-		 tab-mark
-		 spaces
-		 space-mark
-		 trailing
-		 indentation::space
-		 indentation::tab
-		 newline
-		 newline-mark))
-	      (whitespace-mode 1)))
+;; (use-package refill :hook ((text-mode org-mode) ))
 
-  (global-set-key (kbd "C-c w") 'whitespace-mode))
+
+
+
+(use-package whitespace :config (add-hook 'diff-mode-hook (lambda
+                                                            () (setq-local whitespace-style '(face tabs tab-mark spaces
+                                                                                                   space-mark trailing indentation::space indentation::tab
+                                                                                                   newline newline-mark)) (whitespace-mode 1)))
+
+             (global-set-key (kbd "C-c w") 'whitespace-mode))
 ;;(use-package diff-mode)
 ;;(add-hook 'prog-mode-hook (lambda () (interactive) (setq
 ;;                          show-trailing-whitespace 1)))
 
 ;; (add-hook 'text-mode-hook 'auto-fill-mode)
-#+END_SRC
+ #+END_SRC
 *** Keybindings
 Disable certain keybindings that are often clicked by
 mistake. Add keybinding for compilation (F5) and for
@@ -1755,147 +1748,136 @@ pretty nifty.
 ** Emacs Lisp
 *** Elisp Development
 #+BEGIN_SRC emacs-lisp
-(defvar lisp-modes
-  '(emacs-lisp-mode
-    inferior-emacs-lisp-mode
-    ielm-mode
-    lisp-mode
-    inferior-lisp-mode
-    lisp-interaction-mode
-    slime-repl-mode))
-
-(defvar lisp-mode-hooks
-  (mapcar (function
-	   (lambda (mode)
-	     (intern
-	      (concat (symbol-name mode) "-hook"))))
-	  lisp-modes))
-(defsubst hook-into-modes (func &rest modes)
-	(dolist (mode-hook modes) (add-hook mode-hook func)))
-(use-package info-look
-	:commands info-lookup-add-help)
-(use-package lisp-mode
-  :ensure nil
-  :defer t
-  :hook ((emacs-lisp-mode . disable-smartparens)
-         (emacs-lisp-mode . enable-paredit))
-  :config
-  (use-package paredit
-    :commands paredit-mode
-    :preface
-    (defun disable-smartparens ()
-      (interactive)
-      "Disables smartparens."
-      (turn-off-smartparens-mode))
-    (defun enable-paredit ()
-      (interactive)
-      "Enables paredit."
-      (paredit-mode t))
-    )
-  (use-package slime
-    :after (company lisp-mode)
-    :config
-    (use-package elisp-slime-nav)
-    (use-package slime-company))
 
 
-  :preface
-  (defun my-elisp-indent-or-complete (&optional arg)
-    (interactive "p")
-    (call-interactively 'lisp-indent-line)
-    (unless (or (looking-back "\\s-*" 120) (bolp)
-		(not (looking-back "[-A-Za-z0-9_*+/=<>!?]+" 120)))
-      (call-interactively 'lisp-complete-symbol)))
-  ;; (defun my-lisp-indent-or-complete (&optional arg)
-  ;;   (interactive "p")
-  ;;   (if (or (looking-back "^\\s-*") (bolp))
-  ;;       (call-interactively 'lisp-indent-line)
-  ;;     (call-interactively 'slime-indent-and-complete-symbol)))
-  (defun my-byte-recompile-file ()
-    (save-excursion
-      (byte-recompile-file buffer-file-name)))
-  (defvar smile-mode nil)
-  (defvar lisp-mode-initialized nil)
-  (defun my-lisp-mode-hook ()
-    (unless lisp-mode-initialized
-      (setq lisp-mode-initialized t)
-      (use-package redshank
-	:diminish redshank-mode)
-      (use-package elisp-slime-nav
-	:disabled t
-	:diminish elisp-slime-nav-mode)
-      (use-package edebug)
-      (use-package eldoc
-	:diminish eldoc-mode
-	:commands eldoc-mode
-	:config
-	(use-package eldoc-extension
-	  :disabled t
-	  :defer t
-	  :init
-	  (add-hook 'emacs-lisp-mode-hook #'(lambda () (require 'eldoc-extension)) t))
-	(eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
-      (use-package cldoc
-	:ensure nil
-	:disabled t
-	:commands (cldoc-mode turn-on-cldoc-mode)
-	:diminish cldoc-mode)
-      (use-package ert
-	:bind ("C-c e t" . ert-run-tests-interactively)
-	:config
-	(use-package el-mock))
+;; (defvar lisp-modes '(emacs-lisp-mode
+;;   inferior-emacs-lisp-mode ielm-mode lisp-mode
+;;   inferior-lisp-mode lisp-interaction-mode
+;;   slime-repl-mode))
 
-      ;;(use-package buttercup
-      ;;  :bind (("C-c b" . buttercup-run-at-point ))
-      ;;  )
-      (use-package elint
-	:commands 'elint-initialize
-	:preface
-	(defun elint-current-buffer ()
-	  (interactive)
-	  (elint-initialize)
-	  (elint-current-buffer))
-	:config
-	(add-to-list 'elint-standard-variables 'current-prefix-arg)
-	(add-to-list 'elint-standard-variables 'command-line-args-left)
-	(add-to-list 'elint-standard-variables 'buffer-file-coding-system)
-	(add-to-list 'elint-standard-variables 'emacs-major-version)
-	(add-to-list 'elint-standard-variables 'window-system))
-      (use-package highlight-cl
-	:disabled t
-	:init
-	(mapc (function
-	       (lambda (mode-hook)
-		 (add-hook mode-hook 'highlight-cl-add-font-lock-keywords)))
-	      lisp-mode-hooks))
-
-      (use-package testcover
-	:commands testcover-this-defun)
-      (mapc (lambda (mode)
-	      (info-lookup-add-help
-	       :mode mode
-	       :regexp "[^][()'\" \t\n]+"
-	       :ignore-case t
-	       :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
-	    lisp-modes))
-    (auto-fill-mode 1)
-    (when (featurep 'elisp-slime-nav-mode)
-      (elisp-slime-nav-mode 1))
-    (paredit-mode 1)
-    (when (featurep 'redshank-mode)
-      (redshank-mode 1))
-    (local-set-key (kbd "<return>") 'paredit-newline)
-    (bind-key "<tab>" #'my-elisp-indent-or-complete emacs-lisp-mode-map)
-    (add-hook 'after-save-hook 'check-parens nil t)
-    (unless (memq major-mode
-		  '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
-      ;; (turn-on-cldoc-mode)
-      ;; (bind-key "M-q" #'slime-reindent-defun lisp-mode-map)
-      (bind-key "M-l" #'slime-selector lisp-mode-map)))
-  :init
-  (apply #'hook-into-modes 'my-lisp-mode-hook lisp-mode-hooks))
+;; (defvar lisp-mode-hooks
+;;   (mapcar (function
+;; 	   (lambda (mode)
+;; 	     (intern
+;; 	      (concat (symbol-name mode) "-hook"))))
+;; 	  lisp-modes))
+;; (defsubst hook-into-modes (func &rest modes)
+;; 	(dolist (mode-hook modes) (add-hook mode-hook func)))
+;; (use-package info-look
+;; 	:commands info-lookup-add-help)
+;; (use-package lisp-mode
+;;   :ensure nil
+;;   :defer t
+;;   :hook ((emacs-lisp-mode . disable-smartparens)
+;;          (emacs-lisp-mode . enable-paredit))
+;;   :config
+;;   (use-package paredit
+;;     :commands paredit-mode
+;;     :preface
+;;     (defun disable-smartparens ()
+;;       (interactive)
+;;       "Disables smartparens."
+;;       (turn-off-smartparens-mode))
+;;     (defun enable-paredit ()
+;;       (interactive)
+;;       "Enables paredit."
+;;       (paredit-mode t))
+;;     )
+;;   (use-package slime
+;;     :after (company lisp-mode)
+;;     :config
+;;     (use-package elisp-slime-nav)
+;;     (use-package slime-company))
 
 
+;;   :preface
+;;   (defun my-elisp-indent-or-complete (&optional arg)
+;;     (interactive "p")
+;;     (call-interactively 'lisp-indent-line)
+;;     (unless (or (looking-back "\\s-*" 120) (bolp)
+;; 		(not (looking-back "[-A-Za-z0-9_*+/=<>!?]+" 120)))
+;;       (call-interactively 'lisp-complete-symbol)))
+;;   ;; (defun my-lisp-indent-or-complete (&optional arg)
+;;   ;;   (interactive "p")
+;;   ;;   (if (or (looking-back "^\\s-*") (bolp))
+;;   ;;       (call-interactively 'lisp-indent-line)
+;;   ;;     (call-interactively 'slime-indent-and-complete-symbol)))
+;;   (defun my-byte-recompile-file ()
+;;     (save-excursion
+;;       (byte-recompile-file buffer-file-name)))
+;;   (defvar smile-mode nil)
+;;   (defvar lisp-mode-initialized nil)
+;;   (defun my-lisp-mode-hook ()
+;;     (unless lisp-mode-initialized
+;;       (setq lisp-mode-initialized t)
+;;       (use-package redshank
+;; 	:diminish redshank-mode)
+;;       (use-package elisp-slime-nav
+;; 	:disabled t
+;; 	:diminish elisp-slime-nav-mode)
+;;       (use-package edebug)
+;;       (use-package eldoc
+;; 	:diminish eldoc-mode
+;; 	:commands eldoc-mode
+;; 	:config
+;; 	(use-package eldoc-extension
+;; 	  :disabled t
+;; 	  :defer t
+;; 	  :init
+;; 	  (add-hook 'emacs-lisp-mode-hook #'(lambda () (require 'eldoc-extension)) t))
+;; 	(eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
+;;       (use-package cldoc
+;; 	:ensure nil
+;; 	:disabled t
+;; 	:commands (cldoc-mode turn-on-cldoc-mode)
+;; 	:diminish cldoc-mode)
+;;       (use-package ert
+;; 	:bind ("C-c e t" . ert-run-tests-interactively)
+;; 	:config
+;; 	(use-package el-mock))
+
+;;       ;;(use-package buttercup
+;;       ;;  :bind (("C-c b" . buttercup-run-at-point ))
+;;       ;;  )
+;;       (use-package elint
+;; 	:commands 'elint-initialize
+;; 	:preface
+;; 	(defun elint-current-buffer ()
+;; 	  (interactive)
+;; 	  (elint-initialize)
+;; 	  (elint-current-buffer))
+;; 	:config
+;; 	(add-to-list 'elint-standard-variables 'current-prefix-arg)
+;; 	(add-to-list 'elint-standard-variables 'command-line-args-left)
+;; 	(add-to-list 'elint-standard-variables 'buffer-file-coding-system)
+;; 	(add-to-list 'elint-standard-variables 'emacs-major-version)
+;; 	(add-to-list 'elint-standard-variables 'window-system))
+;;       (use-package highlight-cl
+;; 	:disabled t
+;; 	:init
+;; 	(mapc (function
+;; 	       (lambda (mode-hook)
+;; 		 (add-hook mode-hook 'highlight-cl-add-font-lock-keywords)))
+;; 	      lisp-mode-hooks))
+
+;;       (use-package testcover :commands
+;; 	testcover-this-defun) (mapc (lambda (mode)
+;; 	(info-lookup-add-help :mode mode :regexp "[^][()'\"
+;; 	\t\n]+" :ignore-case t :doc-spec '(("(ansicl)Symbol
+;; 	Index" nil nil nil)))) lisp-modes)) (auto-fill-mode
+;; 	1) (when (featurep 'elisp-slime-nav-mode)
+;; 	(elisp-slime-nav-mode 1)) (paredit-mode 1) (when
+;; 	(featurep 'redshank-mode) (redshank-mode 1))
+;; 	(local-set-key (kbd "<return>") 'paredit-newline)
+;; 	(bind-key "<tab>" #'my-elisp-indent-or-complete
+;; 	emacs-lisp-mode-map) (add-hook 'after-save-hook
+;; 	'check-parens nil t) (unless (memq major-mode
+;; 	'(emacs-lisp-mode inferior-emacs-lisp-mode
+;; 	ielm-mode)) ;; (turn-on-cldoc-mode) ;; (bind-key
+;; 	"M-q" #'slime-reindent-defun lisp-mode-map)
+;; 	(bind-key "M-l" #'slime-selector lisp-mode-map)))
+;; 	:init (apply #'hook-into-modes 'my-lisp-mode-hook
+;; 	lisp-mode-hooks))
 		#+END_SRC
 
 ** Java
