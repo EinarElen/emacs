@@ -37,8 +37,10 @@
   (defvar first-install-needs-pdf-tools?
     (or no-packages-installed?
         (not (package-installed-p 'pdf-tools))
-        (not (file-exists-p (concat pdf-tools-directory
-                                    "epdfinfo"))))
+        (not
+	 (and (boundp 'pdf-tools-directory)
+	      (file-exists-p (concat pdf-tools-directory "epdfinfo")))
+	     ))
     "Has `pdf-tools-install' been successfully called?")
   (unless (package-installed-p 'pdf-tools)
     (use-package pdf-tools))
