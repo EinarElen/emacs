@@ -3,36 +3,36 @@
 #+OPTIONS: toc:3 html5-fancy org-html-preamble:nil
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes
-#+STARTUP: noinlineimages 
+#+STARTUP: noinlineimages
 * Emacs Setup
 ** Definitions and Variables
 *** Handy lisp functions and macros                                :ignore:
 #+BEGIN_SRC emacs-lisp 
-(eval-when-compile
-  (defun potential-load-paths (list)
-    (let ((value))
-      (dolist (elt list value)
-        (when (and (not value) (file-exists-p elt))
-          (setq value (expand-file-name elt))))
-      value)))
-(defmacro alist-get-equal (key alist &optional default
-                               remove)
-  "A call to `alist-get' with testfn set to `equal'"
-  `(alist-get ,key ,alist ,default ,remove 'equal))
+  (eval-when-compile
+    (defun potential-load-paths (list)
+      (let ((value))
+	(dolist (elt list value)
+	  (when (and (not value) (file-exists-p elt))
+	    (setq value (expand-file-name elt))))
+	value)))
+  (defmacro alist-get-equal (key alist &optional default
+				 remove)
+    "A call to `alist-get' with testfn set to `equal'"
+    `(alist-get ,key ,alist ,default ,remove 'equal))
 
 
-(defmacro alist-get-equal-simple (key alist)
-  "A call to `alist-get' with default and remove set to
-nil and testfn set to `equal'
+  (defmacro alist-get-equal-simple (key alist)
+    "A call to `alist-get' with default and remove set to
+  nil and testfn set to `equal'
 
-In reality, a call to `alist-get-equal' with default and
-remove set to nil."
-  `(alist-get-equal ,key ,alist nil nil))
+  In reality, a call to `alist-get-equal' with default and
+  remove set to nil."
+    `(alist-get-equal ,key ,alist nil nil))
 
-(defmacro add-to-list-multi (lst elts &optional append compare-fn)
-  "Call `add-to-list' for each element in ELTS to LST."
-  `(dolist (x ,elts)
-     (add-to-list ,lst x ,append ,compare-fn)))
+  (defmacro add-to-list-multi (lst elts &optional append compare-fn)
+    "Call `add-to-list' for each element in ELTS to LST."
+    `(dolist (x ,elts)
+       (add-to-list ,lst x ,append ,compare-fn)))
 
 #+END_SRC
 *** Definitions                                                   :ignore:
@@ -63,46 +63,46 @@ in this file. If you want to start exploring, try calling
 [[elisp:(find-function 'customize-group)][`customize-group']] and looking into the base group `elib:'.
 
 #+BEGIN_SRC emacs-lisp
-(eval-when-compile
-  (defgroup elib: nil
-    "Overarching customization group for any custom groups
-  created in `config-file-file-name'."
-    :tag "*elib*")
+  (eval-when-compile
+    (defgroup elib: nil
+      "Overarching customization group for any custom groups
+    created in `config-file-file-name'."
+      :tag "*elib*")
 
-  (defgroup elib:file-paths nil
-    "Customization group for file-paths."
-    :group 'elib:
-    :tag "elib:file-paths")
-  (defgroup elib:calendar nil
-    "Customization group for `calfw' and `org-gcal'."
-    :tag "elib:calendar"
-    :group 'elib:)
-  (defgroup elib:org nil
-    "Customization group for `org-mode'."
-    :tag "elib:org"
-    :group 'elib:)
+    (defgroup elib:file-paths nil
+      "Customization group for file-paths."
+      :group 'elib:
+      :tag "elib:file-paths")
+    (defgroup elib:calendar nil
+      "Customization group for `calfw' and `org-gcal'."
+      :tag "elib:calendar"
+      :group 'elib:)
+    (defgroup elib:org nil
+      "Customization group for `org-mode'."
+      :tag "elib:org"
+      :group 'elib:)
 
-  (defgroup elib:helm-tex nil
-    "Customization group for the\
-  `elib:helm-tex-choose-program' function."
-    :tag "elib:helm-TeX"
-    :group 'elib:)
-  (defgroup elib:helm-tex-pdf-tools nil
-    "Customization group for the PDF-tools reader\
- for the `elib:helm-tex'-group."
-    :tag "elib:'helm-TeX-PDF-tools"
-    :group 'elib:helm-tex)
-  (defgroup elib:helm-tex-okular nil
-    "Customization group for the Okular reader for\
- the `elib:helm-tex'-group."
-    :tag "elib:helm-TeX-Okular"
-    :group 'elib:helm-tex)
-  (defgroup elib:helm-tex-evince nil
-    "Customization group for the Evince reader for\
- the `elib:helm-tex'-group."
-    :tag "elib:helm-TeX-Evince"
-    :group 'elib:helm-tex)
-  )
+    (defgroup elib:helm-tex nil
+      "Customization group for the\
+    `elib:helm-tex-choose-program' function."
+      :tag "elib:helm-TeX"
+      :group 'elib:)
+    (defgroup elib:helm-tex-pdf-tools nil
+      "Customization group for the PDF-tools reader\
+   for the `elib:helm-tex'-group."
+      :tag "elib:'helm-TeX-PDF-tools"
+      :group 'elib:helm-tex)
+    (defgroup elib:helm-tex-okular nil
+      "Customization group for the Okular reader for\
+   the `elib:helm-tex'-group."
+      :tag "elib:helm-TeX-Okular"
+      :group 'elib:helm-tex)
+    (defgroup elib:helm-tex-evince nil
+      "Customization group for the Evince reader for\
+   the `elib:helm-tex'-group."
+      :tag "elib:helm-TeX-Evince"
+      :group 'elib:helm-tex)
+    )
 #+END_SRC
 *** User variables
 **** Personal Information                                         :Update:
@@ -114,16 +114,16 @@ Here we set all important personal details.
 'user-mail-address-list)][`user-mail-address-list']]
 
 #+BEGIN_SRC emacs-lisp
-(eval-when-compile
-  (setq user-full-name "Einar Elén"
-        user-mail-address "einar.elen@gmail.com")
-  (defcustom user-mail-address-list `(,user-mail-address,
-                                      "info-ordf@luna.lu.se",
-                                      "nat13eel@student.lu.se")
-    "A list of the `user-mail-address' and any additional
-  email addresses of the user."
-    :group 'elib:
-    :type '(repeat string)))
+  (eval-when-compile
+    (setq user-full-name "Einar Elén"
+	  user-mail-address "einar.elen@gmail.com")
+    (defcustom user-mail-address-list `(,user-mail-address,
+					"info-ordf@luna.lu.se",
+					"nat13eel@student.lu.se")
+      "A list of the `user-mail-address' and any additional
+    email addresses of the user."
+      :group 'elib:
+      :type '(repeat string)))
 #+END_SRC
 **** Location of Executables                                      :ignore:
 Since we want to be able to use the same configuration
@@ -132,23 +132,23 @@ computer, we define some variables for storing the location
 of these programs. They are set automatically using the
 handy [[elisp:(find-function 'executable-find)][`executable-find']] function.
 #+BEGIN_SRC emacs-lisp
-(eval-when-compile
-  (setq
-   with-editor-emacsclient-executable (executable-find
-                                       "emacsclient")
-   magit-git-executable (executable-find "git")
-   cide--rdm-executable (executable-find "rdm")
-   irony-cmake-executable (executable-find "cmake")
-   company-cmake-executable irony-cmake-executable
-   cmake-mode-cmake-executable company-cmake-executable
+  (eval-when-compile
+    (setq
+     with-editor-emacsclient-executable (executable-find
+					 "emacsclient")
+     magit-git-executable (executable-find "git")
+     cide--rdm-executable (executable-find "rdm")
+     irony-cmake-executable (executable-find "cmake")
+     company-cmake-executable irony-cmake-executable
+     cmake-mode-cmake-executable company-cmake-executable
 
-   company-clang-executable (executable-find "clang")
-   flycheck-c/c++-clang-executable company-clang-executable
+     company-clang-executable (executable-find "clang")
+     flycheck-c/c++-clang-executable company-clang-executable
 
-   flycheck-c/c++-gcc-executable (executable-find "gcc")
-   clang-format-executable (executable-find "clang-format")
-   company-gtags-executable (or (executable-find "global")
-                                (executable-find "gtags"))))
+     flycheck-c/c++-gcc-executable (executable-find "gcc")
+     clang-format-executable (executable-find "clang-format")
+     company-gtags-executable (or (executable-find "global")
+				  (executable-find "gtags"))))
  #+END_SRC
 **** Location of Files                                    :probablyignore:
 There are some files that it is useful to have a variable
@@ -158,6 +158,8 @@ for. If you use some other
   later in [[*Yasnippet][Yasnippet]]
 - The location of the configuration file (i.e. this file) in
   [[elisp:(find-variable 'config-file-file-name)][`config-file-file-name']] (great name choice right?)
+- The main directory for my various org files is found in
+  [[elisp:(find-variable 'user-org-directory)][`user-org-directory']].
 - In [[*Capture][Capture]], we define some ways to capture quick thoughts
   and quotes. I use the two separate files for todo:s and
   quotes, [[elisp:(find-variable 'user-org-quotes-file-name)][`user-org-quotes-file-name']] and
@@ -176,88 +178,94 @@ for. If you use some other
     [[elisp:(find-variable 'org-gcal-calendar-info-ordf-file-name)][`org-gcal-calendar-info-ordf-file-name']]
   - My student calendar in [[elisp:(find-variable 'org-gcal-calendar-lu-file-name)][`org-gcal-calendar-lu-file-name']]
 #+BEGIN_SRC emacs-lisp
-  (eval-when-compile
-    (defcustom tuhdo-snippets-directory
-      (expand-file-name
-       (concat user-emacs-directory
-	       "tuhdosnippets"))
-      "Location of extra yasnippet files from Tuhdo."
-      :type 'string
-      :group 'elib:file-paths)
+(eval-when-compile
+  (defcustom tuhdo-snippets-directory
+    (expand-file-name
+     (concat user-emacs-directory
+	     "tuhdosnippets"))
+    "Location of extra yasnippet files from Tuhdo."
+    :type 'string
+    :group 'elib:file-paths)
 
-    (defcustom config-file-file-name
-      (expand-file-name
-       (concat
-	user-emacs-directory
-	"configuration.org"))
-      "The filename of the user configuration file."
-      :type 'string
-      :group 'elib:file-paths
-      :group 'elib:org)
+  (defcustom config-file-file-name
+    (expand-file-name
+     (concat
+      user-emacs-directory
+      "configuration.org"))
+    "The filename of the user configuration file."
+    :type 'string
+    :group 'elib:file-paths
+    :group 'elib:org)
 
+  (defcustom user-org-directory
+    (expand-file-name "~/nextcloud/org/")
+    "Directory where most org files are stored."
+    :type 'string
+    :group 'elib:file-paths
+    :group 'elib:org)
 
-    (defcustom org-gcal-calendar-location
-      (expand-file-name
-       "~/nextcloud/org/cal/")
-      "The directory where calendar files for `org-gcal' are
+  (defcustom org-gcal-calendar-location
+    (concat
+     user-org-directory "cal/")
+    "The directory where calendar files for `org-gcal' are
     stored."
-      :group 'elib:calendar
-      :group 'elib:file-paths
-      :group 'elib:org
-      :type 'string)
-    (defcustom org-gcal-calendar-main-file-name
-      (concat org-gcal-calendar-location "gmail.org")
-      "Filename of the main calendar file."
-      :type 'string
-      :group 'elib:calendar
-      :group 'elib:file-paths
-      :group 'elib:org)
-    (defcustom org-gcal-calendar-info-ordf-file-name
-      (concat org-gcal-calendar-location "info-ordf.org")
-      "Filename of the info-ordf calendar file."
-      :type 'string
-      :group 'elib:calendar
-      :group 'elib:file-paths
-      :group 'elib:org)
-    (defcustom org-gcal-calendar-lu-file-name
-      (concat org-gcal-calendar-location "lu.org")
-      "Filename of my student account calendar file."
-      :type 'string
-      :group 'elib:calendar
-      :group 'elib:file-paths
-      :group 'elib:org)
+    :group 'elib:calendar
+    :group 'elib:file-paths
+    :group 'elib:org
+    :type 'string)
+  (defcustom org-gcal-calendar-main-file-name
+    (concat org-gcal-calendar-location "gmail.org")
+    "Filename of the main calendar file."
+    :type 'string
+    :group 'elib:calendar
+    :group 'elib:file-paths
+    :group 'elib:org)
+  (defcustom org-gcal-calendar-info-ordf-file-name
+    (concat org-gcal-calendar-location "info-ordf.org")
+    "Filename of the info-ordf calendar file."
+    :type 'string
+    :group 'elib:calendar
+    :group 'elib:file-paths
+    :group 'elib:org)
+  (defcustom org-gcal-calendar-lu-file-name
+    (concat org-gcal-calendar-location "lu.org")
+    "Filename of my student account calendar file."
+    :type 'string
+    :group 'elib:calendar
+    :group 'elib:file-paths
+    :group 'elib:org)
 
 
-    (defcustom org-gcal-calendar-file-name-list
-      `(,org-gcal-calendar-main-file-name
-	,org-gcal-calendar-info-ordf-file-name
-	,org-gcal-calendar-lu-file-name)
-      "List of all calendar file-names."
-      :type '(repeat string)
-      :group 'elib:calendar
-      :group 'elib:file-paths
-      :group 'elib:org)
+  (defcustom org-gcal-calendar-file-name-list
+    `(,org-gcal-calendar-main-file-name
+      ,org-gcal-calendar-info-ordf-file-name
+      ,org-gcal-calendar-lu-file-name)
+    "List of all calendar file-names."
+    :type '(repeat string)
+    :group 'elib:calendar
+    :group 'elib:file-paths
+    :group 'elib:org)
 
-    (defcustom user-org-todo-file-name
-      (expand-file-name (concat user-emacs-directory
-				"../todo.org"))
-      "The "
-      :group 'elib:org
-      :group 'elib:file-paths
-      )
-    (defcustom user-org-quotes-file-name
-      (expand-file-name
-       (concat user-emacs-directory "../citatsamling.org"))
-      ""
-      :group 'elib:org
-      :group 'elib:file-paths
-      )
-    (defcustom abbrev-location (expand-file-name ".abbrev_defs" user-emacs-directory)
-      ""
-      :group 'abbrev
-      :group 'elib:file-paths
-      )
+  (defcustom user-org-todo-file-name
+    (expand-file-name (concat user-emacs-directory
+			      "../todo.org"))
+    "The "
+    :group 'elib:org
+    :group 'elib:file-paths
     )
+  (defcustom user-org-quotes-file-name
+    (expand-file-name
+     (concat user-emacs-directory "../citatsamling.org"))
+    ""
+    :group 'elib:org
+    :group 'elib:file-paths
+    )
+  (defcustom abbrev-location (expand-file-name ".abbrev_defs" user-emacs-directory)
+    ""
+    :group 'abbrev
+    :group 'elib:file-paths
+    )
+  )
 #+END_SRC
 
 
@@ -306,7 +314,7 @@ The packages and their load-paths are:
 (eval-when-compile
   (defvar load-path-script-location
     (expand-file-name (concat user-emacs-directory "special-packages.el")))
-  (defvar elib:org-gcal-load-path (expand-file-name "~/src/org-gcal"))
+  (defvar elib:org-gcal-load-path (expand-file-name "~/src/org-gcal/"))
   (defvar elib:rtags-load-path
     (potential-load-paths
      `("/usr/share/emacs/site-lisp/rtags/rtags.el"
@@ -325,7 +333,6 @@ AUCTeX is great but one weird thing about is that it only
 allows you to chose one program to use for viewing your pdf:s
 you create. I have created a little [[*Helm][Helm]]-program which lets
 you switch between viewers.
-
 The function is called [[elisp:(find-function
 'elib:helm-tex-choose-program)][`elib:helm-tex-choose-program']]
 and in [[*LaTeX/AUCTeX][LaTeX/AUCTeX]] we bind it to "C-c v"
@@ -591,15 +598,21 @@ well non-well documented there."
 #+END_SRC
 ** Improve Basic Emacs Experience
 *** Configuration file
-Creates a function called [[elisp:(find-function
-'configuration-file)][`configuration-file']] which returns
+Creates a function called [[elisp:(find-function 'configuration-or-gtd-file)][`configuration-or-gtd-file']] which returns
 you to this file and binds it to "<f8>" globally. When you
 mess around a lot with
 #+BEGIN_SRC emacs-lisp
-(defun configuration-file()
-  (interactive)
-  (find-file config-file-file-name))
-(global-set-key (kbd "<f8>") 'configuration-file)
+(defun configuration-or-gtd-file(x)
+  (interactive "p")
+  (cond ((equal current-prefix-arg '(4))
+         (find-file user-org-gtd-inbox))
+        ((equal current-prefix-arg '(16))
+         (find-file user-org-directory))
+        (t
+         (find-file config-file-file-name)
+         )))
+
+(global-set-key (kbd "<f8>") 'configuration-or-gtd-file)
 #+END_SRC
 *** Additional Settings
 Disable scroll bar and toolbar, disable the keys that hide
@@ -849,18 +862,22 @@ be.
 ;; (find-font (describe-font (font-spec :family "Source Code Pro")))
 ;; (font-family-list)
 #+END_SRC
+*** Restarting Emacs
+#+BEGIN_SRC emacs-lisp
+(use-package restart-emacs)
+#+END_SRC
 ** Looks/Themes
 *** Basic Configuration
 Adds colouring for variables in programming languages. Sets
 the starting buffer to this file.
 #+BEGIN_SRC emacs-lisp
-(setq initial-buffer-choice (concat user-emacs-directory "configuration.org"))
+  (setq initial-buffer-choice (concat user-emacs-directory "configuration.org"))
 
-(use-package color-identifiers-mode
-  :diminish color-identifiers-mode
-  :defer 4
-  :config
-  (global-color-identifiers-mode t))
+  (use-package color-identifiers-mode
+    :diminish color-identifiers-mode
+    :defer 4
+    :config
+    (global-color-identifiers-mode t))
 
 #+END_SRC
 ** Text Editing
@@ -869,50 +886,66 @@ is sane by default. Check out the individual packages in his
 C/C++ tutorial!
 *** Basic
 #+BEGIN_SRC emacs-lisp
-(setq global-mark-ring-max 5000
-      mark-ring-max 5000
-      mode-require-final-newline t
-      tab-width 2
-      kill-ring-max 5000
-      kill-whole-line t)
-(setq-default indent-tabs-mode nil
-	      indent-tabs-mode nil)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-language-environment "UTF-8")
-(prefer-coding-system 'utf-8)
-;; Not sure if i want this feature, it causes you to delete
-;; things in selection if you start writing much like on
-;; most operating systems.
-;; (delete-selection-mode t)
+  (setq global-mark-ring-max 5000
+	mark-ring-max 5000
+	mode-require-final-newline t
+	tab-width 2
+	kill-ring-max 5000
+	kill-whole-line t)
+  (setq-default indent-tabs-mode nil
+		indent-tabs-mode nil)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-language-environment "UTF-8")
+  (prefer-coding-system 'utf-8)
+  ;; Not sure if i want this feature, it causes you to delete
+  ;; things in selection if you start writing much like on
+  ;; most operating systems.
+  ;; (delete-selection-mode t)
 
-;; (add-hook 'sh-mode-hook (lambda ()
-;;    k                      (setq
-;;                          tab-width
-;;                          4)))
+  ;; (add-hook 'sh-mode-hook (lambda ()
+  ;;    k                      (setq
+  ;;                          tab-width
+  ;;                          4)))
 
-;; (use-package simple
-;;   :ensure nil
-;;   :hook
-;;   ((prog-mode)
-;;    . auto-fill-mode))
+  ;; (use-package simple
+  ;;   :ensure nil
+  ;;   :hook
+  ;;   ((prog-mode)
+  ;;    . auto-fill-mode))
 
-;; (use-package refill :hook ((text-mode org-mode) ))
-
-
+  ;; (use-package refill :hook ((text-mode org-mode) ))
 
 
-(use-package whitespace :config (add-hook 'diff-mode-hook (lambda
-                                                            () (setq-local whitespace-style '(face tabs tab-mark spaces
-                                                                                                   space-mark trailing indentation::space indentation::tab
-                                                                                                   newline newline-mark)) (whitespace-mode 1)))
 
-             (global-set-key (kbd "C-c w") 'whitespace-mode))
-;;(use-package diff-mode)
-;;(add-hook 'prog-mode-hook (lambda () (interactive) (setq
-;;                          show-trailing-whitespace 1)))
 
-;; (add-hook 'text-mode-hook 'auto-fill-mode)
+
+  (use-package
+    whitespace
+    :config (add-hook
+	     'diff-mode-hook
+	     (lambda ()
+	       (setq-local
+		whitespace-style
+		'(face
+		  tabs
+		  tab-mark
+		  spaces
+		  space-mark
+		  trailing
+		  indentation::space
+		  indentation::tab
+		  newline
+		  newline-mark))
+	       (whitespace-mode 1)))
+    (global-set-key
+     (kbd "C-c w")
+     'whitespace-mode))
+  ;;(use-package diff-mode)
+  ;;(add-hook 'prog-mode-hook (lambda () (interactive) (setq
+  ;;                          show-trailing-whitespace 1)))
+
+  ;; (add-hook 'text-mode-hook 'auto-fill-mode)
  #+END_SRC
 *** Keybindings
 Disable certain keybindings that are often clicked by
@@ -920,23 +953,23 @@ mistake. Add keybinding for compilation (F5) and for
 capitalising (M-c).
 
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "RET") 'newline-and-indent)
-(global-set-key (kbd "C-<down-mouse-1>") 'ignore)
-(global-set-key (kbd "C-<down-mouse-2>") 'ignore)
-(global-set-key (kbd "C-<down-mouse-3>") 'ignore)
-(global-set-key (kbd "C-<mouse-1>")
-                'ignore)
+  (global-set-key (kbd "RET") 'newline-and-indent)
+  (global-set-key (kbd "C-<down-mouse-1>") 'ignore)
+  (global-set-key (kbd "C-<down-mouse-2>") 'ignore)
+  (global-set-key (kbd "C-<down-mouse-3>") 'ignore)
+  (global-set-key (kbd "C-<mouse-1>")
+                  'ignore)
 
-(global-set-key (kbd "C-<mouse-2>") 'ignore)
+  (global-set-key (kbd "C-<mouse-2>") 'ignore)
 
-(global-set-key (kbd "C-<mouse-3>") 'ignore)
+  (global-set-key (kbd "C-<mouse-3>") 'ignore)
 
-(global-set-key (kbd "M-c") 'capitalize-dwim)
+  (global-set-key (kbd "M-c") 'capitalize-dwim)
 
-(global-set-key (kbd "<f5>")
-                (lambda () (interactive)
-                  (setq-local compilation-read-command nil)
-                  (call-interactively 'compile)))
+  (global-set-key (kbd "<f5>")
+                  (lambda () (interactive)
+                    (setq-local compilation-read-command nil)
+                    (call-interactively 'compile)))
 #+END_SRC
 *** Packages
 **** Rainbow Delimiters
@@ -1013,6 +1046,8 @@ is neat.
   :diminish smartparens-mode
   :defer 2
   :commands sp-pair
+  :hook ((org-mode text-mode TeX-mode c-mode-common)
+         . smartparens-mode)
   :config
   (require 'smartparens-config)
   (sp-pair "\\[" "\\]")
@@ -1021,7 +1056,7 @@ is neat.
    sp-hybrid-kill-entire-symbol nil)
   (smartparens-strict-mode)
   ;; (sp-use-paredit-bindings)
-  (smartparens-global-mode t)
+  ;; (smartparens-global-mode t)
   :bind (:map smartparens-mode-map (("M-<down>" . nil)
 				    ("M-<up>" . nil))))
 #+END_SRC
@@ -1263,14 +1298,15 @@ all of them)
 
 It is currently only enabled on linux, mac, and cygwin.
 #+BEGIN_SRC emacs-lisp
-(use-package pdf-tools
-  :when (or (eq system-type 'gnu/linux)
-	    (eq system-type 'cygwin)
-	    (eq system-type 'darwin))
-  :defer 2
-  :config
-  (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
-  (setq-default pdf-view-display-size 'fit-page))
+  (use-package pdf-tools
+    :mode ("\\.pdf\\'" . pdf-view-mode)
+    :when (or (eq system-type 'gnu/linux)
+              (eq system-type 'cygwin)
+              (eq system-type 'darwin))
+    :defer 2
+    :config
+
+    (setq-default pdf-view-display-size 'fit-page))
 #+END_SRC
 
 * Development/Writing
@@ -1652,7 +1688,7 @@ pretty nifty.
 	 #+END_SRC
 ** C/C++
 *** Basic Settings
-		#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package cc-mode
   :mode (("\\.c\\'" . c-mode)
          ("\\.h\\'" . c++-mode)
@@ -1748,46 +1784,90 @@ pretty nifty.
 ** Emacs Lisp
 *** Elisp Development
 #+BEGIN_SRC emacs-lisp
+;; Key-bindings are
+;; j lispy-down
+;; k lispy-up
+;; h lispy-left
+;; l lipsy-right
+
+;;
+;; b special-lispy-back
+;;   moves back in history for above commands
+
+;;
+;; s special-lispy-move-down
+;; w special-lispy-move-up
+;;
+
+;;
+;; > lispy-slurp
+;; < lispy-barf
+;; r lispy-raise
+;;
+;; C lispy-convolute
+;; C-1 show function
+;; C-2 show arguments
+
+;;
+;; e  evals
+;; E evals and inserts
+;; F/M-. jumps to symbol
+;; D/M-, jumps back
+;;
+;; c clone
+
+;;
+;; i prettify code
+;; xi cond -> if
+;; xc if -> cond
+;; xf flatten function or macro
+;; xr eval and replace
+;; xl defun -> lambda
+;; xd lambda -> defun
+;; O make code one-line
+;; M make code multi-line
+;;
+
+
+
+
+
+
+
+
+(use-package
+  lispy
+  :hook ((inferior-emacs-lisp-mode
+          ielm-mode
+          lisp-mode
+          lisp-interaction-mode
+          emacs-lisp-mode) . lispy-mode))
+
+
+
 
 
 ;; (defvar lisp-modes '(emacs-lisp-mode
-;;   inferior-emacs-lisp-mode ielm-mode lisp-mode
-;;   inferior-lisp-mode lisp-interaction-mode
-;;   slime-repl-mode))
+;; inferior-emacs-lisp-mode ielm-mode lisp-mode ;;
+;; inferior-lisp-mode lisp-interaction-mode ;;
+;; slime-repl-mode))
 
-;; (defvar lisp-mode-hooks
-;;   (mapcar (function
-;; 	   (lambda (mode)
-;; 	     (intern
-;; 	      (concat (symbol-name mode) "-hook"))))
-;; 	  lisp-modes))
-;; (defsubst hook-into-modes (func &rest modes)
-;; 	(dolist (mode-hook modes) (add-hook mode-hook func)))
-;; (use-package info-look
-;; 	:commands info-lookup-add-help)
-;; (use-package lisp-mode
-;;   :ensure nil
-;;   :defer t
-;;   :hook ((emacs-lisp-mode . disable-smartparens)
-;;          (emacs-lisp-mode . enable-paredit))
-;;   :config
-;;   (use-package paredit
-;;     :commands paredit-mode
-;;     :preface
-;;     (defun disable-smartparens ()
-;;       (interactive)
-;;       "Disables smartparens."
-;;       (turn-off-smartparens-mode))
-;;     (defun enable-paredit ()
-;;       (interactive)
-;;       "Enables paredit."
-;;       (paredit-mode t))
-;;     )
-;;   (use-package slime
-;;     :after (company lisp-mode)
-;;     :config
-;;     (use-package elisp-slime-nav)
-;;     (use-package slime-company))
+;; (defvar lisp-mode-hooks (mapcar (function (lambda (mode)
+;;   (intern (concat (symbol-name mode) "-hook"))))
+;;   lisp-modes)) (defsubst hook-into-modes (func &rest
+;;   modes) (dolist (mode-hook modes) (add-hook mode-hook
+;;   func))) (use-package info-look :commands
+;;   info-lookup-add-help) (use-package lisp-mode :ensure
+;;   nil :defer t :hook ((emacs-lisp-mode
+;;   . disable-smartparens) (emacs-lisp-mode
+;;   . enable-paredit)) :config (use-package paredit
+;;   :commands paredit-mode :preface (defun
+;;   disable-smartparens () (interactive) "Disables
+;;   smartparens."  (turn-off-smartparens-mode)) (defun
+;;   enable-paredit () (interactive) "Enables paredit."
+;;   (paredit-mode t)) ) (use-package slime :after (company
+;;   lisp-mode) :config (use-package elisp-slime-nav)
+;;   (use-package slime-company))
 
 
 ;;   :preface
@@ -1878,7 +1958,7 @@ pretty nifty.
 ;; 	(bind-key "M-l" #'slime-selector lisp-mode-map)))
 ;; 	:init (apply #'hook-into-modes 'my-lisp-mode-hook
 ;; 	lisp-mode-hooks))
-		#+END_SRC
+#+END_SRC
 
 ** Java
 #+BEGIN_SRC emacs-lisp 
@@ -1907,27 +1987,26 @@ pretty nifty.
   "Re parse the main configuration file"
   (interactive)
   (org-babel-load-file config-file-file-name))
-
 (use-package org
-  :ensure org-plus-contrib
   :commands (org-mode org-babel-load-file org-babel-tangle-file)
   :preface
-
   (fset 'org-call-export-to-pdf
         (lambda (&optional arg) "Keyboard macro."
           (interactive "p")
           (kmacro-exec-ring-item '("lp" 0 "%d") arg)))
-
   (fset 'org-call-export-to-beamer
         (lambda (&optional arg) "Keyboard macro."
           (interactive "p")
           (kmacro-exec-ring-item
            (quote ("lP" 0
 	           "%d")) arg)))
-
   :init
   (setq-default major-mode 'org-mode)
   (setq initial-major-mode 'org-mode)
+
+  ;; Pressing enter on an org link follows the link
+  (setq org-return-follows-link t)
+
 
 
   (defun hot-expand (str)
@@ -1957,12 +2036,16 @@ pretty nifty.
     (setq org-startup-with-latex-preview t))
   (use-package ox-twbs)
 
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((C . t) (emacs-lisp . t) (python . t)
+  (use-package ob
+    :ensure nil
+    :config
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((C . t) (emacs-lisp . t) (python . t)
                                         ;(sh . t)
-     (gnuplot . t)))
+       (gnuplot . t))))
 
+  (setq org-refile-targets nil)
   (setq org-src-preserve-indentation t)
   (setq org-src-tab-acts-natively t)
   (plist-put org-format-latex-options :scale 1.5)
@@ -1970,6 +2053,7 @@ pretty nifty.
   (setq org-default-notes-file user-org-todo-file-name
 	org-use-fast-todo-selection t
 	org-src-window-setup 'current-window)
+
   :bind (("\C-cl" . org-store-link)
 	 ("\C-cb" . org-iswitchb)
 	 :map org-mode-map
@@ -1984,37 +2068,68 @@ pretty nifty.
 	 #+END_SRC
 ** Capture 
 #+BEGIN_SRC emacs-lisp 
+(defvar org-gtd-inbox (expand-file-name "~/nextcloud/org/inbox.org"))
+(defvar user-org-gtd-inbox
+  (expand-file-name
+   (concat "~/nextcloud/org/inbox@"
+           (replace-regexp-in-string
+            "\n$" ""
+            (shell-command-to-string "uname -n") )".org"  )))
+(defvar user-org-gtd-file (expand-file-name "~/nextcloud/org/gtd.org"))
+(defvar user-org-shopping-file (expand-file-name "~/nextcloud/org/shopping.org"))
+(defvar user-org-tickler-file (expand-file-name "~/nextcloud/org/tickler.org"))
+(defvar user-org-someday-file (expand-file-name "~/nextcloud/org/someday.org"))
+;; (setq org-refile-targets `((,user-org-gtd-file :maxlevel . 3)
+;;                            (,user-org-someday-file :level . 1)
+;;                            (,user-org-tickler-file :maxlevel . 2)))
+
+(defvar org-capture-quote-tempalate
+  `("q" "Quote " entry (file ,user-org-quotes-file-name)
+    "* %?\n%U\n   " :empty-lines 1))
+
+(setq org-capture-event-template
+      `("e" "Event" entry (file+headline ,user-org-gtd-inbox "Events")
+        "* EVENT %i%? :event:\n" :empty-lines 1))
+
+
+
+(defvar org-capture-tickler-template
+  `("T" "Tickler" entry
+    (file+headline user-org-tickler-file "Someday")
+    "* %i%? \n %U"))
+
+(defvar org-capture-stuff-to-buy-template
+  `("b" "Buy" entry
+    (file+headline
+     ,user-org-shopping-file
+     "Shopping")
+    "* TODO Buy %i%? :shopping:"
+    :empty-lines 1))
+
+(defvar org-capture-todo-template
+  `("t" "Todo [inbox]" entry
+    (file+headline ,user-org-gtd-inbox "To do")
+    "* TODO %i%?\n" :empty-lines 1))
+
+
+
+(setq org-capture-templates nil)
+(add-to-list-multi 'org-capture-templates
+                   `(,org-capture-stuff-to-buy-template
+                     ,org-capture-todo-template
+                     ,org-capture-tickler-template
+                     ,org-capture-quote-tempalate
+                     ,org-capture-event-template
+                     ))
+
+
 (use-package org-capture
   :ensure nil
   :after org
   :commands org-capture
   :bind	 (("C-c c"  . org-capture))
   :config
-  (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline
-                             user-org-todo-file-name
-                             "To do")
-           "* TODO %?\n%U" :empty-lines 1)
-          ("T" "Todo with Clipboard" entry (file+headline
-                                            user-org-todo-file-name
-                                            "To do") 
-           "* TODO %?\n%U\n   %c" :empty-lines 1)
-          ("n" "Note" entry (file+headline
-                             user-org-todo-file-name "Notes")
-           "* NOTE %?\n%U" :empty-lines 1)
-          ("N" "Note with Clipboard" entry (file+headline
-                                            user-org-todo-file-name "Notes")
-           "* NOTE %?\n%U\n   %c" :empty-lines 1)
-          ("e" "Event" entry (file+headline user-org-todo-file-name "Events")
-           "* EVENT %?\n%U" :empty-lines 1)
-          ("E" "Event With Clipboard" entry (file+headline user-org-todo-file-name "Events")
-           "* EVENT %?\n%U\n   %c" :empty-lines 1)
-          ("E" "Event With Clipboard" entry (file+headline user-org-todo-file-name "Events")
-           "* EVENT %?\n%U\n   %c" :empty-lines 1)
-          ("q" "Quote " entry (file user-org-quotes-file-name)
-           "* %?\n%U\n   " :empty-lines 1)
-          ("Q" "Quote With Clipboard" entry (file user-org-quotes-file-name)
-           "* %?\n%U\n   %c" :empty-lines 1))))
+  )
 #+END_SRC
 ** Structure Templates
 #+BEGIN_SRC emacs-lisp
@@ -2085,49 +2200,45 @@ _h_tml            _i_ndex          _A_SCII:
   :config
   (setq org-agenda-dim-blocked-tasks nil)
   (setq org-agenda-compact-blocks t)
-  (setq org-agenda-files (list user-org-todo-file-name
-                               org-gcal-calendar-main-file-name
-                               org-gcal-calendar-lu-file-name
-                               org-gcal-calendar-info-ordf-file-name)))
+  (setq org-agenda-files (list
+                          config-file-file-name
+                          user-org-todo-file-name
+                          user-org-gtd-file
+                          user-org-gtd-inbox
+                          user-org-shopping-file
+                          user-org-tickler-file
+                          ;; org-gcal-calendar-main-file-name
+                          ;; org-gcal-calendar-lu-file-name
+                          ;; org-gcal-calendar-info-ordf-file-name
+                          )))
 #+END_SRC
 ** Calendar
-	 #+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (use-package calfw
-  :after org
   :when (file-exists-p
          (expand-file-name "~/nextcloud/org/orgsettings.el"))
-  :commands (org-gcal
-             org-gcal-sync org-gcal-fetch
-             org-gcal-refresh-token
-             elib:open-calendar)
-  :bind ("C-c q" . elib:open-calendar)
-  :init
-  (defun elib:open-calendar ()
-    (interactive)
-    (cfw:open-calendar-buffer
-     :date nil :buffer nil :custom-map nil :view nil
-     :sorter nil
-     :annotation-sources nil
-     :contents-sources
-     (list (cfw:org-create-file-source
-            "Gmail" org-gcal-calendar-main-file-name "Blue")
-           (cfw:org-create-file-source
-            "Info" org-gcal-calendar-info-ordf-file-name "Purple")
-           (cfw:org-create-file-source
-            "lu" org-gcal-calendar-info-ordf-file-name "Red"))))
   :config
   (use-package calfw-org)
-  (use-package calfw-gcal)
+  (use-package calfw-ical)
+  ;; (use-package calfw-org)
+  ;; (use-package calfw-gcal)
   (use-package org-gcal
+    :disabled t
+    :after org
     :ensure nil
+    :commands (org-gcal
+               org-gcal-sync org-gcal-fetch
+               org-gcal-refresh-token)
     :hook ((org-agenda-mode . org-gcal-fetch)
            (org-capture-after-finalize . org-gcal-fetch))
     :load-path elib:org-gcal-load-path
     :config
-    (load-file (expand-file-name "~/nextcloud/org/orgsettings.el")))
+
+    )
+  (load-file (expand-file-name "~/nextcloud/org/orgsettings.el"))
+  (bind-key "C-c q" 'elib:open-calendar)
   (setq cfw:org-agenda-schedule-args '(:timestamp))
   (setq cfw:org-overwrite-default-keybinding t))
-
 	 #+END_SRC
 * Communication
 ** Email
@@ -2154,7 +2265,7 @@ _h_tml            _i_ndex          _A_SCII:
 (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
 		#+END_SRC
 *** Mu4e
-		#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (defun my-mu4e-choose-signature ()
   "Insert one of a number of sigs"
   (interactive)
@@ -2368,26 +2479,26 @@ with social media and work delegated by the union board.
     ;; before sending message.
 
     (setq message-sendmail-envelope-from 'header)
-
-    (add-to-list 'mu4e-bookmarks
-                 (make-mu4e-bookmark
-                  :name "All New Inbox Mail"
-                  :query "maildir:/gmail/Inbox OR \
+    (add-to-list-multi
+     'mu4e-bookmarks
+     `(,(make-mu4e-bookmark
+         :name "All New Inbox Mail"
+         :query "maildir:/gmail/Inbox OR \
 maildir:/lu/Inbox OR maildir:/info/Inbox and flag:unread"
-                  :key ?z))
-    (add-to-list 'mu4e-bookmarks
-                 (make-mu4e-bookmark
-                  :name "All Sent Mail"
-                  :query
-                  "\"maildir:/gmail/[Gmail]/Sent Mail\" OR \
+         :key ?z)
+       ,(make-mu4e-bookmark
+         :name "All Sent Mail"
+         :query
+         "\"maildir:/gmail/[Gmail]/Sent Mail\" OR \
 \"maildir:/lu/[Gmail]/Sent Mail\" OR \
 maildir:/info/[Gmail]/Skickat"
-                  :key ?s))
-    (add-to-list 'mu4e-bookmarks
-                 (make-mu4e-bookmark
-                  :name "With PDF Files"
-                  :query "mime:application/pdf"
-                  :key ?P))
+         :key ?s)
+       ,(make-mu4e-bookmark
+         :name "With PDF Files"
+         :query "mime:application/pdf"
+         :key ?P)))
+    (setq mu4e-view-prefer-html t)
+
     (setq mu4e-maildir-shortcuts
           '(("/gmail/Inbox" . ?g)
             ("/gmail/[Gmail]/Sent Mail" . ?G)
@@ -2402,11 +2513,11 @@ maildir:/info/[Gmail]/Skickat"
 
     ;; Needed with mbsync, apparently
     (setq mu4e-change-filenames-when-moving t)
-    (setq mu4e-html2text-command 'mu4e-shr2text)
-
+    ;; (setq mu4e-html2text-command 'mu4e-shr2text)
+    (setq mu4e-html2text-command "w3m -T text/html")
 
     ))
-		#+END_SRC
+#+END_SRC
 
 
 ** Web Browsing
@@ -2543,6 +2654,80 @@ maildir:/info/[Gmail]/Skickat"
 * To be integrated
 There is only darkness here. Flee.
 	#+BEGIN_SRC emacs-lisp
+(defun rgr/toggle-context-help ()
+  "Turn on or off the context help.
+Note that if ON and you hide the help buffer then you need to
+manually reshow it. A double toggle will make it reappear"
+  (interactive)
+  (with-current-buffer (help-buffer)
+    (unless (local-variable-p 'context-help)
+      (set (make-local-variable 'context-help) t))
+    (if (setq context-help (not context-help))
+	(progn
+	  (if (not (get-buffer-window (help-buffer)))
+	      (display-buffer (help-buffer)))))
+    (message "Context help %s" (if context-help "ON" "OFF"))))
+
+(defun rgr/context-help ()
+  "Display function or variable at point in *Help* buffer if visible.
+Default behaviour can be turned off by setting the buffer local
+context-help to false"
+  (interactive)
+  (let ((rgr-symbol (symbol-at-point))) ; symbol-at-point http://www.emacswiki.org/cgi-bin/wiki/thingatpt%2B.el
+    (with-current-buffer (help-buffer)
+      (unless (local-variable-p 'context-help)
+        (set (make-local-variable 'context-help) t))
+      (if (and context-help (get-buffer-window (help-buffer))
+               rgr-symbol)
+          (if (fboundp  rgr-symbol)
+              (describe-function rgr-symbol)
+	    (if (boundp  rgr-symbol) (describe-variable rgr-symbol)))))))
+
+(defadvice eldoc-print-current-symbol-info
+    (around eldoc-show-c-tag activate)
+  (cond
+   ((eq major-mode 'emacs-lisp-mode) (rgr/context-help) ad-do-it)
+   ((eq major-mode 'lisp-interaction-mode) (rgr/context-help) ad-do-it)
+   ((eq major-mode 'apropos-mode) (rgr/context-help) ad-do-it)
+   (t ad-do-it)))
+
+(global-set-key (kbd "C-c C-h") 'rgr/toggle-context-help)
+
+;; (define-minor-mode my-contextual-help-mode
+;;   "Displays help for the current symbol whenever the *Help* buffer is visible.
+
+;; Advises `eldoc-print-current-symbol-info'."
+;;   :lighter " C-h"
+;;   :global t
+;;   (require 'help-mode) ;; for `help-xref-interned'
+;;   (message "Contextual help is %s" (if my-contextual-help-mode "on" "off"))
+;;   (and my-contextual-help-mode
+;;        (eldoc-mode 1)
+;;        (eldoc-current-symbol)
+;;        (my-contextual-help :force)))
+
+;; (defadvice eldoc-print-current-symbol-info (before my-contextual-help activate)
+;;   "Triggers contextual elisp *Help*. Enabled by `my-contextual-help-mode'."
+;;   (and my-contextual-help-mode
+;;        (derived-mode-p 'emacs-lisp-mode)
+;;        (my-contextual-help)))
+
+;; (defun my-contextual-help (&optional force)
+;;   "Display function or variable at point in *Help* buffer, if visible."
+;;   (when (or force (get-buffer-window (help-buffer)))
+;;     (let ((sym (eldoc-current-symbol)))
+;;       ;; If something else changes the help buffer contents, ensure we
+;;       ;; don't immediately revert back to the current symbol's help.
+;;       (and sym
+;;            (not (keywordp sym))
+;;            (not (eq sym (get 'my-contextual-help 'last-sym)))
+;;            (put 'my-contextual-help 'last-sym sym)
+;;            (save-selected-window
+;;              (help-xref-interned sym))))))
+
+;; (my-contextual-help-mode 1)
+
+
 (use-package nameless
   :after (lisp-mode org-mode)
   :hook ((emacs-lisp-mode org-mode) . nameless-mode))
