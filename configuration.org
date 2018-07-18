@@ -110,8 +110,7 @@ in this file. If you want to start exploring, try calling
 Here we set all important personal details.
 - Your name in [[elisp:(find-variable 'user-full-name)][`user-full-name']]
 - Your primary email address in [[elisp:(find-variable 'user-mail-address)][`user-mail-address']]
-- Any additional email addresses in [[elisp:(find-variable
-'user-mail-address-list)][`user-mail-address-list']]
+- Any additional email addresses in [[elisp:(find-variable 'user-mail-address-list)][`user-mail-address-list']]
 
 #+BEGIN_SRC emacs-lisp
   (eval-when-compile
