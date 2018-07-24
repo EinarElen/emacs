@@ -6,11 +6,10 @@
 
 * Table of Contents                                                     :TOC:
 - [[#emacs-lisp-script-to-install-the-latest-version-of-emacs][Emacs Lisp Script to Install the Latest Version of Emacs]]
-  - [[#script-setup][Script setup]]
-  - [[#user-configuration-variables][User Configuration Variables]]
-  - [[#other-configuration][Other Configuration]]
-  - [[#stuff-to-do][STUFF TO DO]]
-  - [[#script-helper-functions][Script helper-functions]]
+  - [[#setup-and-configuration][Setup and Configuration]]
+  - [[#handling-errors][Handling Errors]]
+  - [[#building-and-installing-emacs][Building and Installing Emacs]]
+  - [[#finalizing-the-script][Finalizing the Script]]
 - [[#backup-all-agenda-and-configuration-files][Backup All Agenda and Configuration Files]]
 - [[#some-scripts-to-tangle-and-compile-files][Some Scripts to Tangle and Compile Files]]
   - [[#tangling][Tangling]]
@@ -20,16 +19,21 @@
 - [[#deprecatedunused-at-the-moment][Deprecated/Unused at the Moment]]
   - [[#profilingdebugging-the-configuration][Profiling/Debugging the Configuration]]
   - [[#gnome-server][Gnome Server]]
+- [[#local-variables][Local Variables]]
 
 * Emacs Lisp Script to Install the Latest Version of Emacs
-** Script setup
+
+** Setup and Configuration
+*** Script setup
+
 Turn the regular elisp-file into a script file
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 #!/usr/bin/emacs --script
+(setq default-directory "~/.emacs.d/scripts/")
 #+END_SRC
 
 Load the support file from [[*Script helper-functions][Script helper-functions]].
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 ;; Some convenience functions are defined in this file.
 ;; They make the script easier to read if you are new to
 ;; elisp (emacs lisp) Feel free to have a look at them if
@@ -58,7 +62,8 @@ Some help for people viewing the script file from either gedit or kate as these 
 ;; be just fine already :)
 #+END_SRC
 
-** User Configuration Variables
+
+*** User Configuration Variables
 Explain how setq works.
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 ;; Setq takes pairs of variable and new-value and sets the
@@ -72,7 +77,6 @@ Explain how setq works.
 ;; (file-name-as-directory .... "~/src") construct
 
 #+END_SRC
-
 Some variables that you might want to change before running the script.
 - emacs-git-url
   + The url to the git repository to clone from.
@@ -108,7 +112,7 @@ Some variables that you might want to change before running the script.
     * "-j4"
 
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 
 ;; These are the settings you might want to edit along with description of each option. There are some more possible settings in a second setq-block.
 (setq
@@ -155,11 +159,9 @@ Some variables that you might want to change before running the script.
  "-j8")
 #+END_SRC
 
-** Other Configuration
+*** Other Configuration
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
-;;
 ;; These are settings that you are unlikely to want to edit.
-;;
 (setq
  ;; Optimisation flags to the C-compiler.
  ;; You probably don't need to touch these
@@ -222,15 +224,15 @@ Some variables that you might want to change before running the script.
  make-commands
  '("" "doc" "tags")
  make-install-command
- "make install"
- )
+ "make install")
 #+END_SRC
-** STUFF TO DO
+
+*** Defining the Main Function
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 ;; Defun - short for define function (lisp has an
 ;; interesting way of abbreviating things) defines a
 ;; function. My faviourites are lst for "list" and elt for
-;; "element".
+;; "element", or just p for "predicate".
 
 ;; The syntax is
 ;; (defun function-name (list of arguments) "Documentation" code)
@@ -243,7 +245,95 @@ Some variables that you might want to change before running the script.
   "Here we could write some documentation about what this
 function does. Since this function only exists to be called by
 the script, it doesn't really need any particularly fancy
-documentation."
+documentation.
+
+We mostly define this function for instructional purposes, to
+show how to define a basic function but it will be the
+entry-point for the script in the end of the script.
+
+Note that we will write function-calls to functions we define
+later in the script. This is fine as they will be defined before
+we actually call the main-function.
+
+We call it main by convention with other programming languages,
+we could have called it foo-bar if we wanted to. There is no
+magic going on in lisp (cough python)."
+
+  (condition-case err
+      (progn (clone-emacs-tree)
+             (configure-emacs-sources)
+             (build-and-install-emacs))
+    ()
+    ))
+
+#+END_SRC
+
+** Handling Errors
+
+*** Defining the Error Types
+
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
+(define-error 'unable-to-clone-project
+  "We were unable to clone the project.")
+
+(define-error 'git-process-failed
+  "The git process failed unexpectedly.")
+
+(define-error 'configuration-failed
+  "The configuration command failed unexpectedly.")
+
+
+#+END_SRC
+
+*** Handling Errors
+#+BEGIN_SRC emacs-lisp
+(defun handle-source-directory-existing ()
+  ""
+  (let ((error-flag))
+    (message
+     "The directory %s seems to already exist. You will be given several choices:
+ -> Delete and clone a fresh copy,
+ -> Use git pull to update,
+ -> Skip the git step and go directly to configuration,
+ -> Give up, or
+ -> Repeat the choices"
+     emacs-source-directory)
+    (sleep-for 1)
+    (while (or (null error-flag)
+               (eq error-flag
+                   'retry-questions))
+      (if (y-or-n-p
+           "Should we delete it and clone from scratch?")
+          (progn (setq error-flag 'delete-it)
+                 (delete-directory emacs-source-directory t)
+                 )
+        ;; else
+        (if (y-or-n-p
+             "Should we use git pull instead to update the directory?")
+            (setq error-flag 'use-git-pull)
+          ;; else
+          (if (y-or-n-p
+               "Should we skip the git-step?")
+              (setq error-flag 'skip-git)
+            ;; else
+            (if (yes-or-no-p
+                 "Are we going to give up?")
+                (signal
+                 'unable-to-clone-project
+                 `(directory-existed-already
+                   ,emacs-source-directory
+                   "Gave up"))
+              ;; else
+              (setq error-flag
+                    'retry-questions)
+              (message "Trying again!"))))))
+    error-flag))
+#+END_SRC
+** Building and Installing Emacs
+*** Cloning the Project
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
+(defun clone-emacs-tree ()
+  "Clone the git tree from `emacs-git-url' into `emacs-source-directory'."
   ;; Let allows you to create temporary variables that last
   ;; throughout the let-block. They are defined in a list as
   ;; the first argument to let. It has the following form:
@@ -274,7 +364,7 @@ documentation."
   ;; default-directory has a default value but the let
   ;; command overwrites it for the duration of the
   ;; let-block. Afterwards, it returns to its previous
-  ;; value.
+  ;; value. (clone-emacs-tree)
 
 
   (let ((default-directory  emacs-source-directory-base)
@@ -284,26 +374,28 @@ documentation."
         ;; The rest are empty variables which we will use later
         (git-process)
         (git-process-exit-status)
-        (error-source-directory-exists-response)
-        (error-continue-regardless))
+        (error-flag))
 
 
+    ;; If the source directory already exists, allow the
+    ;; user to decide on how to handle the error
+    (when (file-exists-p emacs-source-directory)
+      (setq error-flag (handle-source-directory-existing)))
+
+    ;; Create the base directory if it doesn't exist
     (unless (file-exists-p emacs-source-directory-base)
       (message "Creating directory %s" emacs-source-directory-base)
-      (start-shell-command
-       "mkdir"
-       (make-command-string "mkdir" "-p" "-v" emacs-source-directory)))
-
-    (when (file-exists-p (concat emacs-source-directory ".git"))
-      (message "The directory %s seems to already exist. You will be given several choices:\nDelete and clone a fresh copy,\nUse git pull to update,  " emacs-source-directory)
-      (while (or (null error-source-directory-exists-response)
-                 (eq error-source-directory-exists-response 'retry-questions))
-        (if (y-or-n-p "Should we delete it and clone from scratch?")
-            (setq error-source-directory-exists-response 'delete-it)
-          (if (y-or-n-p "Should we use git pull instead to update the directory?")))))
+      (start-shell-command "mkdir" (make-command-string "mkdir" "-p" "-v"
+                                                        emacs-source-directory)))
 
 
-    (message "Calling git with arguments %s" git-process-arguments)
+    (if (eq error-flag 'use-git-pull)
+        (setq git-process-arguments
+              (make-command-string "git"
+                                   "pull")
+              default-directory emacs-source-directory))
+
+    ;; (message "Calling git with arguments %s" git-process-arguments)
     (setq git-process (start-shell-command "git" git-process-arguments))
     (while (equal (process-status  git-process)
                   'run
@@ -311,29 +403,51 @@ documentation."
     (setq git-process-exit-status  (process-exit-status git-process))
 
     (when (not (eq 0 git-process-exit-status))
-      (message "The git process failed, ")
-
+      (when (y-or-n-p
+             (format
+              "The git command '%s' failed with exit-code %d.
+ Do you wish to end the build-process? "
+              git-process-arguments
+              git-process-exit-status))
+        (error "Git command '%s' failed.\n Output from the process was:\n %s"
+               git-process-arguments
+               (with-current-buffer (process-buffer git-process)
+                 (buffer-substring-no-properties (point-min) (point-max)))))
       ))
 
 
+
+  )
+#+END_SRC
+*** Configuring the Sources
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
+(defun configure-emacs-sources ()
+  "We call autoreconf and configure to prepare the sources for
+the build process."
   (let ((default-directory emacs-source-directory))
     (start-shell-command "autoreconf"
                          (make-command-string "autoreconf" autoreconf-arguments))
     (apply 'call-process-simple  autoreconf-arguments)
     (message "Configuring with %s " emacs-configuration-string)
-    (pwd)
     (shell-command )
-    (apply 'call-process-simple-debug emacs-configuration-string)
-    ))
-
-
+    (apply 'call-process-simple-debug emacs-configuration-string)))
+#+END_SRC
+*** Building and Installing the Program
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
+(defun build-and-install-emacs ()
+  "Build the program using GNU Make."
+  )
+#+END_SRC
+** Finalizing the Script
+*** Calling the Main Function
+#+BEGIN_SRC emacs-lisp scripts/install-emacs.el
 ;; "-scriptload" is part of the command line arguments when
 ;; the file is loaded as a script. If the file run as a
 ;; script, run the main-function.
 (when (member "-scriptload" command-line-args)
   (main))
 #+END_SRC
-** Script helper-functions
+*** Script helper-functions
 These functions help make the script more readable for someone who is new to elisp. Feel free to look into them but you really don't need to.
 
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs-helpers.el
@@ -781,3 +895,19 @@ before we send our 'ok' to the SessionManager."
  "Emacs server" (getenv "DESKTOP_AUTOSTART_ID"))
 
 #+END_SRC
+
+* Local Variables
+
+#+BEGIN_SRC emacs-lisp
+(defadvice org-babel-tangle (after change-script-modes activate)
+  (let ((file-lst (cddr (directory-files 
+                         "~/.emacs.d/scripts/"
+                         t
+                         ))))
+    (print file-lst)
+    (dolist (x file-lst)
+      (chmod x 511))))
+#+END_SRC
+;; Local Variables:
+;; eval: (defadvice org-babel-tangle (after change-script-modes activate) (let ((file-lst (cddr (directory-files "~/.emacs.d/scripts/" t)))) (print file-lst) (dolist (x file-lst) (chmod x 511))))
+;; End:

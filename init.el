@@ -32,9 +32,8 @@
 (setq use-package-always-ensure t)
 
 (defvar no-packages-installed?
-  (or (not (file-exists-p (concat user-emacs-directory
-                                  "elpa")))
-      (not (file-exists-p "~/.emacs.d/elpa")))
+  (not (file-exists-p (concat user-emacs-directory
+                              "elpa")))
   "Does the .emacs.d/elpa directory exist?")
 (eval-when-compile
   (unless (and (not no-packages-installed?)
@@ -101,16 +100,26 @@
  '(abbrev-mode t t)
  '(custom-safe-themes
    '("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "d5b121d69e48e0f2a84c8e4580f0ba230423391a78fcb4001ccb35d02494d79e" "f78de13274781fbb6b01afd43327a4535438ebaeec91d93ebdbba1e3fba34d3c" "c7a9a68bd07e38620a5508fef62ec079d274475c8f92d75ed0c33c45fbe306bc" "28130127bbf3072c1bbc7652fca7245f186bb417b3b385a5e4da57b895ffe9d8" "bb749a38c5cb7d13b60fa7fc40db7eced3d00aa93654d150b9627cabd2d9b361" "a800120841da457aa2f86b98fb9fd8df8ba682cebde033d7dbf8077c1b7d677a" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "557c283f4f9d461f897b8cac5329f1f39fac785aa684b78949ff329c33f947ec" default))
- '(flyspell-abbrev-p t)
- '(flyspell-issue-message-flag nil)
- '(flyspell-issue-welcome-flag nil)
+ '(flyspell-abbrev-p t t)
+ '(flyspell-issue-message-flag nil t)
+ '(flyspell-issue-welcome-flag nil t)
  '(flyspell-mode 1 t)
  '(font-use-system-font t)
  '(org-twbs-extension "html")
  '(package-selected-packages
    '(toc-org org-caldav restart-emacs calfw-ical ox-reveal lispy default-text-scale leuven helm-grep bind-key helm-flyspell flyspell-helm abbrev-mode abbrev oauth2 ouath2 helm-mu notmuch wl wanderlust bbdb mu4e-multi mu4e-jump-to-list mu4e-alert mu4e-conversation mu4e-maildirs-extension eglot el-mock google-translate aggressive-indent rainbow-delimiters rainbow-delimeters which-key langtool graphviz-dot-mode async-await atom-dark-theme auctex-lua writegood-mode writeroom-mode org-evil evil treemacs-projectile treemacs slime-company elisp-slime-nav-mode slime ob org-agenda tex-buf company-clang TeX-save-query helm-files helm-command helm-elisp helm-ag helm-apropos helm-google whitespace-mode helm-rtags flycheck-rtags ob-async transpose-frame ace-window hydra org-gcal calfw-gcal mu4e-org epa-file offlineimap mu4e-contrib helm-purpose window-purpose swiper-helm nameless em-smart cask-mode buttercup flycheck company-rtags pp-c-l highlight-cl eldoc-extension elisp-slime-nav redshank paredit-everywhere paredit-menu auto-complete-clang paredit meson-mode xah-replace-pairs multiple-cursors expand-region info+ all-the-icons winum eyebrowse persp-projectile persp-mode perspective spaceline-all-the-icons spacemacs-theme helm-themes blackboard-theme counsel cpputils-cmake org-beautify-theme ox-twbs cmake-font-lock cmake-project cmake-mode dumb-jump exwm ein glsl-mode wolfram fold-dwim rtags pdf-tools srefactor macrostep ox-latex calfw-org latex latexx clipmon use-package calfw auctex-latexmk nlinum gnuplot ob-C htmlize web-mode hideshowvis hyperbole zoom-frm twittering-mode helm-dash helm-descbinds zygospore yalinum ws-butler volatile-highlights undo-tree sr-speedbar solarized-theme smartparens powerline nyan-mode multi-term monokai-theme malinka magit latex-preview-pane iedit helm-swoop helm-projectile helm-gtags ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony exec-path-from-shell elscreen duplicate-thing dtrt-indent diminish company-ycmd company-irony-c-headers company-irony company-c-headers company-auctex comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format avy-zap anzu ace-jump-mode))
  '(safe-local-variable-values
-   '((nameless-current-name . "meson-ide")
+   '((eval defadvice org-babel-tangle
+           (after change-script-modes activate)
+           (let
+               ((file-lst
+                 (cddr
+                  (directory-files "~/.emacs.d/scripts/" t))))
+             (print file-lst)
+             (dolist
+                 (x file-lst)
+               (chmod x 511))))
+     (nameless-current-name . "meson-ide")
      (eval progn
            (require 'projectile)
            (puthash

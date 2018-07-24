@@ -1615,7 +1615,11 @@ Again, visit [[http://tuhdo.github.io][tuhdo]] but check out the stuff about hel
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :hook (prog-mode . projectile-mode)
+  :init
+  (setq projectile-keymap-prefix (kbd "C-c p"))
   :config
+
+  (projectile-global-mode)
   (setq projectile-enable-caching t)
   :diminish projectile-mode)
 #+END_SRC
@@ -2375,16 +2379,6 @@ pretty nifty.
     '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "|"   "DONE(d)" "DELEGATED(D)" "CANCELLED(c)")))
 
   (setq org-todo-keywords user-org-todo-key-sequences)
-
-
-
-
-
-
-
-
-
-
   (use-package org-beautify-theme
     :disabled t)
   (setq org-pretty-entities t)
@@ -2422,6 +2416,7 @@ pretty nifty.
   :bind (("\C-cl" . org-store-link)
          ("\C-cb" . org-iswitchb)
          :map org-mode-map
+         ("C-c C-p" . org-previous-visible-heading)
          ("<" . org-self-insert-or-less)
          ("C-c M-o" . org-toggle-link-display)
          ("S-<f5>" . org-call-export-to-pdf)
