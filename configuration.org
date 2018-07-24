@@ -4,6 +4,49 @@
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes
 #+STARTUP: noinlineimages
+
+* Table of Contents                                                     :TOC:
+- [[#emacs-setup][Emacs Setup]]
+  - [[#definitions-and-variables][Definitions and Variables]]
+  - [[#improve-basic-emacs-experience][Improve Basic Emacs Experience]]
+  - [[#looksthemes][Looks/Themes]]
+  - [[#text-editing][Text Editing]]
+  - [[#pdf-handling][PDF-Handling]]
+- [[#developmentwriting][Development/Writing]]
+  - [[#project-management][Project Management]]
+  - [[#helm][Helm]]
+  - [[#elglot][Elglot]]
+  - [[#yasnippet][Yasnippet]]
+  - [[#terminal-usage][Terminal Usage]]
+  - [[#latexauctex][LaTeX/AUCTeX]]
+  - [[#company][Company]]
+  - [[#flycheck][Flycheck]]
+  - [[#web-development][Web Development]]
+  - [[#cc][C/C++]]
+  - [[#emacs-lisp][Emacs Lisp]]
+  - [[#java][Java]]
+- [[#org-mode][Org Mode]]
+  - [[#basic-setup][Basic Setup]]
+  - [[#capture][Capture]]
+  - [[#agenda][Agenda]]
+  - [[#structure-templates][Structure Templates]]
+  - [[#refile][Refile]]
+  - [[#calendar][Calendar]]
+  - [[#table-of-content-generation][Table of Content Generation]]
+- [[#communication][Communication]]
+  - [[#email][Email]]
+  - [[#web-browsing][Web Browsing]]
+- [[#utilities][Utilities]]
+  - [[#spell-checking][Spell Checking]]
+  - [[#google-translate][Google Translate]]
+  - [[#lastpass][Lastpass]]
+  - [[#presentations][Presentations]]
+- [[#experimental][Experimental]]
+  - [[#emacs-lisp-1][Emacs Lisp]]
+- [[#to-be-integrated][To be integrated]]
+  - [[#esup][ESUP]]
+  - [[#disabled-stuff][Disabled Stuff]]
+
 * Emacs Setup
 :PROPERTIES:
 :ID:       98e63f19-0f9f-4d64-8679-f73f25010c4e
@@ -199,11 +242,16 @@ handy [[elisp:(find-function 'executable-find)][`executable-find']] function.
 :END:
 There are some files that it is useful to have a variable
 for. If you use some other
+- The main directory for emacs configuration files in
+[[elisp:(find-variable 'user-emacs-config-directory)][`user-emacs-config-directory']]. We do this so we can redefine
+[[elisp:(find-variable 'user-emacs-directory)][`user-emacs-directory']] later to store random local files
+outside of our configuration directory.
 - Location of some extra snippets for the yasnippet package
   from Tuhdo in  [[elisp:(find-variable 'tuhdo-snippets-directory)][`tuhdo-snippets-directory']]. This is used
   later in [[*Yasnippet][Yasnippet]]
 - The location of the configuration file (i.e. this file) in
   [[elisp:(find-variable 'config-file-file-name)][`config-file-file-name']] (great name choice right?)
+- The location of the scripts file in [[elisp:(find-variable 'scripts-file-file-name)][`scripts-file-file-name']]
 - The main directory for my various org files is found in
   [[elisp:(find-variable 'user-org-directory)][`user-org-directory']].
 - In [[*Capture][Capture]], we define some ways to capture quick thoughts
@@ -239,6 +287,14 @@ for. If you use some other
       user-emacs-directory
       "configuration.org"))
     "The filename of the user configuration file."
+    :type 'string
+    :group 'elib:file-paths
+    :group 'elib:org)
+
+  (defcustom script-file-file-name
+    (expand-file-name
+     (concat user-emacs-directory "scripts.org"))
+    "The filename of the scripts file."
     :type 'string
     :group 'elib:file-paths
     :group 'elib:org)
@@ -310,8 +366,7 @@ for. If you use some other
     ""
     :group 'abbrev
     :group 'elib:file-paths
-    )
-  )
+    ))
 #+END_SRC
 
 
@@ -2763,6 +2818,12 @@ We cannot use use-package here because the refile things are defined in the same
   )
 
 	 #+END_SRC
+** Table of Content Generation
+#+BEGIN_SRC emacs-lisp
+(use-package toc-org
+  :hook ((org-mode . toc-org-enable))
+  )
+#+END_SRC
 * Communication
 :PROPERTIES:
 :ID:       891ec807-5600-43e3-a82d-876ca19fc80b

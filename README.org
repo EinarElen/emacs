@@ -4,3 +4,9 @@ This is my personal emacs configuration. It is likely full of mistakes and other
 disasters but might include something interesting in some places. Everything is
 bootstrapped in [[init.el]] and the configuration is in [[configuration.org]].
 
+I am currently trying to make my configuration as portable as reasonable and to be understandable for a beginner to emacs.
+
+I have a file [[file:scripts.org][scripts.org]] where I write some useful scripts such as
+- Installing emacs from sources (elisp)
+- Installing emacs from your operating system if it (shell)
+- Tangling and compiling all files (elisp)

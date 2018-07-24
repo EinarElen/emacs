@@ -3,8 +3,256 @@
 #+OPTIONS: toc:3 html5-fancy org-html-preamble:nil
 #+HTML_DOCTYPE_HTML5: t
 #+STARTUP: noinlineimages
+
+* Table of Contents                                                     :TOC:
+- [[#emacs-lisp-script-to-install-the-latest-version-of-emacs][Emacs Lisp Script to Install the Latest Version of Emacs]]
+  - [[#script-setup][Script setup]]
+  - [[#user-configuration-variables][User Configuration Variables]]
+  - [[#script-helper-functions][Script helper-functions]]
+- [[#backup-all-agenda-and-configuration-files][Backup All Agenda and Configuration Files]]
+- [[#some-scripts-to-tangle-and-compile-files][Some Scripts to Tangle and Compile Files]]
+  - [[#tangling][Tangling]]
+  - [[#compiling][Compiling]]
+  - [[#both][Both]]
+- [[#bash-script-to-install-an-emacs-version-if-none-exists-already][Bash Script to Install an Emacs Version if None Exists Already]]
+
+* Emacs Lisp Script to Install the Latest Version of Emacs
+** Script setup
+Turn the regular elisp-file into a script file
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
+#!/usr/bin/emacs --script
+#+END_SRC
+
+Load the support file from [[*Script helper-functions][Script helper-functions]].
+#+BEGIN_SRC emacs-lisp
+;; Some convenience functions are defined in this file.
+;; They make the script easier to read if you are new to
+;; elisp (emacs lisp) Feel free to have a look at them if
+;; you want to but it should not be necessary
+(load-file "install-emacs-helpers.el")
+#+END_SRC
+
+Some help for people viewing the script file from either gedit or kate as these do not have syntax highlighting for elisp.
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
+;; Anything following semi-colons is a comment
+
+;; Neither of the two default text-editors for the two major
+;; desktop environments on linux support syntax highlighting
+;; for emacs lisp.
+
+;; In gedit (the gnome text editor) open the menu in the
+;; bottom left corner which most likely is set to "Plain
+;; Text" and select LLVM IR
+
+;; In Kate (the KDE text editor) open the menu in the bottom
+;; left corner which is likely set to "Normal" and choose
+;; Sources -> Common Lisp.
+
+
+;; Of course, if you are viewing this from emacs, you should
+;; be just fine already :)
+#+END_SRC
+
+** User Configuration Variables
+Explain how setq works.
+#+BEGIN_SRC emacs-lisp
+;; Setq takes pairs of variable and new-value and sets the
+;; value of the variable to new-value.  The q refers to the
+;; fact that you do not need to quote the variable name.
+;; You can think of it as a short-hand for:
+;; (set 'variable new-value ...) (setq variable new-value)
+;; Everything you might want to customize is available here
+;; in this first block. You should only ever have to customize the
+;; strings, e.g. "~/src" not the whole
+;; (file-name-as-directory .... "~/src") construct
+
+#+END_SRC
+
+Some variables that you might want to change before running the script.
+- emacs-git-url
+  + The url to the git repository to clone from.
+  + Default: "https://github.com/emacs-mirror/emacs"
+  + Common alternatives:
+    * "git://git.sv.gnu.org/emacs.git"
+- emacs-git-branch
+  + The branch to clone from
+  + Default: "master"
+- emacs-installation-directory-prefix
+  + The prefix for the configure step.
+  + Default: "/usr/local"
+  + Common alternatives:
+    * "/usr"
+    * "/opt"
+- emacs-source-directory-base
+  + The directory which we will clone the emacs sources into
+  + Default: "~/src"
+- emacs-source-directory
+  + The name of the directory in emacs-source-directory-base
+    that we clone into
+  + Default: "emacs"
+  + Example resulting directory name if you use the default
+    values: "~/src/emacs"
+- autoreconf-arguments
+  + Arguments to autoreconf
+  + Default: "-i -v"
+- number-of-make-processes
+  + How many threads make can use
+  + Default: "-j8"
+  + Common alternatives:
+    * "-j1"
+    * "-j4"
+
+
+#+BEGIN_SRC emacs-lisp
+
+;; These are the settings you might want to edit along with description of each option. There are some more possible settings in a second setq-block.
+(setq
+ ;; The url to the git repository for emacs
+ ;; Common choices are
+ ;; "git://git.sv.gnu.org/emacs.git"
+ ;; "https://github.com/emacs-mirror/emacs"
+ emacs-git-url
+ "borkhttps://github.com/emacs-mirror/emacs"
+ ;; Clone the latest and greatest version
+ ;; Change if you want something else or if the master
+ ;; branch is broken
+ emacs-git-branch
+ "master"
+ ;; Define what main directory you would like your emacs
+ ;; installation in
+
+ ;; Common choices include
+ ;; /usr, /usr/local/, /opt, etc
+ emacs-installation-directory-prefix
+ "/usr/local"
+ ;; What directory should the project be cloned into?
+
+ ;; The script will create the directory if it does not
+ ;; exist already. You do not need to worry about trailing
+ ;; backslashes.
+ emacs-source-directory-base
+ (file-name-as-directory
+  (expand-file-name "~/src/poo/"))
+ ;; What should the directory of the cloned project be
+ ;; called?
+ emacs-source-directory
+ (file-name-as-directory
+  (concat
+   emacs-source-directory-base
+   "emacs"))
+ ;; Arguments to the autoreconf tool
+ autoreconf-arguments
+ (make-command-string "-i" "-v")
+ ;; The number of independent threads the make program can
+ ;; use.  Setting it to -jN where N is the number of cores
+ ;; available on your machine.
+ number-of-make-processes
+ "-j8")
+#+END_SRC
+** Script helper-functions
+These functions help make the script more readable for someone who is new to elisp. Feel free to look into them but you really don't need to.
+
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs-helpers.el
+(defun call-process-simple (&rest arguments)
+  (let ((args `(,(car arguments) nil nil nil)))
+    (dolist (x (cdr arguments))
+      (add-to-list  'args x  t))
+    (apply 'call-process args)))
+(defun call-process-simple-debug (&rest arguments)
+  (let ((args `(,(car arguments) nil t nil)))
+    (dolist (x (cdr arguments))
+      (add-to-list  'args x  t))
+    (apply 'call-process args)))
+
+
+(defun concat-and-pad (padding &rest arguments)
+  (let ((newlst)
+        (padding (if padding padding " ")))
+
+    (dolist (x arguments)
+      (setq newlst (concat newlst x padding ))
+      )
+    newlst
+    ))
+
+(defun make-command-string (&rest arguments)
+  (apply 'concat-and-pad (push " " arguments)))
+
+(defun start-shell-command (name command)
+  (start-process-shell-command
+   name
+   (get-buffer-create (concat "*" name "-output-buffer*"))
+   command))
+#+END_SRC
+* Backup All Agenda and Configuration Files
+The configuration file and script files are backed up by git but hey might as well back those up when we are at it!
+#+BEGIN_SRC emacs-lisp :tangle scripts/backup-agenda-files.el
+#!/usr/bin/emacs --script
+
+(load-file
+ (expand-file-name (concat user-emacs-directory "configuration.el")))
+
+(dolist (x (cons script-file-file-name (cons config-file-file-name org-agenda-files)))
+
+  (save-window-excursion
+    (let
+        ((current-file-destination  (expand-file-name
+                                     (concat
+                                      "~/backups/org/backup-"
+                                      (file-name-nondirectory x)
+                                      "-"
+                                      (print-current-date)))))
+
+      (copy-file x current-file-destination t))))
+
+#+END_SRC
+* Some Scripts to Tangle and Compile Files
+** Tangling
+#+BEGIN_SRC emacs-lisp :tangle scripts/tangle-org-files.el
+#!/usr/bin/emacs --script
+;; -*- coding: utf-8 -*-
+(require 'ox)
+(org-babel-tangle-file "configuration.org")
+(org-babel-tangle-file "scripts.org")
+#+END_SRC
+** Compiling
+#+BEGIN_SRC emacs-lisp :tangle scripts/compile-elisp-files.el
+#!/usr/bin/emacs --script
+(defvar debuginit-p nil)
+(require 'package)
+(unless package--initialized (package-initialize))
+(setq package-enable-at-startup nil)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives
+             '("org" . "http://orgmode.org/elpa/") t)
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(require 'use-package)
+                                        ;(eval-when-compile (require 'use-package))
+(setq use-package-debug nil)
+                                        ;(setq use-package-verbose 'debug)
+(setq use-package-verbose nil)
+(setq use-package-always-ensure t)
+                                        ;(byte-compile-file
+                                        ;"orginit.el")
+;;(setq byte-compile-error-on-warn t)
+(byte-compile-file "configuration.el")
+;;(check-declare-file "configuration.el")
+#+END_SRC
+** Both
+#+BEGIN_SRC emacs-lisp :tangle scripts/tangle-and-compile.el
+#!/usr/bin/emacs --script
+(let ((force (member "force" command-line-args)))
+  (load-file "./tangle-org-files.el")
+  (when (or force
+            (file-newer-than-file-p "~/.emacs.d/configuration.org"
+                                    "~/.emacs.d/configuration.el"))
+    (load-file "./compile-elisp-files.el")))
+#+END_SRC
 * Bash Script to Install an Emacs Version if None Exists Already
-#+BEGIN_SRC bash :tangle install-emacs.sh
+#+BEGIN_SRC bash :tangle scripts/install-emacs.sh
 #!/bin/bash
 
 # if [[ $EUID -ne 0 ]]; then
@@ -79,113 +327,4 @@ else
 fi
 
 # ./install-emacs.el
-#+END_SRC
-* Emacs Lisp Script to Install the Latest Version of Emacs
-** Script setup
-Turn the regular elisp-file into a script file
-#+BEGIN_SRC emacs-lisp :tangle install-emacs.el
-#!/usr/bin/emacs --script
-#+END_SRC
-
-Some help for people viewing the script file from either gedit or kate as these do not have syntax highlighting for elisp.
-#+BEGIN_SRC emacs-lisp :tangle install-emacs.el
-;; Anything following semi-colons is a comment
-
-;; Neither of the two default text-editors for the two major
-;; desktop environments on linux support syntax highlighting
-;; for emacs lisp.
-
-;; In gedit (the gnome text editor) open the menu in the
-;; bottom left corner which most likely is set to "Plain
-;; Text" and select LLVM IR
-
-;; In Kate (the KDE text editor) open the menu in the bottom
-;; left corner which is likely set to "Normal" and choose
-;; Sources -> Common Lisp.
-
-
-;; Of course, if you are viewing this from emacs, you should
-;; be just fine already :)
-#+END_SRC
-** User Configuration Variables
-Some variables that you might want to change before running the script
-#+BEGIN_SRC emacs-lisp
-;; These are the settings you might want to edit along with description of each option. There are some more possible settings in a second setq-block.
-(setq
- ;; The url to the git repository for emacs
- ;; Common choices are
- ;; "git://git.sv.gnu.org/emacs.git"
- ;; "https://github.com/emacs-mirror/emacs"
- emacs-git-url
- "borkhttps://github.com/emacs-mirror/emacs"
- ;; Clone the latest and greatest version
- ;; Change if you want something else or if the master
- ;; branch is broken
- emacs-git-branch
- "master"
- ;; Define what main directory you would like your emacs
- ;; installation in
-
- ;; Common choices include
- ;; /usr, /usr/local/, /opt, etc
- emacs-installation-directory-prefix
- "/usr/local"
- ;; What directory should the project be cloned into?
-
- ;; The script will create the directory if it does not
- ;; exist already. You do not need to worry about trailing
- ;; backslashes.
- emacs-source-directory-base
- (file-name-as-directory
-  (expand-file-name "~/src/poo/"))
- ;; What should the directory of the cloned project be
- ;; called?
- emacs-source-directory
- (file-name-as-directory
-  (concat
-   emacs-source-directory-base
-   "emacs"))
- ;; Arguments to the autoreconf tool
- autoreconf-arguments
- (make-command-string "-i" "-v")
- ;; The number of independent threads the make program can
- ;; use.  Setting it to -jN where N is the number of cores
- ;; available on your machine.
- number-of-make-processes
- "-j8")
-#+END_SRC
-** Script helper-functions
-These functions help make the script more readable for someone who is new to elisp. Feel free to look into them but you really don't need to.
-
-#+BEGIN_SRC emacs-lisp :tangle install-emacs-helpers.el
-(defun call-process-simple (&rest arguments)
-  (let ((args `(,(car arguments) nil nil nil)))
-    (dolist (x (cdr arguments))
-      (add-to-list  'args x  t))
-    (apply 'call-process args)))
-(defun call-process-simple-debug (&rest arguments)
-  (let ((args `(,(car arguments) nil t nil)))
-    (dolist (x (cdr arguments))
-      (add-to-list  'args x  t))
-    (apply 'call-process args)))
-
-
-(defun concat-and-pad (padding &rest arguments)
-  (let ((newlst)
-        (padding (if padding padding " ")))
-
-    (dolist (x arguments)
-      (setq newlst (concat newlst x padding ))
-      )
-    newlst
-    ))
-
-(defun make-command-string (&rest arguments)
-  (apply 'concat-and-pad (push " " arguments)))
-
-(defun start-shell-command (name command)
-  (start-process-shell-command
-   name
-   (get-buffer-create (concat "*" name "-output-buffer*"))
-   command))
 #+END_SRC
