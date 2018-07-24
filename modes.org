@@ -67,6 +67,9 @@
   comparing with [[elisp:(find-function 'equal)][`equal']] instead of [[elisp:(find-function 'eq)][`eq']].
 - [[elisp:(find-function 'add-to-list-multi)][`add-to-list-multi']] does [[elisp:(find-function 'add-to-list)][`add-to-list']] to a list with
   several items at once.
+- [[elisp:(find-function 'add-to-list-force)][`add-to-list-force']] does [[elisp:(find-function 'add-to-list)][`add-to-list']] but replaces rather
+  than shadow if an element is already in the list
+
 
 ** [[file:configuration.org::*Improve%20Basic%20Emacs%20Experience][Improve Basic Emacs Experience]]
 *** User Configuration                                             :config:

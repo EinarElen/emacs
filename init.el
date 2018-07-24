@@ -3,6 +3,10 @@
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
 (defvar debuginit-p nil)
+(setq gc-cons-threshold 64000000)
+(add-hook 'after-init-hook #'(lambda ()
+                               ;; restore after startup
+                               (setq gc-cons-threshold 800000)))
 (require 'package)
 ;; (unless package--initialized (package-initialize))
 (package-initialize)
@@ -84,7 +88,8 @@
   (pdf-tools-install t))
 (when first-install-needs-all-the-icons?
   (all-the-icons-install-fonts t))
-
+(find-file config-file-file-name)
+(delete-other-windows)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -99,10 +104,9 @@
  '(flyspell-issue-welcome-flag nil)
  '(flyspell-mode 1 t)
  '(font-use-system-font t)
- '(org-agenda-files '("~/.emacs.d/configuration.org"))
  '(org-twbs-extension "html")
  '(package-selected-packages
-   '(restart-emacs calfw-ical ox-reveal lispy default-text-scale leuven helm-grep bind-key helm-flyspell flyspell-helm abbrev-mode abbrev oauth2 ouath2 helm-mu notmuch wl wanderlust bbdb mu4e-multi mu4e-jump-to-list mu4e-alert mu4e-conversation mu4e-maildirs-extension eglot el-mock google-translate aggressive-indent rainbow-delimiters rainbow-delimeters which-key langtool graphviz-dot-mode async-await atom-dark-theme auctex-lua writegood-mode writeroom-mode org-evil evil treemacs-projectile treemacs slime-company elisp-slime-nav-mode slime ob org-agenda tex-buf company-clang TeX-save-query helm-files helm-command helm-elisp helm-ag helm-apropos helm-google whitespace-mode helm-rtags flycheck-rtags ob-async transpose-frame ace-window hydra org-gcal calfw-gcal mu4e-org epa-file offlineimap mu4e-contrib helm-purpose window-purpose swiper-helm nameless em-smart cask-mode buttercup flycheck company-rtags pp-c-l highlight-cl eldoc-extension elisp-slime-nav redshank paredit-everywhere paredit-menu auto-complete-clang paredit meson-mode xah-replace-pairs multiple-cursors expand-region info+ all-the-icons winum eyebrowse persp-projectile persp-mode perspective spaceline-all-the-icons spacemacs-theme helm-themes blackboard-theme counsel cpputils-cmake org-beautify-theme ox-twbs cmake-font-lock cmake-project cmake-mode dumb-jump exwm ein glsl-mode wolfram fold-dwim rtags pdf-tools srefactor macrostep ox-latex calfw-org latex latexx clipmon use-package calfw auctex-latexmk nlinum gnuplot ob-C htmlize web-mode hideshowvis hyperbole zoom-frm twittering-mode helm-dash helm-descbinds zygospore yalinum ws-butler volatile-highlights undo-tree sr-speedbar solarized-theme smartparens powerline nyan-mode multi-term monokai-theme malinka magit latex-preview-pane iedit helm-swoop helm-projectile helm-gtags ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony exec-path-from-shell elscreen duplicate-thing dtrt-indent diminish company-ycmd company-irony-c-headers company-irony company-c-headers company-auctex comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format avy-zap anzu ace-jump-mode))
+   '(org-caldav restart-emacs calfw-ical ox-reveal lispy default-text-scale leuven helm-grep bind-key helm-flyspell flyspell-helm abbrev-mode abbrev oauth2 ouath2 helm-mu notmuch wl wanderlust bbdb mu4e-multi mu4e-jump-to-list mu4e-alert mu4e-conversation mu4e-maildirs-extension eglot el-mock google-translate aggressive-indent rainbow-delimiters rainbow-delimeters which-key langtool graphviz-dot-mode async-await atom-dark-theme auctex-lua writegood-mode writeroom-mode org-evil evil treemacs-projectile treemacs slime-company elisp-slime-nav-mode slime ob org-agenda tex-buf company-clang TeX-save-query helm-files helm-command helm-elisp helm-ag helm-apropos helm-google whitespace-mode helm-rtags flycheck-rtags ob-async transpose-frame ace-window hydra org-gcal calfw-gcal mu4e-org epa-file offlineimap mu4e-contrib helm-purpose window-purpose swiper-helm nameless em-smart cask-mode buttercup flycheck company-rtags pp-c-l highlight-cl eldoc-extension elisp-slime-nav redshank paredit-everywhere paredit-menu auto-complete-clang paredit meson-mode xah-replace-pairs multiple-cursors expand-region info+ all-the-icons winum eyebrowse persp-projectile persp-mode perspective spaceline-all-the-icons spacemacs-theme helm-themes blackboard-theme counsel cpputils-cmake org-beautify-theme ox-twbs cmake-font-lock cmake-project cmake-mode dumb-jump exwm ein glsl-mode wolfram fold-dwim rtags pdf-tools srefactor macrostep ox-latex calfw-org latex latexx clipmon use-package calfw auctex-latexmk nlinum gnuplot ob-C htmlize web-mode hideshowvis hyperbole zoom-frm twittering-mode helm-dash helm-descbinds zygospore yalinum ws-butler volatile-highlights undo-tree sr-speedbar solarized-theme smartparens powerline nyan-mode multi-term monokai-theme malinka magit latex-preview-pane iedit helm-swoop helm-projectile helm-gtags ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony exec-path-from-shell elscreen duplicate-thing dtrt-indent diminish company-ycmd company-irony-c-headers company-irony company-c-headers company-auctex comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format avy-zap anzu ace-jump-mode))
  '(safe-local-variable-values
    '((nameless-current-name . "meson-ide")
      (eval progn

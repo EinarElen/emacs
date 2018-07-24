@@ -1,0 +1,191 @@
+#+AUTHOR: Einar Elén
+#+EMAIL: einar.elen@gmail.com
+#+OPTIONS: toc:3 html5-fancy org-html-preamble:nil
+#+HTML_DOCTYPE_HTML5: t
+#+STARTUP: noinlineimages
+* Bash Script to Install an Emacs Version if None Exists Already
+#+BEGIN_SRC bash :tangle install-emacs.sh
+#!/bin/bash
+
+# if [[ $EUID -ne 0 ]]; then
+#     echo "This script will require root privilieges"
+#     exit -1
+# fi
+
+
+# else
+
+
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=$NAME
+elif type lsb_release >/dev/null 2>&1; then
+    # linuxbase.org
+    OS=$(lsb_release -si)
+elif [ -f /etc/lsb-release ]; then
+    # For some versions of Debian/Ubuntu without lsb_release command
+    . /etc/lsb-release
+    OS=$DISTRIB_ID
+elif [ -f /etc/debian_version ]; then
+    # Older Debian/Ubuntu/etc.
+    OS=Debian
+elif [ -f /etc/SuSe-release ]; then
+    OS=SuSE
+    # Older SuSE/etc.
+elif [ -f /etc/redhat-release ]; then
+    OS=RHEL
+    # Older Red Hat, CentOS, etc.
+else
+    echo "This script currently relies on the
+/etc/os-release-file to determine your operating
+system. It is not present on your machine so you will
+have to look through the script and perform the
+operations manually.
+
+Luckily it is a really simple script so it should be fine
+:)"
+    exit -1
+    # Fall back to uname, e.g. "Linux <version>", also works for BSD, etc.
+fi
+
+echo $OS
+
+if command -v dnf &>/dev/null; then
+    DNF_WAS_USED=0
+    sudo dnf build-dep emacs
+elif command -v yum &>/dev/null; then
+    YUM_WAS_USED=0
+    sudo yum build-dep emacs
+elif command -v apt &>/dev/null; then
+    APT_WAS_USED=0
+    sudo apt install build-essential
+    sudo apt build-dep emacs
+elif command -v apt-get &>/dev/null; then
+    APT_GET_WAS_USED=0
+    sudo apt-get install build-essential
+    sudo apt-get build-dep emacs
+elif command -v zypper &>/dev/null; then
+    ZYPPER_WAS_USED=0
+    sudo zypper install -d emacs
+fi
+
+command -v emacs &>/dev/null
+EMACS_IS_INSTALLED=$?
+
+if [ $EMACS_IS_INSTALLED -eq 0 ]; then
+    echo "Emacs is installed, installing a fresh version..."
+else
+    echo "Emacs is not installed, installing a basic one from your operating system package manager which will be removed after the installation process."
+fi
+
+# ./install-emacs.el
+#+END_SRC
+* Emacs Lisp Script to Install the Latest Version of Emacs
+** Script setup
+Turn the regular elisp-file into a script file
+#+BEGIN_SRC emacs-lisp :tangle install-emacs.el
+#!/usr/bin/emacs --script
+#+END_SRC
+
+Some help for people viewing the script file from either gedit or kate as these do not have syntax highlighting for elisp.
+#+BEGIN_SRC emacs-lisp :tangle install-emacs.el
+;; Anything following semi-colons is a comment
+
+;; Neither of the two default text-editors for the two major
+;; desktop environments on linux support syntax highlighting
+;; for emacs lisp.
+
+;; In gedit (the gnome text editor) open the menu in the
+;; bottom left corner which most likely is set to "Plain
+;; Text" and select LLVM IR
+
+;; In Kate (the KDE text editor) open the menu in the bottom
+;; left corner which is likely set to "Normal" and choose
+;; Sources -> Common Lisp.
+
+
+;; Of course, if you are viewing this from emacs, you should
+;; be just fine already :)
+#+END_SRC
+** User Configuration Variables
+Some variables that you might want to change before running the script
+#+BEGIN_SRC emacs-lisp
+;; These are the settings you might want to edit along with description of each option. There are some more possible settings in a second setq-block.
+(setq
+ ;; The url to the git repository for emacs
+ ;; Common choices are
+ ;; "git://git.sv.gnu.org/emacs.git"
+ ;; "https://github.com/emacs-mirror/emacs"
+ emacs-git-url
+ "borkhttps://github.com/emacs-mirror/emacs"
+ ;; Clone the latest and greatest version
+ ;; Change if you want something else or if the master
+ ;; branch is broken
+ emacs-git-branch
+ "master"
+ ;; Define what main directory you would like your emacs
+ ;; installation in
+
+ ;; Common choices include
+ ;; /usr, /usr/local/, /opt, etc
+ emacs-installation-directory-prefix
+ "/usr/local"
+ ;; What directory should the project be cloned into?
+
+ ;; The script will create the directory if it does not
+ ;; exist already. You do not need to worry about trailing
+ ;; backslashes.
+ emacs-source-directory-base
+ (file-name-as-directory
+  (expand-file-name "~/src/poo/"))
+ ;; What should the directory of the cloned project be
+ ;; called?
+ emacs-source-directory
+ (file-name-as-directory
+  (concat
+   emacs-source-directory-base
+   "emacs"))
+ ;; Arguments to the autoreconf tool
+ autoreconf-arguments
+ (make-command-string "-i" "-v")
+ ;; The number of independent threads the make program can
+ ;; use.  Setting it to -jN where N is the number of cores
+ ;; available on your machine.
+ number-of-make-processes
+ "-j8")
+#+END_SRC
+** Script helper-functions
+These functions help make the script more readable for someone who is new to elisp. Feel free to look into them but you really don't need to.
+
+#+BEGIN_SRC emacs-lisp :tangle install-emacs-helpers.el
+(defun call-process-simple (&rest arguments)
+  (let ((args `(,(car arguments) nil nil nil)))
+    (dolist (x (cdr arguments))
+      (add-to-list  'args x  t))
+    (apply 'call-process args)))
+(defun call-process-simple-debug (&rest arguments)
+  (let ((args `(,(car arguments) nil t nil)))
+    (dolist (x (cdr arguments))
+      (add-to-list  'args x  t))
+    (apply 'call-process args)))
+
+
+(defun concat-and-pad (padding &rest arguments)
+  (let ((newlst)
+        (padding (if padding padding " ")))
+
+    (dolist (x arguments)
+      (setq newlst (concat newlst x padding ))
+      )
+    newlst
+    ))
+
+(defun make-command-string (&rest arguments)
+  (apply 'concat-and-pad (push " " arguments)))
+
+(defun start-shell-command (name command)
+  (start-process-shell-command
+   name
+   (get-buffer-create (concat "*" name "-output-buffer*"))
+   command))
+#+END_SRC

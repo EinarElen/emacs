@@ -5,37 +5,69 @@
 #+PROPERTY: header-args :tangle yes
 #+STARTUP: noinlineimages
 * Emacs Setup
+:PROPERTIES:
+:ID:       98e63f19-0f9f-4d64-8679-f73f25010c4e
+:END:
 ** Definitions and Variables
+:PROPERTIES:
+:ID:       7ace9abf-9530-423a-927f-a024a8c67df5
+:END:
 *** Handy lisp functions and macros                                :ignore:
+:PROPERTIES:
+:ID:       b69b0adc-9d96-436d-87cc-623dd2210280
+:END:
 #+BEGIN_SRC emacs-lisp 
-  (eval-when-compile
-    (defun potential-load-paths (list)
-      (let ((value))
-	(dolist (elt list value)
-	  (when (and (not value) (file-exists-p elt))
-	    (setq value (expand-file-name elt))))
-	value)))
-  (defmacro alist-get-equal (key alist &optional default
-				 remove)
-    "A call to `alist-get' with testfn set to `equal'"
-    `(alist-get ,key ,alist ,default ,remove 'equal))
+(eval-when-compile
+  (defun potential-load-paths (list)
+    (let ((value))
+      (dolist (elt list value)
+	(when (and (not value) (file-exists-p elt))
+	  (setq value (expand-file-name elt))))
+      value)))
+(defmacro alist-get-equal (key alist &optional default
+			       remove)
+  "A call to `alist-get' with testfn set to `equal'"
+  `(alist-get ,key ,alist ,default ,remove 'equal))
 
 
-  (defmacro alist-get-equal-simple (key alist)
-    "A call to `alist-get' with default and remove set to
+(defmacro alist-get-equal-simple (key alist)
+  "A call to `alist-get' with default and remove set to
   nil and testfn set to `equal'
 
   In reality, a call to `alist-get-equal' with default and
   remove set to nil."
-    `(alist-get-equal ,key ,alist nil nil))
+  `(alist-get-equal ,key ,alist nil nil))
 
-  (defmacro add-to-list-multi (lst elts &optional append compare-fn)
-    "Call `add-to-list' for each element in ELTS to LST."
-    `(dolist (x ,elts)
-       (add-to-list ,lst x ,append ,compare-fn)))
+(defmacro add-to-list-multi (lst elts &optional append compare-fn)
+  "Call `add-to-list' for each element in ELTS to LST."
+  `(dolist (x ,elts)
+     (add-to-list ,lst x ,append ,compare-fn)))
+
+
+(defun add-to-list-force (lst elt)
+  "If the car of ELT is a key in LST, replace the value with the
+value from ELT. Otherwise, call `add-to-list'"
+  (if (assoc (car elt) lst)
+      (setf
+       (cdr (assoc (car elt) lst))
+       (cdr elt))
+    (add-to-list 'lst elt)))
+
+
+
+
+
+
+
+
+
+
 
 #+END_SRC
 *** Definitions                                                   :ignore:
+:PROPERTIES:
+:ID:       3e2c6e03-2178-42d9-be36-b0f978dbaecd
+:END:
 These exist because the emacs byte-compiler cannot be sure
 that these variables and functions are actually defined. As
 we know that they are, we can tell it to relax!
@@ -57,6 +89,9 @@ that can be used for any customizations we create later.
   (setq ad-redefinition-action 'accept))
 #+END_SRC
 *** Customization Groups
+:PROPERTIES:
+:ID:       43a45132-8b1d-4179-8f56-60acd084d17c
+:END:
 Customization groups makes making changes simpler and
 exploring the configurations and definitions that are made
 in this file. If you want to start exploring, try calling
@@ -105,7 +140,13 @@ in this file. If you want to start exploring, try calling
     )
 #+END_SRC
 *** User variables
+:PROPERTIES:
+:ID:       db82c885-b522-451d-9a7e-9928d2b54395
+:END:
 **** Personal Information                                         :Update:
+:PROPERTIES:
+:ID:       942248fc-6008-48a1-8ab7-a7097851aff9
+:END:
 
 Here we set all important personal details.
 - Your name in [[elisp:(find-variable 'user-full-name)][`user-full-name']]
@@ -125,6 +166,9 @@ Here we set all important personal details.
       :type '(repeat string)))
 #+END_SRC
 **** Location of Executables                                      :ignore:
+:PROPERTIES:
+:ID:       5100a407-137f-4905-b6bd-8880e136d64f
+:END:
 Since we want to be able to use the same configuration
 regardless of where programs might be stored on our
 computer, we define some variables for storing the location
@@ -150,6 +194,9 @@ handy [[elisp:(find-function 'executable-find)][`executable-find']] function.
 				  (executable-find "gtags"))))
  #+END_SRC
 **** Location of Files                                    :probablyignore:
+:PROPERTIES:
+:ID:       3180981a-a5fa-4fe8-a0f6-e560df27db5d
+:END:
 There are some files that it is useful to have a variable
 for. If you use some other
 - Location of some extra snippets for the yasnippet package
@@ -269,8 +316,14 @@ for. If you use some other
 
 
 **** Load Paths                                           :probablyignore:
+:PROPERTIES:
+:ID:       95b1ec6e-d563-4d37-8246-a687d53b62eb
+:END:
 
 ***** TODO Create the script to install all of the packages
+:PROPERTIES:
+:ID:       6b925028-0d50-4055-b938-2e7c723063f4
+:END:
 Most programs are installed using emacs package manager and
 we do not need to tell it anything about where to find the
 lisp-code for the package. Some packages might be installed
@@ -328,6 +381,9 @@ The packages and their load-paths are:
     (potential-load-paths '("/usr/share/asymptote/"))))
 #+END_SRC
 **** TeX Viewers                                                  :ignore:
+:PROPERTIES:
+:ID:       22070e13-f071-42a1-9db8-527c3e3e159d
+:END:
 AUCTeX is great but one weird thing about is that it only
 allows you to chose one program to use for viewing your pdf:s
 you create. I have created a little [[*Helm][Helm]]-program which lets
@@ -358,6 +414,9 @@ You can also customize my settings through the group
        '(progn
 #+END_SRC
 ***** Evince
+:PROPERTIES:
+:ID:       1cadd0e8-3eb1-4a53-88f5-8beac438cfc8
+:END:
 Here we define everything necessary for the evince
 pdf-reader (i.e. the default pdf-reader for the GNOME
 desktop environment).
@@ -422,6 +481,9 @@ well non-well documented there."
 
 #+END_SRC
 ***** Okular
+:PROPERTIES:
+:ID:       b75d4538-2b24-4bd8-9d6a-e1c042c25a4c
+:END:
 Here we define everything necessary for the Okular
 pdf-reader (i.e. the default pdf-reader for the KDE desktop
 environment).
@@ -487,6 +549,9 @@ well non-well documented there."
 
 #+END_SRC
 ***** PDF-Tools
+:PROPERTIES:
+:ID:       f8e6e669-5391-4c1c-aaf7-6313500c2ed1
+:END:
 Here we define everything necessary for PDF-tools, the pdf
 viewer that we install over in [[*PDF-Handling][PDF-Handling]]. Unlike evince
 and okular, pdf-tools is displaying within emacs which means
@@ -545,6 +610,9 @@ well non-well documented there."
   :group 'elib:helm-tex-pdf-tools)
 #+END_SRC
 ***** Helm-TeX-View Selection
+:PROPERTIES:
+:ID:       a5d08609-09fa-4699-ad06-1565a2929276
+:END:
 #+BEGIN_SRC emacs-lisp
 (defcustom elib:helm-tex-sources
   (helm-build-sync-source
@@ -596,24 +664,34 @@ well non-well documented there."
 ))))
 #+END_SRC
 ** Improve Basic Emacs Experience
+:PROPERTIES:
+:ID:       0c5f0b2e-abdf-41c3-90d1-fab40849003d
+:END:
 *** Configuration file
-Creates a function called [[elisp:(find-function 'configuration-or-gtd-file)][`configuration-or-gtd-file']] which returns
-you to this file and binds it to "<f8>" globally. When you
-mess around a lot with
+:PROPERTIES:
+:ID:       03a6d1fd-eb0e-4df0-919b-640c5e9e9af0
+:END:
+Creates a function called [[elisp:(find-function
+ 'configuration/gtd-file-or-restart-emacs)][`configuration/gtd-file-or-restart-emacs']] which by default
+returns you to this file and binds it to "<f8>" globally. If you give it one universal argument, it returns you to [[elisp:(find-variable 'user-org-gtd-inbox)][`user-org-gtd-inbox']], with two universal arguments to
 #+BEGIN_SRC emacs-lisp
-(defun configuration-or-gtd-file(x)
+(defun configuration/gtd-file-or-restart-emacs (x)
   (interactive "p")
+  (message "%s" current-prefix-arg)
   (cond ((equal current-prefix-arg '(4))
          (find-file user-org-gtd-inbox))
         ((equal current-prefix-arg '(16))
          (find-file user-org-directory))
-        (t
-         (find-file config-file-file-name)
-         )))
+        ((equal current-prefix-arg '(64))
+         (restart-emacs))
+        (t (find-file config-file-file-name))))
 
-(global-set-key (kbd "<f8>") 'configuration-or-gtd-file)
+(global-set-key (kbd "<f8>") 'configuration/gtd-file-or-restart-emacs)
 #+END_SRC
 *** Additional Settings
+:PROPERTIES:
+:ID:       99d4c001-1607-49f3-a799-2297e4f500af
+:END:
 Disable scroll bar and toolbar, disable the keys that hide
 emacs (they are easy to hit on accident which is /really/
 annoying). Also, show column and line number of the cursor
@@ -639,10 +717,12 @@ Show a clock!
 #+BEGIN_SRC emacs-lisp
 (display-time)
 #+END_SRC
-Always answer yes or no questions with just y or n, yes
-or no is annoying to type...
+Always answer yes or no questions with just y or n, yes or no is
+annoying to type. Emacs graphical pop-ups sometimes causes the program
+to hang so I disable it.
 #+BEGIN_SRC emacs-lisp
-(defalias 'yes-or-no-p 'y-or-n-p)
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  (setq use-dialog-box nil)
 #+END_SRC
 Enable syntax highlighting in all modes where it is possible!
 #+BEGIN_SRC emacs-lisp
@@ -690,29 +770,34 @@ Other stuff which may or may not work...
 (setq mac-command-modifier 'meta)
 #+END_SRC
 *** Window Management
-		Winner allows you to restore previous window
-		configurations and jump around in the window
-		configuration history using C-c <left> and C-c <right>
-		(the arrow keys).
+:PROPERTIES:
+:ID:       3bdf2a82-7310-42a2-886d-5f49ac718167
+:END:
+Winner allows you to restore previous window configurations and jump
+around in the window configuration history using C-c <left> and C-c
+<right> (the arrow keys).
 
-		Try it out by typing C-x 3, C-x o, C-x b (choose some
-		buffer) and then C-c <left> twice to get back! Then try
-		C-c <right> once and C-c <left again to return!
+Try it out by typing C-x 3, C-x o, C-x b (choose some buffer) and then
+C-c <left> twice to get back! Then try C-c <right> once and C-c <left
+again to return!
 
 
-		#+BEGIN_SRC emacs-lisp
-			(use-package winner
-	                  :bind (("C-c <left>" . winner-undo)
-				 ("C-c <right>" . winner-redo))
-	                  :config
-	                  (winner-mode t))
-			;; (use-package switch-window
-			;;   :defer 2
-			;;   :bind (("C-x o" . switch-window)))
-			;;
+#+BEGIN_SRC emacs-lisp
+  (use-package winner
+	       :bind (("C-c <left>" . winner-undo)
+		      ("C-c <right>" . winner-redo))
+	       :config
+	       (winner-mode t))
+			  ;; (use-package switch-window
+			  ;;   :defer 2
+			  ;;   :bind (("C-x o" . switch-window)))
+			  ;;
 #+END_SRC
 
 **** Clipmon
+:PROPERTIES:
+:ID:       da180b8f-e514-4a17-a313-10c86c59023a
+:END:
 		Clipmon tries to help emacs synchronize copies and
 		pastes between emacs and the rest of your operating
 		system.
@@ -726,6 +811,9 @@ Other stuff which may or may not work...
   (clipmon-mode))
 			#+END_SRC
 ****  Windmove
+:PROPERTIES:
+:ID:       fdd6346c-192c-4e63-b10a-a3e665812ffa
+:END:
 Windmove keybindings allows you to switch between your
 windows with shift + arrow keys which can be handy when
 you're tired.
@@ -742,6 +830,9 @@ you're tired.
 
 		 #+END_SRC
 **** Zygospore
+:PROPERTIES:
+:ID:       d02288e4-e02c-4269-8653-eaa4f24b96d8
+:END:
 		 Zygospore replaces the default kill all other windows with
 		 a version which lets you go back if you use it again.
 		 #+BEGIN_SRC emacs-lisp
@@ -750,6 +841,9 @@ you're tired.
 	 :bind (("C-x 1" . zygospore-toggle-delete-other-windows)))
 		 #+END_SRC
 **** Help window management
+:PROPERTIES:
+:ID:       8652fd88-e184-46a9-ba72-25f6223c0994
+:END:
 		 By default help windows don't put you in them
 		 immediately, I'd rather they did so they can be killed
 		 quickly after reading.
@@ -759,6 +853,9 @@ you're tired.
 
 
 *** Hydra
+:PROPERTIES:
+:ID:       245eb695-0abf-435d-aab8-eaf1e5a1f8de
+:END:
 Hydra is a package which allows fancy keyboard bindings. The
 		only one which currently exists is C-M-o for
 		window 	management.
@@ -832,6 +929,9 @@ Hydra is a package which allows fancy keyboard bindings. The
 #+END_SRC
 
 *** Mac-specific stuff
+:PROPERTIES:
+:ID:       2a98cf18-bc88-4bd1-95d0-44473338cd63
+:END:
 Add latex, bash, and much more support because they are in
 weird places on Mac OS systems.  Because why wouldn't they
 be.
@@ -842,6 +942,9 @@ be.
 					 (setenv "PATH" (concat "/usr/local/bin:/Library/TeX/texbin/:" (getenv "PATH")))))
 #+END_SRC
 *** Fonts
+:PROPERTIES:
+:ID:       8573eff5-e2b8-436a-b4df-66d075e5fa85
+:END:
 #+BEGIN_SRC emacs-lisp
 ;; (set-frame-font )
 ;; (find-font )
@@ -862,15 +965,67 @@ be.
 ;; (font-family-list)
 #+END_SRC
 *** Restarting Emacs
+:PROPERTIES:
+:ID:       3d5b1d39-5979-4951-b3ff-044537807d60
+:END:
 #+BEGIN_SRC emacs-lisp
-(use-package restart-emacs)
+(defun restart-emacs-with-arguments ()
+  (interactive)
+  (let ((response
+         (read-string "Arguments to new emacs: "
+                      )))
+    (restart-emacs '(response))))
+(defun restart-emacs-debug ()
+  (interactive)
+  ""
+  (restart-emacs '("--debug-init")))
+(use-package restart-emacs
+  :init
+
+  (defun restart-emacs-quick ()
+    (interactive)
+    ""
+    (restart-emacs '("-Q")))
+
+  :config
+
+  (define-key-after
+    global-map
+    [menu-bar restart-emacs-menu]
+    (cons "Restart Emacs"
+          (make-sparse-keymap
+           "Restart-emacs-menu-keymap"))
+    'tools)
+
+  (define-key global-map
+    [menu-bar restart-emacs-menu rs]
+    '("Restart Emacs" . restart-emacs)
+    )
+  (define-key global-map
+    [menu-bar restart-emacs-menu rs-d]
+    '("Restart Emacs (Debug)" . restart-emacs-debug))
+  (define-key global-map
+    [menu-bar restart-emacs-menu rs-q]
+    '("Restart Emacs (Quick)" . restart-emacs-quick))
+  (define-key global-map
+    [menu-bar restart-emacs-menu rs-args]
+    '("Restart Emacs (Args...)" . restart-emacs-with-arguments))
+
+
+  )
 #+END_SRC
 ** Looks/Themes
+:PROPERTIES:
+:ID:       ce830bc7-3da6-432a-a723-1d7faf6cb31d
+:END:
 *** Basic Configuration
+:PROPERTIES:
+:ID:       644ee45f-f75a-4cbd-b3b1-57778fea1221
+:END:
 Adds colouring for variables in programming languages. Sets
 the starting buffer to this file.
 #+BEGIN_SRC emacs-lisp
-  (setq initial-buffer-choice (concat user-emacs-directory "configuration.org"))
+(setq initial-buffer-choice config-file-file-name)
 
   (use-package color-identifiers-mode
     :diminish color-identifiers-mode
@@ -880,10 +1035,16 @@ the starting buffer to this file.
 
 #+END_SRC
 ** Text Editing
+:PROPERTIES:
+:ID:       e88a991a-273f-4647-9f69-db4480e4f2c4
+:END:
 Everything in here is essentially from [[http://tuhdo.github.io][tuhdo]] and most of it
 is sane by default. Check out the individual packages in his
 C/C++ tutorial!
 *** Basic
+:PROPERTIES:
+:ID:       ee87ba06-6f6d-4d2b-b85d-bcfe9ed0928a
+:END:
 #+BEGIN_SRC emacs-lisp
   (setq global-mark-ring-max 5000
 	mark-ring-max 5000
@@ -947,6 +1108,9 @@ C/C++ tutorial!
   ;; (add-hook 'text-mode-hook 'auto-fill-mode)
  #+END_SRC
 *** Keybindings
+:PROPERTIES:
+:ID:       e2c8acc1-eb44-40a8-b854-a7f21334de9e
+:END:
 Disable certain keybindings that are often clicked by
 mistake. Add keybinding for compilation (F5) and for
 capitalising (M-c).
@@ -971,7 +1135,13 @@ capitalising (M-c).
                     (call-interactively 'compile)))
 #+END_SRC
 *** Packages
+:PROPERTIES:
+:ID:       833d7de4-405a-4879-8cb2-f8ff9b497cb9
+:END:
 **** Rainbow Delimiters
+:PROPERTIES:
+:ID:       7a40a382-9438-4c45-bec4-dedb955febd5
+:END:
 Rainbow delimiters highlights braces, brackets, and their
 friends.
 
@@ -980,6 +1150,9 @@ friends.
   :hook (prog-mode . rainbow-delimiters-mode-enable))
 #+END_SRC
 **** Aggressive Indentation
+:PROPERTIES:
+:ID:       9963e877-08ae-4ddf-b709-df81df380927
+:END:
 Tries to keep your indentation in check by, being aggressive
 about it. It is related to electric-indent-mode but is, more
 aggressive.
@@ -990,6 +1163,9 @@ aggressive.
   (global-aggressive-indent-mode t))
 #+END_SRC
 **** Which-key
+:PROPERTIES:
+:ID:       a94d0064-685f-4b20-b43d-6fc8021987c9
+:END:
 Which-key gives you suggestions if you have started a key
 combination but stopped. Real handy.
 #+BEGIN_SRC emacs-lisp
@@ -999,6 +1175,9 @@ combination but stopped. Real handy.
   :hook (after-init . which-key-mode))
 #+END_SRC
 **** Volatile Highlights
+:PROPERTIES:
+:ID:       bf40c61d-c498-4754-920a-4a73936b7286
+:END:
 Briefly highlights changes to the buffer for things like
 pasting.
 #+BEGIN_SRC emacs-lisp
@@ -1008,6 +1187,9 @@ pasting.
   (volatile-highlights-mode t))
 #+END_SRC
 **** Dtrt-Indent
+:PROPERTIES:
+:ID:       155f1c87-b5c8-4c8d-9da5-5ec273426ae6
+:END:
 Guess indentation for many newly opened files based on what
 is already in them.
 #+BEGIN_SRC emacs-lisp
@@ -1018,6 +1200,9 @@ is already in them.
   (setq dtrt-indent-verbosity 0))
 #+END_SRC
 **** Whitespace Butler
+:PROPERTIES:
+:ID:       18029dc2-51f4-4533-86b5-60fe5694f083
+:END:
 Whitespace butler kills useless whitespace when you aren't
 doing anything else.
 #+BEGIN_SRC emacs-lisp
@@ -1026,6 +1211,9 @@ doing anything else.
   :diminish ws-butler-mode)
   #+END_SRC
 **** Undo Tree
+:PROPERTIES:
+:ID:       d2fa8cc9-fec4-41f2-b331-8b1cb3c40a2a
+:END:
 Makes undoing really fancy with a tree. Try it with C-x u.
 #+BEGIN_SRC emacs-lisp
 (use-package undo-tree
@@ -1037,6 +1225,9 @@ Makes undoing really fancy with a tree. Try it with C-x u.
 	undo-tree-visualizer-diff t))
 #+END_SRC
 **** Smartparens
+:PROPERTIES:
+:ID:       efa46fec-5f1e-49bd-9d49-afc32561af23
+:END:
 Smartparens makes working with pairs of things such as
 parentheses simple. It keeps you from messing them up which
 is neat.
@@ -1060,6 +1251,9 @@ is neat.
 				    ("M-<up>" . nil))))
 #+END_SRC
 **** Comment-dwim-2
+:PROPERTIES:
+:ID:       cd4c7416-60e7-4b90-95c0-35de82183bfb
+:END:
 Lets you comment out stuff in more cleaver ways than
 default. Dwim stands for do what i mean.
 #+BEGIN_SRC emacs-lisp
@@ -1067,6 +1261,9 @@ default. Dwim stands for do what i mean.
   :bind (("M-;" . comment-dwim-2)))
 #+END_SRC
 **** Anzu
+:PROPERTIES:
+:ID:       4bc566de-5f12-4aed-b39d-8d57b522fcb6
+:END:
 Anzu makes the regular query and replace function much more
 useful.
 #+BEGIN_SRC emacs-lisp
@@ -1078,6 +1275,9 @@ useful.
 	 ("C-M-%" . anzu-query-replace-regexp)))
 #+END_SRC
 **** Iedit
+:PROPERTIES:
+:ID:       5a77dfde-4a06-4502-99ac-77c360b9ba13
+:END:
 This is really cool. Mark a section and edit all occurrences
 of the section.
 #+BEGIN_SRC emacs-lisp
@@ -1087,6 +1287,9 @@ of the section.
   :bind (("C-M-;" . iedit-mode)))
 #+END_SRC
 **** Customized Functions (Mainly From Prelude)
+:PROPERTIES:
+:ID:       884d3d75-7357-4ac4-b50a-4cbc8b8401ab
+:END:
 #+BEGIN_SRC emacs-lisp
 (defun prelude-move-beginning-of-line (arg)
   "Move point back to indentation of beginning of line. Move
@@ -1253,6 +1456,9 @@ cursor at it's beginning, according to the current mode."
 #+END_SRC
 
 **** Avy
+:PROPERTIES:
+:ID:       3ba766e4-840c-4647-b3e3-7497c7dcf21d
+:END:
 Avy provides an interesting way to find things in text. It
 is the kind of thing that you definitely would be useful if
 you got started but which I haven't really gotten started
@@ -1267,6 +1473,9 @@ with.
 	 ("C-;" . avy-goto-word-1)))
 #+END_SRC
 **** Dumb-Jump
+:PROPERTIES:
+:ID:       965b25ec-745c-4c97-aaeb-df9dd5c22d3b
+:END:
 Dumb jump tries to find variables and functions by simply
 searching for the word in as many files as possible.
 #+BEGIN_SRC emacs-lisp
@@ -1281,6 +1490,9 @@ searching for the word in as many files as possible.
 #+END_SRC
 
 ** PDF-Handling
+:PROPERTIES:
+:ID:       77b2a7a3-3ab5-4862-9f1a-78495d8011d2
+:END:
 The basic emacs pdf viewing utility, docview, is kind of
 wonky. This installs a different utility, pdf-tools
 which is wonderful! It does require some things
@@ -1309,9 +1521,18 @@ It is currently only enabled on linux, mac, and cygwin.
 #+END_SRC
 
 * Development/Writing
+:PROPERTIES:
+:ID:       cb1005df-4514-4726-b68b-1373343100d4
+:END:
 Again, visit [[http://tuhdo.github.io][tuhdo]] but check out the stuff about helm specifically!
 ** Project Management
+:PROPERTIES:
+:ID:       94034714-fb8d-42ea-8956-e84cf7849cb8
+:END:
 *** Projectile
+:PROPERTIES:
+:ID:       37e27ecb-6374-429d-81ac-3ddc0968e9aa
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :hook (prog-mode . projectile-mode)
@@ -1320,6 +1541,9 @@ Again, visit [[http://tuhdo.github.io][tuhdo]] but check out the stuff about hel
   :diminish projectile-mode)
 #+END_SRC
 *** Magit
+:PROPERTIES:
+:ID:       10086449-5e80-4ed3-96e5-0439180ec58a
+:END:
 #+BEGIN_SRC emacs-lisp
 (when (not (string= system-type "windows-nt"))
   (use-package magit
@@ -1329,8 +1553,14 @@ Again, visit [[http://tuhdo.github.io][tuhdo]] but check out the stuff about hel
   )
 #+END_SRC
 ** Helm
+:PROPERTIES:
+:ID:       319b55eb-ac6a-4658-bb7c-23a7b86ea768
+:END:
 Helm makes emacs a lot better.
 *** Helm Gtags
+:PROPERTIES:
+:ID:       34bc616f-cb89-4937-921a-ca59340051c0
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package helm-gtags
   :when (executable-find "gtags")
@@ -1345,6 +1575,9 @@ Helm makes emacs a lot better.
   (setq helm-gtags-prefix-key "\C-cg"))
 #+END_SRC
 *** Basic Configuration
+:PROPERTIES:
+:ID:       4ef254df-450b-4522-9849-4f790b9a8a72
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package helm
   :functions helm-find-files
@@ -1482,12 +1715,18 @@ Helm makes emacs a lot better.
     (setq projectile-indexing-method 'alien)))
 #+END_SRC
 ** Elglot
+:PROPERTIES:
+:ID:       03d6f2fd-2956-473e-b654-4a2766edad38
+:END:
 An emacs language server protocol client. Kind of new.
 Hopefully it gets useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package eglot)
 #+END_SRC
 ** Yasnippet
+:PROPERTIES:
+:ID:       42e5a0f0-74a7-485a-a909-471bffa936a5
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :init
@@ -1502,6 +1741,9 @@ Hopefully it gets useful in the future.
   (add-to-list 'yas-snippet-dirs tuhdo-snippets-directory))
 #+END_SRC
 ** Terminal Usage
+:PROPERTIES:
+:ID:       9828326a-0250-455b-ac08-e349e5121ea2
+:END:
 Create and use multiple terminals with multi-term. It is
 pretty nifty.
 #+BEGIN_SRC emacs-lisp
@@ -1534,6 +1776,9 @@ pretty nifty.
       (cons "C-y" 'term-send-raw)))))
 	 #+END_SRC
 ** LaTeX/AUCTeX
+:PROPERTIES:
+:ID:       1b9bd876-1078-4366-9bde-9db814381c77
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package tex
   :ensure auctex
@@ -1585,16 +1830,19 @@ pretty nifty.
   (setq-default TeX-master nil))
 	 #+END_SRC
 ** Company
+:PROPERTIES:
+:ID:       1e97f178-f9db-4633-8c7e-fd5aa9a72bc5
+:END:
  	#+BEGIN_SRC emacs-lisp
 (use-package company
   :diminish company-mode
   :config
   (global-company-mode t)
 
-  (setq company-idle-delay 0.1
-	company-tooltip-idle-delay 0.1)
-			;;; Back-ends
-			;;; C/C++
+  (setq company-idle-delay 0.01
+	company-tooltip-idle-delay 0.01)
+;;; Back-ends
+;;; C/C++
   (use-package company-clang :ensure nil
     :config
     (setq
@@ -1623,7 +1871,7 @@ pretty nifty.
     (use-package company-irony-c-headers
       :after company-c-headers
       :config
-      (add-to-list 'company-backends '(company-irony-c-headers company-irony))))
+      (add-to-list-multi 'company-backends '(company-irony-c-headers company-irony))))
   (use-package company-rtags
     :after rtags
     :load-path elib:rtags-load-path
@@ -1632,28 +1880,32 @@ pretty nifty.
     :config
     (setq rtags-completions-enabled t)
     (add-to-list 'company-backends 'company-rtags))
-			;;; TeX
+  ;; TeX
   (use-package company-auctex
     :after tex
     :config
     (company-auctex-init))
-			 ;;; Yasnippet
+  ;; Yasnippet
   (use-package company-yasnippet
     :ensure nil
     :after yasnippet
     :config
-    (global-set-key (kbd "C-c y") 'company-yasnippet))
-			;;; Elisp
+    (global-set-key (kbd "C-c y") 'company-yasnippet)
+    (add-to-list 'company-backends 'company-yasnippet t))
+;;; Elisp
   ;; (define-key emacs-lisp-mode-map (kbd "TAB") 'company-complete)
-			;;; Generic
+;;; Generic
   ;; (define-key prog-mode-map (kbd "TAB") 'company-complete)
-			;;; Config
+;;; Config
 
   (when company-backends
     (progn
       (delete 'company-semantic company-backends))))
   #+END_SRC
 ** Flycheck
+:PROPERTIES:
+:ID:       84781c34-923c-43a6-8df9-4b6a1366d4db
+:END:
 	 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :defer 2
@@ -1681,12 +1933,21 @@ pretty nifty.
   (global-flycheck-mode t))
 	 #+END_SRC
 ** Web Development
+:PROPERTIES:
+:ID:       3c853127-d141-4de4-9f48-fd5dd4602930
+:END:
 	 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
 	:defer 2)
 	 #+END_SRC
 ** C/C++
+:PROPERTIES:
+:ID:       142a6210-ba13-4bfc-96d5-5034b7ed22c1
+:END:
 *** Basic Settings
+:PROPERTIES:
+:ID:       770bdc8e-7d22-488c-9e52-f44e75e60659
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package cc-mode
   :mode (("\\.c\\'" . c-mode)
@@ -1708,6 +1969,9 @@ pretty nifty.
   (setq c-default-style "stroustrup"))
 		#+END_SRC
 *** Debugging
+:PROPERTIES:
+:ID:       035337e0-f10b-4bf8-a862-a14e8804eecc
+:END:
 		This is really cool. Try it with M-x gdb and choose the
 		binary you want to debug.
 		#+BEGIN_SRC emacs-lisp
@@ -1717,7 +1981,13 @@ pretty nifty.
 				gdb-show-main t))
 		#+END_SRC
 *** Packages
+:PROPERTIES:
+:ID:       94f26649-6cec-4874-816a-ed192e52b7be
+:END:
 **** Irony Mode
+:PROPERTIES:
+:ID:       2e68a23b-3d71-4e76-af1f-4c36b383815d
+:END:
 		 #+BEGIN_SRC emacs-lisp
 (use-package irony
   :after cc-mode
@@ -1727,6 +1997,9 @@ pretty nifty.
   )
 		 #+END_SRC
 **** Rtags
+:PROPERTIES:
+:ID:       dacd9601-b4cb-49f3-b1bd-fe0adb0b546b
+:END:
 		 #+BEGIN_SRC emacs-lisp
 (use-package rtags
   :after cc-mode
@@ -1745,6 +2018,9 @@ pretty nifty.
   (rtags-diagnostics))
 		 #+END_SRC
 **** Clang Format
+:PROPERTIES:
+:ID:       6ca50e64-9ca9-42ca-8e64-279694d0d944
+:END:
 		 #+BEGIN_SRC emacs-lisp
 (use-package clang-format
   :after cc-mode
@@ -1758,6 +2034,9 @@ pretty nifty.
 		 #+END_SRC
 
 **** Cmake
+:PROPERTIES:
+:ID:       c231c0a1-c165-4a46-a64c-d0d6da27f0c7
+:END:
 		 #+BEGIN_SRC emacs-lisp
 (use-package cmake-mode
   :defer t
@@ -1769,11 +2048,17 @@ pretty nifty.
     (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)))
 		 #+END_SRC
 **** Meson
+:PROPERTIES:
+:ID:       abbc6ce6-c892-494d-9dc5-821e063340f7
+:END:
 
 		 #+BEGIN_SRC emacs-lisp
 (use-package meson-mode)
 		 #+END_SRC
 **** Cmake-ide
+:PROPERTIES:
+:ID:       e4b9cf20-4250-4756-82af-12a3f0ff09d0
+:END:
 		 #+BEGIN_SRC emacs-lisp
 (use-package cmake-ide
 	:after rtags
@@ -1781,7 +2066,13 @@ pretty nifty.
 	(cmake-ide-setup))
 		 #+END_SRC
 ** Emacs Lisp
+:PROPERTIES:
+:ID:       078eee9e-e320-40f5-a4b5-a9b75c5c6358
+:END:
 *** Elisp Development
+:PROPERTIES:
+:ID:       3e99c5f0-761b-4902-9239-8b64cfa6c59a
+:END:
 #+BEGIN_SRC emacs-lisp
 ;; Key-bindings are
 ;; j lispy-down
@@ -1826,14 +2117,6 @@ pretty nifty.
 ;; O make code one-line
 ;; M make code multi-line
 ;;
-
-
-
-
-
-
-
-
 (use-package
   lispy
   :hook ((inferior-emacs-lisp-mode
@@ -1841,10 +2124,6 @@ pretty nifty.
           lisp-mode
           lisp-interaction-mode
           emacs-lisp-mode) . lispy-mode))
-
-
-
-
 
 ;; (defvar lisp-modes '(emacs-lisp-mode
 ;; inferior-emacs-lisp-mode ielm-mode lisp-mode ;;
@@ -1960,6 +2239,9 @@ pretty nifty.
 #+END_SRC
 
 ** Java
+:PROPERTIES:
+:ID:       b0ef0e64-e8c9-4938-a384-78ea212b77a7
+:END:
 #+BEGIN_SRC emacs-lisp 
 ;; (defvar eclim-path (or (when (file-exists-p
 ;;                               "~/.eclipse/org.eclipse.platform_155965261_linux_gtk_x86_64/")
@@ -1980,12 +2262,14 @@ pretty nifty.
 
 #+END_SRC
 * Org Mode
+:PROPERTIES:
+:ID:       bb4a983b-23e4-4f42-be11-7a7c062bcc9b
+:END:
 ** Basic Setup
+:PROPERTIES:
+:ID:       bb4db413-5085-44e5-9606-f29c20891f43
+:END:
 	 #+BEGIN_SRC emacs-lisp
-(defun re-parse-configurations ()
-  "Re parse the main configuration file"
-  (interactive)
-  (org-babel-load-file config-file-file-name))
 (use-package org
   :commands (org-mode org-babel-load-file org-babel-tangle-file)
   :preface
@@ -2007,17 +2291,21 @@ pretty nifty.
   (setq org-return-follows-link t)
 
 
-
-  (defun hot-expand (str)
-    "Expand org template."
-    (insert str)
-    (org-try-structure-completion))
-  (defun org-self-insert-or-less ()
-    (interactive)
-    (if (looking-back "^")
-        (hydra-org-template/body)
-      (self-insert-command 1)))
   :config
+  (defvar user-org-todo-key-sequences
+    '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "|"   "DONE(d)" "DELEGATED(D)" "CANCELLED(c)")))
+
+  (setq org-todo-keywords user-org-todo-key-sequences)
+
+
+
+
+
+
+
+
+
+
   (use-package org-beautify-theme
     :disabled t)
   (setq org-pretty-entities t)
@@ -2044,28 +2332,30 @@ pretty nifty.
                                         ;(sh . t)
        (gnuplot . t))))
 
-  (setq org-refile-targets nil)
   (setq org-src-preserve-indentation t)
   (setq org-src-tab-acts-natively t)
   (plist-put org-format-latex-options :scale 1.5)
 
   (setq org-default-notes-file user-org-todo-file-name
-	org-use-fast-todo-selection t
-	org-src-window-setup 'current-window)
+        org-use-fast-todo-selection t
+        org-src-window-setup 'current-window)
 
   :bind (("\C-cl" . org-store-link)
-	 ("\C-cb" . org-iswitchb)
-	 :map org-mode-map
+         ("\C-cb" . org-iswitchb)
+         :map org-mode-map
          ("<" . org-self-insert-or-less)
          ("C-c M-o" . org-toggle-link-display)
          ("S-<f5>" . org-call-export-to-pdf)
-	 ;;("<f5>" . org-call-export-to-beamer)
-	 ("C-c ." . org-time-stamp)
-	 ("\M-\C-g" . org-plot/gnuplot)))
+         ;;("<f5>" . org-call-export-to-beamer)
+         ("C-c ." . org-time-stamp)
+         ("\M-\C-g" . org-plot/gnuplot)))
 
 
 	 #+END_SRC
-** Capture 
+** Capture
+:PROPERTIES:
+:ID:       284aed85-1e89-4404-833c-9fee55c367f0
+:END:
 #+BEGIN_SRC emacs-lisp 
 (defvar org-gtd-inbox (expand-file-name "~/nextcloud/org/inbox.org"))
 (defvar user-org-gtd-inbox
@@ -2074,28 +2364,30 @@ pretty nifty.
            (replace-regexp-in-string
             "\n$" ""
             (shell-command-to-string "uname -n") )".org"  )))
-(defvar user-org-gtd-file (expand-file-name "~/nextcloud/org/gtd.org"))
+(defvar user-org-gtd-file (expand-file-name "~/nextcloud/org/main-gtd.org"))
 (defvar user-org-shopping-file (expand-file-name "~/nextcloud/org/shopping.org"))
 (defvar user-org-tickler-file (expand-file-name "~/nextcloud/org/tickler.org"))
 (defvar user-org-someday-file (expand-file-name "~/nextcloud/org/someday.org"))
-;; (setq org-refile-targets `((,user-org-gtd-file :maxlevel . 3)
-;;                            (,user-org-someday-file :level . 1)
-;;                            (,user-org-tickler-file :maxlevel . 2)))
 
 (defvar org-capture-quote-tempalate
   `("q" "Quote " entry (file ,user-org-quotes-file-name)
-    "* %?\n%U\n   " :empty-lines 1))
+    "* %?\n%U\n   "
+    :empty-lines 1 :prepend t
+    :kill-buffer t))
 
-(setq org-capture-event-template
-      `("e" "Event" entry (file+headline ,user-org-gtd-inbox "Events")
-        "* EVENT %i%? :event:\n" :empty-lines 1))
+(defvar org-capture-event-template
+  `("e" "Event" entry (file ,user-org-gtd-inbox)
+    "* EVENT %i%? :event:\n"
+    :empty-lines 1 :prepend t
+    :kill-buffer t))
 
 
 
 (defvar org-capture-tickler-template
   `("T" "Tickler" entry
-    (file+headline user-org-tickler-file "Someday")
-    "* %i%? \n %U"))
+    (file user-org-tickler-file)
+    "* %i%? \n %U"
+    :kill-buffer t :prepend t))
 
 (defvar org-capture-stuff-to-buy-template
   `("b" "Buy" entry
@@ -2103,12 +2395,14 @@ pretty nifty.
      ,user-org-shopping-file
      "Shopping")
     "* TODO Buy %i%? :shopping:"
-    :empty-lines 1))
+    :empty-lines 1 :prepend t
+    :kill-buffer t))
 
 (defvar org-capture-todo-template
   `("t" "Todo [inbox]" entry
-    (file+headline ,user-org-gtd-inbox "To do")
-    "* TODO %i%?\n" :empty-lines 1))
+    (file ,user-org-gtd-inbox )
+    "* TODO %i%?\n"
+    :empty-lines 1 :kill-buffer t :prepend t))
 
 
 
@@ -2130,11 +2424,197 @@ pretty nifty.
   :config
   )
 #+END_SRC
+** Agenda
+#+BEGIN_SRC emacs-lisp
+(use-package org-agenda
+  :ensure org
+  :commands org-agenda
+  :bind (("\C-ca" . org-agenda))
+  :after org
+  :init
+  (defun org-current-is-todo ()
+    (string= "TODO" (org-get-todo-state)))
+  (defun org-current-is-next ()
+    (string= "NEXT" (org-get-todo-state)))
+  (defun org-current-is-actionable ()
+    (or (org-current-is-todo)
+        (org-current-is-next)))
+  (defun my-org-agenda-skip-all-siblings-but-first ()
+    "Skip all but the first non-done entry."
+    (let (should-skip-entry)
+      (unless (org-current-is-actionable)
+        (setq should-skip-entry t))
+      (save-excursion
+        (while (and (not should-skip-entry) (org-goto-sibling t))
+          (when (org-current-is-actionable)
+            (setq should-skip-entry t))))
+      (when should-skip-entry
+        (or (outline-next-heading)
+            (goto-char (point-max))))))
+  (defun my-org-agenda-skip-all-siblings-but-first--next-only ()
+    "Skip all but the first NEXT entry."
+    (let (should-skip-entry)
+      (unless (org-current-is-next)
+        (setq should-skip-entry t))
+      (save-excursion
+        (while (and (not should-skip-entry) (org-goto-sibling t))
+          (when (org-current-is-next)
+            (setq should-skip-entry t))))
+      (when should-skip-entry
+        (or (outline-next-heading)
+            (goto-char (point-max))))))
+
+  :config
+  (setq org-agenda-dim-blocked-tasks nil)
+  (setq org-agenda-compact-blocks t)
+  (setq org-agenda-files (list
+                          config-file-file-name
+                          user-org-todo-file-name
+                          user-org-gtd-file
+                          user-org-gtd-inbox
+                          user-org-shopping-file
+                          user-org-tickler-file
+                          ))
+  ;; Luna related contexts
+  (defvar user-org-luna-context
+    '("l" . "Luna Contexts"))
+  (defvar user-org-luna-agenda
+    '("lt" "Luna " tags-todo "@luna"
+      ((org-agenda-overriding-header "Luna")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))))
+  (defvar user-org-luna-agenda-next-only
+    '("ln" "Luna --- Next Only " tags-todo "@luna"
+      ((org-agenda-overriding-header "Luna")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first--next-only))))
+  (defvar user-org-luna-agenda-next-all
+    '("la"
+      "Luna --- All Next"
+      ((tags-todo "@luna"))
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if
+          'todo
+          '("TODO" "WAITING")))
+       (org-agenda-overriding-header
+        "Luna"))))
+
+  ;; Emacs related context
+  (defvar user-org-emacs-context '("E" . "Emacs Contexts"))
+  (defvar user-org-emacs-agenda '("Et" "Emacs " tags-todo "@emacs"
+                                  ((org-agenda-overriding-header "Emacs")
+                                   (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))))
+
+  (defvar user-org-emacs-agenda-next-only
+    '("En" "Emacs --- Next Only " tags-todo "@emacs"
+      ((org-agenda-overriding-header "Emacs")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first--next-only))))
+
+
+  (defvar user-org-emacs-agenda-all-next
+    '("Ea"
+      "Emacs --- All Next"
+      ((tags-todo "@emacs"))
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if
+          'todo
+          '("TODO" "WAITING")))
+       (org-agenda-overriding-header
+        "Emacs"))))
+
+  ;; Studies/Physics related context
+
+  (defvar user-org-physics-context '("p" . "Physics Contexts"))
+  (defvar user-org-physics-agenda '("pt" "Physics " tags-todo "@studies"
+                                    ((org-agenda-overriding-header "Studies")
+                                     (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))))
+
+  (defvar user-org-physics-agenda-next-only
+    '("pn" "Physics --- Next Only " tags-todo "@studies"
+      ((org-agenda-overriding-header "Studies")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first--next-only))))
+
+
+  (defvar user-org-physics-agenda-all-next
+    '("pa"
+      "Physics --- All Next"
+      ((tags-todo "@studies"))
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if
+          'todo
+          '("TODO" "WAITING")))
+       (org-agenda-overriding-header
+        "Studies"))))
+
+
+
+  ;; Home context
+  (defvar user-org-home-context '("h" . "Home Contexts"))
+  (defvar user-org-home-agenda '("ht" "Home " tags-todo "@home"
+                                 ((org-agenda-overriding-header "Home")
+                                  (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))))
+
+  (defvar user-org-home-agenda-next-only
+    '("hn" "Home --- Next Only " tags-todo "@home"
+      ((org-agenda-overriding-header "Home")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first--next-only))))
+
+
+  (defvar user-org-home-agenda-all-next
+    '("ha"
+      "Home --- All Next"
+      ((tags-todo "@home"))
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if
+          'todo
+          '("TODO" "WAITING")))
+       (org-agenda-overriding-header
+        "Home"))))
+  ;; Generic
+
+  (defvar user-org-generic-context '("n" . "All Contexts"))
+  (defvar user-org-generic-agenda-next-only
+    '("nn"
+      "All --- Next Only "
+      ((todo))
+      ((org-agenda-skip-function
+        #'my-org-agenda-skip-all-siblings-but-first--next-only))))
+  (defvar user-org-generic-agenda-all-next
+    '("na"
+      "All --- All Next"
+      ((todo))
+      ((org-agenda-skip-function '(org-agenda-skip-entry-if
+                                   'todo '("TODO" "WAITING"))))))
+  ;; Finally
+  (setq org-agenda-custom-commands
+        (list
+         user-org-luna-context
+         user-org-luna-agenda
+         user-org-luna-agenda-next-only
+         user-org-luna-agenda-next-all
+         user-org-emacs-context
+         user-org-emacs-agenda
+         user-org-emacs-agenda-next-only
+         user-org-emacs-agenda-all-next
+         user-org-physics-context
+         user-org-physics-agenda
+         user-org-physics-agenda-next-only
+         user-org-physics-agenda-all-next
+         user-org-home-context
+         user-org-home-agenda
+         user-org-home-agenda-next-only
+         user-org-home-agenda-all-next
+         user-org-generic-context
+         user-org-generic-agenda-next-only
+         user-org-generic-agenda-all-next)))
+#+END_SRC
 ** Structure Templates
+:PROPERTIES:
+:ID:       272a2f72-b655-4211-b963-3cb58d648fd5
+:END:
 #+BEGIN_SRC emacs-lisp
 (eval-after-load "hydra"
-  (defhydra hydra-org-template (:color blue :hint nil)
-    "
+  (progn
+    (defhydra hydra-org-template (:color blue :hint nil)
+      "
 _c_enter          _q_uote          _L_aTeX:
 _d_efn            _ex_ample        _th_eorem:
 _ll_atex-snippet  _eq_uation       _l_atex:
@@ -2143,39 +2623,49 @@ _el_isp           _a_scii          _v_erse:
 _I_NCLUDE         _s_rc            _H_TML:
 _h_tml            _i_ndex          _A_SCII:
 "
-    ("s" (hot-expand "<s"))
-    ("ex" (hot-expand "<ex"))
-    ("d" (hot-expand "<dfn"))
-    ("n" (hot-expand "<n"))
-    ("lh" (hot-expand "<lh"))
-    ("th" (hot-expand "<th"))
-    ("ll" (hot-expand "<ll"))
-    ("eq" (hot-expand "<eq"))
-    ("p" (hot-expand "<p"))
-    ("el" (hot-expand "<el"))
-    ("q" (hot-expand "<q"))
-    ("v" (hot-expand "<v"))
-    ("c" (hot-expand "<c"))
-    ("l" (hot-expand "<l"))
-    ("h" (hot-expand "<h"))
-    ("a" (hot-expand "<a"))
-    ("L" (hot-expand "<L"))
-    ("i" (hot-expand "<i"))
-    ("I" (hot-expand "<I"))
-    ("H" (hot-expand "<H"))
-    ("A" (hot-expand "<A"))
-    ("t" (hot-expand "<t"))
-    ("<" self-insert-command "ins")
-    ("o" nil "quit")))
+      ("s" (hot-expand "<s"))
+      ("ex" (hot-expand "<ex"))
+      ("d" (hot-expand "<dfn"))
+      ("n" (hot-expand "<n"))
+      ("lh" (hot-expand "<lh"))
+      ("th" (hot-expand "<th"))
+      ("ll" (hot-expand "<ll"))
+      ("eq" (hot-expand "<eq"))
+      ("p" (hot-expand "<p"))
+      ("el" (hot-expand "<el"))
+      ("q" (hot-expand "<q"))
+      ("v" (hot-expand "<v"))
+      ("c" (hot-expand "<c"))
+      ("l" (hot-expand "<l"))
+      ("h" (hot-expand "<h"))
+      ("a" (hot-expand "<a"))
+      ("L" (hot-expand "<L"))
+      ("i" (hot-expand "<i"))
+      ("I" (hot-expand "<I"))
+      ("H" (hot-expand "<H"))
+      ("A" (hot-expand "<A"))
+      ("t" (hot-expand "<t"))
+      ("<" self-insert-command "ins")
+      ("o" nil "quit"))
+    (eval-after-load "org"
+      (progn (defun hot-expand (str)
+               "Expand org template."
+               (insert str)
+               (org-try-structure-completion))
+             (defun org-self-insert-or-less ()
+               (interactive)
+               (if (looking-back "^")
+                   (hydra-org-template/body)
+                 (self-insert-command 1))))
+      ))
+  )
 
 (add-to-list-multi
  'org-structure-template-alist
  '(("la" "#+BEGIN_EXPORT latex\
  \n\\begin{align*}\n?\n\\end{align*}\n#+END_EXPORT")
-
    ("cc" "#+BEGIN_SRC C++ :flags -lginac -lcln -ldl :exports\
  none\n?\n#+END_SRC")
-
    ("el" "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC")
    ("eq" "\\begin{equation}\n?\n\\end{equation}\n")
    ("th" "#+begin_theorem\n?\n#+end_theorem\n")
@@ -2189,29 +2679,30 @@ _h_tml            _i_ndex          _A_SCII:
    ("n" "#+NAME:?\n#+BEGIN_EQUATION\n #+END_EQUATION\n"))
  nil 'equal)
 #+END_SRC
-** Agenda 
-#+BEGIN_SRC emacs-lisp 
-(use-package org-agenda
-  :ensure nil
-  :commands org-agenda
-  :bind (("\C-ca" . org-agenda))
-  :after org
-  :config
-  (setq org-agenda-dim-blocked-tasks nil)
-  (setq org-agenda-compact-blocks t)
-  (setq org-agenda-files (list
-                          config-file-file-name
-                          user-org-todo-file-name
-                          user-org-gtd-file
-                          user-org-gtd-inbox
-                          user-org-shopping-file
-                          user-org-tickler-file
-                          ;; org-gcal-calendar-main-file-name
-                          ;; org-gcal-calendar-lu-file-name
-                          ;; org-gcal-calendar-info-ordf-file-name
-                          )))
+** Refile
+:PROPERTIES:
+:ID:       d6e57986-c359-4249-93bd-85ec765f1373
+:END:
+We cannot use use-package here because the refile things are defined in the same file as the regular org-functionality. We instead do a hand-made version by telling emacs to run some code either once it loads [[elisp:(find-function 'org-agenda)][`org-agenda']] or, if [[elisp:(find-function 'org-agenda)][`org-agenda']] is already loaded just load it immediately. This is done by the [[elisp:(find-function 'eval-after-load)][`eval-after-load']] functionality of Emacs.
+#+BEGIN_SRC emacs-lisp
+(eval-after-load
+    "org-agenda"
+  '(progn
+     (setq org-refile-targets
+           '((nil :maxlevel . 3)
+             (user-org-gtd-file
+              :maxlevel . 3)
+             (org-gtd-inbox :level . 1)
+             (user-org-gtd-inbox :level . 1)
+             (config-file-file-name
+              :maxlevel . 3)
+             (user-org-tickler-file
+              :maxlevel . 2)))))
 #+END_SRC
 ** Calendar
+:PROPERTIES:
+:ID:       84501e67-62f7-4d9b-9af8-37fdd13d20f3
+:END:
  #+BEGIN_SRC emacs-lisp
 (use-package calfw
   :when (file-exists-p
@@ -2236,12 +2727,54 @@ _h_tml            _i_ndex          _A_SCII:
     )
   (load-file (expand-file-name "~/nextcloud/org/orgsettings.el"))
   (bind-key "C-c q" 'elib:open-calendar)
-  (setq cfw:org-agenda-schedule-args '(:timestamp))
-  (setq cfw:org-overwrite-default-keybinding t))
+  ;; (setq cfw:org-agenda-schedule-args '(:timestamp))
+  (setq cfw:org-overwrite-default-keybinding t)
+  (setq calendar-week-start-day 1) ;; 1 = Monday, 0 = Sunday
+
+  )
+
+(defvar org-caldavsettings-file (concat org-gcal-calendar-location "caldavsettings.el"))
+
+(setq org-icalendar-alarm-time 1440)
+(setq org-icalendar-combined-name "Org Mode Calendar")
+(setq org-icalendar-combined-description "Calendar exported from Org-mode")
+(setq org-icalendar-exclude-tags nil)
+(setq org-icalendar-combined-agenda-file (expand-file-name "~/nextcloud/org/cal/combined.ics"))
+(setq org-icalendar-include-todo 'all)
+(setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
+(setq org-icalendar-use-scheduled '(event-if-todo event-if-not-todo))
+(setq org-icalendar-store-UID t)
+(load-file org-caldavsettings-file)
+
+(use-package org-caldav
+  :disabled t
+  :after org
+  :config
+  ;; this hook saves an ics file once an org-buffer is saved
+(use-package oauth2)
+  (defun my-icalendar-agenda-export()
+    (if (string= (file-name-extension (buffer-file-name)) "org")
+        (org-icalendar-combine-agenda-files))
+    )
+  (add-hook 'after-save-hook 'my-icalendar-agenda-export)
+
+  ;; (org-caldav-sync)
+
+  )
+
 	 #+END_SRC
 * Communication
+:PROPERTIES:
+:ID:       891ec807-5600-43e3-a82d-876ca19fc80b
+:END:
 ** Email
+:PROPERTIES:
+:ID:       85c9e3ba-bb40-4ac8-93cb-bfd7c1f942b1
+:END:
 *** Misc
+:PROPERTIES:
+:ID:       e7f4c7a0-4f14-4a73-8b89-608b1a009cc0
+:END:
 		#+BEGIN_SRC emacs-lisp
 (require 'gnus-dired)
 (require 'smtpmail)
@@ -2264,6 +2797,9 @@ _h_tml            _i_ndex          _A_SCII:
 (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
 		#+END_SRC
 *** Mu4e
+:PROPERTIES:
+:ID:       6c9d56eb-6703-49d1-8386-fb44a3db1ee9
+:END:
 #+BEGIN_SRC emacs-lisp
 (defun my-mu4e-choose-signature ()
   "Insert one of a number of sigs"
@@ -2518,8 +3054,10 @@ maildir:/info/[Gmail]/Skickat"
     ))
 #+END_SRC
 
-
 ** Web Browsing
+:PROPERTIES:
+:ID:       d26d51a3-2894-4a4b-abf3-a47859d99fd3
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package w3m-load
   :when (and (executable-find "w3m") (file-exists-p
@@ -2527,10 +3065,19 @@ maildir:/info/[Gmail]/Skickat"
   :load-path "/usr/share/emacs/site-lisp/w3m/"
   :ensure nil
   )
-#+END_SRC
+#+END_SRC
 * Utilities
+:PROPERTIES:
+:ID:       d3f405a0-845a-4217-8767-9ac286ce1107
+:END:
 ** Spell Checking
+:PROPERTIES:
+:ID:       59f29b06-a01d-4073-a3cd-02ec9d5ec7b8
+:END:
 *** Abbrev
+:PROPERTIES:
+:ID:       e06b732b-55ae-45d2-914e-924681806857
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package abbrev
   :ensure nil
@@ -2544,6 +3091,9 @@ maildir:/info/[Gmail]/Skickat"
   )
 #+END_SRC
 *** Flyspell
+:PROPERTIES:
+:ID:       8a3113a7-f058-4209-8332-49520dc98a0f
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package flyspell
   :defer 1
@@ -2557,6 +3107,9 @@ maildir:/info/[Gmail]/Skickat"
     :bind (("C-c ;" . helm-flyspell-correct))))
 #+END_SRC
 ** Google Translate
+:PROPERTIES:
+:ID:       c39596fe-1f9e-41ac-82e6-588bbedd90b2
+:END:
 	 #+BEGIN_SRC emacs-lisp
 (use-package google-translate
   :config
@@ -2568,6 +3121,9 @@ maildir:/info/[Gmail]/Skickat"
 	  '(("sv" . "en") ("en" . "sv")))))
 	 #+END_SRC
 ** Lastpass
+:PROPERTIES:
+:ID:       6bc5ecbf-e884-43b4-858a-cc59853b1a71
+:END:
 	 #+BEGIN_SRC emacs-lisp
 (defun lp-login (login-name)
   "Testing"
@@ -2602,6 +3158,9 @@ maildir:/info/[Gmail]/Skickat"
   (lp-get-password name t))
 	 #+END_SRC
 ** Presentations
+:PROPERTIES:
+:ID:       194829a7-5352-480e-9835-3c20d1e608a3
+:END:
 	 #+BEGIN_SRC emacs-lisp
 (use-package demo-it
 	:config)
@@ -2617,7 +3176,13 @@ maildir:/info/[Gmail]/Skickat"
 	 #+END_SRC
 
 * Experimental
+:PROPERTIES:
+:ID:       ce0fc4de-8b3b-4cb3-b1f5-796b2a1d1524
+:END:
 ** Emacs Lisp
+:PROPERTIES:
+:ID:       b5e75921-2a62-41e7-b76c-9aaf7085cb7b
+:END:
 
 	 #+BEGIN_SRC emacs-lisp
 ;(semantic-mode -1)
@@ -2651,6 +3216,9 @@ maildir:/info/[Gmail]/Skickat"
 	)
 	 #+END_SRC
 * To be integrated
+:PROPERTIES:
+:ID:       9dafe517-3d1c-4cd5-9a12-5550abed6e44
+:END:
 There is only darkness here. Flee.
 	#+BEGIN_SRC emacs-lisp
 (defun rgr/toggle-context-help ()
@@ -2672,7 +3240,9 @@ manually reshow it. A double toggle will make it reappear"
 Default behaviour can be turned off by setting the buffer local
 context-help to false"
   (interactive)
-  (let ((rgr-symbol (symbol-at-point))) ; symbol-at-point http://www.emacswiki.org/cgi-bin/wiki/thingatpt%2B.el
+  (let ((rgr-symbol (symbol-at-point))
+        (help-window-select)
+        ) ; symbol-at-point http://www.emacswiki.org/cgi-bin/wiki/thingatpt%2B.el
     (with-current-buffer (help-buffer)
       (unless (local-variable-p 'context-help)
         (set (make-local-variable 'context-help) t))
@@ -2950,6 +3520,9 @@ and insert region contents at top."
 	#+END_SRC
 
 ** ESUP
+:PROPERTIES:
+:ID:       08422b75-c0c1-488d-98a5-ca9ea3007865
+:END:
 	 #+BEGIN_SRC emacs-lisp
 (use-package f
 	:defer t
@@ -3000,13 +3573,22 @@ and insert region contents at top."
 
 	 #+END_SRC
 ** Disabled Stuff
+:PROPERTIES:
+:ID:       eba4b8c9-1906-4da1-bdbb-a392ba6b0f2e
+:END:
 *** Hyperbole
+:PROPERTIES:
+:ID:       0d5973f8-463a-4a0e-873e-56dec92e99a3
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package hyperbole
   :disabled t
   :defer 2)
 #+END_SRC
 *** Writegood/room
+:PROPERTIES:
+:ID:       b28d7494-fda5-4726-9d3d-7e2ccf5908f4
+:END:
 
 	 #+BEGIN_SRC emacs-lisp
 (use-package writegood-mode
@@ -3016,6 +3598,9 @@ and insert region contents at top."
   :disabled t)
 	 #+END_SRC
 *** Evil
+:PROPERTIES:
+:ID:       8b02e3ad-7690-4b3b-aa20-f306821e57aa
+:END:
 	 #+BEGIN_SRC emacs-lisp
 (use-package evil
 	:disabled t
@@ -3025,6 +3610,9 @@ and insert region contents at top."
 	)
 	 #+END_SRC
 *** EXWM
+:PROPERTIES:
+:ID:       aa1694a9-e7c5-41ac-88ca-bc1474edc5ae
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package exwm
   :disabled t
@@ -3044,12 +3632,18 @@ and insert region contents at top."
 ;; (message "ted")
 #+END_SRC
 *** Cask-mode
+:PROPERTIES:
+:ID:       0ed296c0-31c8-4c6d-aa74-1fc36ad16d44
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package cask-mode
   :disabled t
   :defer t)
 #+END_SRC
 *** Swiper
+:PROPERTIES:
+:ID:       a0f98005-f3c5-4f6a-9391-5c30eb7f0a01
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package swiper
   :bind (("C-s" . swiper)
@@ -3059,6 +3653,9 @@ and insert region contents at top."
   (use-package swiper-helm))
 #+END_SRC
 *** Window Purpose
+:PROPERTIES:
+:ID:       ad338cb4-c68f-4044-9993-97cfcc156f43
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package window-purpose
   :disabled t
@@ -3071,6 +3668,9 @@ and insert region contents at top."
     (setq purpose-preferred-prompt 'helm)))
 #+END_SRC
 *** Language Tool
+:PROPERTIES:
+:ID:       77de540d-80d0-4d49-ad45-374160838bdc
+:END:
 	 #+BEGIN_SRC emacs-lisp
 (defun locate-langtool ()
   (or (executable-find "languagetool")
@@ -3086,6 +3686,9 @@ and insert region contents at top."
 	 #+END_SRC
 
 *** Wanderlust
+:PROPERTIES:
+:ID:       10e302a3-d1e3-4426-bdae-5697faef089f
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package wl
   :ensure wanderlust
@@ -3103,6 +3706,9 @@ and insert region contents at top."
 #+END_SRC
 
 *** Notmuch
+:PROPERTIES:
+:ID:       bb8257c8-3879-4cd5-b037-e1bfc2e2b967
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package notmuch
   :disabled t
@@ -3122,6 +3728,9 @@ and insert region contents at top."
                  newest-first)))))
 #+END_SRC
 *** Treemacs
+:PROPERTIES:
+:ID:       c305a9a8-9081-44be-bf7f-c39864b633b0
+:END:
 Treemacs creates a really powerful file-browser that can be
 created with F1. By default, the treemacs-buffer wont be
 selected by C-x o. It can be selected with M-0.
@@ -3153,6 +3762,9 @@ selected by C-x o. It can be selected with M-0.
 	#+END_SRC
 
 *** Powerline
+:PROPERTIES:
+:ID:       13f4a949-e8ae-41f5-b6e4-a4c8ab6e2981
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package powerline
   :disabled t
@@ -3160,6 +3772,9 @@ selected by C-x o. It can be selected with M-0.
   :init (powerline-vim-theme))
 #+END_SRC
 *** Clean Aindent Mode
+:PROPERTIES:
+:ID:       aab04ae8-c5e3-4325-b92b-73605e5d1cbe
+:END:
 Not sure if this is necessary with aggressive-indent.
 #+BEGIN_SRC emacs-lisp
 (use-package clean-aindent-mode
@@ -3169,6 +3784,9 @@ Not sure if this is necessary with aggressive-indent.
 
 
 *** YCMD
+:PROPERTIES:
+:ID:       88421469-a7fb-41aa-83ef-e4f17291e18c
+:END:
 		 #+BEGIN_SRC emacs-lisp
 (use-package ycmd
   :when (file-exists-p "/home/einarelen/src/ycmd/ycmd/")
@@ -3186,6 +3804,9 @@ Not sure if this is necessary with aggressive-indent.
 		 #+END_SRC
 
 *** Function Args
+:PROPERTIES:
+:ID:       38669421-8506-4816-be30-cfd965b5e5a8
+:END:
 		 #+BEGIN_SRC emacs-lisp
 (use-package function-args
 	:disabled t
@@ -3196,6 +3817,9 @@ Not sure if this is necessary with aggressive-indent.
 		 #+END_SRC
 
 *** pp-c-l
+:PROPERTIES:
+:ID:       99943771-3802-4108-b2d2-af505fbd7428
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package pp-c-l
   :disabled t
@@ -3205,6 +3829,9 @@ Not sure if this is necessary with aggressive-indent.
   (bind-key "C-x C-e" #'pp-eval-last-sexp))
 #+END_SRC
 *** Eldoc
+:PROPERTIES:
+:ID:       403daf79-5206-41d5-8c8f-7d67cf471f9b
+:END:
 		#+BEGIN_SRC emacs-lisp
 (defun turn-off-eldoc ()
 	"Temporarily turn off eldoc-mode."
