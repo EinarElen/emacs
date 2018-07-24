@@ -2,14 +2,23 @@
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
+(setq package-user-dir "~/.emacs.d/machine-local-files/elpa/")
+(package-initialize)
 (defvar debuginit-p nil)
 (setq gc-cons-threshold 64000000)
+(setq user-emacs-directory
+      (file-name-as-directory
+       (expand-file-name (concat
+                          "~/.emacs.d/"
+                          "machine-local-files"))))
+(setq recentf-save-file (expand-file-name "recentf" user-emacs-directory))
+(setq auto-save-list-file-prefix (concat user-emacs-directory "auto-save-list/.saves"))
 (add-hook 'after-init-hook #'(lambda ()
                                ;; restore after startup
                                (setq gc-cons-threshold 800000)))
 (require 'package)
 ;; (unless package--initialized (package-initialize))
-(package-initialize)
+;; (package-initialize)
 
 
 
@@ -21,9 +30,11 @@
 (setq use-package-debug nil)
 (setq use-package-verbose nil)
 (setq use-package-always-ensure t)
+
 (defvar no-packages-installed?
-  (not (file-exists-p (concat user-emacs-directory
-                              "elpa")))
+  (or (not (file-exists-p (concat user-emacs-directory
+                                  "elpa")))
+      (not (file-exists-p "~/.emacs.d/elpa")))
   "Does the .emacs.d/elpa directory exist?")
 (eval-when-compile
   (unless (and (not no-packages-installed?)
@@ -70,20 +81,11 @@
                  (byte-compile-file "~/.emacs.d/configuration.el")))
            (let ((time (current-time)))
              (load-file "~/.emacs.d/configuration.el")
-             ;;(require 'elib-configuration "~/.emacs.d/configuration")
-             ;; (with-current-buffer (get-buffer "*scratch*")
-             ;;   (insert (format "Setup took %f seconds!\n" (float-time (time-since time))))
-             ;;   (let ((buf (or (get-buffer "*warnings*")
-             ;;                  (get-buffer "*use-package*"))))
-             ;;     (if (and debug-on-error buf)
-             ;;         (progn
-             ;;           (insert (format "Debug information from use-package:\n"))
-             ;;           (insert-buffer (get-buffer "*use-package*"))))))
              (message "%f" (float-time (time-since time))))
            (when (string= (getenv "DESKTOP_SESSION") "gnome")
-                                        ;(load-file "~/.emacs.d/gnome-server.el")
+                                        ;(load-file "~/.emacs.d/scripts/gnome-server.el")
              ))
-  (load-file "~/.emacs.d/debug-helper.el"))
+  (load-file "~/.emacs.d/scripts/debug-helper.el"))
 (when first-install-needs-pdf-tools?
   (pdf-tools-install t))
 (when first-install-needs-all-the-icons?

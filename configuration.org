@@ -6,6 +6,9 @@
 #+STARTUP: noinlineimages
 
 * Table of Contents                                                     :TOC:
+:PROPERTIES:
+:ID:       3bc347fa-bf95-4b05-9d9f-a1e68d56767a
+:END:
 - [[#emacs-setup][Emacs Setup]]
   - [[#definitions-and-variables][Definitions and Variables]]
   - [[#improve-basic-emacs-experience][Improve Basic Emacs Experience]]
@@ -243,10 +246,10 @@ handy [[elisp:(find-function 'executable-find)][`executable-find']] function.
 There are some files that it is useful to have a variable
 for. If you use some other
 - The main directory for emacs configuration files in [[elisp:(find-variable 'user-emacs-config-directory)][`user-emacs-config-directory']]. We do this so we can redefine [[elisp:(find-variable 'user-emacs-directory)][`user-emacs-directory']] later to store random local files in a place which doesn't clutter our configuration directory.
-outside of our configuration directory.
 - Location of some extra snippets for the yasnippet package
   from Tuhdo in  [[elisp:(find-variable 'tuhdo-snippets-directory)][`tuhdo-snippets-directory']]. This is used
   later in [[*Yasnippet][Yasnippet]]
+
 - The location of the configuration file (i.e. this file) in
   [[elisp:(find-variable 'config-file-file-name)][`config-file-file-name']] (great name choice right?)
 - The location of the scripts file in [[elisp:(find-variable 'scripts-file-file-name)][`scripts-file-file-name']]
@@ -271,18 +274,24 @@ outside of our configuration directory.
   - My student calendar in [[elisp:(find-variable 'org-gcal-calendar-lu-file-name)][`org-gcal-calendar-lu-file-name']]
 #+BEGIN_SRC emacs-lisp
 (eval-when-compile
-  (defcustom tuhdo-snippets-directory
+  (defcustom user-emacs-config-directory
+    (file-name-as-directory (expand-file-name "~/.emacs.d"))
+    "The emacs configuration directory."
+    :type 'string
+    :group :elib:file-paths)
+(defcustom tuhdo-snippets-directory
     (expand-file-name
-     (concat user-emacs-directory
+     (concat user-emacs-config-directory
 	     "tuhdosnippets"))
     "Location of extra yasnippet files from Tuhdo."
     :type 'string
     :group 'elib:file-paths)
 
+
   (defcustom config-file-file-name
     (expand-file-name
      (concat
-      user-emacs-directory
+      user-emacs-config-directory
       "configuration.org"))
     "The filename of the user configuration file."
     :type 'string
@@ -291,7 +300,7 @@ outside of our configuration directory.
 
   (defcustom script-file-file-name
     (expand-file-name
-     (concat user-emacs-directory "scripts.org"))
+     (concat user-emacs-config-directory "scripts.org"))
     "The filename of the scripts file."
     :type 'string
     :group 'elib:file-paths
@@ -347,7 +356,7 @@ outside of our configuration directory.
     :group 'elib:org)
 
   (defcustom user-org-todo-file-name
-    (expand-file-name (concat user-emacs-directory
+    (expand-file-name (concat user-emacs-config-directory
 			      "../todo.org"))
     "The "
     :group 'elib:org
@@ -355,12 +364,12 @@ outside of our configuration directory.
     )
   (defcustom user-org-quotes-file-name
     (expand-file-name
-     (concat user-emacs-directory "../citatsamling.org"))
+     (concat user-emacs-config-directory "../citatsamling.org"))
     ""
     :group 'elib:org
     :group 'elib:file-paths
     )
-  (defcustom abbrev-location (expand-file-name ".abbrev_defs" user-emacs-directory)
+  (defcustom abbrev-location (expand-file-name ".abbrev_defs" user-emacs-config-directory)
     ""
     :group 'abbrev
     :group 'elib:file-paths
@@ -418,12 +427,12 @@ The packages and their load-paths are:
 #+BEGIN_SRC emacs-lisp
 (eval-when-compile
   (defvar load-path-script-location
-    (expand-file-name (concat user-emacs-directory "special-packages.el")))
+    (expand-file-name (concat user-emacs-config-directory "special-packages.el")))
   (defvar elib:org-gcal-load-path (expand-file-name "~/src/org-gcal/"))
   (defvar elib:rtags-load-path
     (potential-load-paths
      `("/usr/share/emacs/site-lisp/rtags/rtags.el"
-       ,(concat user-emacs-directory
+       ,(concat user-emacs-config-directory
                "../src/rtags/src/"))))
   (defvar elib:mu4e-load-path
     (potential-load-paths
@@ -745,6 +754,23 @@ returns you to this file and binds it to "<f8>" globally. If you give it one uni
 :PROPERTIES:
 :ID:       99d4c001-1607-49f3-a799-2297e4f500af
 :END:
+Change the default location of [[elisp:(find-variable
+'user-emacs-directory)][`user-emacs-directory']] so that it
+does not clutter our configuration directory. Use
+[[elisp:(find-variable
+'user-emacs-config-directory)][`user-emacs-config-directory']]
+instead for the configuration directory.
+
+#+BEGIN_SRC emacs-lisp
+(setq user-emacs-directory
+      (file-name-as-directory
+       (expand-file-name
+        (concat
+         user-emacs-config-directory
+         "machine-local-files"))))
+#+END_SRC
+
+
 Disable scroll bar and toolbar, disable the keys that hide
 emacs (they are easy to hit on accident which is /really/
 annoying). Also, show column and line number of the cursor
@@ -2366,14 +2392,14 @@ pretty nifty.
   (setq org-startup-indented t)
   (setq org-export-async-init-file
         (expand-file-name
-         (concat user-emacs-directory
+         (concat user-emacs-config-directory
                  "orginit.el"))
         org-export-in-background t
         org-export-async-debug nil)
   (use-package ox-latex
     :ensure nil
     :config
-    (setq org-startup-with-latex-preview t))
+    (setq org-startup-with-latex-preview nil))
   (use-package ox-twbs)
 
   (use-package ob
@@ -2478,6 +2504,9 @@ pretty nifty.
   )
 #+END_SRC
 ** Agenda
+:PROPERTIES:
+:ID:       5132d5c7-4885-4fed-a77f-1421c6684ae9
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package org-agenda
   :ensure org
@@ -2817,6 +2846,9 @@ We cannot use use-package here because the refile things are defined in the same
 
 	 #+END_SRC
 ** Table of Content Generation
+:PROPERTIES:
+:ID:       e4967c66-567f-4fd9-a13c-e41e8b0ad444
+:END:
 #+BEGIN_SRC emacs-lisp
 (use-package toc-org
   :hook ((org-mode . toc-org-enable))

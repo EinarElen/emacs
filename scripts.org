@@ -8,6 +8,8 @@
 - [[#emacs-lisp-script-to-install-the-latest-version-of-emacs][Emacs Lisp Script to Install the Latest Version of Emacs]]
   - [[#script-setup][Script setup]]
   - [[#user-configuration-variables][User Configuration Variables]]
+  - [[#other-configuration][Other Configuration]]
+  - [[#stuff-to-do][STUFF TO DO]]
   - [[#script-helper-functions][Script helper-functions]]
 - [[#backup-all-agenda-and-configuration-files][Backup All Agenda and Configuration Files]]
 - [[#some-scripts-to-tangle-and-compile-files][Some Scripts to Tangle and Compile Files]]
@@ -15,6 +17,9 @@
   - [[#compiling][Compiling]]
   - [[#both][Both]]
 - [[#bash-script-to-install-an-emacs-version-if-none-exists-already][Bash Script to Install an Emacs Version if None Exists Already]]
+- [[#deprecatedunused-at-the-moment][Deprecated/Unused at the Moment]]
+  - [[#profilingdebugging-the-configuration][Profiling/Debugging the Configuration]]
+  - [[#gnome-server][Gnome Server]]
 
 * Emacs Lisp Script to Install the Latest Version of Emacs
 ** Script setup
@@ -55,7 +60,7 @@ Some help for people viewing the script file from either gedit or kate as these 
 
 ** User Configuration Variables
 Explain how setq works.
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 ;; Setq takes pairs of variable and new-value and sets the
 ;; value of the variable to new-value.  The q refers to the
 ;; fact that you do not need to quote the variable name.
@@ -149,6 +154,185 @@ Some variables that you might want to change before running the script.
  number-of-make-processes
  "-j8")
 #+END_SRC
+
+** Other Configuration
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
+;;
+;; These are settings that you are unlikely to want to edit.
+;;
+(setq
+ ;; Optimisation flags to the C-compiler.
+ ;; You probably don't need to touch these
+
+ ;; There is some good documentation about these on by RedHat at
+ ;; https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc/
+ ;; Additionally, https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#Optimize-Options
+ ;; is useful.
+
+ ;; Flags to the compiler is an interesting topic.
+ ;; I highly recommend a talk by Tim Haines at CppCon 2016
+ ;; https://www.youtube.com/watch?v=w5Z4JlMJ1VQ
+
+ ;; -march=native tells the compiler to use any
+ ;; functionality available on your processor (by default,
+ ;; it uses a very generic processor which will likely lack
+ ;; many of the fancy features that your expensive processor
+ ;; has available. This is very useful if you plan to share
+ ;; the executable but we have no such plans.
+ ;;
+
+ ;; -O3 is the optimisation level. The default is -O2, and
+ ;; some people claim experience issues with -O3. I have
+ ;; never had any such trouble but feel free to change it
+
+ ;; Similarly, -ffast-math tells the compiler to use
+ ;; floating-point mathematics optimisations that are not
+ ;; strictly compliant with the IEEE standards
+ ;;
+ ;; See https://stackoverflow.com/questions/7420665/what-does-gccs-ffast-math-actually-do
+
+ ;; -pipe avoids creating some temporary files during the
+ ;; build process, speeding up the install but making
+ ;; re-builds if the process is interrupted slower
+
+ emacs-optimization-flags
+ "-O3 -ffast-math -march=native -pipe"
+ ;; If you wish to debug your emacs executable, use the
+ ;; alternative flags below:
+ ;; "-Og -g -march=native -pipe"
+
+ ;; -Og turns on any optimisations that doesn't make the
+ ;; program harder to debug
+ ;; -g turns on debugging information
+
+ ;; This is the set of commands to the configure process. It
+ ;; is generated from your previous settings.
+ emacs-configuration-string
+ (make-command-string  (concat
+                        "--prefix="
+                        emacs-installation-directory-prefix)
+                       (concat
+                        "CFLAGS=\'"
+                        emacs-optimization-flags
+                        "\'")
+                       (concat
+                        "CXXFLAGS=\'"
+                        emacs-optimization-flags
+                        "\'"))
+ make-commands
+ '("" "doc" "tags")
+ make-install-command
+ "make install"
+ )
+#+END_SRC
+** STUFF TO DO
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
+;; Defun - short for define function (lisp has an
+;; interesting way of abbreviating things) defines a
+;; function. My faviourites are lst for "list" and elt for
+;; "element".
+
+;; The syntax is
+;; (defun function-name (list of arguments) "Documentation" code)
+
+;; If the function takes no arguments, the list of arguments
+;; is left empty as below
+
+
+(defun main ()
+  "Here we could write some documentation about what this
+function does. Since this function only exists to be called by
+the script, it doesn't really need any particularly fancy
+documentation."
+  ;; Let allows you to create temporary variables that last
+  ;; throughout the let-block. They are defined in a list as
+  ;; the first argument to let. It has the following form:
+  ;; (let (variables) code)
+
+  ;; Inside the let-binding list, each variable you want to
+  ;; define consists of a pair or a single variable name.
+  ;; i.e. (variable-name value) or (variable-name)
+  ;;
+
+  ;; If you have never programmed in something like lisp
+  ;; before, let-bindings will seem increadibly weird. Why
+  ;; not just define each variable on a line like int x = 3;
+  ;; int y = 4; etc.
+
+  ;; Once you get used to using let, it will start looking
+  ;; as natural as int i = 3;. If you start looking into how
+  ;; lisp works, you will start to understand why
+  ;; let-bindings are increadibly powerful compared to the
+  ;; basic int x = blah;
+
+  ;; For now, just think of it as how to define variables
+  ;; for a block of code. Importantly, we use it to define
+  ;; the variable default-directory which emacs uses to
+  ;; determine what directory to run commands
+  ;; from.
+
+  ;; default-directory has a default value but the let
+  ;; command overwrites it for the duration of the
+  ;; let-block. Afterwards, it returns to its previous
+  ;; value.
+
+
+  (let ((default-directory  emacs-source-directory-base)
+        (git-process-arguments
+         (make-command-string "git" "clone" "-b" emacs-git-branch
+                              emacs-git-url emacs-source-directory))
+        ;; The rest are empty variables which we will use later
+        (git-process)
+        (git-process-exit-status)
+        (error-source-directory-exists-response)
+        (error-continue-regardless))
+
+
+    (unless (file-exists-p emacs-source-directory-base)
+      (message "Creating directory %s" emacs-source-directory-base)
+      (start-shell-command
+       "mkdir"
+       (make-command-string "mkdir" "-p" "-v" emacs-source-directory)))
+
+    (when (file-exists-p (concat emacs-source-directory ".git"))
+      (message "The directory %s seems to already exist. You will be given several choices:\nDelete and clone a fresh copy,\nUse git pull to update,  " emacs-source-directory)
+      (while (or (null error-source-directory-exists-response)
+                 (eq error-source-directory-exists-response 'retry-questions))
+        (if (y-or-n-p "Should we delete it and clone from scratch?")
+            (setq error-source-directory-exists-response 'delete-it)
+          (if (y-or-n-p "Should we use git pull instead to update the directory?")))))
+
+
+    (message "Calling git with arguments %s" git-process-arguments)
+    (setq git-process (start-shell-command "git" git-process-arguments))
+    (while (equal (process-status  git-process)
+                  'run
+                  ))
+    (setq git-process-exit-status  (process-exit-status git-process))
+
+    (when (not (eq 0 git-process-exit-status))
+      (message "The git process failed, ")
+
+      ))
+
+
+  (let ((default-directory emacs-source-directory))
+    (start-shell-command "autoreconf"
+                         (make-command-string "autoreconf" autoreconf-arguments))
+    (apply 'call-process-simple  autoreconf-arguments)
+    (message "Configuring with %s " emacs-configuration-string)
+    (pwd)
+    (shell-command )
+    (apply 'call-process-simple-debug emacs-configuration-string)
+    ))
+
+
+;; "-scriptload" is part of the command line arguments when
+;; the file is loaded as a script. If the file run as a
+;; script, run the main-function.
+(when (member "-scriptload" command-line-args)
+  (main))
+#+END_SRC
 ** Script helper-functions
 These functions help make the script more readable for someone who is new to elisp. Feel free to look into them but you really don't need to.
 
@@ -190,7 +374,7 @@ The configuration file and script files are backed up by git but hey might as we
 #!/usr/bin/emacs --script
 
 (load-file
- (expand-file-name (concat user-emacs-directory "configuration.el")))
+ (expand-file-name ("~/.emacs.d/configuration.el")))
 
 (dolist (x (cons script-file-file-name (cons config-file-file-name org-agenda-files)))
 
@@ -245,11 +429,11 @@ The configuration file and script files are backed up by git but hey might as we
 #+BEGIN_SRC emacs-lisp :tangle scripts/tangle-and-compile.el
 #!/usr/bin/emacs --script
 (let ((force (member "force" command-line-args)))
-  (load-file "./tangle-org-files.el")
+  (load-file "tangle-org-files.el")
   (when (or force
             (file-newer-than-file-p "~/.emacs.d/configuration.org"
                                     "~/.emacs.d/configuration.el"))
-    (load-file "./compile-elisp-files.el")))
+    (load-file "compile-elisp-files.el")))
 #+END_SRC
 * Bash Script to Install an Emacs Version if None Exists Already
 #+BEGIN_SRC bash :tangle scripts/install-emacs.sh
@@ -327,4 +511,273 @@ else
 fi
 
 # ./install-emacs.el
+#+END_SRC
+* Deprecated/Unused at the Moment
+
+** Profiling/Debugging the Configuration
+*** Setup
+#+BEGIN_SRC emacs-lisp :tangle scripts/debug-helper.el
+(require 'package)
+(setq package-enable-at-startup nil)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives
+             '("org" . "http://orgmode.org/elpa/") t)
+(package-initialize)
+(require 'use-package)
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(setq use-package-debug nil)
+(setq use-package-verbose nil)
+(setq use-package-always-ensure t)
+(load-file "scripts/profile-dotemacs.el")
+(profile-dotemacs)
+
+
+#+END_SRC
+*** Profile-dotemacs
+Script for profiling configuration by David Engster. Edit
+the variable `profile-dotemacs-file' to the file you want to
+profile.
+#+BEGIN_SRC emacs-lisp :tangle scripts/profile-dotemacs.el
+;;; profile-dotemacs.el --- Profile your Emacs init file
+
+;; Copyright (C) 2010, 2012  David Engster
+
+;; Author: David Engster <dengste@eml.cc>
+
+;; This file is NOT part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License
+;; as published by the Free Software Foundation; either version 2
+;; of the License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This is to easily profile your Emacs init file (or any other
+;; script-like Emacs Lisp file, for that matter).
+
+;; It will go over all sexp's (balanced expressions) in the file and
+;; run them through `benchmark-run'.  It will then show the file with
+;; overlays applied in a way that let you easily find out which sexp's
+;; take the most time.  Since time is relative, it's not the absolute
+;; value that counts but the percentage of the total running time.
+;;
+;; * All other sexp's with a percentage greater than
+;;   `profile-dotemacs-low-percentage' will be preceded by a
+;;   highlighted line, showing the results from `benchmark-run'.
+;;   Also, the more 'reddish' the background of the sexp, the more
+;;   time it needs.
+
+;; * All other sexp's will be grayed out to indicate that their
+;;   running time is miniscule.  You can still see the benchmark
+;;   results in the minibuffer by hovering over the sexp with the
+;;   mouse.
+
+;; You can only benchmark full sexp's, so if you wrapped large parts
+;; of your init file in some conditional clause, you'll have to remove
+;; that for getting finer granularity.
+
+;;; Usage:
+
+;; Start emacs as follows:
+;;
+;;    emacs -Q -l <PATH>/profile-dotemacs.el -f profile-dotemacs
+;;
+;; with <PATH> being the path to where this file resides.
+
+;;; Caveats (thanks to Raffaele Ricciardi for reporting those):
+
+;; - The usual `--debug-init' for debugging your init file won't work
+;;   with profile-dotemacs, so you'll have to call
+;;   `toggle-debug-on-error', either on the commandline or at the
+;;   beginning of your init file.
+;; - `load-file-name' is nil when the init file is being loaded
+;;   by the profiler.  This might matter if you perform the
+;;   bulk of initializations in a different file.
+;; - Starting external shells like IELM or eshell in your init file
+;;   might mess with overlay creation, so this must not be done.
+
+;;; Download:
+
+;;  You can always get the latest version from
+;;       http://randomsample.de/profile-dotemacs.el
+
+;;; Code:
+
+(require 'thingatpt)
+(require 'benchmark)
+
+;; User variables
+
+(defvar profile-dotemacs-file "~/.emacs.d/configuration-debug.el" "File to be profiled.")
+                                        ;(defvar profile-dotemacs-file "~/.emacs.d/init.el" "File to be profiled.")
+
+(defvar profile-dotemacs-low-percentage 3
+  "Percentage which should be considered low.
+All sexp's with a running time below this percentage will be
+grayed out.")
+
+(defface profile-dotemacs-time-face
+  '((((background dark)) (:background "OrangeRed1"))
+    (t (:background "red3")))
+  "Background color to indicate percentage of total time.")
+
+(defface profile-dotemacs-low-percentage-face
+  '((((background dark)) (:foreground "gray25"))
+    (t (:foreground "gray75")))
+  "Face for sexps below `profile-dotemacs-low-percentage'.")
+
+(defface profile-dotemacs-highlight-face
+  '((((background dark)) (:background "blue"))
+    (t (:background "yellow")))
+  "Highlight face for benchmark results.")
+
+;; Main function
+
+(defun profile-dotemacs ()
+  "Load `profile-dotemacs-file' and benchmark its sexps."
+  (interactive)
+  (with-current-buffer (find-file-noselect profile-dotemacs-file t)
+    (setq buffer-read-only t) ;; just to be sure
+    (goto-char (point-min))
+    (let (start end results)
+      (while
+	  (< (point)
+	     (setq end (progn
+			 (forward-sexp 1)
+			 (point))))
+	(forward-sexp -1)
+	(setq start (point))
+	(add-to-list
+	 'results
+	 `(,start ,end
+		  ,(benchmark-run
+		       (eval (sexp-at-point)))))
+	(goto-char end))
+      (profile-dotemacs-show-results results)
+      (switch-to-buffer (current-buffer)))))
+
+;; Helper functions
+
+(defun profile-dotemacs-show-results (results)
+  "Show timings from RESULTS in current buffer."
+  (let ((totaltime (profile-dotemacs-totaltime results))
+	current percentage ov)
+    (while results
+      (let* ((current (pop results))
+	     (ov (make-overlay (car current) (cadr current)))
+	     (current (car (last current)))
+	     (percentage (/ (+ (car current) (nth 2 current))
+			    totaltime))
+	     col benchstr lowface)
+	(setq col
+	      (profile-dotemacs-percentage-color
+	       percentage
+	       (face-background 'default)
+	       (face-background 'profile-dotemacs-time-face)))
+	(setq percentage (round (* 100 percentage)))
+	(setq benchstr (profile-dotemacs-make-benchstr current))
+	(overlay-put ov 'help-echo benchstr)
+	(if (and (numberp profile-dotemacs-low-percentage)
+		 (< percentage profile-dotemacs-low-percentage))
+	    (overlay-put ov 'face 'profile-dotemacs-low-percentage-face)
+	  (overlay-put ov 'before-string
+		       (propertize benchstr
+				   'face 'profile-dotemacs-highlight-face))
+	  (overlay-put ov 'face
+		       `(:background ,col)))))
+    (setq ov (make-overlay (1- (point-max)) (point-max)))
+    (overlay-put ov 'after-string
+		 (propertize
+		  (format "\n-----------------\nTotal time: %.2fs\n"
+			  totaltime)
+		  'face 'profile-dotemacs-highlight-face))))
+
+(defun profile-dotemacs-totaltime (results)
+  "Calculate total time of RESULTS."
+  (let ((totaltime 0))
+    (mapc (lambda (x)
+	    (let ((cur (car (last x))))
+	      (setq totaltime (+ totaltime (car cur) (nth 2 cur)))))
+	  results)
+    totaltime))
+
+(defun profile-dotemacs-percentage-color (percent col-begin col-end)
+  "Calculate color according to PERCENT between COL-BEGIN and COL-END."
+  (let* ((col1 (color-values col-begin))
+	 (col2 (color-values col-end))
+	 (col
+	  (mapcar (lambda (c)
+		    (round
+		     (+ (* (- 1 percent) (nth c col1))
+			(* percent (nth c col2)))))
+		  '(0 1 2))))
+    (format "RGB:%04x/%04x/%04x"
+	    (car col)
+	    (nth 1 col)
+	    (nth 2 col))))
+
+(defun profile-dotemacs-make-benchstr (timings)
+  "Create descriptive benchmark string from TIMINGS."
+  (format
+   (concat
+    "<Percentage: %d ; "
+    "Time: %.2f ; "
+    "Number of GC: %d ; "
+    "Time for GC: %.2f>\n")
+   percentage
+   (car timings) (nth 1 timings) (nth 2 timings)))
+;; profile-dotemacs.el ends here
+#+END_SRC
+
+** Gnome Server
+#+BEGIN_SRC emacs-lisp :tangle scripts/gnome-server.el
+(require 'dbus)
+;;; save & shutdown when we get an "end of session" signal on dbus
+(defun my-register-signals (client-path)
+  "Register for the 'QueryEndSession' and 'EndSession' signals from
+Gnome SessionManager.
+
+When we receive 'QueryEndSession', we just respond with
+'EndSessionResponse(true, \"\")'.  When we receive 'EndSession', we
+append this EndSessionResponse to kill-emacs-hook, and then call
+kill-emacs.  This way, we can shut down the Emacs daemon cleanly
+before we send our 'ok' to the SessionManager."
+  (setq my-gnome-client-path client-path)
+  (let ( (end-session-response (lambda (&optional arg)
+                                 (dbus-call-method-asynchronously
+                                  :session "org.gnome.SessionManager" my-gnome-client-path
+                                  "org.gnome.SessionManager.ClientPrivate" "EndSessionResponse" nil
+                                  t "") ) ) )
+    (dbus-register-signal
+     :session "org.gnome.SessionManager" my-gnome-client-path
+     "org.gnome.SessionManager.ClientPrivate" "QueryEndSession"
+     end-session-response )
+    (dbus-register-signal
+     :session "org.gnome.SessionManager" my-gnome-client-path
+     "org.gnome.SessionManager.ClientPrivate" "EndSession"
+     `(lambda (arg)
+        (add-hook 'kill-emacs-hook ,end-session-response t)
+        (kill-emacs) ) ) ) )
+
+;; DESKTOP_AUTOSTART_ID is set by the Gnome desktop manager when emacs
+;; is autostarted.  We can use it to register as a client with gnome
+;; SessionManager.
+(dbus-call-method-asynchronously
+ :session "org.gnome.SessionManager"
+ "/org/gnome/SessionManager"
+ "org.gnome.SessionManager" "RegisterClient" 'my-register-signals
+ "Emacs server" (getenv "DESKTOP_AUTOSTART_ID"))
+
 #+END_SRC

@@ -1,6 +1,0 @@
-alias ll ls -l
-alias la ls -a
-alias l ls -la
-alias d dired $1
-alias ff find-file $1
-alias dnf sudo dnf $*
