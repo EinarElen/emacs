@@ -242,9 +242,7 @@ handy [[elisp:(find-function 'executable-find)][`executable-find']] function.
 :END:
 There are some files that it is useful to have a variable
 for. If you use some other
-- The main directory for emacs configuration files in
-[[elisp:(find-variable 'user-emacs-config-directory)][`user-emacs-config-directory']]. We do this so we can redefine
-[[elisp:(find-variable 'user-emacs-directory)][`user-emacs-directory']] later to store random local files
+- The main directory for emacs configuration files in [[elisp:(find-variable 'user-emacs-config-directory)][`user-emacs-config-directory']]. We do this so we can redefine [[elisp:(find-variable 'user-emacs-directory)][`user-emacs-directory']] later to store random local files in a place which doesn't clutter our configuration directory.
 outside of our configuration directory.
 - Location of some extra snippets for the yasnippet package
   from Tuhdo in  [[elisp:(find-variable 'tuhdo-snippets-directory)][`tuhdo-snippets-directory']]. This is used
