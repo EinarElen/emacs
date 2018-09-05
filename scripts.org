@@ -7,8 +7,8 @@
 * Table of Contents                                                     :TOC:
 - [[#emacs-lisp-script-to-install-the-latest-version-of-emacs][Emacs Lisp Script to Install the Latest Version of Emacs]]
   - [[#setup-and-configuration][Setup and Configuration]]
-  - [[#handling-errors][Handling Errors]]
   - [[#building-and-installing-emacs][Building and Installing Emacs]]
+  - [[#handling-errors][Handling Errors]]
   - [[#finalizing-the-script][Finalizing the Script]]
 - [[#backup-all-agenda-and-configuration-files][Backup All Agenda and Configuration Files]]
 - [[#some-scripts-to-tangle-and-compile-files][Some Scripts to Tangle and Compile Files]]
@@ -64,7 +64,7 @@ Some help for people viewing the script file from either gedit or kate as these 
 
 
 *** User Configuration Variables
-Explain how setq works.
+Explain how `setq' works.
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 ;; Setq takes pairs of variable and new-value and sets the
 ;; value of the variable to new-value.  The q refers to the
@@ -159,7 +159,30 @@ Some variables that you might want to change before running the script.
  "-j8")
 #+END_SRC
 
+
 *** Other Configuration
+These are settings you are less likely to want to
+change. They are well-documented within the code but are
+outlined here along with their default values.
+
+- emacs-optimization-flags
+  + The flags for the C-compiler which tune how aggressively
+    it should be optimizing emacs.
+  + Default: "-O3 -ffast-math -march=native -pipe"
+  + Common alternative (for debugging the executable)
+    * "-Og -g -march=native -pipe"
+- make-commands
+  + Which make targets to build. In other words, when
+    building get a item from the list and run ``make item''
+    and repeat until the list is empty.
+  + Default (all targets): ("" "doc" "tags")
+- make-install-command
+  + The command to initialise the installation process for make.
+  + Default: "make install"
+
+
+
+
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 ;; These are settings that you are unlikely to want to edit.
 (setq
@@ -167,7 +190,7 @@ Some variables that you might want to change before running the script.
  ;; You probably don't need to touch these
 
  ;; There is some good documentation about these on by RedHat at
- ;; https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc/
+ ;; https://developers.redhat.com/blog/2018/03/21/compile r-and-linker-flags-gcc/
  ;; Additionally, https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#Optimize-Options
  ;; is useful.
 
@@ -227,7 +250,22 @@ Some variables that you might want to change before running the script.
  "make install")
 #+END_SRC
 
+
 *** Defining the Main Function
+Here we define a main function which we will call later as
+the entry point for the script after all the definitions are
+taken care of. This is mainly for instructional purposes, it
+introduces both how to define functions with `defun' and how
+to manage errors with `condition-case'.
+
+The function itself is rather simple, it wraps a call, using
+`condition-case', to (in this order) the functions defined
+in the sections listed below:
+- [[*Cloning the Project][Cloning the Project]],
+- [[*Configuring the
+ Sources][Configuring the Sources]], and
+- [[*Building and Installing the Program][Building and Installing the Program]]
+
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 ;; Defun - short for define function (lisp has an
 ;; interesting way of abbreviating things) defines a
@@ -240,6 +278,10 @@ Some variables that you might want to change before running the script.
 ;; If the function takes no arguments, the list of arguments
 ;; is left empty as below
 
+
+;; Here we define a main function which will be the first of
+;; our functions to run after our definitions. It is called
+;; later in the program.
 
 (defun main ()
   "Here we could write some documentation about what this
@@ -259,6 +301,61 @@ We call it main by convention with other programming languages,
 we could have called it foo-bar if we wanted to. There is no
 magic going on in lisp (cough python)."
 
+  ;; We wrap the tasks we are about to take on in a
+  ;; error-handling block called
+  ;; `condition-case'. Condition-case takes two regular
+  ;; arguments and one "rest..." argument which any
+  ;; additional arguments becomes bound to. In other words,
+  ;; the syntax is:
+
+  ;; (condition-case VAR BODYFORM &rest HANDLERS)
+  ;; It is used as follows:
+  ;; (condition-case error-variable code-to-wrap
+  ;; error-handler-1 error-handler-2... error-handler-N)
+  ;;
+  ;; The first argument is a variable-name which any
+  ;; potential errors will be bound to. The second argument
+  ;; is the code that might signal errors. Finally, any
+  ;; number of arguments can be passed and they will each be
+  ;; treated the same way (They are simply passed as a list
+  ;; called, in this case, handlers).
+  ;;
+  ;; As only one argument can take the place of the
+  ;; code-to-place variable, it is common to use the
+  ;; `progn'-function. The `progn'-function simply evaluates
+  ;; one block after another which allows you to write
+  ;; several expressions without taking up several slots in
+  ;; an argument list.
+
+  ;; Condition case begins by evaluating the code to the
+  ;; second argument, in our case `clone-emacs-tree',
+  ;; `configure-emacs-sources', and
+  ;; `build-and-install-emacs' which are wrapped up in a
+  ;; `progn'-block.
+
+  ;; If any of the functions is unable to finish their job,
+  ;; they will signal this by throwing an exception of the
+  ;; types created later in the code.
+
+  ;; An exception/signal aborts the current line of
+  ;; execution (i.e. none of the functions which would
+  ;; follow are executed until the error is dealt with) and
+  ;; moves backwards through the functions that have been
+  ;; called until it encounters a condition-case block that
+  ;; can deal with it.
+
+  ;; When the condition-case block is found, the exception
+  ;; variable is bound to the first argument (in our case,
+  ;; err but it can be called whatever you like it to be
+  ;; called).
+
+
+  ;; The blocks following the initial progn consist of pairs
+  ;; of exception-types (called condition-names) or a list
+  ;; thereof and a body lisp expressions which are executed
+  ;; if the exception in err matches the handler.
+
+
   (condition-case err
       (progn (clone-emacs-tree)
              (configure-emacs-sources)
@@ -266,68 +363,6 @@ magic going on in lisp (cough python)."
     ()
     ))
 
-#+END_SRC
-
-** Handling Errors
-
-*** Defining the Error Types
-
-#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
-(define-error 'unable-to-clone-project
-  "We were unable to clone the project.")
-
-(define-error 'git-process-failed
-  "The git process failed unexpectedly.")
-
-(define-error 'configuration-failed
-  "The configuration command failed unexpectedly.")
-
-
-#+END_SRC
-
-*** Handling Errors
-#+BEGIN_SRC emacs-lisp
-(defun handle-source-directory-existing ()
-  ""
-  (let ((error-flag))
-    (message
-     "The directory %s seems to already exist. You will be given several choices:
- -> Delete and clone a fresh copy,
- -> Use git pull to update,
- -> Skip the git step and go directly to configuration,
- -> Give up, or
- -> Repeat the choices"
-     emacs-source-directory)
-    (sleep-for 1)
-    (while (or (null error-flag)
-               (eq error-flag
-                   'retry-questions))
-      (if (y-or-n-p
-           "Should we delete it and clone from scratch?")
-          (progn (setq error-flag 'delete-it)
-                 (delete-directory emacs-source-directory t)
-                 )
-        ;; else
-        (if (y-or-n-p
-             "Should we use git pull instead to update the directory?")
-            (setq error-flag 'use-git-pull)
-          ;; else
-          (if (y-or-n-p
-               "Should we skip the git-step?")
-              (setq error-flag 'skip-git)
-            ;; else
-            (if (yes-or-no-p
-                 "Are we going to give up?")
-                (signal
-                 'unable-to-clone-project
-                 `(directory-existed-already
-                   ,emacs-source-directory
-                   "Gave up"))
-              ;; else
-              (setq error-flag
-                    'retry-questions)
-              (message "Trying again!"))))))
-    error-flag))
 #+END_SRC
 ** Building and Installing Emacs
 *** Cloning the Project
@@ -369,8 +404,9 @@ magic going on in lisp (cough python)."
 
   (let ((default-directory  emacs-source-directory-base)
         (git-process-arguments
-         (make-command-string "git" "clone" "-b" emacs-git-branch
-                              emacs-git-url emacs-source-directory))
+         (list  "clone" "-b" emacs-git-branch
+                emacs-git-url emacs-source-directory)
+         )
         ;; The rest are empty variables which we will use later
         (git-process)
         (git-process-exit-status)
@@ -384,19 +420,32 @@ magic going on in lisp (cough python)."
 
     ;; Create the base directory if it doesn't exist
     (unless (file-exists-p emacs-source-directory-base)
+      ;; Message is a function which allows us send a message
+      ;; to the user. In the message string, we can insert the
+      ;; value of variables by inserting formatting characters
+      ;; into the string. They start with a percent-sign and
+      ;; specify the type of variable to be expected. In our
+      ;; case the %s specifier tells the function to expect a
+      ;; string, the name of the directory. All the possible
+      ;; handlers are listed in the `format'-function which
+      ;; `message' uses internally.
       (message "Creating directory %s" emacs-source-directory-base)
-      (start-shell-command "mkdir" (make-command-string "mkdir" "-p" "-v"
-                                                        emacs-source-directory)))
 
+      ;; This function is defined in the end, it simply
+      ;; starts a shell process with a set of arguments.
+      (shell-command-dwim "mkdir" "-p" "-v" emacs-source-directory))
 
+    ;; If we previously encountered that
+    ;; `emacs-source-directory' existed and the user wanted
+    ;; us to simply update the repository
     (if (eq error-flag 'use-git-pull)
-        (setq git-process-arguments
-              (make-command-string "git"
-                                   "pull")
+        (setq git-process-arguments (list "pull")
               default-directory emacs-source-directory))
 
     ;; (message "Calling git with arguments %s" git-process-arguments)
-    (setq git-process (start-shell-command "git" git-process-arguments))
+    (setq git-process
+          (shell-command-dwim "git" git-process-arguments)
+          )
     (while (equal (process-status  git-process)
                   'run
                   ))
@@ -413,11 +462,26 @@ magic going on in lisp (cough python)."
                git-process-arguments
                (with-current-buffer (process-buffer git-process)
                  (buffer-substring-no-properties (point-min) (point-max)))))
-      ))
+      )))
+
+(clone-emacs-tree
+ )
 
 
 
-  )
+
+
+
+
+
+
+
+
+
+
+
+
+
 #+END_SRC
 *** Configuring the Sources
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
@@ -437,6 +501,84 @@ the build process."
 (defun build-and-install-emacs ()
   "Build the program using GNU Make."
   )
+#+END_SRC
+
+** Handling Errors
+
+*** Defining the Error Types
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
+(define-error 'unable-to-clone-project
+  "We were unable to clone the project.")
+
+(define-error 'git-process-failed
+  "The git process failed unexpectedly.")
+
+(define-error 'configuration-failed
+  "The configuration command failed unexpectedly.")
+
+
+#+END_SRC
+
+*** Handling Errors
+#+BEGIN_SRC emacs-lisp
+(defun handle-source-directory-existing ()
+  "The script can for several reasons be presented with a fairly
+simple problem, what to do if the directory
+`emacs-source-directory' already exists. The easiest thing to do
+would be to fail, but we instead give the user a couple of
+options. They are messaged to the user before being presented as:
+
+-> Delete and clone a fresh copy,
+-> Use git pull to update,
+-> Skip the git step and go directly to configuration,
+-> Give up, or
+-> Repeat the choices"
+  (let ((error-flag))
+
+    (message
+     "The directory %s seems to already exist. You will be given several choices:
+ -> Delete and clone a fresh copy,
+ -> Use git pull to update,
+ -> Skip the git step and go directly to configuration,
+ -> Give up, or
+ -> Repeat the choices"
+     emacs-source-directory)
+    ;; We want to be sure that the user can read the whole
+    ;; message before letting them choose. `sleep-for' is a
+    ;; simple function which suspends emacs completely for a
+    ;; given number of seconds. For our purpose, 1 second is
+    ;; likely enough.
+    (sleep-for 1)
+    ;;
+    (while (or (null error-flag)
+               (eq error-flag
+                   'retry-questions))
+      (cond ((y-or-n-p
+              "Should we delete it and clone from scratch?")
+             (setq error-flag 'delete-it)
+             (delete-directory emacs-source-directory t))
+            ;; else
+            ((y-or-n-p
+              "Should we use git pull instead to update the directory?")
+             (setq error-flag 'use-git-pull))
+            ;; else
+            ((y-or-n-p
+              "Should we skip the git-step?")
+             (setq error-flag 'skip-git))
+            ;; else
+            ((yes-or-no-p
+              "Are we going to give up?")
+             (signal
+              'unable-to-clone-project
+              `(directory-existed-already
+                ,emacs-source-directory
+                "Gave up")))
+            ;; else
+            (t
+             (setq error-flag
+                   'retry-questions)
+             (message "Trying again!"))))
+    error-flag))
 #+END_SRC
 ** Finalizing the Script
 *** Calling the Main Function
@@ -481,6 +623,27 @@ These functions help make the script more readable for someone who is new to eli
    name
    (get-buffer-create (concat "*" name "-output-buffer*"))
    command))
+
+;; (defmacro shell-command-dwim (name &rest command-arguments)
+;;   `(start-shell-command
+;;     ,name
+;;     (apply 'make-command-string ,name ',command-arguments)))
+
+
+
+(defun shell-command-dwim (name-or-full-command-list &rest command-arguments)
+  `(if (listp ,name-or-full-command-list )
+       (start-shell-command (car ,name-or-full-command-list)
+                            (apply 'make-command-string ,name-or-full-command-list))
+     (start-shell-command
+      ,name-or-full-command-list
+      (apply 'make-command-string ,name-or-full-command-list (list ,command-arguments)))
+     ))
+
+(shell-command-dwim "ls")
+(shell-command-dwim "ls" "-lh")
+(shell-command-dwim '("ls" "-lh"))
+
 #+END_SRC
 * Backup All Agenda and Configuration Files
 The configuration file and script files are backed up by git but hey might as well back those up when we are at it!

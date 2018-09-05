@@ -4,53 +4,7 @@
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes
 #+STARTUP: noinlineimages
-
-* Table of Contents                                                     :TOC:
-:PROPERTIES:
-:ID:       3bc347fa-bf95-4b05-9d9f-a1e68d56767a
-:END:
-- [[#emacs-setup][Emacs Setup]]
-  - [[#definitions-and-variables][Definitions and Variables]]
-  - [[#improve-basic-emacs-experience][Improve Basic Emacs Experience]]
-  - [[#looksthemes][Looks/Themes]]
-  - [[#text-editing][Text Editing]]
-  - [[#pdf-handling][PDF-Handling]]
-- [[#developmentwriting][Development/Writing]]
-  - [[#project-management][Project Management]]
-  - [[#helm][Helm]]
-  - [[#elglot][Elglot]]
-  - [[#yasnippet][Yasnippet]]
-  - [[#terminal-usage][Terminal Usage]]
-  - [[#latexauctex][LaTeX/AUCTeX]]
-  - [[#company][Company]]
-  - [[#flycheck][Flycheck]]
-  - [[#web-development][Web Development]]
-  - [[#cc][C/C++]]
-  - [[#emacs-lisp][Emacs Lisp]]
-  - [[#java][Java]]
-- [[#org-mode][Org Mode]]
-  - [[#basic-setup][Basic Setup]]
-  - [[#capture][Capture]]
-  - [[#agenda][Agenda]]
-  - [[#structure-templates][Structure Templates]]
-  - [[#refile][Refile]]
-  - [[#calendar][Calendar]]
-  - [[#table-of-content-generation][Table of Content Generation]]
-- [[#communication][Communication]]
-  - [[#email][Email]]
-  - [[#web-browsing][Web Browsing]]
-- [[#utilities][Utilities]]
-  - [[#spell-checking][Spell Checking]]
-  - [[#google-translate][Google Translate]]
-  - [[#lastpass][Lastpass]]
-  - [[#presentations][Presentations]]
-- [[#experimental][Experimental]]
-  - [[#emacs-lisp-1][Emacs Lisp]]
-- [[#to-be-integrated][To be integrated]]
-  - [[#esup][ESUP]]
-  - [[#disabled-stuff][Disabled Stuff]]
-
-* Emacs Setup
+* Emacs
 :PROPERTIES:
 :ID:       98e63f19-0f9f-4d64-8679-f73f25010c4e
 :END:
@@ -279,7 +233,7 @@ for. If you use some other
     "The emacs configuration directory."
     :type 'string
     :group :elib:file-paths)
-(defcustom tuhdo-snippets-directory
+  (defcustom tuhdo-snippets-directory
     (expand-file-name
      (concat user-emacs-config-directory
 	     "tuhdosnippets"))
@@ -362,6 +316,9 @@ for. If you use some other
     :group 'elib:org
     :group 'elib:file-paths
     )
+  (defcustom user-current-events-file
+    (expand-file-name (concat user-emacs-config-directory "../current_events.org"))
+    "")
   (defcustom user-org-quotes-file-name
     (expand-file-name
      (concat user-emacs-config-directory "../citatsamling.org"))
@@ -2390,18 +2347,26 @@ pretty nifty.
                  "orginit.el"))
         org-export-in-background t
         org-export-async-debug nil)
+
+
+
   (use-package ox-latex
     :ensure nil
     :config
-    (setq org-startup-with-latex-preview nil))
+    (setq org-startup-with-latex-preview nil)
+    (add-to-list 'org-latex-packages-alist '("" "eetex")
+                 )
+    (setq org-latex-packages-alist nil)
+    )
   (use-package ox-twbs)
-
+  (use-package ob-asymptote
+    :ensure org)
   (use-package ob
     :ensure nil
     :config
     (org-babel-do-load-languages
      'org-babel-load-languages
-     '((C . t) (emacs-lisp . t) (python . t)
+     '((C . t) (emacs-lisp . t) (python . t) (asymptote . t)
                                         ;(sh . t)
        (gnuplot . t))))
 
@@ -2545,6 +2510,7 @@ pretty nifty.
   (setq org-agenda-dim-blocked-tasks nil)
   (setq org-agenda-compact-blocks t)
   (setq org-agenda-files (list
+                          user-current-events-file
                           config-file-file-name
                           user-org-todo-file-name
                           user-org-gtd-file
@@ -2812,6 +2778,23 @@ We cannot use use-package here because the refile things are defined in the same
 
 (defvar org-caldavsettings-file (concat org-gcal-calendar-location "caldavsettings.el"))
 
+
+(load-file org-caldavsettings-file)
+
+(use-package org-caldav
+  :after org
+  :config
+  ;; this hook saves an ics file once an org-buffer is saved
+  (use-package oauth2)
+  (defun my-icalendar-agenda-export()
+    (if (member (buffer-file-name) org-agenda-files)
+        (org-icalendar-combine-agenda-files)))
+  ;; (add-hook 'after-save-hook 'my-icalendar-agenda-export
+            ;; )
+  (run-with-idle-timer  1200 t  'org-caldav-sync)
+  ;; (org-caldav-sync)
+
+  )
 (setq org-icalendar-alarm-time 1440)
 (setq org-icalendar-combined-name "Org Mode Calendar")
 (setq org-icalendar-combined-description "Calendar exported from Org-mode")
@@ -2821,24 +2804,6 @@ We cannot use use-package here because the refile things are defined in the same
 (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
 (setq org-icalendar-use-scheduled '(event-if-todo event-if-not-todo))
 (setq org-icalendar-store-UID t)
-(load-file org-caldavsettings-file)
-
-(use-package org-caldav
-  :disabled t
-  :after org
-  :config
-  ;; this hook saves an ics file once an org-buffer is saved
-(use-package oauth2)
-  (defun my-icalendar-agenda-export()
-    (if (string= (file-name-extension (buffer-file-name)) "org")
-        (org-icalendar-combine-agenda-files))
-    )
-  (add-hook 'after-save-hook 'my-icalendar-agenda-export)
-
-  ;; (org-caldav-sync)
-
-  )
-
 	 #+END_SRC
 ** Table of Content Generation
 :PROPERTIES:
@@ -2846,8 +2811,7 @@ We cannot use use-package here because the refile things are defined in the same
 :END:
 #+BEGIN_SRC emacs-lisp
 (use-package toc-org
-  :hook ((org-mode . toc-org-enable))
-  )
+  :hook ((org-mode . toc-org-enable)))
 #+END_SRC
 * Communication
 :PROPERTIES:
@@ -2919,8 +2883,10 @@ toilets at the departments at the Faculty of Science. The
 committee also takes part in the information flow by working
 with social media and work delegated by the union board.
 ")
-           ("jnformal" .
-            "Joe\n")))))
+           ("swan" .
+            "Einar Elén
+Secretary of the steering group (SWAN)
+")))))
     (message-insert-signature)))
 
 (defvar mu4e-previous-attachment-directory "~/Downloads")
@@ -2956,7 +2922,6 @@ with social media and work delegated by the union board.
 (defun mu4e-attach-advice (&rest ignored)
   (mu4e-attachment-quit))
 (advice-add 'gnus-dired-attach :after #'mu4e-attach-advice)
-
 
 (when elib:mu4e-load-path
   (use-package mu4e
@@ -3039,9 +3004,9 @@ with social media and work delegated by the union board.
           mu4e-view-show-images t
           mu4e-get-mail-command "mbsync -a"
           mu4e-update-interval 3600)
-    (setq mu4e-sent-folder "/gmail/[Gmail]/Sent Mail"
-          mu4e-drafts-folder "/gmail/[Gmail]/Drafts"
-          mu4e-trash-folder "/gmail/[Gmail]/Trash"
+    (setq mu4e-sent-folder "/gmail/sent-mail"
+          mu4e-drafts-folder "/gmail/drafts"
+          mu4e-trash-folder "/gmail/trash"
           user-mail-address "einar.elen@gmail.com"
           smtpmail-default-smtp-server "smtp.gmail.com"
           ;;smtpmail-local-domain "account1.example.com"
@@ -3052,9 +3017,9 @@ with social media and work delegated by the union board.
 
     (defvar my-mu4e-account-alist
       '(("gmail"
-         (mu4e-sent-folder "/gmail/[Gmail]/Sent Mail")
-         (mu4e-drafts-folder "/gmail/[Gmail]/Drafts")
-         (mu4e-trash-folder "/gmail/[Gmail]/Trash")
+         (mu4e-sent-folder "/gmail/sent-mail")
+         (mu4e-drafts-folder "/gmail/drafts")
+         (mu4e-trash-folder "/gmail/trash")
          (user-full-name "Einar Elén")
          (user-mail-address "einar.elen@gmail.com")
          (smtpmail-default-smtp-server "smtp.gmail.com")
@@ -3064,9 +3029,9 @@ with social media and work delegated by the union board.
          (smtpmail-smtp-service 587)
          )
         ("lu"
-         (mu4e-sent-folder "/lu/[Gmail]/Sent Mail")
-         (mu4e-drafts-folder "/lu/[Gmail]/Drafts")
-         (mu4e-trash-folder "/lu/[Gmail]/Trash")
+         (mu4e-sent-folder "/lu/sent-mail")
+         (mu4e-drafts-folder "/lu/drafts")
+         (mu4e-trash-folder "/lu/trash")
          (user-mail-address "nat13eel@student.lu.se")
          (user-full-name "Einar Elén")
          (smtpmail-default-smtp-server "smtp.gmail.com")
@@ -3076,9 +3041,9 @@ with social media and work delegated by the union board.
          (smtpmail-stream-type starttls)
          (smtpmail-smtp-service 465))
         ("info"
-         (mu4e-sent-folder "/info/[Gmail]/Skickat")
-         (mu4e-drafts-folder "/info/[Gmail]/Utkast")
-         (mu4e-trash-folder "/info/[Gmail]/Papperskorgen")
+         (mu4e-sent-folder "/info/sent-mail")
+         (mu4e-drafts-folder "/info/drafts")
+         (mu4e-trash-folder "/info/trash")
          (user-mail-address "info-ordf@luna.lu.se")
          (user-full-name "Chairperson, Information Committee (LUNA)")
          (smtpmail-default-smtp-server "smtp.gmail.com")
@@ -3086,7 +3051,7 @@ with social media and work delegated by the union board.
          (smtpmail-smtp-user "info-ordf")
          (smtpmail-smtp-server "smtp.gmail.com")
          (smtpmail-stream-type starttls)
-         (smtpmail-smtp-service 25))
+         (smtpmail-smtp-service 587))
         ))
 
     (setq message-send-mail-function 'message-send-mail-with-sendmail
@@ -3138,6 +3103,46 @@ maildir:/info/[Gmail]/Skickat"
     (setq mu4e-html2text-command "w3m -T text/html")
 
     ))
+
+(use-package org-mime
+  :init
+  (defun org-mime-org-buffer-htmlize ()
+    "Create an email buffer containing the current org-mode file
+  exported to html and encoded in both html and in org formats as
+  mime alternatives."
+    (interactive)
+    (org-mime-send-buffer 'html)
+    (message-goto-to))
+  (defun mu4e-compose-org-mail ()
+    (interactive)
+    (mu4e-compose-new)
+    (org-mu4e-compose-org-mode))
+  ;; this is stolen from John but it didn't work for me until I
+  ;; made those changes to mu4e-compose.el
+  (defun htmlize-and-send ()
+    "When in an org-mu4e-compose-org-mode message, htmlize and send it."
+    (interactive)
+    (when (member 'org~mu4e-mime-switch-headers-or-body post-command-hook)
+      (org-mime-htmlize)
+      (org-mu4e-compose-org-mode)
+      (mu4e-compose-mode)
+      (message-send-and-exit)))
+
+  :config
+  ;; This overloads the amazing C-c C-c commands in org-mode with one more function
+  ;; namely the htmlize-and-send, above.
+  (add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)
+
+  ;; Originally, I set the `mu4e-compose-mode-hook' here, but
+  ;; this new hook works much, much better for me.
+  (add-hook 'mu4e-compose-post-hook
+            (defun do-compose-stuff ()
+              "My settings for message composition."
+              (org-mu4e-compose-org-mode)))
+
+
+  )
+
 #+END_SRC
 
 ** Web Browsing
