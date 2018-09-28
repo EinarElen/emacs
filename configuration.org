@@ -1196,7 +1196,7 @@ aggressive.
 #+BEGIN_SRC emacs-lisp
 (use-package aggressive-indent
   :config
-  (global-aggressive-indent-mode t))
+  (global-aggressive-indent-mode -1))
 #+END_SRC
 **** Which-key
 :PROPERTIES:
@@ -1272,7 +1272,7 @@ is neat.
   :diminish smartparens-mode
   :defer 2
   :commands sp-pair
-  :hook ((org-mode text-mode TeX-mode c-mode-common)
+  :hook ((org-mode text-mode TeX-mode c-mode-common org-src-mode)
          . smartparens-mode)
   :config
   (require 'smartparens-config)
@@ -2339,7 +2339,7 @@ pretty nifty.
   (use-package org-beautify-theme
     :disabled t)
   (setq org-pretty-entities t)
-  (setq org-pretty-entities-include-sub-superscripts t)
+  (setq org-pretty-entities-include-sub-superscripts nil)
   (setq org-startup-indented t)
   (setq org-export-async-init-file
         (expand-file-name
@@ -2356,7 +2356,6 @@ pretty nifty.
     (setq org-startup-with-latex-preview nil)
     (add-to-list 'org-latex-packages-alist '("" "eetex")
                  )
-    (setq org-latex-packages-alist nil)
     )
   (use-package ox-twbs)
   (use-package ob-asymptote
@@ -2791,7 +2790,7 @@ We cannot use use-package here because the refile things are defined in the same
         (org-icalendar-combine-agenda-files)))
   ;; (add-hook 'after-save-hook 'my-icalendar-agenda-export
             ;; )
-  (run-with-idle-timer  1200 t  'org-caldav-sync)
+  ;; (run-with-idle-timer  1200 t  'org-caldav-sync)
   ;; (org-caldav-sync)
 
   )
