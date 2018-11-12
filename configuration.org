@@ -1832,7 +1832,7 @@ pretty nifty.
   (TeX-revert-document-buffer
    TeX-command TeX-master-file)
   :config
-  (setq TeX-source-correlate-start-server t)
+  ;; (setq TeX-source-correlate-start-server t)
   (add-hook 'LaTeX-mode-hook #'TeX-source-correlate-mode)
   (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
   ;; (define-key TeX-mode-map (kbd "TAB") 'company-complete)
@@ -2350,24 +2350,31 @@ pretty nifty.
 
 
 
-  (use-package ox-latex
-    :ensure nil
-    :config
-    (setq org-startup-with-latex-preview nil)
-    (add-to-list 'org-latex-packages-alist '("" "eetex")
-                 )
-    )
-  (use-package ox-twbs)
-  (use-package ob-asymptote
-    :ensure org)
+
   (use-package ob
     :ensure nil
     :config
+    (use-package ox-latex
+      :ensure nil
+      :config
+      (setq org-startup-with-latex-preview nil)
+      (add-to-list 'org-latex-packages-alist '("" "eetex")))
+    (use-package ox-twbs)
+    (use-package ob-asymptote
+      :ensure org)
+    (use-package ob-ipython
+      :config
+      (add-to-list 'org-latex-minted-langs '(ipython "python")))
+    (use-package ox-ipynb
+      :load-path user-emacs-config-directory
+      :ensure nil)
     (org-babel-do-load-languages
      'org-babel-load-languages
-     '((C . t) (emacs-lisp . t) (python . t) (asymptote . t)
+     '((C . t) (emacs-lisp . t) (python . t) (ipython . t) (asymptote . t)
                                         ;(sh . t)
-       (gnuplot . t))))
+       (gnuplot . t)))
+    (setq org-confirm-babel-evaluate nil))
+
 
   (setq org-src-preserve-indentation t)
   (setq org-src-tab-acts-natively t)
@@ -2663,7 +2670,7 @@ _ll_atex-snippet  _eq_uation       _l_atex:
 _p_roof           _lh_eader        _n_amed equation:
 _el_isp           _a_scii          _v_erse:
 _I_NCLUDE         _s_rc            _H_TML:
-_h_tml            _i_ndex          _A_SCII:
+_h_tml            ython          _A_SCII:
 "
       ("s" (hot-expand "<s"))
       ("ex" (hot-expand "<ex"))
@@ -2682,7 +2689,8 @@ _h_tml            _i_ndex          _A_SCII:
       ("h" (hot-expand "<h"))
       ("a" (hot-expand "<a"))
       ("L" (hot-expand "<L"))
-      ("i" (hot-expand "<i"))
+      ("ii" (hot-expand "<ii"))
+     ("ip" (hot-expand "<ip"))
       ("I" (hot-expand "<I"))
       ("H" (hot-expand "<H"))
       ("A" (hot-expand "<A"))
@@ -2699,8 +2707,7 @@ _h_tml            _i_ndex          _A_SCII:
                (if (looking-back "^")
                    (hydra-org-template/body)
                  (self-insert-command 1))))
-      ))
-  )
+      )))
 
 (add-to-list-multi
  'org-structure-template-alist
@@ -2713,6 +2720,8 @@ _h_tml            _i_ndex          _A_SCII:
    ("th" "#+begin_theorem\n?\n#+end_theorem\n")
    ("dfn" "\\begin{defn}{?}\n\n\\end{defn}")
    ("ex" "\\begin{exmp}?\n\n\\end{exmp}")
+   ("ii" "#+BEGIN_SRC ipython :session :exports both :results raw drawer\n%matplotlib inline\n#+END_SRC")
+   ("ip" "#+BEGIN_SRC ipython :session :exports both :results raw drawer\n#+END_SRC")
    ("lh"
     "#+LATEX_HEADER: \\usepackage{etex} \n#+OPTIONS: num:6\
    H:6\n")
@@ -2785,11 +2794,12 @@ We cannot use use-package here because the refile things are defined in the same
   :config
   ;; this hook saves an ics file once an org-buffer is saved
   (use-package oauth2)
+  (setq plstore-cache-passphrase-for-symmetric-encryption t)
   (defun my-icalendar-agenda-export()
     (if (member (buffer-file-name) org-agenda-files)
         (org-icalendar-combine-agenda-files)))
   ;; (add-hook 'after-save-hook 'my-icalendar-agenda-export
-            ;; )
+  ;; )
   ;; (run-with-idle-timer  1200 t  'org-caldav-sync)
   ;; (org-caldav-sync)
 
@@ -3306,6 +3316,47 @@ maildir:/info/[Gmail]/Skickat"
 	)
 	 #+END_SRC
 * To be integrated
+** Python
+#+BEGIN_SRC emacs-lisp
+(use-package elpy
+  :config
+  (elpy-enable)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode)
+  (use-package py-autopep8
+    :config
+    (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save))
+  (use-package ein
+    :config
+    (setq ein:jupyter-default-server-command "jupyter")
+    (use-package ein-company
+      :ensure nil
+      :config
+      (require 'ein-company)
+      )
+    )
+
+  ;; (elpy-use-ipython)
+  (setq elpy-rpc-python-command "python3"))
+#+END_SRC
+** Pamparam
+#+BEGIN_SRC emacs-lisp
+(defvar org-drill-location
+  (concat user-emacs-directory "elpa/org-plus-contrib20"  )
+  )
+(use-package org-drill
+  :ensure nil
+  :config
+  (setq org-drill-cram-hours 0)
+  )
+;; (defvar pamparam-location (concat user-emacs-directory "../pamparam/"))
+;; (use-package worf)
+;; (use-package pamparam
+;;   :ensure nil
+;;   :load-path pamparam-location
+;;   )
+#+END_SRC
+** ?
 :PROPERTIES:
 :ID:       9dafe517-3d1c-4cd5-9a12-5550abed6e44
 :END:
@@ -3601,7 +3652,7 @@ and insert region contents at top."
 	)
 (use-package spacemacs-common
 	:ensure spacemacs-theme
-	:config (load-theme 'spacemacs-dark t))
+	:config (load-theme 'spacemacs-light t))
 ;; (use-package spacemacs-theme
 ;; :ensure t
 ;; :defer nil
