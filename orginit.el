@@ -5,10 +5,10 @@
 
 (require 'org)
 (require 'ox)
-(require 'ox-twbs)
+;; '(require 'ox-twbs)
 (require 'ox-latex)
 (require 'ox-html)
 (require 'ox-odt)
-(require 'ox-reveal)
+;; (require 'ox-reveal)
 (require 'ox)
 (setq org-export-async-debug nil)

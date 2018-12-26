@@ -22,7 +22,6 @@
 - [[#local-variables][Local Variables]]
 
 * Emacs Lisp Script to Install the Latest Version of Emacs
-
 ** Setup and Configuration
 *** Script setup
 
@@ -31,6 +30,9 @@ Turn the regular elisp-file into a script file
 #!/usr/bin/emacs --script
 (setq default-directory "~/.emacs.d/scripts/")
 #+END_SRC
+
+#+RESULTS:
+: ~/.emacs.d/scripts/
 
 Load the support file from [[*Script helper-functions][Script helper-functions]].
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
@@ -41,7 +43,9 @@ Load the support file from [[*Script helper-functions][Script helper-functions]]
 (load-file "install-emacs-helpers.el")
 #+END_SRC
 
-Some help for people viewing the script file from either gedit or kate as these do not have syntax highlighting for elisp.
+Some help for people viewing the script file from either
+gedit or kate as these do not have syntax highlighting for
+elisp.
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 ;; Anything following semi-colons is a comment
 
@@ -88,10 +92,15 @@ Some variables that you might want to change before running the script.
   + Default: "master"
 - emacs-installation-directory-prefix
   + The prefix for the configure step.
-  + Default: "/usr/local"
+  + Default: "~/home/. local"
   + Common alternatives:
-    * "/usr"
-    * "/opt"
+    + "/usr/local/"
+    + "/usr"
+    + "/opt"
+- add-to-path?
+  - If the installation-directory is not in your current
+    path, should it be added?
+  - Not implemented yet.
 - emacs-source-directory-base
   + The directory which we will clone the emacs sources into
   + Default: "~/src"
@@ -110,6 +119,14 @@ Some variables that you might want to change before running the script.
   + Common alternatives:
     * "-j1"
     * "-j4"
+- optional-packages
+  - We can optionally also install additional packages such
+    as the mu4e email client from sources
+  - Default:
+    - (mu4e)
+  - Related to each possible optional package will be
+    options that are similar to
+    'emacs-git-url'/'emacs-git-branch'.
 
 
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
@@ -121,7 +138,7 @@ Some variables that you might want to change before running the script.
  ;; "git://git.sv.gnu.org/emacs.git"
  ;; "https://github.com/emacs-mirror/emacs"
  emacs-git-url
- "borkhttps://github.com/emacs-mirror/emacs"
+ "https://github.com/emacs-mirror/emacs"
  ;; Clone the latest and greatest version
  ;; Change if you want something else or if the master
  ;; branch is broken
@@ -131,9 +148,9 @@ Some variables that you might want to change before running the script.
  ;; installation in
 
  ;; Common choices include
- ;; /usr, /usr/local/, /opt, etc
+ ;; /usr, /usr/local/, /opt, ~/.local, etc
  emacs-installation-directory-prefix
- "/usr/local"
+ (concat (getenv "HOME") "/.local/")
  ;; What directory should the project be cloned into?
 
  ;; The script will create the directory if it does not
@@ -141,7 +158,7 @@ Some variables that you might want to change before running the script.
  ;; backslashes.
  emacs-source-directory-base
  (file-name-as-directory
-  (expand-file-name "~/src/poo/"))
+  (expand-file-name "~/src/"))
  ;; What should the directory of the cloned project be
  ;; called?
  emacs-source-directory
@@ -156,8 +173,16 @@ Some variables that you might want to change before running the script.
  ;; use.  Setting it to -jN where N is the number of cores
  ;; available on your machine.
  number-of-make-processes
- "-j8")
+ "-j8"
+ ;; Optional additional packages
+ optional-packages '(mu4e)
+ mu4e-git-url "git://github.com/djcb/mu.git"
+ mu4e-source-directory (file-name-as-directory (concat emacs-source-directory-base "mu4e"))
+ )
 #+END_SRC
+
+#+RESULTS:
+: /home/einarelen/src/mu4e/
 
 
 *** Other Configuration
@@ -171,6 +196,10 @@ outlined here along with their default values.
   + Default: "-O3 -ffast-math -march=native -pipe"
   + Common alternative (for debugging the executable)
     * "-Og -g -march=native -pipe"
+- emacs-modules
+  + Additional features to be explicitly enabled
+  + Default: "--with-modules --with-xwidgets --with-wayland"
+  + Common alternative: ""
 - make-commands
   + Which make targets to build. In other words, when
     building get a item from the list and run ``make item''
@@ -232,6 +261,7 @@ outlined here along with their default values.
 
  ;; This is the set of commands to the configure process. It
  ;; is generated from your previous settings.
+ emacs-modules "--with-modules --with-xwidgets --with-wayland"
  emacs-configuration-string
  (make-command-string  (concat
                         "--prefix="
@@ -243,11 +273,24 @@ outlined here along with their default values.
                        (concat
                         "CXXFLAGS=\'"
                         emacs-optimization-flags
-                        "\'"))
+                        "\'")
+                       emacs-modules)
  make-commands
- '("" "doc" "tags")
+ '(" " "doc" "tags")
  make-install-command
- "make install")
+ "make install"
+ mu4e-configuration-string
+ (make-command-string (concat
+                       "--prefix="
+                       emacs-installation-directory-prefix)
+                      (concat
+                       "CFLAGS=\'"
+                       emacs-optimization-flags
+                       "\'")
+                      (concat
+                       "CXXFLAGS=\'"
+                       emacs-optimization-flags
+                       "\'")))
 #+END_SRC
 
 
@@ -360,7 +403,6 @@ magic going on in lisp (cough python)."
       (progn (clone-emacs-tree)
              (configure-emacs-sources)
              (build-and-install-emacs))
-    ()
     ))
 
 #+END_SRC
@@ -402,11 +444,10 @@ magic going on in lisp (cough python)."
   ;; value. (clone-emacs-tree)
 
 
-  (let ((default-directory  emacs-source-directory-base)
+  (let ((default-directory emacs-source-directory-base)
         (git-process-arguments
-         (list  "clone" "-b" emacs-git-branch
-                emacs-git-url emacs-source-directory)
-         )
+         (list "clone" "-b" emacs-git-branch
+               emacs-git-url emacs-source-directory))
         ;; The rest are empty variables which we will use later
         (git-process)
         (git-process-exit-status)
@@ -431,80 +472,125 @@ magic going on in lisp (cough python)."
       ;; `message' uses internally.
       (message "Creating directory %s" emacs-source-directory-base)
 
-      ;; This function is defined in the end, it simply
-      ;; starts a shell process with a set of arguments.
-      (shell-command-dwim "mkdir" "-p" "-v" emacs-source-directory))
+      ;; We are in the weird case where we have set the
+      ;; `default-directory' to
+      ;; `emacs-source-directory-base' but it doesn't exist
+      ;; yet. We therefore need to temporarily change back
+      ;; the `default-directory' to something that exists
+      ;; until we have finished creating it.
+
+      ;; We do this with a let-binding.
+      (let ((default-directory "~/"))
+        ;; This function is defined in the end, it simply
+        ;; starts a shell process with a set of arguments.
+        (shell-command-dwim (list "mkdir" "-p" "-v" emacs-source-directory-base))))
 
     ;; If we previously encountered that
     ;; `emacs-source-directory' existed and the user wanted
     ;; us to simply update the repository
-    (if (eq error-flag 'use-git-pull)
+    (when (eq error-flag 'use-git-pull)
         (setq git-process-arguments (list "pull")
               default-directory emacs-source-directory))
+      (message "Calling git with arguments %s" git-process-arguments)
 
-    ;; (message "Calling git with arguments %s" git-process-arguments)
-    (setq git-process
-          (shell-command-dwim "git" git-process-arguments)
-          )
-    (while (equal (process-status  git-process)
-                  'run
-                  ))
-    (setq git-process-exit-status  (process-exit-status git-process))
+      (setq git-process
+            (shell-command-dwim (cons "git" git-process-arguments)))
+    (while (equal (process-status git-process)
+                  'run))
+    (setq git-process-exit-status (process-exit-status git-process))
+    (handle-process-error git-process)
 
-    (when (not (eq 0 git-process-exit-status))
-      (when (y-or-n-p
-             (format
-              "The git command '%s' failed with exit-code %d.
- Do you wish to end the build-process? "
-              git-process-arguments
-              git-process-exit-status))
-        (error "Git command '%s' failed.\n Output from the process was:\n %s"
-               git-process-arguments
-               (with-current-buffer (process-buffer git-process)
-                 (buffer-substring-no-properties (point-min) (point-max)))))
-      )))
-
-(clone-emacs-tree
- )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    (when (member 'mu4e optional-packages)
+      (let* ((git-process-arguments (list "clone"
+                                          mu4e-git-url mu4e-source-directory)))
+        (message "Calling git with arguments %s" git-process-arguments)
+          (setq git-process
+            (shell-command-dwim (cons "git" git-process-arguments)))
+    (while (equal (process-status git-process)
+                  'run))
+    (setq git-process-exit-status (process-exit-status git-process))
+    (handle-process-error git-process)
+    ))))
 
 #+END_SRC
+
 *** Configuring the Sources
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 (defun configure-emacs-sources ()
   "We call autoreconf and configure to prepare the sources for
 the build process."
   (let ((default-directory emacs-source-directory))
-    (start-shell-command "autoreconf"
-                         (make-command-string "autoreconf" autoreconf-arguments))
-    (apply 'call-process-simple  autoreconf-arguments)
+    (message "Autoreconfing with %s " autoreconf-arguments)
+    (setq autoreconf-process (shell-command-dwim "autoreconf" autoreconf-arguments))
+    (while (equal (process-status autoreconf-process) 'run))
+    (handle-process-error autoreconf-process)
     (message "Configuring with %s " emacs-configuration-string)
-    (shell-command )
-    (apply 'call-process-simple-debug emacs-configuration-string)))
+    (setq configure-process (shell-command-dwim "./configure" emacs-configuration-string))
+    (while (equal (process-status configure-process) 'run))
+    (handle-process-error configure-process)
+    )
+  (when (member 'mu4e optional-packages)
+      (let ((default-directory mu4e-source-directory))
+        (message "Autoreconfing with %s " autoreconf-arguments)
+        (setq autoreconf-process (shell-command-dwim "autoreconf" autoreconf-arguments))
+        (while (equal (process-status autoreconf-process) 'run))
+        (handle-process-error autoreconf-process)
+        (message "Configuring with %s " mu4e-configuration-string)
+        (setq configure-process (shell-command-dwim "./configure" mu4e-configuration-string))
+        (while (equal (process-status configure-process) 'run))
+        (handle-process-error configure-process)
+
+        ))
+  )
+
+
+
 #+END_SRC
 *** Building and Installing the Program
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 (defun build-and-install-emacs ()
   "Build the program using GNU Make."
+  (let ((default-directory emacs-source-directory))
+    (dolist (x make-commands)
+      (let ((make-process (shell-command-dwim "make" x number-of-make-processes)))
+        (while (equal (process-status make-process) 'run))
+        (handle-process-error make-process)))
+    (shell-command-dwim make-install-command number-of-make-processes))
+  (when (member 'mu4e optional-packages)
+    (let ((default-directory mu4e-source-directory))
+      (dolist (x make-commands)
+        (let ((make-process (shell-command-dwim "make" x number-of-make-processes)))
+          (while (equal (process-status make-process) 'run))
+          (handle-process-error make-process)))
+      (shell-command-dwim make-install-command number-of-make-processes)))
   )
+
+
+
+
+
 #+END_SRC
 
 ** Handling Errors
 
+*** Subprocess Status
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
+(defun handle-process-error (process)
+  (let ((command (process-command process))
+        (exit-code (process-exit-status process))
+        (buffer (process-buffer process)))
+    (when (not (eq 0 exit-code))
+      (when (y-or-n-p
+             (format
+              "The '%s' command failed with exit-code %d.
+ Do you wish to end the build-process? "
+              command
+              exit-code))
+        (error "Command '%s' failed.\n Output from the process was:\n %s"
+               command
+               (with-current-buffer buffer
+                 (buffer-substring-no-properties (point-min) (point-max))))))))
+#+END_SRC
 *** Defining the Error Types
 #+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 (define-error 'unable-to-clone-project
@@ -520,7 +606,7 @@ the build process."
 #+END_SRC
 
 *** Handling Errors
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 (defun handle-source-directory-existing ()
   "The script can for several reasons be presented with a fairly
 simple problem, what to do if the directory
@@ -582,7 +668,7 @@ options. They are messaged to the user before being presented as:
 #+END_SRC
 ** Finalizing the Script
 *** Calling the Main Function
-#+BEGIN_SRC emacs-lisp scripts/install-emacs.el
+#+BEGIN_SRC emacs-lisp :tangle scripts/install-emacs.el
 ;; "-scriptload" is part of the command line arguments when
 ;; the file is loaded as a script. If the file run as a
 ;; script, run the main-function.
@@ -608,7 +694,6 @@ These functions help make the script more readable for someone who is new to eli
 (defun concat-and-pad (padding &rest arguments)
   (let ((newlst)
         (padding (if padding padding " ")))
-
     (dolist (x arguments)
       (setq newlst (concat newlst x padding ))
       )
@@ -618,31 +703,45 @@ These functions help make the script more readable for someone who is new to eli
 (defun make-command-string (&rest arguments)
   (apply 'concat-and-pad (push " " arguments)))
 
-(defun start-shell-command (name command)
-  (start-process-shell-command
-   name
-   (get-buffer-create (concat "*" name "-output-buffer*"))
-   command))
+(defun start-shell-command (name &optional command)
+  "Start a shell process with the `start-process-shell-command'
+function without all the fuzz. If COMMAND is nil, assume that
+NAME and COMMAND are the same."
+  (let ((buffer (get-buffer-create (concat "*" name "-output-buffer*"))))
+    (if (null command) (start-process-shell-command
+                        name buffer name)
+      (start-process-shell-command
+       name
+       buffer
+       (apply #'make-command-string `(,name ,command))))))
 
-;; (defmacro shell-command-dwim (name &rest command-arguments)
-;;   `(start-shell-command
-;;     ,name
-;;     (apply 'make-command-string ,name ',command-arguments)))
 
 
 
-(defun shell-command-dwim (name-or-full-command-list &rest command-arguments)
-  `(if (listp ,name-or-full-command-list )
-       (start-shell-command (car ,name-or-full-command-list)
-                            (apply 'make-command-string ,name-or-full-command-list))
-     (start-shell-command
-      ,name-or-full-command-list
-      (apply 'make-command-string ,name-or-full-command-list (list ,command-arguments)))
-     ))
+
+
+
+(defun shell-command-dwim (command &rest args)
+  (let* ((command-name
+          (if (listp command) (car command) command))
+         (args (if (null args)
+                   (when (listp command)
+                     (mapconcat #'identity (cdr command) " "))
+                   (mapconcat #'identity args " ")
+                 ))
+         )
+    (start-shell-command command-name  args)
+    )
+  )
 
 (shell-command-dwim "ls")
-(shell-command-dwim "ls" "-lh")
 (shell-command-dwim '("ls" "-lh"))
+(shell-command-dwim '("ls" "-lh" "-a"))
+(shell-command-dwim "ls" "-lh" "-a")
+
+
+
+
 
 #+END_SRC
 * Backup All Agenda and Configuration Files
