@@ -3247,6 +3247,7 @@ maildir:/info/[Gmail]/Skickat"
 :END:
 #+BEGIN_SRC emacs-lisp
 (use-package abbrev
+  :disabled t
   :ensure nil
   :defer t
   :custom
@@ -3264,6 +3265,7 @@ maildir:/info/[Gmail]/Skickat"
 #+BEGIN_SRC emacs-lisp
 (use-package flyspell
   :defer 1
+  :disabled t
   :custom
   (flyspell-abbrev-p t)
   (flyspell-issue-message-flag nil)
@@ -3333,10 +3335,12 @@ maildir:/info/[Gmail]/Skickat"
 	:config)
 
 (use-package
-	ox-reveal
-	:after org
-	:config
-	(use-package htmlize))
+  ox-reveal
+  :after org
+  :config
+  (use-package htmlize)
+  (setq org-reveal-root "https://cdn.jsdelivr.net/reveal.js/3.0.0/")
+  )
 ;(demo-it-create (demo-it-presentation "./configuration.org"))
 
 ;(demo-it-start)
@@ -3346,11 +3350,11 @@ maildir:/info/[Gmail]/Skickat"
 :PROPERTIES:
 :ID:       ce0fc4de-8b3b-4cb3-b1f5-796b2a1d1524
 :END:
+
 ** Emacs Lisp
 :PROPERTIES:
 :ID:       b5e75921-2a62-41e7-b76c-9aaf7085cb7b
 :END:
-
 	 #+BEGIN_SRC emacs-lisp
 ;(semantic-mode -1)
 (use-package org-notes
@@ -3744,7 +3748,7 @@ and insert region contents at top."
 	)
 (use-package spacemacs-common
 	:ensure spacemacs-theme
-	:config (load-theme 'spacemacs-light t))
+	:config (load-theme 'spacemacs-dark t))
 ;; (use-package spacemacs-theme
 ;; :ensure t
 ;; :defer nil
@@ -3805,10 +3809,149 @@ and insert region contents at top."
 		 )))
 
 	 #+END_SRC
+** EXWM
+*** Config
+#+BEGIN_SRC emacs-lisp
+(defun elib-toggle-kbd-language ()
+  (interactive)
+  (shell-command "xkb-switch -n" t))
+
+(defun elib-exwm-launch  (command)
+                        (interactive (list (read-shell-command "$ ")))
+                        (start-process-shell-command command nil command))
+
+(defvar elib-exwm-workspace-window-assignments
+  '(("Google-chrome")))
+(defun elib-exwm-init-buffers ()
+  (interactive)
+  (save-excursion
+    (exwm-workspace-switch-create 2)
+    (elib-exwm-launch "google-chrome")
+
+    (exwm-workspace-switch-create 3)
+    (elib-exwm-launch "gnome-control-center bluetooth")
+    (split-window-horizontally)
+    (other-window 1)
+    (elib-exwm-launch "pavucontrol")
+    (split-window)
+    (other-window 1)
+    (elib-exwm-launch "blueman-manager")
+    )
+  )
+
+
+(defun elib-exwm-config ()
+  (setq mouse-autoselect-window t)
+  (setq focus-follows-mouse t)
+  (setq exwm-workspace-number 4)
+  (setq exwm-systemtray-height 24)
+
+
+
+  (define-key exwm-mode-map (kbd "C-c C-j") 'exwm-input-grab-keyboard)
+  ;; Make class name the buffer name
+
+  (add-hook 'exwm-update-class-hook
+            (lambda ()
+              (exwm-workspace-rename-buffer exwm-class-name)))
+  (exwm-input-set-key (kbd "s-<return>") #'dmenu)
+  ;; 's-r': Reset
+  (exwm-input-set-key (kbd "s-r") #'exwm-reset)
+  (exwm-input-set-key (kbd "s-C-r") #'exwm-restart)
+  ;; 's-w': Switch workspace
+  (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
+  (exwm-input-set-key (kbd "s-SPC") #'elib-toggle-kbd-languaged)
+  ;; 's-N': Switch to certain workspace
+  (dotimes (i 10)
+    (exwm-input-set-key (kbd (format "s-%d" i))
+                        `(lambda ()
+                           (interactive)
+                           (exwm-workspace-switch-create ,i))))
+  ;; 's-&': Launch application
+  (exwm-input-set-key (kbd "s-&") #'elib-exwm-launch
+                      )
+  (exwm-input-set-key (kbd "s-o") #'other-window)
+  (exwm-input-set-key (kbd "s-j") #'exwm-input-grab-keyboard)
+
+  (setq exwm-input-simulation-keys
+        '(
+          ;; movement
+          ([?\C-b] . [left])
+          ([?\M-b] . [C-left])
+          ([?\C-f] . [right])
+          ([?\M-f] . [C-right])
+          ([?\C-p] . [up])
+          ([?\C-n] . [down])
+          ([?\C-a] . [home])
+          ([?\C-e] . [end])
+          ([?\M-v] . [prior])
+          ([?\C-v] . [next])
+          ([?\C-d] . [delete])
+          ([?\C-k] . [S-end delete])
+          ;; cut/paste.
+          ([?\C-w] . [?\C-x])
+          ([?\M-w] . [?\C-c])
+          ([?\C-y] . [?\C-v])
+          ;; search
+          ([?\C-s] . [?\C-f])))
+  (menu-bar-mode 1)
+  (tool-bar-mode -1)
+  (exwm-enable)
+  (use-package dmenu
+    :config
+    (exwm-input-set-key (kbd "C-s-SPC") #'dmenu)
+    )
+  )
+
+
+
+
+
+#+END_SRC
+
+
+*** Setup
+:PROPERTIES:
+:ID:       aa1694a9-e7c5-41ac-88ca-bc1474edc5ae
+:END:
+#+BEGIN_SRC emacs-lisp
+(when (member "--exwm" command-line-args)
+(use-package exwm
+  :init
+  (require 'exwm-systemtray)
+  (exwm-systemtray-enable)
+
+  :config
+  (require 'exwm-systemtray)
+  (add-to-list 'helm-source-names-using-follow "EXWM buffers")
+  (use-package helm-exwm)
+  (elib-exwm-config)
+  (exwm-enable)
+  ))
+
+
+;; (require 'exwm)
+;; (require 'exwm-config)
+;;
+;; (exwm-enable)
+;; (message "ted")
+#+END_SRC
 ** Disabled Stuff
 :PROPERTIES:
 :ID:       eba4b8c9-1906-4da1-bdbb-a392ba6b0f2e
 :END:
+*** Evil
+:PROPERTIES:
+:ID:       8b02e3ad-7690-4b3b-aa20-f306821e57aa
+:END:
+	 #+BEGIN_SRC emacs-lisp
+(use-package evil
+	:disabled t
+	:config
+	(evil-mode -1)
+	(use-package org-evil)
+	)
+	 #+END_SRC
 *** Hyperbole
 :PROPERTIES:
 :ID:       0d5973f8-463a-4a0e-873e-56dec92e99a3
@@ -3830,40 +3973,6 @@ and insert region contents at top."
 (use-package writeroom-mode
   :disabled t)
 	 #+END_SRC
-*** Evil
-:PROPERTIES:
-:ID:       8b02e3ad-7690-4b3b-aa20-f306821e57aa
-:END:
-	 #+BEGIN_SRC emacs-lisp
-(use-package evil
-	:disabled t
-	:config
-	(evil-mode -1)
-	(use-package org-evil)
-	)
-	 #+END_SRC
-*** EXWM
-:PROPERTIES:
-:ID:       aa1694a9-e7c5-41ac-88ca-bc1474edc5ae
-:END:
-#+BEGIN_SRC emacs-lisp
-(use-package exwm
-  :disabled t
-  :config
-  (use-package exwm-config
-    :ensure nil)
-                                        ;(exwm-config-default)
-  (use-package exwm-systemtray
-    :commands exwm-systemtray-enable
-    :ensure nil
-    :config
-    (exwm-systemtray-enable)))
-;; (require 'exwm)
-;; (require 'exwm-config)
-;; (define-key exwm-mode-map (kbd "C-c C-j") 'exwm-input-grab-keyboard)
-;; (exwm-enable)
-;; (message "ted")
-#+END_SRC
 *** Cask-mode
 :PROPERTIES:
 :ID:       0ed296c0-31c8-4c6d-aa74-1fc36ad16d44
