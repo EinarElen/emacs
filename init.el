@@ -2,6 +2,15 @@
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
+(defvar elib-tangle?
+  (file-newer-than-file-p "~/.emacs.d/configuration.org"
+                          "~/.emacs.d/configuration.el"))
+(defvar elib-compile?
+  nil)
+
+
+
+
 (setq package-user-dir "~/.emacs.d/machine-local-files/elpa/")
 (package-initialize)
 (defvar debuginit-p nil)
@@ -56,6 +65,9 @@
            (not (package-installed-p 'all-the-icons)))
        )
   "Does `all-the-icons-install-fonts' need to be called?")
+
+
+
 (defvar first-install-needs-pdf-tools?
   (and (not (daemonp))
        (or no-packages-installed?
@@ -75,12 +87,10 @@
 
 
 (if (not debuginit-p)
-    (progn (if  (file-newer-than-file-p "~/.emacs.d/configuration.org"
-                                        "~/.emacs.d/configuration.el")
-               (progn
-                 (require 'ob)
-                 (org-babel-tangle-file "~/.emacs.d/configuration.org")
-                 (byte-compile-file "~/.emacs.d/configuration.el")))
+    (progn (when elib-tangle?
+             (require 'ob)
+             (org-babel-tangle-file "~/.emacs.d/configuration.org")
+             (when elib-compile? (byte-compile-file "~/.emacs.d/configuration.el")))
            (let ((time (current-time)))
              (load-file "~/.emacs.d/configuration.el")
              (message "%f" (float-time (time-since time))))
@@ -92,8 +102,10 @@
   (pdf-tools-install t))
 (when first-install-needs-all-the-icons?
   (all-the-icons-install-fonts t))
-(find-file config-file-file-name)
-(delete-other-windows)
+
+
+;; (find-file config-file-file-name)
+;; (delete-other-windows)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -101,8 +113,10 @@
  ;; If there is more than one, they won't work right.
  '(abbrev-file-name "/home/einarelen/.emacs.d/.abbrev_defs")
  '(abbrev-mode t t)
+ '(ansi-color-names-vector
+   ["#d2ceda" "#f2241f" "#67b11d" "#b1951d" "#3a81c3" "#a31db1" "#21b8c7" "#655370"])
  '(custom-safe-themes
-   '("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "d5b121d69e48e0f2a84c8e4580f0ba230423391a78fcb4001ccb35d02494d79e" "f78de13274781fbb6b01afd43327a4535438ebaeec91d93ebdbba1e3fba34d3c" "c7a9a68bd07e38620a5508fef62ec079d274475c8f92d75ed0c33c45fbe306bc" "28130127bbf3072c1bbc7652fca7245f186bb417b3b385a5e4da57b895ffe9d8" "bb749a38c5cb7d13b60fa7fc40db7eced3d00aa93654d150b9627cabd2d9b361" "a800120841da457aa2f86b98fb9fd8df8ba682cebde033d7dbf8077c1b7d677a" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "557c283f4f9d461f897b8cac5329f1f39fac785aa684b78949ff329c33f947ec" default))
+   '("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "d5b121d69e48e0f2a84c8e4580f0ba230423391a78fcb4001ccb35d02494d79e" "f78de13274781fbb6b01afd43327a4535438ebaeec91d93ebdbba1e3fba34d3c" "c7a9a68bd07e38620a5508fef62ec079d274475c8f92d75ed0c33c45fbe306bc" "28130127bbf3072c1bbc7652fca7245f186bb417b3b385a5e4da57b895ffe9d8" "bb749a38c5cb7d13b60fa7fc40db7eced3d00aa93654d150b9627cabd2d9b361" "a800120841da457aa2f86b98fb9fd8df8ba682cebde033d7dbf8077c1b7d677a" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "557c283f4f9d461f897b8cac5329f1f39fac785aa684b78949ff329c33f947ec" default))
  '(flyspell-abbrev-p t)
  '(flyspell-issue-message-flag nil)
  '(flyspell-issue-welcome-flag nil)
@@ -110,11 +124,10 @@
  '(font-use-system-font t)
  '(org-agenda-files
    '("/home/einarelen/current_events.org" "/home/einarelen/.emacs.d/configuration.org" "/home/einarelen/nextcloud/org/main-gtd.org" "/home/einarelen/nextcloud/org/inbox@elfriede.org" "/home/einarelen/nextcloud/org/shopping.org" "/home/einarelen/nextcloud/org/tickler.org"))
- '(org-modules
-   '(org-bbdb org-bibtex org-docview org-gnus org-info org-irc org-mhe org-rmail org-w3m org-drill))
  '(org-twbs-extension "html")
  '(package-selected-packages
-   '(dmenu helm-exwm dired+ ansible org-tree-slide epresent Epresent python-mode markdown-mode ox-ipynb ob-ipython ein-company company-ein py-autopep8 worf org-plus-contrib org-drill org-mime yaml-mode toc-org org-caldav restart-emacs calfw-ical ox-reveal lispy default-text-scale leuven helm-grep bind-key helm-flyspell flyspell-helm abbrev-mode abbrev oauth2 ouath2 helm-mu notmuch wl wanderlust bbdb mu4e-multi mu4e-jump-to-list mu4e-alert mu4e-conversation mu4e-maildirs-extension eglot el-mock google-translate aggressive-indent rainbow-delimiters rainbow-delimeters which-key langtool graphviz-dot-mode async-await atom-dark-theme auctex-lua writegood-mode writeroom-mode org-evil evil treemacs-projectile treemacs slime-company elisp-slime-nav-mode slime ob org-agenda tex-buf company-clang TeX-save-query helm-files helm-command helm-elisp helm-ag helm-apropos helm-google whitespace-mode helm-rtags flycheck-rtags ob-async transpose-frame ace-window hydra org-gcal calfw-gcal mu4e-org epa-file offlineimap mu4e-contrib helm-purpose window-purpose swiper-helm nameless em-smart cask-mode buttercup flycheck company-rtags pp-c-l highlight-cl eldoc-extension elisp-slime-nav redshank paredit-everywhere paredit-menu auto-complete-clang paredit meson-mode xah-replace-pairs multiple-cursors expand-region info+ all-the-icons winum eyebrowse persp-projectile persp-mode perspective spaceline-all-the-icons spacemacs-theme helm-themes blackboard-theme counsel cpputils-cmake org-beautify-theme ox-twbs cmake-font-lock cmake-project cmake-mode dumb-jump exwm ein glsl-mode wolfram fold-dwim rtags pdf-tools srefactor macrostep ox-latex calfw-org latex latexx clipmon use-package calfw auctex-latexmk nlinum gnuplot ob-C htmlize web-mode hideshowvis hyperbole zoom-frm twittering-mode helm-dash helm-descbinds zygospore yalinum ws-butler volatile-highlights undo-tree sr-speedbar solarized-theme smartparens powerline nyan-mode multi-term monokai-theme malinka magit latex-preview-pane iedit helm-swoop helm-projectile helm-gtags ggtags function-args flycheck-ycmd flycheck-pos-tip flycheck-irony exec-path-from-shell elscreen duplicate-thing dtrt-indent diminish company-ycmd company-irony-c-headers company-irony company-c-headers company-auctex comment-dwim-2 color-identifiers-mode cmake-ide clean-aindent-mode clang-format avy-zap anzu ace-jump-mode))
+   '(doom-themes org-plus-contrib spacemacs dmenu helm-exwm exwm mu4e-maildirs-extension mu4e-conversation mu4e-jump-to-list mu4e-alert helm-mu evil-tutor neotree treemacs esup macrostep expand-region multiple-cursors xah-replace-pairs nameless lorem-ipsum ein python-mode htmlize ox-reveal demo-it google-translate org-mime toc-org oauth2 org-caldav calfw-ical calfw-org calfw ob-ipython ox-twbs org-bullets cider lispy cmake-ide meson-mode cmake-mode clang-format web-mode flycheck company-auctex company-irony company-c-headers company latex-preview-pane auctex multi-term yasnippet-snippets eglot helm-projectile helm-swoop helm-dash helm-themes helm-descbinds helm-ag helm-c-yasnippet helm-google helm-gtags magit projectile dumb-jump avy-zap iedit anzu comment-dwim-2 smartparens undo-tree ws-butler dtrt-indent volatile-highlights which-key aggressive-indent rainbow-delimiters spacemacs-theme spaceline color-identifiers-mode restart-emacs default-text-scale transpose-frame ace-window hydra zygospore clipmon all-the-icons pdf-tools helm bind-key diminish use-package))
+ '(pdf-view-midnight-colors '("#655370" . "#fbf8ef"))
  '(safe-local-variable-values
    '((eval defadvice org-babel-tangle
            (after change-script-modes activate)
@@ -139,7 +152,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#292b2e" :foreground "#b2b2b2" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 110 :width normal :foundry "PfEd" :family "Hack")))))
+ )
 (put 'erase-buffer 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 (put 'downcase-region 'disabled nil)

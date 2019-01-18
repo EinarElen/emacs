@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Org LaTeX Snippet
+# key: <ll
+# --
+@@latex:$0@@

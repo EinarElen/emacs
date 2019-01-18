@@ -1,0 +1,22 @@
+#+BEGIN_EXPORT html
+ <div style="font-family:garamond, EB Garamond, serif">
+#+END_EXPORT
+*Einar Elén*
+Chairperson // Ordförande of the Information Committee (Info)
+The Science Student Union (LUNA) at Lund University
+[[/home/einarelen/emacs/files/LUNA_small.png]]
+[[mailto:info-ordf@luna.lu.se][info-ordf@luna.lu.se]], [[https://www.lundsnaturvetarkar.se/info][www.lundsnaturvetarkar.se/info]]
+#+BEGIN_EXPORT html
+<div style="color:rgb(153,153,153);font-size:small">
+Office address: Sölvegatan 27, 223 62 Lund Post address: Box 117, 221 00 Lund
+<p>
+The Science Student Union represents about 1800 students studying at the Faculty of Science at Lund University. The union works mainly with education monitoring and student representation but also with aiding students with corporate relations and hosting social events.
+</p>
+<p>
+The Information Committee ensures that information from the union and all its committees, councils and groups reaches as many members as possible, in the best possible way.
+</p>
+<p>
+The biggest task of the committee is to distribute the monthly union newsletter Zenit, that can be read at most toilets at the departments at the Faculty of Science. The committee also takes part in the information flow by working with social media and work delegated by the union board.
+</p>
+</div></div>
+#+END_EXPORT

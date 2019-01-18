@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: C++ Source Block
+# key: <cc
+# --
+#+BEGIN_SRC C++ :flags -lginac -lcln -ldl
+$0
+#+END_SRC

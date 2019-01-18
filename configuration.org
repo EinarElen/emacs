@@ -394,7 +394,7 @@ The packages and their load-paths are:
   (defvar elib-org-gcal-load-path (expand-file-name "~/src/org-gcal/"))
   (defvar elib-rtags-load-path
     (potential-load-paths
-     `("/usr/share/emacs/site-lisp/rtags/rtags.el"
+     `("/usr/share/emacs/site-lisp/rtags/"
        ,(concat user-emacs-config-directory
                "../src/rtags/src/"))))
   (defvar elib-mu4e-load-path
@@ -750,7 +750,7 @@ in the modeline.
 (setq column-number-mode t
       line-number-mode t)
 (global-visual-line-mode t)
-(global-hl-line-mode t)
+;; (global-hl-line-mode t)
 #+END_SRC
 Flash the screen rather than making noise when complaining.
 #+BEGIN_SRC emacs-lisp
@@ -963,8 +963,7 @@ Hydra is a package which allows fancy keyboard bindings. The
       ("c" ispell)
       ("d" ispell-change-dictionary)
       ("f" flyspell-buffer)
-      ("m" flyspell-mode))
-    )
+      ("m" flyspell-mode)) )
   :bind (("C-M-o" . hydra-window/body)
          ("C-M-s" . hydra-spelling/body)))
 
@@ -1068,7 +1067,7 @@ be.
 Adds colouring for variables in programming languages. Sets
 the starting buffer to this file.
 #+BEGIN_SRC emacs-lisp
-(setq initial-buffer-choice config-file-file-name)
+;; (setq initial-buffer-choice config-file-file-name)
 
   (use-package color-identifiers-mode
     :diminish color-identifiers-mode
@@ -1077,6 +1076,48 @@ the starting buffer to this file.
     (global-color-identifiers-mode t))
 
 #+END_SRC
+*** Themes
+**** Spaceline
+#+BEGIN_SRC emacs-lisp
+(use-package spaceline
+  :defer 2
+  :commands (spaceline-spacemacs-theme
+	     spaceline-helm-mode spaceline-info-mode)
+  :config
+  (use-package spaceline-config
+    :ensure nil
+    :config
+    (spaceline-spacemacs-theme)
+    (spaceline-helm-mode t)
+    (spaceline-info-mode t)
+    ;; (use-package all-the-icons
+    ;;   :config
+    ;;   (use-package spaceline-all-the-icons
+    ;;     :config
+    ;;     (spaceline-all-the-icons-theme)))
+    ))
+#+END_SRC
+**** Spacemacs
+#+BEGIN_SRC emacs-lisp
+(use-package spacemacs-common
+	:ensure spacemacs-theme
+	:config )
+#+END_SRC
+**** Doom-Themes
+
+#+BEGIN_SRC emacs-lisp
+(use-package doom-themes
+  :config
+  (setq doom-themes-enable-bold t doom-themes-enable-italic t)
+  (doom-themes-neotree-config)
+  (doom-themes-treemacs-config)
+  (doom-themes-org-config))
+#+END_SRC
+*** Fonts
+#+BEGIN_SRC emacs-lisp
+(set-frame-font "Hack 13" nil t)
+#+END_SRC
+
 ** Text Editing
 :PROPERTIES:
 :ID:       e88a991a-273f-4647-9f69-db4480e4f2c4
@@ -1277,11 +1318,12 @@ is neat.
 #+BEGIN_SRC emacs-lisp
 (use-package smartparens
   :diminish smartparens-mode
-  :defer 2
+  :defer 1
   :commands sp-pair
   :hook ((org-mode text-mode TeX-mode c-mode-common org-src-mode)
          . smartparens-mode)
   :config
+  (setq sp-escape-quotes-after-insert nil)
   (require 'smartparens-config)
   (sp-pair "\\[" "\\]")
   (setq ;; sp-base-key-bindings 'paredit
@@ -1728,12 +1770,7 @@ Helm makes emacs a lot better.
     :commands helm-themes
     :bind (("<f10>" . helm-themes)))
   (use-package helm-dash)
-  (use-package helm-rtags
-    :after rtags
-    :load-path elib-rtags-load-path
-    :ensure nil
-    :config
-    (setq rtags-display-result-backend 'helm))
+
   (use-package helm-swoop
     :bind
     (("C-c s" . helm-multi-swoop-all)
@@ -1776,19 +1813,24 @@ Hopefully it gets useful in the future.
 :END:
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
+  :defer 1
   :init
   (defun start-yasnippet ()
     (interactive)
     (yas-minor-mode t))
-  :commands yas-minor-mode
-  :hook (((prog-mode TeX-mode) . start-yasnippet))
+  (defun elib-org-latex-yas ()
+    (yas-activate-extra-mode  'latex-mode))
+  ;; :commands yas-minor-mode
+  ;; :hook (((prog-mode TeX-mode) . start-yasnippet))
   :config
   (use-package yasnippet-snippets)
   (set 'yas-verbosity 1)
   (add-to-list 'yas-snippet-dirs tuhdo-snippets-directory )
   (add-to-list 'yas-snippet-dirs elib-snippets-directory )
-  )
+  (yas-global-mode t)
+  (add-hook 'org-mode-hook #'elib-org-latex-yas))
 #+END_SRC
+
 ** Terminal Usage
 :PROPERTIES:
 :ID:       9828326a-0250-455b-ac08-e349e5121ea2
@@ -1921,14 +1963,7 @@ pretty nifty.
       :after company-c-headers
       :config
       (add-to-list-multi 'company-backends '(company-irony-c-headers company-irony))))
-  (use-package company-rtags
-    :after rtags
-    :load-path elib-rtags-load-path
-    :ensure nil
-    :when (executable-find "rdm")
-    :config
-    (setq rtags-completions-enabled t)
-    (add-to-list 'company-backends 'company-rtags))
+
   ;; TeX
   (use-package company-auctex
     :after tex
@@ -1957,7 +1992,6 @@ pretty nifty.
 :END:
 	 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :defer 2
   :init
   (defun disable-flycheck-temporarily ()
     "Disables flycheck in current buffer."
@@ -1967,21 +2001,10 @@ pretty nifty.
   (setq flycheck-idle-change-delay 0.1)
   (add-hook 'org-src-mode-hook
             'disable-flycheck-temporarily)
-  (use-package flycheck-rtags
-    :after rtags
-    :load-path elib-rtags-load-path
-    :ensure nil
-    :hook (c-mode-common . another-flycheck-rtags-setup)
-    :init
-    (defun another-flycheck-rtags-setup ()
-      (interactive)
-      (flycheck-select-checker 'rtags)
-      (setq-local flycheck-highlighting-mode nil)
-      (setq-local flycheck-check-syntax-automatically nil)
-      (rtags-enable-standard-keybindings)))
+
   (global-flycheck-mode t))
 	 #+END_SRC
-** Web Development
+''** Web Development
 :PROPERTIES:
 :ID:       3c853127-d141-4de4-9f48-fd5dd4602930
 :END:
@@ -2062,10 +2085,43 @@ pretty nifty.
               ("C-x ." . rtags-find-symbol))
   :hook (c-mode-common . rtags-start-process-unless-running)
   :config
+  (rtags-start-process-unless-running)
   (setq rtags-completions-enabled t)
   (setq rtags-autostart-diagnostics t)
-  (rtags-diagnostics))
+  (rtags-diagnostics)
+(use-package flycheck-rtags
+    :after flycheck
+    :load-path elib-rtags-load-path
+    :ensure nil
+    :hook (c-mode-common . another-flycheck-rtags-setup)
+    :init
+    (defun another-flycheck-rtags-setup ()
+      (interactive)
+      (flycheck-select-checker 'rtags)
+      (setq-local flycheck-highlighting-mode nil)
+      (setq-local flycheck-check-syntax-automatically nil)
+      (rtags-enable-standard-keybindings))
+    :config
+    (require 'flycheck-rtags))
+  (use-package company-rtags
+    :after company
+    :load-path elib-rtags-load-path
+    :ensure nil
+    :when (executable-find "rdm")
+    :config
+    (setq rtags-completions-enabled t)
+    (add-to-list 'company-backends 'company-rtags))
+  (use-package helm-rtags
+    :after helm
+    :load-path elib-rtags-load-path
+    :ensure nil
+    :config
+    (setq rtags-display-result-backend 'helm)))
 		 #+END_SRC
+
+                 #+RESULTS:
+                 : rtags-find-symbol
+
 **** Clang Format
 :PROPERTIES:
 :ID:       6ca50e64-9ca9-42ca-8e64-279694d0d944
@@ -2341,14 +2397,19 @@ pretty nifty.
 
 
   :config
+  (add-hook 'org-mode-hook 'variable-pitch-mode)
+
+  (use-package org-bullets
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
   (defvar user-org-todo-key-sequences
     '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "|"   "DONE(d)" "DELEGATED(D)" "CANCELLED(c)")))
 
   (setq org-todo-keywords user-org-todo-key-sequences)
-  (use-package org-beautify-theme
-    :disabled t)
+
   (setq org-pretty-entities t)
   (setq org-pretty-entities-include-sub-superscripts nil)
+  (setq org-hide-emphasis-markers t)
   (setq org-startup-indented t)
   (setq org-export-async-init-file
         (expand-file-name
@@ -2384,6 +2445,7 @@ pretty nifty.
       (setq org-startup-with-latex-preview nil)
       (unless (getenv "TEXMFHOME")
         (setenv "TEXMFHOME" (concat (getenv "HOME") "/texmf")))
+      (setq org-preview-latex-default-process 'imagemagick)
       ;; Format is ("options" "package)
       (add-to-list 'org-latex-packages-alist '("" "eetex"))
       (add-to-list 'org-latex-packages-alist '("" "tikz"))
@@ -2436,20 +2498,19 @@ pretty nifty.
          ("\C-cb" . org-iswitchb)
          :map org-mode-map
          ("C-c C-p" . org-previous-visible-heading)
-         ("<" . org-self-insert-or-less)
          ("C-c M-o" . org-toggle-link-display)
          ("S-<f5>" . org-call-export-to-pdf)
          ;;("<f5>" . org-call-export-to-beamer)
          ("C-c ." . org-time-stamp)
          ("\M-\C-g" . org-plot/gnuplot)))
 
-
 	 #+END_SRC
 ** Capture
 :PROPERTIES:
 :ID:       284aed85-1e89-4404-833c-9fee55c367f0
 :END:
-#+BEGIN_SRC emacs-lisp 
+
+#+BEGIN_SRC emacs-lisp
 (defvar org-gtd-inbox (expand-file-name "~/nextcloud/org/inbox.org"))
 (defvar user-org-gtd-inbox
   (expand-file-name
@@ -2703,81 +2764,8 @@ pretty nifty.
          user-org-generic-agenda-next-only
          user-org-generic-agenda-all-next)))
 #+END_SRC
-** Structure Templates
-:PROPERTIES:
-:ID:       272a2f72-b655-4211-b963-3cb58d648fd5
-:END:
-#+BEGIN_SRC emacs-lisp
-(eval-after-load "hydra"
-  (progn
-    (defhydra hydra-org-template (:color blue :hint nil)
-      "
-_c_enter          _q_uote          _L_aTeX:
-_d_efn            _ex_ample        _th_eorem:
-_ll_atex-snippet  _eq_uation       _l_atex:
-_p_roof           _lh_eader        _n_amed equation:
-_el_isp           _a_scii          _v_erse:
-_I_NCLUDE         _s_rc            _H_TML:
-_h_tml            ython          _A_SCII:
-"
-      ("s" (hot-expand "<s"))
-      ("ex" (hot-expand "<ex"))
-      ("d" (hot-expand "<dfn"))
-      ("n" (hot-expand "<n"))
-      ("lh" (hot-expand "<lh"))
-      ("th" (hot-expand "<th"))
-      ("ll" (hot-expand "<ll"))
-      ("eq" (hot-expand "<eq"))
-      ("p" (hot-expand "<p"))
-      ("el" (hot-expand "<el"))
-      ("q" (hot-expand "<q"))
-      ("v" (hot-expand "<v"))
-      ("c" (hot-expand "<c"))
-      ("l" (hot-expand "<l"))
-      ("h" (hot-expand "<h"))
-      ("a" (hot-expand "<a"))
-      ("L" (hot-expand "<L"))
-      ("ii" (hot-expand "<ii"))
-     ("ip" (hot-expand "<ip"))
-      ("I" (hot-expand "<I"))
-      ("H" (hot-expand "<H"))
-      ("A" (hot-expand "<A"))
-      ("t" (hot-expand "<t"))
-      ("<" self-insert-command "ins")
-      ("o" nil "quit"))
-    (eval-after-load "org"
-      (progn (defun hot-expand (str)
-               "Expand org template."
-               (insert str)
-               (org-try-structure-completion))
-             (defun org-self-insert-or-less ()
-               (interactive)
-               (if (looking-back "^")
-                   (hydra-org-template/body)
-                 (self-insert-command 1))))
-      )))
 
-(add-to-list-multi
- 'org-structure-template-alist
- '(("la" "#+BEGIN_EXPORT latex\
- \n\\begin{align*}\n?\n\\end{align*}\n#+END_EXPORT")
-   ("cc" "#+BEGIN_SRC C++ :flags -lginac -lcln -ldl :exports\
- none\n?\n#+END_SRC")
-   ("el" "#+BEGIN_SRC emacs-lisp \n?\n#+END_SRC")
-   ("eq" "\\begin{equation}\n?\n\\end{equation}\n")
-   ("th" "#+begin_theorem\n?\n#+end_theorem\n")
-   ("dfn" "\\begin{defn}{?}\n\n\\end{defn}")
-   ("ex" "\\begin{exmp}?\n\n\\end{exmp}")
-   ("ii" "#+BEGIN_SRC ipython :session :exports both :results output raw drawer\n%matplotlib inline\n#+END_SRC")
-   ("ip" "#+BEGIN_SRC ipython :session :exports both :results output raw drawer\n#+END_SRC")
-   ("lh"
-    "#+LATEX_HEADER: \\usepackage{etex} \n#+OPTIONS: num:6\
-   H:6\n")
-   ("ll" "@@latex:?@@")
-   ("p" "\\begin{prf}\n?\n\\end{prf}")
-   ("n" "#+NAME:?\n#+BEGIN_EQUATION\n #+END_EQUATION\n"))
- nil 'equal)
-#+END_SRC
+
 ** Refile
 :PROPERTIES:
 :ID:       d6e57986-c359-4249-93bd-85ec765f1373
@@ -2808,24 +2796,24 @@ We cannot use use-package here because the refile things are defined in the same
          (expand-file-name "~/nextcloud/org/orgsettings.el"))
   :config
   (defun elib-open-calendar-template ()
-  (interactive)
-  (cfw:open-calendar-buffer
-   :date nil :buffer nil :custom-map nil :view nil
-   :sorter nil
-   :annotation-sources nil
-   :contents-sources
-   (list
-    (cfw:ical-create-source
-     "Gmail" "calendar-address"
-     "Blue")
-    (cfw:ical-create-source
-     "Info"     "calendar-address"
-     "Purple")
-    (cfw:ical-create-source
-     "lu"     "calendar-address"
-     "Red")
-    (cfw:org-create-source "Red")
-    )))
+    (interactive)
+    (cfw:open-calendar-buffer
+     :date nil :buffer nil :custom-map nil :view nil
+     :sorter nil
+     :annotation-sources nil
+     :contents-sources
+     (list
+      (cfw:ical-create-source
+       "Gmail" "calendar-address"
+       "Blue")
+      (cfw:ical-create-source
+       "Info"     "calendar-address"
+       "Purple")
+      (cfw:ical-create-source
+       "lu"     "calendar-address"
+       "Red")
+      (cfw:org-create-source "Red")
+      )))
   (use-package calfw-org)
   (use-package calfw-ical)
   ;; (use-package calfw-org)
@@ -2927,6 +2915,14 @@ We cannot use use-package here because the refile things are defined in the same
 :ID:       6c9d56eb-6703-49d1-8386-fb44a3db1ee9
 :END:
 #+BEGIN_SRC emacs-lisp
+(defun get-string-from-file (filePath)
+  "Return filePath's file content."
+  (with-temp-buffer
+    (insert-file-contents filePath)
+    (buffer-string)))
+(defvar elib-info-signature-file (potential-load-paths '("~/.emacs.d/files/info-signature.org")) )
+
+
 (defun my-mu4e-choose-signature ()
   "Insert one of a number of sigs"
   (interactive)
@@ -2934,36 +2930,15 @@ We cannot use use-package here because the refile things are defined in the same
       ((message-signature
         (mu4e-read-option
          "Signature:"
-         '(("info" .
-            "*Einar Elén*
-Chairperson // Ordförande of the Information Committee (Info)
-The Science Student Union (LUNA) at Lund University
-
-info-ordf@luna.lu.se, www.lundsnaturvetarkar.se/info
-Office address: Sölvegatan 27, 223 62 Lund Post address:
-Box 117, 221 00 Lund
-
-The Science Student Union represents about 1800 students
-studying at the Faculty of Science at Lund University. The
-union works mainly with education monitoring and student
-representation but also with aiding students with corporate
-relations and hosting social events.
-
-The Information Committee ensures that information from the
-union and all its committees, councils and groups reaches as
-many members as possible, in the best possible way.
-
-The biggest task of the committee is to distribute the
-monthly union newsletter Zenit, that can be read at most
-toilets at the departments at the Faculty of Science. The
-committee also takes part in the information flow by working
-with social media and work delegated by the union board.
-")
+         `(("info" .
+            ,(get-string-from-file elib-info-signature-file))
            ("swan" .
             "Einar Elén
 Secretary of the steering group (SWAN)
 ")))))
-    (message-insert-signature)))
+    (message-insert-signature)
+(org-mime-htmlize)
+))
 
 (defvar mu4e-previous-attachment-directory "~/Downloads")
 (defvar mu4e-attachment-dired-buffer nil)
@@ -3175,8 +3150,12 @@ maildir:/info/[Gmail]/Skickat"
 
     ;; Needed with mbsync, apparently
     (setq mu4e-change-filenames-when-moving t)
-    ;; (setq mu4e-html2text-command 'mu4e-shr2text)
-    (setq mu4e-html2text-command "w3m -T text/html")
+    (setq mu4e-html2text-command 'mu4e-shr2text)
+    ;; (setq mu4e-html2text-command "w3m -T text/html")
+    (setq shr-color-visible-luminance-min 80)
+
+    ;; Experimental
+    (setq mu4e-compose-format-flowed t)
 
     ))
 
@@ -3433,30 +3412,13 @@ Optional ARG \\[universal-argument] prompts for path to the interpreter."
       )
     )
 #+END_SRC
-** Pamparam
-#+BEGIN_SRC emacs-lisp
-(defvar org-drill-location
-  (concat user-emacs-directory "elpa/org-plus-contrib20"  )
-  )
-(use-package org-drill
-  :disabled nil
-  :ensure nil
-  :config
-  (setq org-drill-cram-hours 0)
-  )
-;; (defvar pamparam-location (concat user-emacs-directory "../pamparam/"))
-;; (use-package worf)
-;; (use-package pamparam
-;;   :ensure nil
-;;   :load-path pamparam-location
-;;   )
-#+END_SRC
 ** ?
 :PROPERTIES:
 :ID:       9dafe517-3d1c-4cd5-9a12-5550abed6e44
 :END:
 There is only darkness here. Flee.
 	#+BEGIN_SRC emacs-lisp
+(use-package lorem-ipsum)
 (defun rgr/toggle-context-help ()
   "Turn on or off the context help.
 Note that if ON and you hide the help buffer then you need to
@@ -3563,23 +3525,7 @@ context-help to false"
   :bind (("C-M-." . mc/mark-next-like-this))
   )
 
-(use-package spaceline
-  :defer 5
-  :commands (spaceline-spacemacs-theme
-	     spaceline-helm-mode spaceline-info-mode)
-  :config
-  (use-package spaceline-config
-    :ensure nil
-    :config
-    (spaceline-spacemacs-theme)
-    (spaceline-helm-mode t)
-    (spaceline-info-mode t)
-    ;; (use-package all-the-icons
-    ;;   :config
-    ;;   (use-package spaceline-all-the-icons
-    ;;     :config
-    ;;     (spaceline-all-the-icons-theme)))
-    ))
+
 	#+END_SRC
 	#+BEGIN_SRC emacs-lisp
 (global-prettify-symbols-mode t)
@@ -3746,9 +3692,7 @@ and insert region contents at top."
 (use-package macrostep
 	:after lisp-mode
 	)
-(use-package spacemacs-common
-	:ensure spacemacs-theme
-	:config (load-theme 'spacemacs-dark t))
+
 ;; (use-package spacemacs-theme
 ;; :ensure t
 ;; :defer nil
@@ -3809,133 +3753,6 @@ and insert region contents at top."
 		 )))
 
 	 #+END_SRC
-** EXWM
-*** Config
-#+BEGIN_SRC emacs-lisp
-(defun elib-toggle-kbd-language ()
-  (interactive)
-  (shell-command "xkb-switch -n" t))
-
-(defun elib-exwm-launch  (command)
-                        (interactive (list (read-shell-command "$ ")))
-                        (start-process-shell-command command nil command))
-
-(defvar elib-exwm-workspace-window-assignments
-  '(("Google-chrome")))
-(defun elib-exwm-init-buffers ()
-  (interactive)
-  (save-excursion
-    (exwm-workspace-switch-create 2)
-    (elib-exwm-launch "google-chrome")
-
-    (exwm-workspace-switch-create 3)
-    (elib-exwm-launch "gnome-control-center bluetooth")
-    (split-window-horizontally)
-    (other-window 1)
-    (elib-exwm-launch "pavucontrol")
-    (split-window)
-    (other-window 1)
-    (elib-exwm-launch "blueman-manager")
-    )
-  )
-
-
-(defun elib-exwm-config ()
-  (setq mouse-autoselect-window t)
-  (setq focus-follows-mouse t)
-  (setq exwm-workspace-number 4)
-  (setq exwm-systemtray-height 24)
-
-
-
-  (define-key exwm-mode-map (kbd "C-c C-j") 'exwm-input-grab-keyboard)
-  ;; Make class name the buffer name
-
-  (add-hook 'exwm-update-class-hook
-            (lambda ()
-              (exwm-workspace-rename-buffer exwm-class-name)))
-  (exwm-input-set-key (kbd "s-<return>") #'dmenu)
-  ;; 's-r': Reset
-  (exwm-input-set-key (kbd "s-r") #'exwm-reset)
-  (exwm-input-set-key (kbd "s-C-r") #'exwm-restart)
-  ;; 's-w': Switch workspace
-  (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
-  (exwm-input-set-key (kbd "s-SPC") #'elib-toggle-kbd-languaged)
-  ;; 's-N': Switch to certain workspace
-  (dotimes (i 10)
-    (exwm-input-set-key (kbd (format "s-%d" i))
-                        `(lambda ()
-                           (interactive)
-                           (exwm-workspace-switch-create ,i))))
-  ;; 's-&': Launch application
-  (exwm-input-set-key (kbd "s-&") #'elib-exwm-launch
-                      )
-  (exwm-input-set-key (kbd "s-o") #'other-window)
-  (exwm-input-set-key (kbd "s-j") #'exwm-input-grab-keyboard)
-
-  (setq exwm-input-simulation-keys
-        '(
-          ;; movement
-          ([?\C-b] . [left])
-          ([?\M-b] . [C-left])
-          ([?\C-f] . [right])
-          ([?\M-f] . [C-right])
-          ([?\C-p] . [up])
-          ([?\C-n] . [down])
-          ([?\C-a] . [home])
-          ([?\C-e] . [end])
-          ([?\M-v] . [prior])
-          ([?\C-v] . [next])
-          ([?\C-d] . [delete])
-          ([?\C-k] . [S-end delete])
-          ;; cut/paste.
-          ([?\C-w] . [?\C-x])
-          ([?\M-w] . [?\C-c])
-          ([?\C-y] . [?\C-v])
-          ;; search
-          ([?\C-s] . [?\C-f])))
-  (menu-bar-mode 1)
-  (tool-bar-mode -1)
-  (exwm-enable)
-  (use-package dmenu
-    :config
-    (exwm-input-set-key (kbd "C-s-SPC") #'dmenu)
-    )
-  )
-
-
-
-
-
-#+END_SRC
-
-
-*** Setup
-:PROPERTIES:
-:ID:       aa1694a9-e7c5-41ac-88ca-bc1474edc5ae
-:END:
-#+BEGIN_SRC emacs-lisp
-(when (member "--exwm" command-line-args)
-(use-package exwm
-  :init
-  (require 'exwm-systemtray)
-  (exwm-systemtray-enable)
-
-  :config
-  (require 'exwm-systemtray)
-  (add-to-list 'helm-source-names-using-follow "EXWM buffers")
-  (use-package helm-exwm)
-  (elib-exwm-config)
-  (exwm-enable)
-  ))
-
-
-;; (require 'exwm)
-;; (require 'exwm-config)
-;;
-;; (exwm-enable)
-;; (message "ted")
-#+END_SRC
 ** Disabled Stuff
 :PROPERTIES:
 :ID:       eba4b8c9-1906-4da1-bdbb-a392ba6b0f2e
@@ -4073,35 +3890,6 @@ and insert region contents at top."
 :PROPERTIES:
 :ID:       c305a9a8-9081-44be-bf7f-c39864b633b0
 :END:
-Treemacs creates a really powerful file-browser that can be
-created with F1. By default, the treemacs-buffer wont be
-selected by C-x o. It can be selected with M-0.
-
-#+BEGIN_SRC emacs-lisp
-(use-package treemacs
-  :disabled t
-  :defer t
-  :config
-  (setq treemacs-follow-after-init t
-	treemacs-width 35
-	treemacs-indentation 2
-	treemacs-git-integration t
-	treemacs-collapse-dirs (if (executable-find "python") 3 0)
-	treemacs-silent-refresh t
-	treemacs-change-root-without-asking t
-	treemacs-is-never-other-window t)
-  (treemacs-follow-mode t)
-  (treemacs-filewatch-mode t)
-  (use-package treemacs-projectile
-    :defer t
-    :config
-    (setq treemacs-header-function  #'treemacs-projectile-create-header))
-  :bind
-  (:map global-map
-	([f1] . treemacs-toggle)
-	("M-0" . treemacs-select-window)
-	("C-c 1" . treemacs-delete-other-windows)))
-	#+END_SRC
 
 *** Powerline
 :PROPERTIES:
@@ -4185,3 +3973,234 @@ Not sure if this is necessary with aggressive-indent.
 ;;   (progn (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode) (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode) (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)))
 
 		#+END_SRC
+** Emacs-dashboard
+#+BEGIN_SRC emacs-lisp
+;; (use-package dashboard
+;;   :defer nil
+;;   :init
+
+;;   :config
+;;   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+;;   (dashboard-setup-startup-hook)
+;;   (add-to-list 'dashboard-items '(agenda) t)
+;;   (setq show-week-agenda-p t))
+#+END_SRC
+** Treemacs
+Treemacs creates a really powerful file-browser that can be
+created with F1. By default, the treemacs-buffer wont be
+selected by C-x o. It can be selected with M-0.
+
+#+BEGIN_SRC emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (use-package treemacs-evil
+  :disabled t
+  :after treemacs evil
+  :ensure t)
+
+  (use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
+
+  (use-package treemacs-icons-dired
+  :after treemacs dired
+  :ensure t
+  :config (treemacs-icons-dired-mode))
+  (progn
+    (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
+          treemacs-deferred-git-apply-delay   0.5
+          treemacs-display-in-side-window     t
+          treemacs-file-event-delay           5000
+          treemacs-file-follow-delay          0.2
+          treemacs-follow-after-init          t
+          treemacs-follow-recenter-distance   0.1
+          treemacs-git-command-pipe           ""
+          treemacs-goto-tag-strategy          'refetch-index
+          treemacs-indentation                2
+          treemacs-indentation-string         " "
+          treemacs-is-never-other-window      nil
+          treemacs-max-git-entries            5000
+          treemacs-no-png-images              nil
+          treemacs-no-delete-other-windows    t
+          treemacs-project-follow-cleanup     nil
+          treemacs-persist-file               (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-recenter-after-file-follow nil
+          treemacs-recenter-after-tag-follow  nil
+          treemacs-show-cursor                nil
+          treemacs-show-hidden-files          t
+          treemacs-silent-filewatch           nil
+          treemacs-silent-refresh             nil
+          treemacs-sorting                    'alphabetic-desc
+          treemacs-space-between-root-nodes   t
+          treemacs-tag-follow-cleanup         t
+          treemacs-tag-follow-delay           1.5
+          treemacs-width                      35)
+
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode t)
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null (executable-find "python3"))))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple))))
+  ;; :bind
+  ;; (:map global-map
+  ;;       ("M-0"       . treemacs-select-window)
+  ;;       ("C-x t 1"   . treemacs-delete-other-windows)
+  ;;       ("C-x t t"   . treemacs)
+  ;;       ("C-x t B"   . treemacs-bookmark)
+  ;;       ("C-x t C-t" . treemacs-find-file)
+  ;;       ("C-x t M-t" . treemacs-find-tag))
+  )
+
+
+
+	#+END_SRC
+** Neotree
+#+BEGIN_SRC emacs-lisp
+(use-package neotree
+  :defer 1
+  :config
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  (setq neo-smart-open t)
+
+  :bind ("<f1>" . neotree-toggle ))
+#+END_SRC
+** EVIL/Tutor
+
+#+BEGIN_SRC emacs-lisp
+(use-package evil-tutor)
+
+
+(setq evil-default-state 'emacs)
+
+#+END_SRC
+** EXWM
+*** Config
+#+BEGIN_SRC emacs-lisp
+(defun elib-toggle-kbd-language ()
+  (interactive)
+  (shell-command "xkb-switch -n" t))
+
+(defun elib-exwm-launch  (command)
+                        (interactive (list (read-shell-command "$ ")))
+                        (start-process-shell-command command nil command))
+
+(defvar elib-exwm-workspace-window-assignments
+  '(("Google-chrome")))
+(defun elib-exwm-init-buffers ()
+  (interactive)
+  (save-excursion
+    (exwm-workspace-switch-create 2)
+    (elib-exwm-launch "google-chrome")
+
+    (exwm-workspace-switch-create 3)
+    (elib-exwm-launch "gnome-control-center bluetooth")
+    (split-window-horizontally)
+    (other-window 1)
+    (elib-exwm-launch "pavucontrol")
+    (split-window)
+    (other-window 1)
+    (elib-exwm-launch "blueman-manager")
+    )
+  )
+
+
+(defun elib-exwm-config ()
+  (setq mouse-autoselect-window t)
+  (setq focus-follows-mouse t)
+  (setq exwm-workspace-number 4)
+  (setq exwm-systemtray-height 24)
+
+
+
+  (define-key exwm-mode-map (kbd "C-c C-j") 'exwm-input-grab-keyboard)
+  ;; Make class name the buffer name
+
+  (add-hook 'exwm-update-class-hook
+            (lambda ()
+              (exwm-workspace-rename-buffer exwm-class-name)))
+  (exwm-input-set-key (kbd "s-<return>") #'dmenu)
+  ;; 's-r': Reset
+  (exwm-input-set-key (kbd "s-r") #'exwm-reset)
+  (exwm-input-set-key (kbd "s-C-r") #'exwm-restart)
+  ;; 's-w': Switch workspace
+  (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
+  (exwm-input-set-key (kbd "s-SPC") #'elib-toggle-kbd-language)
+  ;; 's-N': Switch to certain workspace
+  (dotimes (i 10)
+    (exwm-input-set-key (kbd (format "s-%d" i))
+                        `(lambda ()
+                           (interactive)
+                           (exwm-workspace-switch-create ,i))))
+  ;; 's-&': Launch application
+  (exwm-input-set-key (kbd "s-&") #'elib-exwm-launch
+                      )
+  (exwm-input-set-key (kbd "s-o") #'other-window)
+  (exwm-input-set-key (kbd "s-j") #'exwm-input-grab-keyboard)
+
+  (setq exwm-input-simulation-keys
+        '(
+          ;; movement
+          ([?\C-b] . [left])
+          ([?\M-b] . [C-left])
+          ([?\C-f] . [right])
+          ([?\M-f] . [C-right])
+          ([?\C-p] . [up])
+          ([?\C-n] . [down])
+          ([?\C-a] . [home])
+          ([?\C-e] . [end])
+          ([?\M-v] . [prior])
+          ([?\C-v] . [next])
+          ([?\C-d] . [delete])
+          ([?\C-k] . [S-end delete])
+          ;; cut/paste.
+          ([?\C-w] . [?\C-x])
+          ([?\M-w] . [?\C-c])
+          ([?\C-y] . [?\C-v])
+          ;; search
+          ([?\C-s] . [?\C-f])))
+  (menu-bar-mode 1)
+  (tool-bar-mode -1)
+  (exwm-enable)
+  (use-package dmenu
+    :config
+    (exwm-input-set-key (kbd "C-s-SPC") #'dmenu)
+    )
+  )
+
+
+
+
+
+#+END_SRC
+
+
+*** Setup
+:PROPERTIES:
+:ID:       aa1694a9-e7c5-41ac-88ca-bc1474edc5ae
+:END:
+#+BEGIN_SRC emacs-lisp
+(if (member "--exwm" command-line-args)
+    (use-package exwm
+      :config
+      (require 'exwm-systemtray)
+      (exwm-systemtray-enable)
+      (add-to-list 'helm-source-names-using-follow "EXWM buffers")
+      (use-package helm-exwm)
+      (elib-exwm-config)
+      (exwm-enable)
+      (helm-themes))
+  (load-theme 'spacemacs-dark))
+#+END_SRC

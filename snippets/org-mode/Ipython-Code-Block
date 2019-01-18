@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Ipython Code Block
+# key: <ip
+# --
+#+BEGIN_SRC ipython :session :exports both :results output raw drawer
+$0
+#+END_SRC
