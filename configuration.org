@@ -52,17 +52,6 @@ value from ELT. Otherwise, call `add-to-list'"
        (cdr (assoc (car elt) lst))
        (cdr elt))
     (add-to-list 'lst elt)))
-
-
-
-
-
-
-
-
-
-
-
 #+END_SRC
 *** Definitions                                                   :ignore:
 :PROPERTIES:
@@ -73,7 +62,7 @@ that these variables and functions are actually defined. As
 we know that they are, we can tell it to relax!
 
 You should in general never need to care about this
-section. We also define a customization group called `elib'
+section. We also define a customization group called [[elisp:(customize-group 'elib)][`elib']]
 that can be used for any customizations we create later.
 
 #+BEGIN_SRC emacs-lisp 
@@ -94,9 +83,23 @@ that can be used for any customizations we create later.
 :END:
 Customization groups makes making changes simpler and
 exploring the configurations and definitions that are made
-in this file. If you want to start exploring, try calling
-[[elisp:(find-function 'customize-group)][`customize-group']] and looking into the base group `elib'.
+in this file. If you want to start exploring, try calling [[elisp:(describe-function
+ 'customize-group)][`customize-group']] and looking into the base group [[elisp:(customize-group 'elib)][`elib']].
 
+Currently the subgroups of [[elisp:(customize-group 'elib)][`elib']] are
+- [[elisp:(customize-group 'elib-file-paths)][`elib-file-paths']]
+  - Contains file paths that you can customize
+- [[elisp:(customize-group 'elib-calendar)][`elib-calendar']]
+  - Things related to [[elisp:(describe-package 'calfw)][`calfw']] and [[elisp:(describe-function 'org-gcal)][`org-gcal']] that provide
+    calendar functionality for emacs
+  - [[elisp:(customize-group 'elib-org)][`elib-org']]
+    - Contains org-mode related configuration
+  - [[elisp:(customize-group 'elib-helm-tex)][`elib-helm-tex']]
+    - Configuration for the [[elisp:(describe-function 'elib-helm-tex-choose-program)][`elib-helm-tex-choose-program']] function
+    - Subgroups for three possible pdf-viewers
+      1) [[elisp:(customize-group 'elib-helm-tex-pdf-tools)][`elib-helm-tex-pdf-tools']]
+      2) [[elisp:(customize-group 'elib-helm-tex-okular)][`elib-helm-tex-okular']]
+      3) [[elisp:(customize-group 'elib-helm-tex-evince)][`elib-helm-tex-evince']]
 #+BEGIN_SRC emacs-lisp
   (eval-when-compile
     (defgroup elib nil
@@ -147,11 +150,10 @@ in this file. If you want to start exploring, try calling
 :PROPERTIES:
 :ID:       942248fc-6008-48a1-8ab7-a7097851aff9
 :END:
-
 Here we set all important personal details.
-- Your name in [[elisp:(find-variable 'user-full-name)][`user-full-name']]
-- Your primary email address in [[elisp:(find-variable 'user-mail-address)][`user-mail-address']]
-- Any additional email addresses in [[elisp:(find-variable 'user-mail-address-list)][`user-mail-address-list']]
+- Your name in [[elisp:(describe-variable 'user-full-name)][`user-full-name']]
+- Your primary email address in [[elisp:(describe-variable 'user-mail-address)][`user-mail-address']]
+- Any additional email addresses in [[elisp:(describe-variable 'user-mail-address-list)][`user-mail-address-list']]
 
 #+BEGIN_SRC emacs-lisp
   (eval-when-compile
@@ -173,7 +175,8 @@ Since we want to be able to use the same configuration
 regardless of where programs might be stored on our
 computer, we define some variables for storing the location
 of these programs. They are set automatically using the
-handy [[elisp:(find-function 'executable-find)][`executable-find']] function.
+handy [[elisp:(describe-function 'executable-find)][`executable-find']] function.
+
 #+BEGIN_SRC emacs-lisp
   (eval-when-compile
     (setq
@@ -198,34 +201,39 @@ handy [[elisp:(find-function 'executable-find)][`executable-find']] function.
 :ID:       3180981a-a5fa-4fe8-a0f6-e560df27db5d
 :END:
 There are some files that it is useful to have a variable
-for. If you use some other
-- The main directory for emacs configuration files in [[elisp:(find-variable 'user-emacs-config-directory)][`user-emacs-config-directory']]. We do this so we can redefine [[elisp:(find-variable 'user-emacs-directory)][`user-emacs-directory']] later to store random local files in a place which doesn't clutter our configuration directory.
+for. If you use some other than my defaults, feel free to
+edit them.
+
+- The main directory for emacs configuration files in  [[elisp:(describe-variable   'user-emacs-config-directory)][`user-emacs-config-directory']]. We do this so we can redefine
+  [[elisp:(describe-variable 'user-emacs-directory)][`user-emacs-directory']] later to store random local files
+  in a place which doesn't clutter our configuration
+  directory.
 - Location of some extra snippets for the yasnippet package
-  from Tuhdo in  [[elisp:(find-variable 'tuhdo-snippets-directory)][`tuhdo-snippets-directory']]. This is used
-  later in [[*Yasnippet][Yasnippet]]. We also have our own in [[elisp:(find-variable 'elib-snippets-directory)][`elib-snippets-directory']]
+  from Tuhdo in [[elisp:(describe-variable 'tuhdo-snippets-directory)][`tuhdo-snippets-directory']]. This is used
+  later in [[*Yasnippet][Yasnippet]]. We also have our own in [[elisp:(describe-variable   'elib-snippets-directory)][`elib-snippets-directory']]
 
 - The location of the configuration file (i.e. this file) in
-  [[elisp:(find-variable 'config-file-file-name)][`config-file-file-name']] (great name choice right?)
-- The location of the scripts file in [[elisp:(find-variable 'scripts-file-file-name)][`scripts-file-file-name']]
+  [[elisp:(describe-variable 'config-file-file-name)][`config-file-file-name']] (great name choice right?)
+- The location of the scripts file in [[elisp:(describe-variable 'scripts-file-file-name)][`scripts-file-file-name']]
 - The main directory for my various org files is found in
-  [[elisp:(find-variable 'user-org-directory)][`user-org-directory']].
+  [[elisp:(describe-variable 'user-org-directory)][`user-org-directory']].
 - In [[*Capture][Capture]], we define some ways to capture quick thoughts
   and quotes. I use the two separate files for todo:s and
-  quotes, [[elisp:(find-variable 'user-org-quotes-file-name)][`user-org-quotes-file-name']] and
-  [[elisp:(find-variable 'user-org-todo-file-name)][`user-org-todo-file-name']]
+  quotes, [[elisp:(describe-variable 'user-org-quotes-file-name)][`user-org-quotes-file-name']] and
+  [[elisp:(describe-variable 'user-org-todo-file-name)][`user-org-todo-file-name']]
 - Later in [[*Abbrev][Abbrev]] we define some spell-checking tools. We
   have a big file of common spelling oopsies (e.g. owrk
   instead of work). The location of this file is defined in
-  [[elisp:(find-variable 'abbrev-location)][`abbrev-location']]
-- Folder where all [[elisp:(find-function 'org-gcal)][`org-gcal']]-calendars will be stored in
-  [[elisp:(find-variable 'org-gcal-calendar-location)][`org-gcal-calendar-location']] . I use three calendars and
+  [[elisp:(describe-variable 'abbrev-location)][`abbrev-location']]
+- Folder where all [[elisp:(describe-package 'org-gcal)][`org-gcal']]-calendars will be stored in
+  [[elisp:(describe-variable 'org-gcal-calendar-location)][`org-gcal-calendar-location']] . I use three calendars and
   their individual files have a variable each, all of which
   can be found in `org-gcal-calendar-file-name-list'. These
   settings are used in [[*Calendar][Calendar]]
-  - My main calendar in [[elisp:(find-variable 'org-gcal-calendar-main-file-name)][`org-gcal-calendar-main-file-name']]
+  - My main calendar in [[elisp:(describe-variable 'org-gcal-calendar-main-file-name)][`org-gcal-calendar-main-file-name']]
   - My information committee chairperson calendar in
-    [[elisp:(find-variable 'org-gcal-calendar-info-ordf-file-name)][`org-gcal-calendar-info-ordf-file-name']]
-  - My student calendar in [[elisp:(find-variable 'org-gcal-calendar-lu-file-name)][`org-gcal-calendar-lu-file-name']]
+    [[elisp:(describe-variable 'org-gcal-calendar-info-ordf-file-name)][`org-gcal-calendar-info-ordf-file-name']]
+  - My student calendar in [[elisp:(describe-variable 'org-gcal-calendar-lu-file-name)][`org-gcal-calendar-lu-file-name']]
 #+BEGIN_SRC emacs-lisp
 (eval-when-compile
   (defcustom user-emacs-config-directory
@@ -344,7 +352,6 @@ for. If you use some other
 :PROPERTIES:
 :ID:       95b1ec6e-d563-4d37-8246-a687d53b62eb
 :END:
-
 ***** TODO Create the script to install all of the packages
 :PROPERTIES:
 :ID:       6b925028-0d50-4055-b938-2e7c723063f4
@@ -356,36 +363,36 @@ by your operating system (in my case, asymptote) or manually
 (in my case, mu4e). If you use these packages you might need
 to install them specially. I have written a script for
 installing these packages which can check out if you want in
-[[elisp:(find-variable 'load-path-script-location)][`load-path-script-location']].
+[[elisp:(describe-variable 'load-path-script-location)][`load-path-script-location']].
 
-The load-paths are defined using the handy little macro
-[[elisp:(find-function 'potential-load-paths)][`potential-load-paths']] which takes a list of potential paths
+The load-paths are defined using the handy little function
+[[elisp:(describe-function 'potential-load-paths)][`potential-load-paths']] which takes a list of potential paths
 and returns the full file-name of the first one that exists
 on the file-system.
 
 The packages and their load-paths are:
 - [[*Mu4e][Mu4e]] is an email-reader in emacs. I compile mu4e from
   source and have to add the load-path manually. The
-  load-path variable is [[elisp:(find-variable 'elib-mu4e-load-path)][`elib-mu4e-load-path']].
-- In [[*Calendar][Calendar]], I use the package [[elisp:(find-variable 'org-gcal)][`org-gcal']] to synchronise
+  load-path variable is [[elisp:(describe-variable 'elib-mu4e-load-path)][`elib-mu4e-load-path']].
+- In [[*Calendar][Calendar]], I use the package [[elisp:(describe-variable 'org-gcal)][`org-gcal']] to synchronise
   google calendar with my org-mode calendar files. Sadly,
   there is a bug which prevents you from using more than one
   calendar. There is a solution which someone has tried to
   get into the main package but at the moment it isn't
   there. I therefore use a patched version of the package
   which I have to install manually. The load-path variable
-  is [[elisp:(find-variable 'elib-org-gcal-load-path)][`elib-org-gcal-load-path']].
+  is [[elisp:(describe-variable 'elib-org-gcal-load-path)][`elib-org-gcal-load-path']].
 - [[*Rtags][Rtags]] is an incredibly powerful tool for handling code. I
   used to install this manually but since Fedora 28 (I
   think?) there is an operating system which provides
-  it. The load-path is defined in [[elisp:(find-variable 'elib-rtags-load-path)][`elib-rtags-load-path']].
+  it. The load-path is defined in [[elisp:(describe-variable 'elib-rtags-load-path)][`elib-rtags-load-path']].
 - I often use the programming language [[https://en.wikipedia.org/wiki/Asymptote_(vector_graphics_language)][Asymptote]] to generate
   vector graphics for graphs. It comes with great
   integration into Emacs and is designed to be used with
   [[*LaTeX/AUCTeX][LaTeX]] and I install it together with the other AUCTeX
   features. I install asymptote through my operating system
   package manager and add the load-path for its lisp-code
-  using the variable [[elisp:(find-variable 'elib-asymptote-load-path)][`elib-asymptote-load-path']].
+  using the variable [[elisp:(describe-variable 'elib-asymptote-load-path)][`elib-asymptote-load-path']].
 
 #+BEGIN_SRC emacs-lisp
 (eval-when-compile
@@ -414,10 +421,10 @@ AUCTeX is great but one weird thing about is that it only
 allows you to chose one program to use for viewing your pdf:s
 you create. I have created a little [[*Helm][Helm]]-program which lets
 you switch between viewers.
-The function is called [[elisp:(find-function
+The function is called [[elisp:(describe-function
 'elib-helm-tex-choose-program)][`elib-helm-tex-choose-program']]
 and in [[*LaTeX/AUCTeX][LaTeX/AUCTeX]] we bind it to "C-c v"
-in [[elisp:(find-function 'LaTeX-mode)][`LaTeX-mode']]. I used
+in [[elisp:(describe-function 'LaTeX-mode)][`LaTeX-mode']]. I used
 this to learn a bit more about the customization features of
 emacs so it is definitely more complicated than what is
 strictly necessary.
@@ -427,10 +434,10 @@ You should not need to modify any of these variables but
 feel free to study them and come with suggestions of how to
 do it in a more proper way if you like. If you wish to add
 some other program as a pdf-reader than the ones listed in
-[[elisp:(find-variable 'elib-helm-tex-alist)][`elib-helm-tex-alist']].
+[[elisp:(describe-variable 'elib-helm-tex-alist)][`elib-helm-tex-alist']].
 
-You can also customize my settings through the group
-`elib-helm-tex'.
+You can also customize my settings through the group [[elisp:(customize-group
+ 'elib-helm-tex)][`elib-helm-tex']].
 
 #+BEGIN_SRC emacs-lisp
 (eval-when-compile
@@ -448,13 +455,11 @@ pdf-reader (i.e. the default pdf-reader for the GNOME
 desktop environment).
 
 The variables you can customize in the
-`elib-helm-tex-evince'-subgroup are
-- [[elisp:(find-variable 'elib-helm-tex-evince-human-readable)][`elib-helm-tex-evince-human-readable']]
-- [[elisp:(find-variable 'elib-helm-tex-evince)][`elib-helm-tex-evince']]
+[[elisp:(customize-group 'elib-helm-tex-evince)][`elib-helm-tex-evince']]-subgroup are
+- [[elisp:(describe-variable 'elib-helm-tex-evince-human-readable)][`elib-helm-tex-evince-human-readable']]
+- [[elisp:(describe-variable 'elib-helm-tex-evince)][`elib-helm-tex-evince']]
 
 #+BEGIN_SRC emacs-lisp
-
-
 (defcustom elib-helm-tex-evince-human-readable
   "Evince"
   "Human readable name for the Evince PDF viewer."
@@ -515,9 +520,9 @@ pdf-reader (i.e. the default pdf-reader for the KDE desktop
 environment).
 
 The variables you can customize in the
-`elib-helm-tex-okular'-subgroup are
-- [[elisp:(find-variable 'elib-helm-tex-okular-human-readable)][`elib-helm-tex-okular-human-readable']]
-- [[elisp:(find-variable 'elib-helm-tex-okular)][`elib-helm-tex-okular']]
+[[elisp:(customize-group 'elib-helm-tex-okular)][`elib-helm-tex-okular']]-subgroup are
+- [[elisp:(describe-variable 'elib-helm-tex-okular-human-readable)][`elib-helm-tex-okular-human-readable']]
+- [[elisp:(describe-variable 'elib-helm-tex-okular)][`elib-helm-tex-okular']]
 
 #+BEGIN_SRC emacs-lisp
 (defcustom elib-helm-tex-okular-human-readable
@@ -584,9 +589,9 @@ and okular, pdf-tools is displaying within emacs which means
 you have access to all the powers that emacs entails.
 
 The variables you can customize in the
-`elib-helm-tex-pdf-tools'-subgroup are
-- [[elisp:(find-variable 'elib-helm-tex-pdf-tools-human-readable)][`elib-helm-tex-pdf-tools-human-readable']]
-- [[elisp:(find-variable 'elib-helm-tex-pdf-tools)][`elib-helm-tex-pdf-tools']]
+[[elisp:(customize-group 'elib-helm-tex-pdf-tools)][`elib-helm-tex-pdf-tools']]-subgroup are
+- [[elisp:(describe-variable 'elib-helm-tex-pdf-tools-human-readable)][`elib-helm-tex-pdf-tools-human-readable']]
+- [[elisp:(describe-variable 'elib-helm-tex-pdf-tools)][`elib-helm-tex-pdf-tools']]
 
 #+BEGIN_SRC emacs-lisp 
 (defcustom elib-helm-tex-pdf-tools-human-readable
@@ -697,9 +702,11 @@ well non-well documented there."
 :PROPERTIES:
 :ID:       03a6d1fd-eb0e-4df0-919b-640c5e9e9af0
 :END:
-Creates a function called [[elisp:(find-function
+Creates a function called [[elisp:(describe-function
  'configuration/gtd-file-or-restart-emacs)][`configuration/gtd-file-or-restart-emacs']] which by default
-returns you to this file and binds it to "<f8>" globally. If you give it one universal argument, it returns you to [[elisp:(find-variable 'user-org-gtd-inbox)][`user-org-gtd-inbox']], with two universal arguments to
+returns you to this file and binds it to "<f8>" globally. If
+you give it one universal argument, it returns you to [[elisp:(describe-variable
+ 'user-org-gtd-inbox)][`user-org-gtd-inbox']], with two universal arguments to
 #+BEGIN_SRC emacs-lisp
 (defun configuration/gtd-file-or-restart-emacs (x)
   (interactive "p")
@@ -718,10 +725,10 @@ returns you to this file and binds it to "<f8>" globally. If you give it one uni
 :PROPERTIES:
 :ID:       99d4c001-1607-49f3-a799-2297e4f500af
 :END:
-Change the default location of [[elisp:(find-variable
+Change the default location of [[elisp:(describe-variable
 'user-emacs-directory)][`user-emacs-directory']] so that it
 does not clutter our configuration directory. Use
-[[elisp:(find-variable
+[[elisp:(describe-variable
 'user-emacs-config-directory)][`user-emacs-config-directory']]
 instead for the configuration directory.
 
@@ -749,9 +756,19 @@ in the modeline.
 (global-unset-key (kbd "C-z"))
 (setq column-number-mode t
       line-number-mode t)
-(global-visual-line-mode t)
-;; (global-hl-line-mode t)
 #+END_SRC
+
+Turn on word-wrapping in each buffer and make it so that
+commands operate on visual lines rather than logical ones.
+#+BEGIN_SRC emacs-lisp
+(global-visual-line-mode t)
+#+END_SRC
+
+Highlight the current line
+#+BEGIN_SRC emacs-lisp
+(global-hl-line-mode t)
+#+END_SRC
+
 Flash the screen rather than making noise when complaining.
 #+BEGIN_SRC emacs-lisp
 (setq visible-bell t)
@@ -764,8 +781,8 @@ Always answer yes or no questions with just y or n, yes or no is
 annoying to type. Emacs graphical pop-ups sometimes causes the program
 to hang so I disable it.
 #+BEGIN_SRC emacs-lisp
-  (defalias 'yes-or-no-p 'y-or-n-p)
-  (setq use-dialog-box nil)
+(defalias 'yes-or-no-p 'y-or-n-p)
+(setq use-dialog-box nil)
 #+END_SRC
 Enable syntax highlighting in all modes where it is possible!
 #+BEGIN_SRC emacs-lisp
@@ -782,8 +799,6 @@ Otherwise, use nlinum for line-numbering.
     (defun disable-nlinum-mode-hook () (nlinum-mode -1))
     :config
     (global-nlinum-mode t)
-
-
     (add-hook 'pdf-view-mode-hook 'disable-nlinum-mode-hook)))
 #+END_SRC
 
@@ -1605,6 +1620,54 @@ It is currently only enabled on linux, mac, and cygwin.
     (setq-default pdf-view-display-size 'fit-page))
 #+END_SRC
 
+** Emacs-dashboard
+Dashboard sets up a nice startup instead of the default
+startup. It shows you files you've opened recently and your
+agenda items.
+#+BEGIN_SRC emacs-lisp
+(use-package dashboard
+  :defer nil
+  :config
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  (dashboard-setup-startup-hook)
+  (add-to-list 'dashboard-items '(agenda) t)
+  (setq show-week-agenda-p t))
+#+END_SRC
+** Neotree
+Neotree is a nice little file browser. I have it bound to f1.
+#+BEGIN_SRC emacs-lisp
+(use-package neotree
+  :defer 1
+  :config
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  (setq neo-smart-open t)
+
+  :bind ("<f1>" . neotree-toggle ))
+#+END_SRC
+** EVIL/Tutor
+If you are a vim-user, you will love Evil-mode. It is an
+implementation of the good stuff from vim in Emacs (this
+might be somewhat contentious). I have it on so I can mess
+around with vim from time to time but I set the default
+state of each buffer to the standard Emacs mode.
+
+There is an implementation of the vim tutor available for
+Evil-mode.
+
+[[https://www.youtube.com/watch?v=JWD1Fpdd4Pc][There is a great talk about Evil-mode for vim users
+available by Aaron Bieber]]
+
+Ironically, this talk is the reason I got started... with Emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package evil
+  :defer 2
+  :config
+  (setq evil-default-state 'emacs)
+  (use-package org-evil)
+  (use-package evil-tutor)
+  (evil-mode t))
+#+END_SRC
 * Development/Writing
 :PROPERTIES:
 :ID:       cb1005df-4514-4726-b68b-1373343100d4
@@ -2003,8 +2066,9 @@ pretty nifty.
             'disable-flycheck-temporarily)
 
   (global-flycheck-mode t))
+
 	 #+END_SRC
-''** Web Development
+** Web Development
 :PROPERTIES:
 :ID:       3c853127-d141-4de4-9f48-fd5dd4602930
 :END:
@@ -2057,6 +2121,9 @@ pretty nifty.
 :ID:       94f26649-6cec-4874-816a-ed192e52b7be
 :END:
 **** Irony Mode
+Irony provides auto completion for C++ which is helpful. It
+uses a server program that has to be compiled before you can
+use it. After installation, simply call [[elisp:(describe-function 'irony-install-server)][irony-install-server]]
 :PROPERTIES:
 :ID:       2e68a23b-3d71-4e76-af1f-4c36b383815d
 :END:
@@ -2064,9 +2131,7 @@ pretty nifty.
 (use-package irony
   :after cc-mode
   :hook ((irony-mode . irony-cdb-autosetup-compile-options)
-         (c-mode-common . irony-mode))
-
-  )
+         (c-mode-common . irony-mode)))
 		 #+END_SRC
 **** Rtags
 :PROPERTIES:
@@ -2174,54 +2239,63 @@ pretty nifty.
 :PROPERTIES:
 :ID:       078eee9e-e320-40f5-a4b5-a9b75c5c6358
 :END:
-*** Elisp Development
+*** Eldoc
 :PROPERTIES:
-:ID:       3e99c5f0-761b-4902-9239-8b64cfa6c59a
+:ID:       403daf79-5206-41d5-8c8f-7d67cf471f9b
 :END:
+		#+BEGIN_SRC emacs-lisp
+(defun turn-off-eldoc ()
+	"Temporarily turn off eldoc-mode."
+	(eldoc-mode -1))
+(use-package "eldoc"
+  :diminish eldoc-mode
+  :defer 2
+  :init
+  (progn
+    (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+    (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+    (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)))
+		#+END_SRC
+*** Lispy
+Lispy is an intersting package. At the moment, I don't use it.
+**** Keybinding Cheat Sheet
+ Key-bindings are
+- Movement
+  - j lispy-down
+  - k lispy-up
+  - h lispy-left
+  - l lipsy-right
+  - b special-lispy-back
+    - Moves back in history for above commands
+  - s special-lispy-move-down
+  - w special-lispy-move-up
+- Moving code around
+  - > lispy-slurp
+  - < lispy-barf
+  - r lispy-raise
+  - C lispy-convolute
+- Function help
+  - C-1 show function
+  - C-2 show arguments
+- Evaluation
+  - e  evals
+  - E evals and inserts
+- Code exploration
+  - F/M-. jumps to symbol
+  - D/M-, jumps back
+  - c clone
+- Prettifying and transforming code
+  - i prettify code
+  - xi cond -> if
+  - xc if -> cond
+  - xf flatten function or macro
+  - xr eval and replace
+  - xl defun -> lambda
+  - xd lambda -> defun
+  - O make code one-line
+  - M make code multi-line
+**** Code
 #+BEGIN_SRC emacs-lisp
-;; Key-bindings are
-;; j lispy-down
-;; k lispy-up
-;; h lispy-left
-;; l lipsy-right
-
-;;
-;; b special-lispy-back
-;;   moves back in history for above commands
-
-;;
-;; s special-lispy-move-down
-;; w special-lispy-move-up
-;;
-
-;;
-;; > lispy-slurp
-;; < lispy-barf
-;; r lispy-raise
-;;
-;; C lispy-convolute
-;; C-1 show function
-;; C-2 show arguments
-
-;;
-;; e  evals
-;; E evals and inserts
-;; F/M-. jumps to symbol
-;; D/M-, jumps back
-;;
-;; c clone
-
-;;
-;; i prettify code
-;; xi cond -> if
-;; xc if -> cond
-;; xf flatten function or macro
-;; xr eval and replace
-;; xl defun -> lambda
-;; xd lambda -> defun
-;; O make code one-line
-;; M make code multi-line
-;;
 (use-package
   lispy
   :hook ((inferior-emacs-lisp-mode
@@ -2229,143 +2303,9 @@ pretty nifty.
           lisp-mode
           lisp-interaction-mode
           emacs-lisp-mode) . lispy-mode))
-
-;; (defvar lisp-modes '(emacs-lisp-mode
-;; inferior-emacs-lisp-mode ielm-mode lisp-mode ;;
-;; inferior-lisp-mode lisp-interaction-mode ;;
-;; slime-repl-mode))
-
-;; (defvar lisp-mode-hooks (mapcar (function (lambda (mode)
-;;   (intern (concat (symbol-name mode) "-hook"))))
-;;   lisp-modes)) (defsubst hook-into-modes (func &rest
-;;   modes) (dolist (mode-hook modes) (add-hook mode-hook
-;;   func))) (use-package info-look :commands
-;;   info-lookup-add-help) (use-package lisp-mode :ensure
-;;   nil :defer t :hook ((emacs-lisp-mode
-;;   . disable-smartparens) (emacs-lisp-mode
-;;   . enable-paredit)) :config (use-package paredit
-;;   :commands paredit-mode :preface (defun
-;;   disable-smartparens () (interactive) "Disables
-;;   smartparens."  (turn-off-smartparens-mode)) (defun
-;;   enable-paredit () (interactive) "Enables paredit."
-;;   (paredit-mode t)) ) (use-package slime :after (company
-;;   lisp-mode) :config (use-package elisp-slime-nav)
-;;   (use-package slime-company))
-
-
-;;   :preface
-;;   (defun my-elisp-indent-or-complete (&optional arg)
-;;     (interactive "p")
-;;     (call-interactively 'lisp-indent-line)
-;;     (unless (or (looking-back "\\s-*" 120) (bolp)
-;; 		(not (looking-back "[-A-Za-z0-9_*+/=<>!?]+" 120)))
-;;       (call-interactively 'lisp-complete-symbol)))
-;;   ;; (defun my-lisp-indent-or-complete (&optional arg)
-;;   ;;   (interactive "p")
-;;   ;;   (if (or (looking-back "^\\s-*") (bolp))
-;;   ;;       (call-interactively 'lisp-indent-line)
-;;   ;;     (call-interactively 'slime-indent-and-complete-symbol)))
-;;   (defun my-byte-recompile-file ()
-;;     (save-excursion
-;;       (byte-recompile-file buffer-file-name)))
-;;   (defvar smile-mode nil)
-;;   (defvar lisp-mode-initialized nil)
-;;   (defun my-lisp-mode-hook ()
-;;     (unless lisp-mode-initialized
-;;       (setq lisp-mode-initialized t)
-;;       (use-package redshank
-;; 	:diminish redshank-mode)
-;;       (use-package elisp-slime-nav
-;; 	:disabled t
-;; 	:diminish elisp-slime-nav-mode)
-;;       (use-package edebug)
-;;       (use-package eldoc
-;; 	:diminish eldoc-mode
-;; 	:commands eldoc-mode
-;; 	:config
-;; 	(use-package eldoc-extension
-;; 	  :disabled t
-;; 	  :defer t
-;; 	  :init
-;; 	  (add-hook 'emacs-lisp-mode-hook #'(lambda () (require 'eldoc-extension)) t))
-;; 	(eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
-;;       (use-package cldoc
-;; 	:ensure nil
-;; 	:disabled t
-;; 	:commands (cldoc-mode turn-on-cldoc-mode)
-;; 	:diminish cldoc-mode)
-;;       (use-package ert
-;; 	:bind ("C-c e t" . ert-run-tests-interactively)
-;; 	:config
-;; 	(use-package el-mock))
-
-;;       ;;(use-package buttercup
-;;       ;;  :bind (("C-c b" . buttercup-run-at-point ))
-;;       ;;  )
-;;       (use-package elint
-;; 	:commands 'elint-initialize
-;; 	:preface
-;; 	(defun elint-current-buffer ()
-;; 	  (interactive)
-;; 	  (elint-initialize)
-;; 	  (elint-current-buffer))
-;; 	:config
-;; 	(add-to-list 'elint-standard-variables 'current-prefix-arg)
-;; 	(add-to-list 'elint-standard-variables 'command-line-args-left)
-;; 	(add-to-list 'elint-standard-variables 'buffer-file-coding-system)
-;; 	(add-to-list 'elint-standard-variables 'emacs-major-version)
-;; 	(add-to-list 'elint-standard-variables 'window-system))
-;;       (use-package highlight-cl
-;; 	:disabled t
-;; 	:init
-;; 	(mapc (function
-;; 	       (lambda (mode-hook)
-;; 		 (add-hook mode-hook 'highlight-cl-add-font-lock-keywords)))
-;; 	      lisp-mode-hooks))
-
-;;       (use-package testcover :commands
-;; 	testcover-this-defun) (mapc (lambda (mode)
-;; 	(info-lookup-add-help :mode mode :regexp "[^][()'\"
-;; 	\t\n]+" :ignore-case t :doc-spec '(("(ansicl)Symbol
-;; 	Index" nil nil nil)))) lisp-modes)) (auto-fill-mode
-;; 	1) (when (featurep 'elisp-slime-nav-mode)
-;; 	(elisp-slime-nav-mode 1)) (paredit-mode 1) (when
-;; 	(featurep 'redshank-mode) (redshank-mode 1))
-;; 	(local-set-key (kbd "<return>") 'paredit-newline)
-;; 	(bind-key "<tab>" #'my-elisp-indent-or-complete
-;; 	emacs-lisp-mode-map) (add-hook 'after-save-hook
-;; 	'check-parens nil t) (unless (memq major-mode
-;; 	'(emacs-lisp-mode inferior-emacs-lisp-mode
-;; 	ielm-mode)) ;; (turn-on-cldoc-mode) ;; (bind-key
-;; 	"M-q" #'slime-reindent-defun lisp-mode-map)
-;; 	(bind-key "M-l" #'slime-selector lisp-mode-map)))
-;; 	:init (apply #'hook-into-modes 'my-lisp-mode-hook
-;; 	lisp-mode-hooks))
 #+END_SRC
 
-** Java
-:PROPERTIES:
-:ID:       b0ef0e64-e8c9-4938-a384-78ea212b77a7
-:END:
-#+BEGIN_SRC emacs-lisp 
-;; (defvar eclim-path (or (when (file-exists-p
-;;                               "~/.eclipse/org.eclipse.platform_155965261_linux_gtk_x86_64/")
-;;                          "~/.eclipse/org.eclipse.platform_155965261_linux_gtk_x86_64/")))
-;; (use-package eclim
-;;   :config
-;;   (add-hook 'java-mode-hook 'eclim-mode)
-;;   (setq eclim-executable (concat eclim-path "eclim"))
-;;   (use-package eclimd
-;;     :ensure nil)
-;;   (use-package gradle-mode
-;;     :config
-;;     (add-hook 'java-mode-hook 'gradle-mode)
-;;     )
-;;   )
 
-(use-package cider)
-
-#+END_SRC
 * Org Mode
 :PROPERTIES:
 :ID:       bb4a983b-23e4-4f42-be11-7a7c062bcc9b
@@ -2770,7 +2710,13 @@ pretty nifty.
 :PROPERTIES:
 :ID:       d6e57986-c359-4249-93bd-85ec765f1373
 :END:
-We cannot use use-package here because the refile things are defined in the same file as the regular org-functionality. We instead do a hand-made version by telling emacs to run some code either once it loads [[elisp:(find-function 'org-agenda)][`org-agenda']] or, if [[elisp:(find-function 'org-agenda)][`org-agenda']] is already loaded just load it immediately. This is done by the [[elisp:(find-function 'eval-after-load)][`eval-after-load']] functionality of Emacs.
+We cannot use use-package here because the refile things are
+defined in the same file as the regular
+org-functionality. We instead do a hand-made version by
+telling emacs to run some code either once it loads [[elisp:(describe-function
+ 'org-agenda)][`org-agenda']] or, if [[elisp:(describe-function 'org-agenda)][`org-agenda']] is already loaded just load
+it immediately. This is done by the [[elisp:(describe-function 'eval-after-load)][`eval-after-load']]
+functionality of Emacs.
 #+BEGIN_SRC emacs-lisp
 (eval-after-load
     "org-agenda"
@@ -3757,75 +3703,7 @@ and insert region contents at top."
 :PROPERTIES:
 :ID:       eba4b8c9-1906-4da1-bdbb-a392ba6b0f2e
 :END:
-*** Evil
-:PROPERTIES:
-:ID:       8b02e3ad-7690-4b3b-aa20-f306821e57aa
-:END:
-	 #+BEGIN_SRC emacs-lisp
-(use-package evil
-	:disabled t
-	:config
-	(evil-mode -1)
-	(use-package org-evil)
-	)
-	 #+END_SRC
-*** Hyperbole
-:PROPERTIES:
-:ID:       0d5973f8-463a-4a0e-873e-56dec92e99a3
-:END:
-#+BEGIN_SRC emacs-lisp
-(use-package hyperbole
-  :disabled t
-  :defer 2)
-#+END_SRC
-*** Writegood/room
-:PROPERTIES:
-:ID:       b28d7494-fda5-4726-9d3d-7e2ccf5908f4
-:END:
 
-	 #+BEGIN_SRC emacs-lisp
-(use-package writegood-mode
-  :disabled t
-  :config)
-(use-package writeroom-mode
-  :disabled t)
-	 #+END_SRC
-*** Cask-mode
-:PROPERTIES:
-:ID:       0ed296c0-31c8-4c6d-aa74-1fc36ad16d44
-:END:
-#+BEGIN_SRC emacs-lisp
-(use-package cask-mode
-  :disabled t
-  :defer t)
-#+END_SRC
-*** Swiper
-:PROPERTIES:
-:ID:       a0f98005-f3c5-4f6a-9391-5c30eb7f0a01
-:END:
-#+BEGIN_SRC emacs-lisp
-(use-package swiper
-  :bind (("C-s" . swiper)
-	 ("C-r" . swiper))
-  :disabled t
-  :config
-  (use-package swiper-helm))
-#+END_SRC
-*** Window Purpose
-:PROPERTIES:
-:ID:       ad338cb4-c68f-4044-9993-97cfcc156f43
-:END:
-#+BEGIN_SRC emacs-lisp
-(use-package window-purpose
-  :disabled t
-  :init
-  (use-package helm-purpose
-    :after helm
-    :config
-    (purpose-mode)
-    (helm-purpose-setup)
-    (setq purpose-preferred-prompt 'helm)))
-#+END_SRC
 *** Language Tool
 :PROPERTIES:
 :ID:       77de540d-80d0-4d49-ad45-374160838bdc
@@ -3844,250 +3722,13 @@ and insert region contents at top."
 ;(langtool-check-buffer)
 	 #+END_SRC
 
-*** Wanderlust
-:PROPERTIES:
-:ID:       10e302a3-d1e3-4426-bdae-5697faef089f
-:END:
-#+BEGIN_SRC emacs-lisp
-(use-package wl
-  :ensure wanderlust
-  :disabled t
-  :config
-  (if (boundp 'mail-user-agent)
-      (setq mail-user-agent 'wl-user-agent))
-  (if (fboundp 'define-mail-user-agent)
-      (define-mail-user-agent
-        'wl-user-agent
-        'wl-user-agent-compose
-        'wl-draft-send
-        'wl-draft-kill
-        'mail-send-hook)))
-#+END_SRC
+* EXWM
+Emacs has a complete window manager implemented in it. This
+is both crazy and great. I use it some of the time when I
+work. My startup script calls emacs with the argument
+"--exwm" so we enable exwm only when it is called that way.
 
-*** Notmuch
-:PROPERTIES:
-:ID:       bb8257c8-3879-4cd5-b037-e1bfc2e2b967
-:END:
-#+BEGIN_SRC emacs-lisp
-(use-package notmuch
-  :disabled t
-  :bind (;;("<f12>" . notmuch)
-         :map notmuch-message-mode-map
-         ("C-c C-w" . my-mu4e-choose-signature))
-  :config
-  ;;A few commonly used saved searches.
-  (setq notmuch-saved-searches
-        (quote
-         ((:name "inbox" :query "tag:inbox AND -tag:work" :key "i" :sort-order oldest-first)
-          (:name "flagged" :query "tag:flagged" :key "f") ;flagged messages
-          (:name "sent" :query "tag:sent -tag:work" :key "t" :sort-order newest-first)
-          (:name "drafts" :query "tag:draft" :key "d")
-          (:name "mailinglist" :query "tag:lists/mailinglistID" :key "c")
-          (:name "all mail" :query "*" :key "a" :sort-order
-                 newest-first)))))
-#+END_SRC
-*** Treemacs
-:PROPERTIES:
-:ID:       c305a9a8-9081-44be-bf7f-c39864b633b0
-:END:
-
-*** Powerline
-:PROPERTIES:
-:ID:       13f4a949-e8ae-41f5-b6e4-a4c8ab6e2981
-:END:
-#+BEGIN_SRC emacs-lisp
-(use-package powerline
-  :disabled t
-  :defer 1
-  :init (powerline-vim-theme))
-#+END_SRC
-*** Clean Aindent Mode
-:PROPERTIES:
-:ID:       aab04ae8-c5e3-4325-b92b-73605e5d1cbe
-:END:
-Not sure if this is necessary with aggressive-indent.
-#+BEGIN_SRC emacs-lisp
-(use-package clean-aindent-mode
-  :disabled t
-  :hook prog-mode)
-#+END_SRC
-
-
-*** YCMD
-:PROPERTIES:
-:ID:       88421469-a7fb-41aa-83ef-e4f17291e18c
-:END:
-		 #+BEGIN_SRC emacs-lisp
-(use-package ycmd
-  :when (file-exists-p "/home/einarelen/src/ycmd/ycmd/")
-  :disabled t
-  :diminish ycmd-mode
-  :after cc-mode
-  :hook (c-mode-common . ycmd-mode)
-  :config
-  (set-variable 'ycmd-server-command
-		'("python" "/home/einarelen/src/ycmd/ycmd/"))
-  (use-package company-ycmd
-    :after (company cc-mode)
-    :config
-    (company-ycmd-setup)))
-		 #+END_SRC
-
-*** Function Args
-:PROPERTIES:
-:ID:       38669421-8506-4816-be30-cfd965b5e5a8
-:END:
-		 #+BEGIN_SRC emacs-lisp
-(use-package function-args
-	:disabled t
-	:diminish function-args-mode
-	:defer 2
-	:config
-	(fa-config-default))
-		 #+END_SRC
-
-*** pp-c-l
-:PROPERTIES:
-:ID:       99943771-3802-4108-b2d2-af505fbd7428
-:END:
-#+BEGIN_SRC emacs-lisp
-(use-package pp-c-l
-  :disabled t
-  :commands pretty-control-l-mode
-  :hook (prog-mode . pretty-control-l-mode)
-  :config
-  (bind-key "C-x C-e" #'pp-eval-last-sexp))
-#+END_SRC
-*** Eldoc
-:PROPERTIES:
-:ID:       403daf79-5206-41d5-8c8f-7d67cf471f9b
-:END:
-		#+BEGIN_SRC emacs-lisp
-(defun turn-off-eldoc ()
-	"Temporarily turn off eldoc-mode."
-	(eldoc-mode -1))
-;; (use-package "eldoc"
-;;   :diminish eldoc-mode
-;;   :defer 2
-;;   :init
-;;   (progn (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode) (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode) (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)))
-
-		#+END_SRC
-** Emacs-dashboard
-#+BEGIN_SRC emacs-lisp
-;; (use-package dashboard
-;;   :defer nil
-;;   :init
-
-;;   :config
-;;   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-;;   (dashboard-setup-startup-hook)
-;;   (add-to-list 'dashboard-items '(agenda) t)
-;;   (setq show-week-agenda-p t))
-#+END_SRC
-** Treemacs
-Treemacs creates a really powerful file-browser that can be
-created with F1. By default, the treemacs-buffer wont be
-selected by C-x o. It can be selected with M-0.
-
-#+BEGIN_SRC emacs-lisp
-(use-package treemacs
-  :ensure t
-  :defer t
-  :init
-  (with-eval-after-load 'winum
-    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-  :config
-  (use-package treemacs-evil
-  :disabled t
-  :after treemacs evil
-  :ensure t)
-
-  (use-package treemacs-projectile
-  :after treemacs projectile
-  :ensure t)
-
-  (use-package treemacs-icons-dired
-  :after treemacs dired
-  :ensure t
-  :config (treemacs-icons-dired-mode))
-  (progn
-    (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
-          treemacs-deferred-git-apply-delay   0.5
-          treemacs-display-in-side-window     t
-          treemacs-file-event-delay           5000
-          treemacs-file-follow-delay          0.2
-          treemacs-follow-after-init          t
-          treemacs-follow-recenter-distance   0.1
-          treemacs-git-command-pipe           ""
-          treemacs-goto-tag-strategy          'refetch-index
-          treemacs-indentation                2
-          treemacs-indentation-string         " "
-          treemacs-is-never-other-window      nil
-          treemacs-max-git-entries            5000
-          treemacs-no-png-images              nil
-          treemacs-no-delete-other-windows    t
-          treemacs-project-follow-cleanup     nil
-          treemacs-persist-file               (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-          treemacs-recenter-after-file-follow nil
-          treemacs-recenter-after-tag-follow  nil
-          treemacs-show-cursor                nil
-          treemacs-show-hidden-files          t
-          treemacs-silent-filewatch           nil
-          treemacs-silent-refresh             nil
-          treemacs-sorting                    'alphabetic-desc
-          treemacs-space-between-root-nodes   t
-          treemacs-tag-follow-cleanup         t
-          treemacs-tag-follow-delay           1.5
-          treemacs-width                      35)
-
-    ;; The default width and height of the icons is 22 pixels. If you are
-    ;; using a Hi-DPI display, uncomment this to double the icon size.
-    ;;(treemacs-resize-icons 44)
-
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode t)
-    (treemacs-fringe-indicator-mode t)
-    (pcase (cons (not (null (executable-find "git")))
-                 (not (null (executable-find "python3"))))
-      (`(t . t)
-       (treemacs-git-mode 'deferred))
-      (`(t . _)
-       (treemacs-git-mode 'simple))))
-  ;; :bind
-  ;; (:map global-map
-  ;;       ("M-0"       . treemacs-select-window)
-  ;;       ("C-x t 1"   . treemacs-delete-other-windows)
-  ;;       ("C-x t t"   . treemacs)
-  ;;       ("C-x t B"   . treemacs-bookmark)
-  ;;       ("C-x t C-t" . treemacs-find-file)
-  ;;       ("C-x t M-t" . treemacs-find-tag))
-  )
-
-
-
-	#+END_SRC
-** Neotree
-#+BEGIN_SRC emacs-lisp
-(use-package neotree
-  :defer 1
-  :config
-  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-  (setq neo-smart-open t)
-
-  :bind ("<f1>" . neotree-toggle ))
-#+END_SRC
-** EVIL/Tutor
-
-#+BEGIN_SRC emacs-lisp
-(use-package evil-tutor)
-
-
-(setq evil-default-state 'emacs)
-
-#+END_SRC
-** EXWM
-*** Config
+** Config
 #+BEGIN_SRC emacs-lisp
 (defun elib-toggle-kbd-language ()
   (interactive)
@@ -4122,9 +3763,6 @@ selected by C-x o. It can be selected with M-0.
   (setq focus-follows-mouse t)
   (setq exwm-workspace-number 4)
   (setq exwm-systemtray-height 24)
-
-
-
   (define-key exwm-mode-map (kbd "C-c C-j") 'exwm-input-grab-keyboard)
   ;; Make class name the buffer name
 
@@ -4187,7 +3825,7 @@ selected by C-x o. It can be selected with M-0.
 #+END_SRC
 
 
-*** Setup
+** Setup
 :PROPERTIES:
 :ID:       aa1694a9-e7c5-41ac-88ca-bc1474edc5ae
 :END:
@@ -4204,3 +3842,5 @@ selected by C-x o. It can be selected with M-0.
       (helm-themes))
   (load-theme 'spacemacs-dark))
 #+END_SRC
+
+* Enable Custom Keybindings

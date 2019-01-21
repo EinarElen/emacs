@@ -1,0 +1,4 @@
+# key: ocustv
+# name: Org Customize Variable Link
+# --
+[[elisp:(customize-variable '${1:`yas-selected-text`})][\`$1']]
