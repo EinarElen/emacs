@@ -67,7 +67,7 @@ that can be used for any customizations we create later.
 
 #+BEGIN_SRC emacs-lisp 
 (eval-when-compile
-    (defvar mac-command-modifier)
+  (defvar mac-command-modifier)
   (defvar flycheck-highlighting-mode)
   (defvar flycheck-check-syntax-automatically)
   (defvar TeX-view-program-selection)
@@ -101,46 +101,46 @@ Currently the subgroups of [[elisp:(customize-group 'elib)][`elib']] are
       2) [[elisp:(customize-group 'elib-helm-tex-okular)][`elib-helm-tex-okular']]
       3) [[elisp:(customize-group 'elib-helm-tex-evince)][`elib-helm-tex-evince']]
 #+BEGIN_SRC emacs-lisp
-  (eval-when-compile
-    (defgroup elib nil
-      "Overarching customization group for any custom groups
+(eval-when-compile
+  (defgroup elib nil
+    "Overarching customization group for any custom groups
     created in `config-file-file-name'."
-      :tag "*elib*")
+    :tag "*elib*")
 
-    (defgroup elib-file-paths nil
-      "Customization group for file-paths."
-      :group 'elib
-      :tag "elib-file-paths")
-    (defgroup elib-calendar nil
-      "Customization group for `calfw' and `org-gcal'."
-      :tag "elib-calendar"
-      :group 'elib-)
-    (defgroup elib-org nil
-      "Customization group for `org-mode'."
-      :tag "elib-org"
-      :group 'elib)
+  (defgroup elib-file-paths nil
+    "Customization group for file-paths."
+    :group 'elib
+    :tag "elib-file-paths")
+  (defgroup elib-calendar nil
+    "Customization group for `calfw' and `org-gcal'."
+    :tag "elib-calendar"
+    :group 'elib-)
+  (defgroup elib-org nil
+    "Customization group for `org-mode'."
+    :tag "elib-org"
+    :group 'elib)
 
-    (defgroup elib-helm-tex nil
-      "Customization group for the\
+  (defgroup elib-helm-tex nil
+    "Customization group for the\
     `elib-helm-tex-choose-program' function."
-      :tag "elib-helm-TeX"
-      :group 'elib)
-    (defgroup elib-helm-tex-pdf-tools nil
-      "Customization group for the PDF-tools reader\
+    :tag "elib-helm-TeX"
+    :group 'elib)
+  (defgroup elib-helm-tex-pdf-tools nil
+    "Customization group for the PDF-tools reader\
    for the `elib-helm-tex'-group."
-      :tag "elib-'helm-TeX-PDF-tools"
-      :group 'elib-helm-tex)
-    (defgroup elib-helm-tex-okular nil
-      "Customization group for the Okular reader for\
+    :tag "elib-'helm-TeX-PDF-tools"
+    :group 'elib-helm-tex)
+  (defgroup elib-helm-tex-okular nil
+    "Customization group for the Okular reader for\
    the `elib-helm-tex'-group."
-      :tag "elib-helm-TeX-Okular"
-      :group 'elib-helm-tex)
-    (defgroup elib-helm-tex-evince nil
-      "Customization group for the Evince reader for\
+    :tag "elib-helm-TeX-Okular"
+    :group 'elib-helm-tex)
+  (defgroup elib-helm-tex-evince nil
+    "Customization group for the Evince reader for\
    the `elib-helm-tex'-group."
-      :tag "elib-helm-TeX-Evince"
-      :group 'elib-helm-tex)
-    )
+    :tag "elib-helm-TeX-Evince"
+    :group 'elib-helm-tex)
+  )
 #+END_SRC
 *** User variables
 :PROPERTIES:
@@ -156,16 +156,16 @@ Here we set all important personal details.
 - Any additional email addresses in [[elisp:(describe-variable 'user-mail-address-list)][`user-mail-address-list']]
 
 #+BEGIN_SRC emacs-lisp
-  (eval-when-compile
-    (setq user-full-name "Einar Elén"
-	  user-mail-address "einar.elen@gmail.com")
-    (defcustom user-mail-address-list `(,user-mail-address,
-					"info-ordf@luna.lu.se",
-					"nat13eel@student.lu.se")
-      "A list of the `user-mail-address' and any additional
+(eval-when-compile
+  (setq user-full-name "Einar Elén"
+	user-mail-address "einar.elen@gmail.com")
+  (defcustom user-mail-address-list `(,user-mail-address,
+				      "info-ordf@luna.lu.se",
+				      "nat13eel@student.lu.se")
+    "A list of the `user-mail-address' and any additional
     email addresses of the user."
-      :group 'elib
-      :type '(repeat string)))
+    :group 'elib
+    :type '(repeat string)))
 #+END_SRC
 **** Location of Executables                                      :ignore:
 :PROPERTIES:
@@ -178,24 +178,24 @@ of these programs. They are set automatically using the
 handy [[elisp:(describe-function 'executable-find)][`executable-find']] function.
 
 #+BEGIN_SRC emacs-lisp
-  (eval-when-compile
-    (setq
-     with-editor-emacsclient-executable (executable-find
-					 "emacsclient")
-     magit-git-executable (executable-find "git")
-     cide--rdm-executable (executable-find "rdm")
-     irony-cmake-executable (executable-find "cmake")
-     company-cmake-executable irony-cmake-executable
-     cmake-mode-cmake-executable company-cmake-executable
+(eval-when-compile
+  (setq
+   with-editor-emacsclient-executable (executable-find
+				       "emacsclient")
+   magit-git-executable (executable-find "git")
+   cide--rdm-executable (executable-find "rdm")
+   irony-cmake-executable (executable-find "cmake")
+   company-cmake-executable irony-cmake-executable
+   cmake-mode-cmake-executable company-cmake-executable
 
-     company-clang-executable (executable-find "clang")
-     flycheck-c/c++-clang-executable company-clang-executable
+   company-clang-executable (executable-find "clang")
+   flycheck-c/c++-clang-executable company-clang-executable
 
-     flycheck-c/c++-gcc-executable (executable-find "gcc")
-     clang-format-executable (executable-find "clang-format")
-     company-gtags-executable (or (executable-find "global")
-				  (executable-find "gtags"))))
- #+END_SRC
+   flycheck-c/c++-gcc-executable (executable-find "gcc")
+   clang-format-executable (executable-find "clang-format")
+   company-gtags-executable (or (executable-find "global")
+				(executable-find "gtags"))))
+#+END_SRC
 **** Location of Files                                    :probablyignore:
 :PROPERTIES:
 :ID:       3180981a-a5fa-4fe8-a0f6-e560df27db5d
@@ -403,7 +403,7 @@ The packages and their load-paths are:
     (potential-load-paths
      `("/usr/share/emacs/site-lisp/rtags/"
        ,(concat user-emacs-config-directory
-               "../src/rtags/src/"))))
+                "../src/rtags/src/"))))
   (defvar elib-mu4e-load-path
     (potential-load-paths
      '("~/.local/share/emacs/site-lisp/mu4e"
@@ -841,24 +841,24 @@ again to return!
 
 
 #+BEGIN_SRC emacs-lisp
-  (use-package winner
-	       :bind (("C-c <left>" . winner-undo)
-		      ("C-c <right>" . winner-redo))
-	       :config
-	       (winner-mode t))
-			  ;; (use-package switch-window
-			  ;;   :defer 2
-			  ;;   :bind (("C-x o" . switch-window)))
-			  ;;
+(use-package winner
+  :bind (("C-c <left>" . winner-undo)
+	 ("C-c <right>" . winner-redo))
+  :config
+  (winner-mode t))
+;; (use-package switch-window
+;;   :defer 2
+;;   :bind (("C-x o" . switch-window)))
+;;
 #+END_SRC
 
 **** Clipmon
 :PROPERTIES:
 :ID:       da180b8f-e514-4a17-a313-10c86c59023a
 :END:
-		Clipmon tries to help emacs synchronize copies and
-		pastes between emacs and the rest of your operating
-		system.
+Clipmon tries to help emacs synchronize copies and
+pastes between emacs and the rest of your operating
+system.
 #+BEGIN_SRC emacs-lisp
 (use-package clipmon
   :defer 1
@@ -867,7 +867,7 @@ again to return!
 		clipmon-autoinsert-color nil
 		clipmon-transform-suffix nil)
   (clipmon-mode))
-			#+END_SRC
+#+END_SRC
 ****  Windmove
 :PROPERTIES:
 :ID:       fdd6346c-192c-4e63-b10a-a3e665812ffa
@@ -875,7 +875,7 @@ again to return!
 Windmove keybindings allows you to switch between your
 windows with shift + arrow keys which can be handy when
 you're tired.
-			#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package windmove
   :after org
   :hook ((org-shiftup-final-hook . windmove-up)
@@ -886,28 +886,28 @@ you're tired.
   (windmove-default-keybindings))
 
 
-		 #+END_SRC
+#+END_SRC
 **** Zygospore
 :PROPERTIES:
 :ID:       d02288e4-e02c-4269-8653-eaa4f24b96d8
 :END:
-		 Zygospore replaces the default kill all other windows with
-		 a version which lets you go back if you use it again.
-		 #+BEGIN_SRC emacs-lisp
+Zygospore replaces the default kill all other windows with
+a version which lets you go back if you use it again.
+#+BEGIN_SRC emacs-lisp
 
 			 (use-package zygospore
 	 :bind (("C-x 1" . zygospore-toggle-delete-other-windows)))
-		 #+END_SRC
+#+END_SRC
 **** Help window management
 :PROPERTIES:
 :ID:       8652fd88-e184-46a9-ba72-25f6223c0994
 :END:
-		 By default help windows don't put you in them
-		 immediately, I'd rather they did so they can be killed
-		 quickly after reading.
-		 #+BEGIN_SRC emacs-lisp
-		 (setq help-window-select t)
-		 #+END_SRC
+By default help windows don't put you in them
+immediately, I'd rather they did so they can be killed
+quickly after reading.
+#+BEGIN_SRC emacs-lisp
+(setq help-window-select t)
+#+END_SRC
 
 
 *** Hydra
@@ -915,8 +915,8 @@ you're tired.
 :ID:       245eb695-0abf-435d-aab8-eaf1e5a1f8de
 :END:
 Hydra is a package which allows fancy keyboard bindings. The
-		only one which currently exists is C-M-o for
-		window 	management.
+only one which currently exists is C-M-o for
+window 	management.
 #+BEGIN_SRC emacs-lisp
 (use-package hydra
   :commands (hydra-add-font-lock
@@ -994,9 +994,9 @@ weird places on Mac OS systems.  Because why wouldn't they
 be.
 #+BEGIN_SRC emacs-lisp
 (if (equal system-type 'darwin)
-		(progn (add-to-list 'exec-path "/usr/local/bin/")
-					 (add-to-list 'exec-path "/Library/TeX/texbin/pdflatex")
-					 (setenv "PATH" (concat "/usr/local/bin:/Library/TeX/texbin/:" (getenv "PATH")))))
+    (progn (add-to-list 'exec-path "/usr/local/bin/")
+           (add-to-list 'exec-path "/Library/TeX/texbin/pdflatex")
+           (setenv "PATH" (concat "/usr/local/bin:/Library/TeX/texbin/:" (getenv "PATH")))))
 #+END_SRC
 *** Restarting Emacs
 :PROPERTIES:
@@ -1061,11 +1061,11 @@ the starting buffer to this file.
 #+BEGIN_SRC emacs-lisp
 ;; (setq initial-buffer-choice config-file-file-name)
 
-  (use-package color-identifiers-mode
-    :diminish color-identifiers-mode
-    :defer 4
-    :config
-    (global-color-identifiers-mode t))
+(use-package color-identifiers-mode
+  :diminish color-identifiers-mode
+  :defer 4
+  :config
+  (global-color-identifiers-mode t))
 
 #+END_SRC
 *** Themes
@@ -1074,7 +1074,7 @@ the starting buffer to this file.
 (use-package spaceline
   :defer 2
   :commands (spaceline-spacemacs-theme
-	     spaceline-helm-mode spaceline-info-mode)
+             spaceline-helm-mode spaceline-info-mode)
   :config
   (use-package spaceline-config
     :ensure nil
@@ -1092,8 +1092,8 @@ the starting buffer to this file.
 **** Spacemacs
 #+BEGIN_SRC emacs-lisp
 (use-package spacemacs-common
-	:ensure spacemacs-theme
-	:config )
+  :ensure spacemacs-theme
+  :config )
 #+END_SRC
 **** Doom-Themes
 
@@ -1122,67 +1122,67 @@ C/C++ tutorial!
 :ID:       ee87ba06-6f6d-4d2b-b85d-bcfe9ed0928a
 :END:
 #+BEGIN_SRC emacs-lisp
-  (setq global-mark-ring-max 5000
-	mark-ring-max 5000
-	mode-require-final-newline t
-	tab-width 2
-	kill-ring-max 5000
-	kill-whole-line t)
-  (setq-default indent-tabs-mode nil
-		indent-tabs-mode nil)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-language-environment "UTF-8")
-  (prefer-coding-system 'utf-8)
-  ;; Not sure if i want this feature, it causes you to delete
-  ;; things in selection if you start writing much like on
-  ;; most operating systems.
-  ;; (delete-selection-mode t)
+(setq global-mark-ring-max 5000
+      mark-ring-max 5000
+      mode-require-final-newline t
+      tab-width 2
+      kill-ring-max 5000
+      kill-whole-line t)
+(setq-default indent-tabs-mode nil
+	      indent-tabs-mode nil)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-language-environment "UTF-8")
+(prefer-coding-system 'utf-8)
+;; Not sure if i want this feature, it causes you to delete
+;; things in selection if you start writing much like on
+;; most operating systems.
+;; (delete-selection-mode t)
 
-  ;; (add-hook 'sh-mode-hook (lambda ()
-  ;;    k                      (setq
-  ;;                          tab-width
-  ;;                          4)))
+;; (add-hook 'sh-mode-hook (lambda ()
+;;    k                      (setq
+;;                          tab-width
+;;                          4)))
 
-  ;; (use-package simple
-  ;;   :ensure nil
-  ;;   :hook
-  ;;   ((prog-mode)
-  ;;    . auto-fill-mode))
+;; (use-package simple
+;;   :ensure nil
+;;   :hook
+;;   ((prog-mode)
+;;    . auto-fill-mode))
 
-  ;; (use-package refill :hook ((text-mode org-mode) ))
-
-
+;; (use-package refill :hook ((text-mode org-mode) ))
 
 
 
-  (use-package
-    whitespace
-    :config (add-hook
-	     'diff-mode-hook
-	     (lambda ()
-	       (setq-local
-		whitespace-style
-		'(face
-		  tabs
-		  tab-mark
-		  spaces
-		  space-mark
-		  trailing
-		  indentation::space
-		  indentation::tab
-		  newline
-		  newline-mark))
-	       (whitespace-mode 1)))
-    (global-set-key
-     (kbd "C-c w")
-     'whitespace-mode))
-  ;;(use-package diff-mode)
-  ;;(add-hook 'prog-mode-hook (lambda () (interactive) (setq
-  ;;                          show-trailing-whitespace 1)))
 
-  ;; (add-hook 'text-mode-hook 'auto-fill-mode)
- #+END_SRC
+
+(use-package
+  whitespace
+  :config (add-hook
+	   'diff-mode-hook
+	   (lambda ()
+	     (setq-local
+	      whitespace-style
+	      '(face
+		tabs
+		tab-mark
+		spaces
+		space-mark
+		trailing
+		indentation::space
+		indentation::tab
+		newline
+		newline-mark))
+	     (whitespace-mode 1)))
+  (global-set-key
+   (kbd "C-c w")
+   'whitespace-mode))
+;;(use-package diff-mode)
+;;(add-hook 'prog-mode-hook (lambda () (interactive) (setq
+;;                          show-trailing-whitespace 1)))
+
+;; (add-hook 'text-mode-hook 'auto-fill-mode)
+#+END_SRC
 *** Keybindings
 :PROPERTIES:
 :ID:       e2c8acc1-eb44-40a8-b854-a7f21334de9e
@@ -1192,23 +1192,23 @@ mistake. Add keybinding for compilation (F5) and for
 capitalising (M-c).
 
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "RET") 'newline-and-indent)
-  (global-set-key (kbd "C-<down-mouse-1>") 'ignore)
-  (global-set-key (kbd "C-<down-mouse-2>") 'ignore)
-  (global-set-key (kbd "C-<down-mouse-3>") 'ignore)
-  (global-set-key (kbd "C-<mouse-1>")
-                  'ignore)
+(global-set-key (kbd "RET") 'newline-and-indent)
+(global-set-key (kbd "C-<down-mouse-1>") 'ignore)
+(global-set-key (kbd "C-<down-mouse-2>") 'ignore)
+(global-set-key (kbd "C-<down-mouse-3>") 'ignore)
+(global-set-key (kbd "C-<mouse-1>")
+                'ignore)
 
-  (global-set-key (kbd "C-<mouse-2>") 'ignore)
+(global-set-key (kbd "C-<mouse-2>") 'ignore)
 
-  (global-set-key (kbd "C-<mouse-3>") 'ignore)
+(global-set-key (kbd "C-<mouse-3>") 'ignore)
 
-  (global-set-key (kbd "M-c") 'capitalize-dwim)
+(global-set-key (kbd "M-c") 'capitalize-dwim)
 
-  (global-set-key (kbd "<f5>")
-                  (lambda () (interactive)
-                    (setq-local compilation-read-command nil)
-                    (call-interactively 'compile)))
+(global-set-key (kbd "<f5>")
+                (lambda () (interactive)
+                  (setq-local compilation-read-command nil)
+                  (call-interactively 'compile)))
 #+END_SRC
 *** Packages
 :PROPERTIES:
@@ -1285,7 +1285,7 @@ doing anything else.
 (use-package ws-butler
   :hook ((prog-mode org-mode text-mode fundamental-mode) . ws-butler-mode)
   :diminish ws-butler-mode)
-  #+END_SRC
+#+END_SRC
 **** Undo Tree
 :PROPERTIES:
 :ID:       d2fa8cc9-fec4-41f2-b331-8b1cb3c40a2a
