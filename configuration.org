@@ -998,29 +998,6 @@ be.
 					 (add-to-list 'exec-path "/Library/TeX/texbin/pdflatex")
 					 (setenv "PATH" (concat "/usr/local/bin:/Library/TeX/texbin/:" (getenv "PATH")))))
 #+END_SRC
-*** Fonts
-:PROPERTIES:
-:ID:       8573eff5-e2b8-436a-b4df-66d075e5fa85
-:END:
-#+BEGIN_SRC emacs-lisp
-;; (set-frame-font )
-;; (find-font )
-;; (find-font "Source Code Pro")
-;; (member "Source Code Pro" (font-family-list))
-;; (set-face-attribute 'default nil
-;; 		    :family "Source Code Pro"
-;;                     ;; :family "Garamond"
-;;                     ;; :family "Computer Modern Typewriter"
-;;                     ;; :family "Computer Modern TT"
-;;                     ;; :family "DejaVu Sans Mono"
-;;                     ;; :family "Inconsolata"
-;;                     ;; :family "Terminus"
-;; 		    :height 110
-;; 		    :weight 'normal
-;; 		    :width 'normal)
-;; (find-font (describe-font (font-spec :family "Source Code Pro")))
-;; (font-family-list)
-#+END_SRC
 *** Restarting Emacs
 :PROPERTIES:
 :ID:       3d5b1d39-5979-4951-b3ff-044537807d60
@@ -3275,7 +3252,6 @@ maildir:/info/[Gmail]/Skickat"
 :PROPERTIES:
 :ID:       ce0fc4de-8b3b-4cb3-b1f5-796b2a1d1524
 :END:
-
 ** Emacs Lisp
 :PROPERTIES:
 :ID:       b5e75921-2a62-41e7-b76c-9aaf7085cb7b
@@ -3308,8 +3284,7 @@ maildir:/info/[Gmail]/Skickat"
 	(meson-ide-setup))
 
 (use-package ert
-	:commands (ert-deftest ert)
-	)
+	:commands (ert-deftest ert))
 	 #+END_SRC
 * To be integrated
 ** Python
