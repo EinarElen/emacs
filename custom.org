@@ -1,0 +1,674 @@
+#+AUTHOR: Einar Elén
+#+EMAIL: einar.elen@gmail.com
+#+OPTIONS: toc:3 html5-fancy:t org-html-preamble:nil
+#+HTML_DOCTYPE_HTML5: t
+#+PROPERTY: header-args :tangle yes
+#+STARTUP: noinlineimages
+
+
+* Handy lisp functions and macros                                    :ignore:
+#+BEGIN_SRC emacs-lisp :tangle yes
+(eval-when-compile
+  (defun potential-load-paths (list)
+    (let ((value))
+      (dolist (elt list value)
+	(when (and (not value) (file-exists-p elt))
+	  (setq value (expand-file-name elt))))
+      value)))
+(defmacro alist-get-equal (key alist &optional default
+			       remove)
+  "A call to `alist-get' with testfn set to `equal'"
+  `(alist-get ,key ,alist ,default ,remove 'equal))
+
+
+(defmacro alist-get-equal-simple (key alist)
+  "A call to `alist-get' with default and remove set to
+  nil and testfn set to `equal'
+
+  In reality, a call to `alist-get-equal' with default and
+  remove set to nil."
+  `(alist-get-equal ,key ,alist nil nil))
+
+(defmacro add-to-list-multi (lst elts &optional append compare-fn)
+  "Call `add-to-list' for each element in ELTS to LST."
+  `(dolist (x ,elts)
+     (add-to-list ,lst x ,append ,compare-fn)))
+
+
+(defun add-to-list-force (lst elt)
+  "If the car of ELT is a key in LST, replace the value with the
+value from ELT. Otherwise, call `add-to-list'"
+  (if (assoc (car elt) lst)
+      (setf
+       (cdr (assoc (car elt) lst))
+       (cdr elt))
+    (add-to-list 'lst elt)))
+#+END_SRC
+
+* Customization Groups
+Customization groups makes making changes simpler and
+exploring the configurations and definitions that are made
+in this file. If you want to start exploring, try calling [[elisp:(describe-function
+ 'customize-group)][`customize-group']] and looking into the base group [[elisp:(customize-group 'elib)][`elib']].
+
+Currently the subgroups of [[elisp:(customize-group 'elib)][`elib']] are
+- [[elisp:(customize-group 'elib-file-paths)][`elib-file-paths']]
+  - Contains file paths that you can customize
+- [[elisp:(customize-group 'elib-calendar)][`elib-calendar']]
+  - Things related to [[elisp:(describe-package 'calfw)][`calfw']] and [[elisp:(describe-function 'org-gcal)][`org-gcal']] that provide
+    calendar functionality for emacs
+  - [[elisp:(customize-group 'elib-org)][`elib-org']]
+    - Contains org-mode related configuration
+  - [[elisp:(customize-group 'elib-helm-tex)][`elib-helm-tex']]
+    - Configuration for the [[elisp:(describe-function 'elib-helm-tex-choose-program)][`elib-helm-tex-choose-program']] function
+    - Subgroups for three possible pdf-viewers
+      1) [[elisp:(customize-group 'elib-helm-tex-pdf-tools)][`elib-helm-tex-pdf-tools']]
+      2) [[elisp:(customize-group 'elib-helm-tex-okular)][`elib-helm-tex-okular']]
+      3) [[elisp:(customize-group 'elib-helm-tex-evince)][`elib-helm-tex-evince']]
+#+BEGIN_SRC emacs-lisp :tangle yes
+(eval-when-compile
+  (defgroup elib nil
+    "Overarching customization group for any custom groups
+    created in `config-file-file-name'."
+    :tag "*elib*")
+
+  (defgroup elib-file-paths nil
+    "Customization group for file-paths."
+    :group 'elib
+    :tag "elib-file-paths")
+  (defgroup elib-calendar nil
+    "Customization group for `calfw' and `org-gcal'."
+    :tag "elib-calendar"
+    :group 'elib-)
+  (defgroup elib-org nil
+    "Customization group for `org-mode'."
+    :tag "elib-org"
+    :group 'elib)
+
+  (defgroup elib-helm-tex nil
+    "Customization group for the\
+    `elib-helm-tex-choose-program' function."
+    :tag "elib-helm-TeX"
+    :group 'elib)
+  (defgroup elib-helm-tex-pdf-tools nil
+    "Customization group for the PDF-tools reader\
+   for the `elib-helm-tex'-group."
+    :tag "elib-'helm-TeX-PDF-tools"
+    :group 'elib-helm-tex)
+  (defgroup elib-helm-tex-okular nil
+    "Customization group for the Okular reader for\
+   the `elib-helm-tex'-group."
+    :tag "elib-helm-TeX-Okular"
+    :group 'elib-helm-tex)
+  (defgroup elib-helm-tex-evince nil
+    "Customization group for the Evince reader for\
+   the `elib-helm-tex'-group."
+    :tag "elib-helm-TeX-Evince"
+    :group 'elib-helm-tex)
+  )
+#+END_SRC
+* User variables
+** Personal Information                                             :Update:
+Here we set all important personal details.
+- Your name in [[elisp:(describe-variable 'user-full-name)][`user-full-name']]
+- Your primary email address in [[elisp:(describe-variable 'user-mail-address)][`user-mail-address']]
+- Any additional email addresses in [[elisp:(describe-variable 'user-mail-address-list)][`user-mail-address-list']]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(eval-when-compile
+  (setq user-full-name "Einar Elén"
+	user-mail-address "einar.elen@gmail.com")
+  (defcustom user-mail-address-list `(,user-mail-address,
+				      "info-ordf@luna.lu.se",
+				      "nat13eel@student.lu.se")
+    "A list of the `user-mail-address' and any additional
+    email addresses of the user."
+    :group 'elib
+    :type '(repeat string)))
+#+END_SRC
+** Location of Executables                                          :ignore:
+Since we want to be able to use the same configuration
+regardless of where programs might be stored on our
+computer, we define some variables for storing the location
+of these programs. They are set automatically using the
+handy [[elisp:(describe-function 'executable-find)][`executable-find']] function.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(eval-when-compile
+  (setq
+   with-editor-emacsclient-executable (executable-find
+				       "emacsclient")
+   magit-git-executable (executable-find "git")
+   cide--rdm-executable (executable-find "rdm")
+   irony-cmake-executable (executable-find "cmake")
+   company-cmake-executable irony-cmake-executable
+   cmake-mode-cmake-executable company-cmake-executable
+
+   company-clang-executable (executable-find "clang")
+   flycheck-c/c++-clang-executable company-clang-executable
+
+   flycheck-c/c++-gcc-executable (executable-find "gcc")
+   clang-format-executable (executable-find "clang-format")
+   company-gtags-executable (or (executable-find "global")
+				(executable-find "gtags"))))
+#+END_SRC
+** TODO Location of Files                                   :probablyignore:
+There are some files that it is useful to have a variable
+for. If you use some other than my defaults, feel free to
+edit them.
+
+- The main directory for emacs configuration files in  [[elisp:(describe-variable   'user-emacs-config-directory)][`user-emacs-config-directory']]. We do this so we can redefine
+  [[elisp:(describe-variable 'user-emacs-directory)][`user-emacs-directory']] later to store random local files
+  in a place which doesn't clutter our configuration
+  directory.
+- Location of some extra snippets for the yasnippet package
+  from Tuhdo in [[elisp:(describe-variable 'tuhdo-snippets-directory)][`tuhdo-snippets-directory']]. This is used
+  later in [[*Yasnippet][Yasnippet]]. We also have our own in [[elisp:(describe-variable   'elib-snippets-directory)][`elib-snippets-directory']]
+
+- The location of the configuration file (i.e. this file) in
+  [[elisp:(describe-variable 'config-file-file-name)][`config-file-file-name']] (great name choice right?)
+- The location of the scripts file in [[elisp:(describe-variable 'scripts-file-file-name)][`scripts-file-file-name']]
+- The main directory for my various org files is found in
+  [[elisp:(describe-variable 'user-org-directory)][`user-org-directory']].
+- In [[*Capture][Capture]], we define some ways to capture quick thoughts
+  and quotes. I use the two separate files for todo:s and
+  quotes, [[elisp:(describe-variable 'elib-user-org-quotes-file-name)][`elib-user-org-quotes-file-name']] and
+  [[elisp:(describe-variable 'user-org-todo-file-name)][`user-org-todo-file-name']]
+- Later in [[*Abbrev][Abbrev]] we define some spell-checking tools. We
+  have a big file of common spelling oopsies (e.g. owrk
+  instead of work). The location of this file is defined in
+  [[elisp:(describe-variable 'abbrev-location)][`abbrev-location']]
+- Folder where all [[elisp:(describe-package 'org-gcal)][`org-gcal']]-calendars will be stored in
+  [[elisp:(describe-variable 'elib-org-calendar-directory)][`elib-org-calendar-directory']] .  These
+  settings are used in [[*Calendar][Calendar]]
+  - My main calendar is in [[elisp:(describe-variable 'elib-org-gcal-calendar-file-name)][`elib-org-gcal-calendar-file-name']]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (eval-when-compile
+    (defcustom user-emacs-config-directory
+      (file-name-as-directory (expand-file-name "~/.emacs.d"))
+      "The emacs configuration directory."
+      :type 'string
+      :group :elib-file-paths)
+    (defcustom tuhdo-snippets-directory
+      (expand-file-name
+       (concat user-emacs-config-directory
+	       "tuhdosnippets"))
+      "Location of extra yasnippet files from Tuhdo."
+      :type 'string
+      :group 'elib-file-paths)
+    (defcustom elib-snippets-directory
+      (expand-file-name
+       (concat user-emacs-config-directory
+	       "snippets"))
+      "Location of custom yasnippet files."
+      :type 'string
+      :group 'elib-file-paths)
+
+    (defcustom config-file-file-name
+      (expand-file-name
+       (concat
+	user-emacs-config-directory
+	"configuration.org"))
+      "The filename of the user configuration file."
+      :type 'string
+      :group 'elib-file-paths
+      :group 'elib-org)
+
+    (defcustom script-file-file-name
+      (expand-file-name
+       (concat user-emacs-config-directory "scripts.org"))
+      "The filename of the scripts file."
+      :type 'string
+      :group 'elib-file-paths
+      :group 'elib-org)
+
+
+    (defcustom elib-user-org-directory
+      (expand-file-name "~/Nextcloud/org/")
+      "Directory where most org files are stored."
+      :type 'string
+      :group 'elib-file-paths
+      :group 'elib-org)
+
+
+    (defcustom elib-org-calendar-directory
+      (concat
+       elib-user-org-directory "cal/")
+      "The directory where calendar files for `org-gcal' are
+      stored."
+      :group 'elib-calendar
+      :group 'elib-file-paths
+      :group 'elib-org
+      :type 'string)
+    (defcustom elib-org-gcal-calendar-file-name
+      (concat elib-org-calendar-directory "gmail.org")
+      "Filename of the main calendar file."
+      :type 'string
+      :group 'elib-calendar
+      :group 'elib-file-paths
+      :group 'elib-org)
+
+(defcustom elib-user-org-calendar-secrets-file
+      (concat elib-org-calendar-directory "orgsettings.el")
+
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      :group 'elib-calendar
+      )
+
+
+
+
+    (defcustom elib-user-org-quotes-file-name
+      (concat elib-user-org-directory "quotes.org")
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      )
+(defcustom elib-user-org-notes-file-name
+      (concat elib-user-org-directory "notes.org")
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      )
+    (defcustom elib-user-org-resources-file-name
+      (concat elib-user-org-directory "resources.org")
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      )
+    (defcustom elib-user-org-links-file-name
+      (concat elib-user-org-directory "links.org")
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      )
+    (defcustom elib-user-org-gtd-inbox
+      (expand-file-name
+       (concat  elib-user-org-directory "inbox@"
+		(replace-regexp-in-string
+		 "\n$" ""
+		 (shell-command-to-string "uname -n") )".org"  ))
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      )
+    (defcustom elib-user-org-gtd-file (concat elib-user-org-directory "gtd.org")
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      )
+    (defcustom elib-user-org-someday-maybe-file (concat elib-user-org-directory "someday.org")
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      )
+    (defcustom elib-user-org-phone-file (concat elib-user-org-directory "phone.org")
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      )
+    (defcustom elib-org-async-init-file (concat user-emacs-config-directory
+						"orginit.el")
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      )
+
+    (defcustom elib-user-org-caldav-settings-file
+      (concat
+       elib-org-calendar-directory "caldavsettings.el")
+      ""
+      :group 'elib-org
+      :group 'elib-file-paths
+      :group 'elib-calendar
+      )
+
+
+    (defcustom abbrev-location (expand-file-name ".abbrev_defs" user-emacs-config-directory)
+      ""
+      :group 'abbrev
+      :group 'elib-file-paths
+      ))
+#+END_SRC
+
+
+** Load Paths                                               :probablyignore:
+*** TODO Create the script to install all of the packages
+Most programs are installed using emacs package manager and
+we do not need to tell it anything about where to find the
+lisp-code for the package. Some packages might be installed
+by your operating system (in my case, asymptote) or manually
+(in my case, mu4e). If you use these packages you might need
+to install them specially. I have written a script for
+installing these packages which can check out if you want in
+[[elisp:(describe-variable 'load-path-script-location)][`load-path-script-location']].
+
+The load-paths are defined using the handy little function
+[[elisp:(describe-function 'potential-load-paths)][`potential-load-paths']] which takes a list of potential paths
+and returns the full file-name of the first one that exists
+on the file-system.
+
+The packages and their load-paths are:
+- [[*Mu4e][Mu4e]] is an email-reader in emacs. I compile mu4e from
+  source and have to add the load-path manually. The
+  load-path variable is [[elisp:(describe-variable 'elib-mu4e-load-path)][`elib-mu4e-load-path']].
+- In [[*Calendar][Calendar]], I use the package [[elisp:(describe-variable 'org-gcal)][`org-gcal']] to synchronise
+  google calendar with my org-mode calendar files. Sadly,
+  there is a bug which prevents you from using more than one
+  calendar. There is a solution which someone has tried to
+  get into the main package but at the moment it isn't
+  there. I therefore use a patched version of the package
+  which I have to install manually. The load-path variable
+  is [[elisp:(describe-variable 'elib-org-gcal-load-path)][`elib-org-gcal-load-path']].
+- [[*Rtags][Rtags]] is an incredibly powerful tool for handling code. I
+  used to install this manually but since Fedora 28 (I
+  think?) there is an operating system which provides
+  it. The load-path is defined in [[elisp:(describe-variable 'elib-rtags-load-path)][`elib-rtags-load-path']].
+- I often use the programming language [[https://en.wikipedia.org/wiki/Asymptote_(vector_graphics_language)][Asymptote]] to generate
+  vector graphics for graphs. It comes with great
+  integration into Emacs and is designed to be used with
+  [[*LaTeX/AUCTeX][LaTeX]] and I install it together with the other AUCTeX
+  features. I install asymptote through my operating system
+  package manager and add the load-path for its lisp-code
+  using the variable [[elisp:(describe-variable 'elib-asymptote-load-path)][`elib-asymptote-load-path']].
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(eval-when-compile
+  (defvar load-path-script-location
+    (expand-file-name (concat user-emacs-config-directory "special-packages.el")))
+  (defvar elib-org-gcal-load-path (expand-file-name "~/src/org-gcal/"))
+  (defvar elib-rtags-load-path
+    (potential-load-paths
+     `("/usr/share/emacs/site-lisp/rtags/"
+       ,(concat user-emacs-config-directory
+                "../src/rtags/src/"))))
+  (defvar elib-mu4e-load-path
+    (potential-load-paths
+     '("~/.local/share/emacs/site-lisp/mu4e"
+       "/usr/local/share/emacs/site-lisp/mu4e"
+       "/usr/local/share/emacs/site-lisp/mu/mu4e"
+       "~/.emacs.d/mu4e")))
+  (defvar elib-asymptote-load-path
+    (potential-load-paths '("/usr/share/asymptote/"))))
+#+END_SRC
+** TeX Viewers                                                      :ignore:
+AUCTeX is great but one weird thing about is that it only
+allows you to chose one program to use for viewing your pdf:s
+you create. I have created a little [[*Helm][Helm]]-program which lets
+you switch between viewers.
+The function is called [[elisp:(describe-function
+'elib-helm-tex-choose-program)][`elib-helm-tex-choose-program']]
+and in [[*LaTeX/AUCTeX][LaTeX/AUCTeX]] we bind it to "C-c v"
+in [[elisp:(describe-function 'LaTeX-mode)][`LaTeX-mode']]. I used
+this to learn a bit more about the customization features of
+emacs so it is definitely more complicated than what is
+strictly necessary.
+
+
+You should not need to modify any of these variables but
+feel free to study them and come with suggestions of how to
+do it in a more proper way if you like. If you wish to add
+some other program as a pdf-reader than the ones listed in
+[[elisp:(describe-variable 'elib-helm-tex-alist)][`elib-helm-tex-alist']].
+
+You can also customize my settings through the group [[elisp:(customize-group
+ 'elib-helm-tex)][`elib-helm-tex']].
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(eval-when-compile
+  (require 'helm)
+  (eval-after-load "tex"
+    '(eval-after-load "helm"
+       '(progn
+#+END_SRC
+*** Evince
+:PROPERTIES:
+:ID:       1cadd0e8-3eb1-4a53-88f5-8beac438cfc8
+:END:
+Here we define everything necessary for the evince
+pdf-reader (i.e. the default pdf-reader for the GNOME
+desktop environment).
+
+The variables you can customize in the
+[[elisp:(customize-group 'elib-helm-tex-evince)][`elib-helm-tex-evince']]-subgroup are
+- [[elisp:(describe-variable 'elib-helm-tex-evince-human-readable)][`elib-helm-tex-evince-human-readable']]
+- [[elisp:(describe-variable 'elib-helm-tex-evince)][`elib-helm-tex-evince']]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defcustom elib-helm-tex-evince-human-readable
+  "Evince"
+  "Human readable name for the Evince PDF viewer."
+  :type 'string
+  :group 'elib-helm-tex-evince)
+
+
+(defcustom elib-helm-tex-evince
+  `((output-pdf ,elib-helm-tex-evince-human-readable)
+    (,elib-helm-tex-evince-human-readable
+     TeX-evince-sync-view
+     "evince"
+     ))
+  "Settings for the Evince viewer. Consists of two\
+ lists:\n
+The first list consisting of the symbol corresponding the
+output type defined in `TeX-view-predicate-list' or
+`TeX-view-predicate-list-builtin' (PDF) and a human readable
+string. The format is for `tex-view-program-selection'
+variable.\n
+
+The second list consisting of a human readable string, and
+one of the following:
+
+- A string corresponding to a command line to be run as a
+process
+- An elisp function to execute through `TeX-command-master'
+- An elisp function to execute through `TeX-command-master'
+and a list of strings with arguments to the function (I
+think?).
+
+The format is for `TeX-view-program-list'. The format is
+well non-well documented there."
+  :type
+  '(list
+    (list symbol string)
+    (list string
+          (choice (repeat string)
+                  function
+                  (list function (repeat
+                                  string))
+                  (list string
+                        (list symbol
+                              (choice
+                               string
+                               (repeat string)
+                               ))))
+          sexp))
+  :group 'elib-helm-tex-evince)
+
+#+END_SRC
+*** Okular
+:PROPERTIES:
+:ID:       b75d4538-2b24-4bd8-9d6a-e1c042c25a4c
+:END:
+Here we define everything necessary for the Okular
+pdf-reader (i.e. the default pdf-reader for the KDE desktop
+environment).
+
+The variables you can customize in the
+[[elisp:(customize-group 'elib-helm-tex-okular)][`elib-helm-tex-okular']]-subgroup are
+- [[elisp:(describe-variable 'elib-helm-tex-okular-human-readable)][`elib-helm-tex-okular-human-readable']]
+- [[elisp:(describe-variable 'elib-helm-tex-okular)][`elib-helm-tex-okular']]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defcustom elib-helm-tex-okular-human-readable
+  "Okular"
+  "Human readable name for the Okular PDF viewer."
+  :type 'string
+  :group 'elib-helm-tex-okular)
+
+(defcustom elib-helm-tex-okular
+  `((output-pdf ,elib-helm-tex-okular-human-readable)
+    (,elib-helm-tex-okular-human-readable
+     ("okular --unique %o"
+      (mode-io-correlate "#src:%n%a"))
+     "okular"))
+  ;; elib-helm-tex-okular
+  ;; TeX-view-program-list-builtin
+  "Settings for the Okular viewer. Consists of two\
+ lists:\n
+The first list consisting of the symbol corresponding the
+output type defined in `TeX-view-predicate-list' or
+`TeX-view-predicate-list-builtin' (PDF) and a human readable
+string. The format is for `tex-view-program-selection'
+variable.\n
+
+The second list consisting of a human readable string, and
+one of the following:
+
+- A string corresponding to a command line to be run as a
+process
+- An elisp function to execute through `TeX-command-master'
+- An elisp function to execute through `TeX-command-master'
+and a list of strings with arguments to the function (I
+think?).
+
+The format is for `TeX-view-program-list'. The format is
+well non-well documented there."
+  :type
+  '(list
+    (list symbol string)
+    (list string
+          (choice (repeat string)
+                  function
+                  (list function (repeat
+                                  string))
+                  (list string
+                        (list symbol
+                              (choice
+                               string
+                               (repeat string)
+                               ))))
+          sexp))
+  :group 'elib-helm-tex-okular)
+
+
+
+#+END_SRC
+*** PDF-Tools
+:PROPERTIES:
+:ID:       f8e6e669-5391-4c1c-aaf7-6313500c2ed1
+:END:
+Here we define everything necessary for PDF-tools, the pdf
+viewer that we install over in [[*PDF-Handling][PDF-Handling]]. Unlike evince
+and okular, pdf-tools is displaying within emacs which means
+you have access to all the powers that emacs entails.
+
+The variables you can customize in the
+[[elisp:(customize-group 'elib-helm-tex-pdf-tools)][`elib-helm-tex-pdf-tools']]-subgroup are
+- [[elisp:(describe-variable 'elib-helm-tex-pdf-tools-human-readable)][`elib-helm-tex-pdf-tools-human-readable']]
+- [[elisp:(describe-variable 'elib-helm-tex-pdf-tools)][`elib-helm-tex-pdf-tools']]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defcustom elib-helm-tex-pdf-tools-human-readable
+  "PDF-tools"
+  "Human readable name for the PDF-tools PDF viewer."
+  :type 'string
+  :group 'elib-helm-tex-pdf-tools)
+
+(defcustom elib-helm-tex-pdf-tools
+  `((output-pdf ,elib-helm-tex-pdf-tools-human-readable)
+    (,elib-helm-tex-pdf-tools-human-readable TeX-pdf-tools-sync-view))
+  "Settings for the PDF-tools viewer. Consists of two\
+ lists:\n
+The first list consisting of the symbol corresponding the
+output type defined in `TeX-view-predicate-list' or
+`TeX-view-predicate-list-builtin' (PDF) and a human readable
+string. The format is for `tex-view-program-selection'
+variable.\n
+
+The second list consisting of a human readable string, and
+one of the following:
+
+- A string corresponding to a command line to be run as a
+process
+- An elisp function to execute through `TeX-command-master'
+- An elisp function to execute through `TeX-command-master'
+and a list of strings with arguments to the function (I
+think?).
+
+The format is for `TeX-view-program-list'. The format is
+well non-well documented there."
+  :type
+  '(list
+    (list symbol string)
+    (list string
+          (choice (repeat string)
+                  function
+                  (list function (repeat
+                                  string))
+                  (list string
+                        (list symbol
+                              (choice
+                               string
+                               (repeat string)
+                               ))))
+          sexp))
+  :group 'elib-helm-tex-pdf-tools)
+#+END_SRC
+*** Helm-TeX-View Selection
+:PROPERTIES:
+:ID:       a5d08609-09fa-4699-ad06-1565a2929276
+:END:
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defcustom elib-helm-tex-sources
+  (helm-build-sync-source
+      "TeX View Selection"
+    :candidates 'elib-helm-tex-candidates
+    :action 'elib-helm-tex-set-variables
+    :persistent-action 'elib-helm-tex-set-variables)
+  "A `helm-sync-source' for TeX View Selection. You
+  probably don't need to modify this."
+  :type 'helm-source-sync
+  :group 'elib-helm-tex)
+
+(defun elib-helm-tex-choose-program ()
+  (interactive)
+  (helm :sources elib-helm-tex-sources :buffer
+	"*elib-helm-tex-view*"))
+
+(defun elib-helm-tex-set-variables (choice)
+  (setf (alist-get 'output-pdf TeX-view-program-selection)
+	(cdr (cadr (assoc choice
+                          elib-helm-tex-alist)))))
+
+(defcustom elib-helm-tex-candidates
+  `(,elib-helm-tex-pdf-tools-human-readable
+    ,elib-helm-tex-evince-human-readable
+    ,elib-helm-tex-okular-human-readable)
+  "List of human readable names for all pdf viewers to\
+ choose from."
+  :type '(repeat string)
+  :group 'elib-helm-tex)
+
+(defvar elib-helm-tex-alist
+  `((,elib-helm-tex-pdf-tools-human-readable
+     . ,elib-helm-tex-pdf-tools)
+    (,elib-helm-tex-evince-human-readable
+     . ,elib-helm-tex-evince)
+    (,elib-helm-tex-okular-human-readable
+     . ,elib-helm-tex-okular)))
+
+(defvar elib-helm-tex-program-list
+  (let ((value))
+    (dolist (x elib-helm-tex-alist value)
+      (add-to-list 'value (caddr x)))))
+
+(add-to-list-multi 'TeX-view-program-list
+		   elib-helm-tex-program-list)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp :tangle yes
+))))
+#+END_SRC
