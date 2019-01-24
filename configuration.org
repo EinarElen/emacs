@@ -1,6 +1,6 @@
 #+AUTHOR: Einar Elén
 #+EMAIL: einar.elen@gmail.com
-#+OPTIONS: toc:3 html5-fancy org-html-preamble:nil
+#+OPTIONS: toc:3 html5-fancy:t org-html-preamble:nil
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes
 #+STARTUP: noinlineimages
@@ -12,47 +12,6 @@
 :PROPERTIES:
 :ID:       7ace9abf-9530-423a-927f-a024a8c67df5
 :END:
-*** Handy lisp functions and macros                                :ignore:
-:PROPERTIES:
-:ID:       b69b0adc-9d96-436d-87cc-623dd2210280
-:END:
-#+BEGIN_SRC emacs-lisp 
-(eval-when-compile
-  (defun potential-load-paths (list)
-    (let ((value))
-      (dolist (elt list value)
-	(when (and (not value) (file-exists-p elt))
-	  (setq value (expand-file-name elt))))
-      value)))
-(defmacro alist-get-equal (key alist &optional default
-			       remove)
-  "A call to `alist-get' with testfn set to `equal'"
-  `(alist-get ,key ,alist ,default ,remove 'equal))
-
-
-(defmacro alist-get-equal-simple (key alist)
-  "A call to `alist-get' with default and remove set to
-  nil and testfn set to `equal'
-
-  In reality, a call to `alist-get-equal' with default and
-  remove set to nil."
-  `(alist-get-equal ,key ,alist nil nil))
-
-(defmacro add-to-list-multi (lst elts &optional append compare-fn)
-  "Call `add-to-list' for each element in ELTS to LST."
-  `(dolist (x ,elts)
-     (add-to-list ,lst x ,append ,compare-fn)))
-
-
-(defun add-to-list-force (lst elt)
-  "If the car of ELT is a key in LST, replace the value with the
-value from ELT. Otherwise, call `add-to-list'"
-  (if (assoc (car elt) lst)
-      (setf
-       (cdr (assoc (car elt) lst))
-       (cdr elt))
-    (add-to-list 'lst elt)))
-#+END_SRC
 *** Definitions                                                   :ignore:
 :PROPERTIES:
 :ID:       3e2c6e03-2178-42d9-be36-b0f978dbaecd
@@ -77,623 +36,6 @@ that can be used for any customizations we create later.
   (defvar compilation-read-command)
   (setq ad-redefinition-action 'accept))
 #+END_SRC
-*** Customization Groups
-:PROPERTIES:
-:ID:       43a45132-8b1d-4179-8f56-60acd084d17c
-:END:
-Customization groups makes making changes simpler and
-exploring the configurations and definitions that are made
-in this file. If you want to start exploring, try calling [[elisp:(describe-function
- 'customize-group)][`customize-group']] and looking into the base group [[elisp:(customize-group 'elib)][`elib']].
-
-Currently the subgroups of [[elisp:(customize-group 'elib)][`elib']] are
-- [[elisp:(customize-group 'elib-file-paths)][`elib-file-paths']]
-  - Contains file paths that you can customize
-- [[elisp:(customize-group 'elib-calendar)][`elib-calendar']]
-  - Things related to [[elisp:(describe-package 'calfw)][`calfw']] and [[elisp:(describe-function 'org-gcal)][`org-gcal']] that provide
-    calendar functionality for emacs
-  - [[elisp:(customize-group 'elib-org)][`elib-org']]
-    - Contains org-mode related configuration
-  - [[elisp:(customize-group 'elib-helm-tex)][`elib-helm-tex']]
-    - Configuration for the [[elisp:(describe-function 'elib-helm-tex-choose-program)][`elib-helm-tex-choose-program']] function
-    - Subgroups for three possible pdf-viewers
-      1) [[elisp:(customize-group 'elib-helm-tex-pdf-tools)][`elib-helm-tex-pdf-tools']]
-      2) [[elisp:(customize-group 'elib-helm-tex-okular)][`elib-helm-tex-okular']]
-      3) [[elisp:(customize-group 'elib-helm-tex-evince)][`elib-helm-tex-evince']]
-#+BEGIN_SRC emacs-lisp
-(eval-when-compile
-  (defgroup elib nil
-    "Overarching customization group for any custom groups
-    created in `config-file-file-name'."
-    :tag "*elib*")
-
-  (defgroup elib-file-paths nil
-    "Customization group for file-paths."
-    :group 'elib
-    :tag "elib-file-paths")
-  (defgroup elib-calendar nil
-    "Customization group for `calfw' and `org-gcal'."
-    :tag "elib-calendar"
-    :group 'elib-)
-  (defgroup elib-org nil
-    "Customization group for `org-mode'."
-    :tag "elib-org"
-    :group 'elib)
-
-  (defgroup elib-helm-tex nil
-    "Customization group for the\
-    `elib-helm-tex-choose-program' function."
-    :tag "elib-helm-TeX"
-    :group 'elib)
-  (defgroup elib-helm-tex-pdf-tools nil
-    "Customization group for the PDF-tools reader\
-   for the `elib-helm-tex'-group."
-    :tag "elib-'helm-TeX-PDF-tools"
-    :group 'elib-helm-tex)
-  (defgroup elib-helm-tex-okular nil
-    "Customization group for the Okular reader for\
-   the `elib-helm-tex'-group."
-    :tag "elib-helm-TeX-Okular"
-    :group 'elib-helm-tex)
-  (defgroup elib-helm-tex-evince nil
-    "Customization group for the Evince reader for\
-   the `elib-helm-tex'-group."
-    :tag "elib-helm-TeX-Evince"
-    :group 'elib-helm-tex)
-  )
-#+END_SRC
-*** User variables
-:PROPERTIES:
-:ID:       db82c885-b522-451d-9a7e-9928d2b54395
-:END:
-**** Personal Information                                         :Update:
-:PROPERTIES:
-:ID:       942248fc-6008-48a1-8ab7-a7097851aff9
-:END:
-Here we set all important personal details.
-- Your name in [[elisp:(describe-variable 'user-full-name)][`user-full-name']]
-- Your primary email address in [[elisp:(describe-variable 'user-mail-address)][`user-mail-address']]
-- Any additional email addresses in [[elisp:(describe-variable 'user-mail-address-list)][`user-mail-address-list']]
-
-#+BEGIN_SRC emacs-lisp
-(eval-when-compile
-  (setq user-full-name "Einar Elén"
-	user-mail-address "einar.elen@gmail.com")
-  (defcustom user-mail-address-list `(,user-mail-address,
-				      "info-ordf@luna.lu.se",
-				      "nat13eel@student.lu.se")
-    "A list of the `user-mail-address' and any additional
-    email addresses of the user."
-    :group 'elib
-    :type '(repeat string)))
-#+END_SRC
-**** Location of Executables                                      :ignore:
-:PROPERTIES:
-:ID:       5100a407-137f-4905-b6bd-8880e136d64f
-:END:
-Since we want to be able to use the same configuration
-regardless of where programs might be stored on our
-computer, we define some variables for storing the location
-of these programs. They are set automatically using the
-handy [[elisp:(describe-function 'executable-find)][`executable-find']] function.
-
-#+BEGIN_SRC emacs-lisp
-(eval-when-compile
-  (setq
-   with-editor-emacsclient-executable (executable-find
-				       "emacsclient")
-   magit-git-executable (executable-find "git")
-   cide--rdm-executable (executable-find "rdm")
-   irony-cmake-executable (executable-find "cmake")
-   company-cmake-executable irony-cmake-executable
-   cmake-mode-cmake-executable company-cmake-executable
-
-   company-clang-executable (executable-find "clang")
-   flycheck-c/c++-clang-executable company-clang-executable
-
-   flycheck-c/c++-gcc-executable (executable-find "gcc")
-   clang-format-executable (executable-find "clang-format")
-   company-gtags-executable (or (executable-find "global")
-				(executable-find "gtags"))))
-#+END_SRC
-**** Location of Files                                    :probablyignore:
-:PROPERTIES:
-:ID:       3180981a-a5fa-4fe8-a0f6-e560df27db5d
-:END:
-There are some files that it is useful to have a variable
-for. If you use some other than my defaults, feel free to
-edit them.
-
-- The main directory for emacs configuration files in  [[elisp:(describe-variable   'user-emacs-config-directory)][`user-emacs-config-directory']]. We do this so we can redefine
-  [[elisp:(describe-variable 'user-emacs-directory)][`user-emacs-directory']] later to store random local files
-  in a place which doesn't clutter our configuration
-  directory.
-- Location of some extra snippets for the yasnippet package
-  from Tuhdo in [[elisp:(describe-variable 'tuhdo-snippets-directory)][`tuhdo-snippets-directory']]. This is used
-  later in [[*Yasnippet][Yasnippet]]. We also have our own in [[elisp:(describe-variable   'elib-snippets-directory)][`elib-snippets-directory']]
-
-- The location of the configuration file (i.e. this file) in
-  [[elisp:(describe-variable 'config-file-file-name)][`config-file-file-name']] (great name choice right?)
-- The location of the scripts file in [[elisp:(describe-variable 'scripts-file-file-name)][`scripts-file-file-name']]
-- The main directory for my various org files is found in
-  [[elisp:(describe-variable 'user-org-directory)][`user-org-directory']].
-- In [[*Capture][Capture]], we define some ways to capture quick thoughts
-  and quotes. I use the two separate files for todo:s and
-  quotes, [[elisp:(describe-variable 'user-org-quotes-file-name)][`user-org-quotes-file-name']] and
-  [[elisp:(describe-variable 'user-org-todo-file-name)][`user-org-todo-file-name']]
-- Later in [[*Abbrev][Abbrev]] we define some spell-checking tools. We
-  have a big file of common spelling oopsies (e.g. owrk
-  instead of work). The location of this file is defined in
-  [[elisp:(describe-variable 'abbrev-location)][`abbrev-location']]
-- Folder where all [[elisp:(describe-package 'org-gcal)][`org-gcal']]-calendars will be stored in
-  [[elisp:(describe-variable 'org-gcal-calendar-location)][`org-gcal-calendar-location']] . I use three calendars and
-  their individual files have a variable each, all of which
-  can be found in `org-gcal-calendar-file-name-list'. These
-  settings are used in [[*Calendar][Calendar]]
-  - My main calendar in [[elisp:(describe-variable 'org-gcal-calendar-main-file-name)][`org-gcal-calendar-main-file-name']]
-  - My information committee chairperson calendar in
-    [[elisp:(describe-variable 'org-gcal-calendar-info-ordf-file-name)][`org-gcal-calendar-info-ordf-file-name']]
-  - My student calendar in [[elisp:(describe-variable 'org-gcal-calendar-lu-file-name)][`org-gcal-calendar-lu-file-name']]
-#+BEGIN_SRC emacs-lisp
-(eval-when-compile
-  (defcustom user-emacs-config-directory
-    (file-name-as-directory (expand-file-name "~/.emacs.d"))
-    "The emacs configuration directory."
-    :type 'string
-    :group :elib-file-paths)
-  (defcustom tuhdo-snippets-directory
-    (expand-file-name
-     (concat user-emacs-config-directory
-	     "tuhdosnippets"))
-    "Location of extra yasnippet files from Tuhdo."
-    :type 'string
-    :group 'elib-file-paths)
-  (defcustom elib-snippets-directory
-    (expand-file-name
-     (concat user-emacs-config-directory
-	     "snippets"))
-    "Location of custom yasnippet files."
-    :type 'string
-    :group 'elib-file-paths)
-
-  (defcustom config-file-file-name
-    (expand-file-name
-     (concat
-      user-emacs-config-directory
-      "configuration.org"))
-    "The filename of the user configuration file."
-    :type 'string
-    :group 'elib-file-paths
-    :group 'elib-org)
-
-  (defcustom script-file-file-name
-    (expand-file-name
-     (concat user-emacs-config-directory "scripts.org"))
-    "The filename of the scripts file."
-    :type 'string
-    :group 'elib-file-paths
-    :group 'elib-org)
-
-  (defcustom user-org-directory
-    (expand-file-name "~/nextcloud/org/")
-    "Directory where most org files are stored."
-    :type 'string
-    :group 'elib-file-paths
-    :group 'elib-org)
-
-  (defcustom org-gcal-calendar-location
-    (concat
-     user-org-directory "cal/")
-    "The directory where calendar files for `org-gcal' are
-    stored."
-    :group 'elib-calendar
-    :group 'elib-file-paths
-    :group 'elib-org
-    :type 'string)
-  (defcustom org-gcal-calendar-main-file-name
-    (concat org-gcal-calendar-location "gmail.org")
-    "Filename of the main calendar file."
-    :type 'string
-    :group 'elib-calendar
-    :group 'elib-file-paths
-    :group 'elib-org)
-  (defcustom org-gcal-calendar-info-ordf-file-name
-    (concat org-gcal-calendar-location "info-ordf.org")
-    "Filename of the info-ordf calendar file."
-    :type 'string
-    :group 'elib-calendar
-    :group 'elib-file-paths
-    :group 'elib-org)
-  (defcustom org-gcal-calendar-lu-file-name
-    (concat org-gcal-calendar-location "lu.org")
-    "Filename of my student account calendar file."
-    :type 'string
-    :group 'elib-calendar
-    :group 'elib-file-paths
-    :group 'elib-org)
-
-
-  (defcustom org-gcal-calendar-file-name-list
-    `(,org-gcal-calendar-main-file-name
-      ,org-gcal-calendar-info-ordf-file-name
-      ,org-gcal-calendar-lu-file-name)
-    "List of all calendar file-names."
-    :type '(repeat string)
-    :group 'elib-calendar
-    :group 'elib-file-paths
-    :group 'elib-org)
-
-  (defcustom user-org-todo-file-name
-    (expand-file-name (concat user-emacs-config-directory
-			      "../todo.org"))
-    "The "
-    :group 'elib-org
-    :group 'elib-file-paths
-    )
-  (defcustom user-current-events-file
-    (expand-file-name (concat user-emacs-config-directory "../current_events.org"))
-    "")
-  (defcustom user-org-quotes-file-name
-    (expand-file-name
-     (concat user-emacs-config-directory "../citatsamling.org"))
-    ""
-    :group 'elib-org
-    :group 'elib-file-paths
-    )
-  (defcustom abbrev-location (expand-file-name ".abbrev_defs" user-emacs-config-directory)
-    ""
-    :group 'abbrev
-    :group 'elib-file-paths
-    ))
-#+END_SRC
-
-
-**** Load Paths                                           :probablyignore:
-:PROPERTIES:
-:ID:       95b1ec6e-d563-4d37-8246-a687d53b62eb
-:END:
-***** TODO Create the script to install all of the packages
-:PROPERTIES:
-:ID:       6b925028-0d50-4055-b938-2e7c723063f4
-:END:
-Most programs are installed using emacs package manager and
-we do not need to tell it anything about where to find the
-lisp-code for the package. Some packages might be installed
-by your operating system (in my case, asymptote) or manually
-(in my case, mu4e). If you use these packages you might need
-to install them specially. I have written a script for
-installing these packages which can check out if you want in
-[[elisp:(describe-variable 'load-path-script-location)][`load-path-script-location']].
-
-The load-paths are defined using the handy little function
-[[elisp:(describe-function 'potential-load-paths)][`potential-load-paths']] which takes a list of potential paths
-and returns the full file-name of the first one that exists
-on the file-system.
-
-The packages and their load-paths are:
-- [[*Mu4e][Mu4e]] is an email-reader in emacs. I compile mu4e from
-  source and have to add the load-path manually. The
-  load-path variable is [[elisp:(describe-variable 'elib-mu4e-load-path)][`elib-mu4e-load-path']].
-- In [[*Calendar][Calendar]], I use the package [[elisp:(describe-variable 'org-gcal)][`org-gcal']] to synchronise
-  google calendar with my org-mode calendar files. Sadly,
-  there is a bug which prevents you from using more than one
-  calendar. There is a solution which someone has tried to
-  get into the main package but at the moment it isn't
-  there. I therefore use a patched version of the package
-  which I have to install manually. The load-path variable
-  is [[elisp:(describe-variable 'elib-org-gcal-load-path)][`elib-org-gcal-load-path']].
-- [[*Rtags][Rtags]] is an incredibly powerful tool for handling code. I
-  used to install this manually but since Fedora 28 (I
-  think?) there is an operating system which provides
-  it. The load-path is defined in [[elisp:(describe-variable 'elib-rtags-load-path)][`elib-rtags-load-path']].
-- I often use the programming language [[https://en.wikipedia.org/wiki/Asymptote_(vector_graphics_language)][Asymptote]] to generate
-  vector graphics for graphs. It comes with great
-  integration into Emacs and is designed to be used with
-  [[*LaTeX/AUCTeX][LaTeX]] and I install it together with the other AUCTeX
-  features. I install asymptote through my operating system
-  package manager and add the load-path for its lisp-code
-  using the variable [[elisp:(describe-variable 'elib-asymptote-load-path)][`elib-asymptote-load-path']].
-
-#+BEGIN_SRC emacs-lisp
-(eval-when-compile
-  (defvar load-path-script-location
-    (expand-file-name (concat user-emacs-config-directory "special-packages.el")))
-  (defvar elib-org-gcal-load-path (expand-file-name "~/src/org-gcal/"))
-  (defvar elib-rtags-load-path
-    (potential-load-paths
-     `("/usr/share/emacs/site-lisp/rtags/"
-       ,(concat user-emacs-config-directory
-                "../src/rtags/src/"))))
-  (defvar elib-mu4e-load-path
-    (potential-load-paths
-     '("~/.local/share/emacs/site-lisp/mu4e"
-       "/usr/local/share/emacs/site-lisp/mu4e"
-       "/usr/local/share/emacs/site-lisp/mu/mu4e"
-       "~/.emacs.d/mu4e")))
-  (defvar elib-asymptote-load-path
-    (potential-load-paths '("/usr/share/asymptote/"))))
-#+END_SRC
-**** TeX Viewers                                                  :ignore:
-:PROPERTIES:
-:ID:       22070e13-f071-42a1-9db8-527c3e3e159d
-:END:
-AUCTeX is great but one weird thing about is that it only
-allows you to chose one program to use for viewing your pdf:s
-you create. I have created a little [[*Helm][Helm]]-program which lets
-you switch between viewers.
-The function is called [[elisp:(describe-function
-'elib-helm-tex-choose-program)][`elib-helm-tex-choose-program']]
-and in [[*LaTeX/AUCTeX][LaTeX/AUCTeX]] we bind it to "C-c v"
-in [[elisp:(describe-function 'LaTeX-mode)][`LaTeX-mode']]. I used
-this to learn a bit more about the customization features of
-emacs so it is definitely more complicated than what is
-strictly necessary.
-
-
-You should not need to modify any of these variables but
-feel free to study them and come with suggestions of how to
-do it in a more proper way if you like. If you wish to add
-some other program as a pdf-reader than the ones listed in
-[[elisp:(describe-variable 'elib-helm-tex-alist)][`elib-helm-tex-alist']].
-
-You can also customize my settings through the group [[elisp:(customize-group
- 'elib-helm-tex)][`elib-helm-tex']].
-
-#+BEGIN_SRC emacs-lisp
-(eval-when-compile
-  (require 'helm)
-  (eval-after-load "tex"
-    '(eval-after-load "helm"
-       '(progn
-#+END_SRC
-***** Evince
-:PROPERTIES:
-:ID:       1cadd0e8-3eb1-4a53-88f5-8beac438cfc8
-:END:
-Here we define everything necessary for the evince
-pdf-reader (i.e. the default pdf-reader for the GNOME
-desktop environment).
-
-The variables you can customize in the
-[[elisp:(customize-group 'elib-helm-tex-evince)][`elib-helm-tex-evince']]-subgroup are
-- [[elisp:(describe-variable 'elib-helm-tex-evince-human-readable)][`elib-helm-tex-evince-human-readable']]
-- [[elisp:(describe-variable 'elib-helm-tex-evince)][`elib-helm-tex-evince']]
-
-#+BEGIN_SRC emacs-lisp
-(defcustom elib-helm-tex-evince-human-readable
-  "Evince"
-  "Human readable name for the Evince PDF viewer."
-  :type 'string
-  :group 'elib-helm-tex-evince)
-
-
-(defcustom elib-helm-tex-evince
-  `((output-pdf ,elib-helm-tex-evince-human-readable)
-    (,elib-helm-tex-evince-human-readable
-     TeX-evince-sync-view
-     "evince"
-     ))
-  "Settings for the Evince viewer. Consists of two\
- lists:\n
-The first list consisting of the symbol corresponding the
-output type defined in `TeX-view-predicate-list' or
-`TeX-view-predicate-list-builtin' (PDF) and a human readable
-string. The format is for `tex-view-program-selection'
-variable.\n
-
-The second list consisting of a human readable string, and
-one of the following:
-
-- A string corresponding to a command line to be run as a
-process
-- An elisp function to execute through `TeX-command-master'
-- An elisp function to execute through `TeX-command-master'
-and a list of strings with arguments to the function (I
-think?).
-
-The format is for `TeX-view-program-list'. The format is
-well non-well documented there."
-  :type
-  '(list
-    (list symbol string)
-    (list string
-          (choice (repeat string)
-                  function
-                  (list function (repeat
-                                  string))
-                  (list string
-                        (list symbol
-                              (choice
-                               string
-                               (repeat string)
-                               ))))
-          sexp))
-  :group 'elib-helm-tex-evince)
-
-#+END_SRC
-***** Okular
-:PROPERTIES:
-:ID:       b75d4538-2b24-4bd8-9d6a-e1c042c25a4c
-:END:
-Here we define everything necessary for the Okular
-pdf-reader (i.e. the default pdf-reader for the KDE desktop
-environment).
-
-The variables you can customize in the
-[[elisp:(customize-group 'elib-helm-tex-okular)][`elib-helm-tex-okular']]-subgroup are
-- [[elisp:(describe-variable 'elib-helm-tex-okular-human-readable)][`elib-helm-tex-okular-human-readable']]
-- [[elisp:(describe-variable 'elib-helm-tex-okular)][`elib-helm-tex-okular']]
-
-#+BEGIN_SRC emacs-lisp
-(defcustom elib-helm-tex-okular-human-readable
-  "Okular"
-  "Human readable name for the Okular PDF viewer."
-  :type 'string
-  :group 'elib-helm-tex-okular)
-
-(defcustom elib-helm-tex-okular
-  `((output-pdf ,elib-helm-tex-okular-human-readable)
-    (,elib-helm-tex-okular-human-readable
-     ("okular --unique %o"
-      (mode-io-correlate "#src:%n%a"))
-     "okular"))
-  ;; elib-helm-tex-okular
-  ;; TeX-view-program-list-builtin
-  "Settings for the Okular viewer. Consists of two\
- lists:\n
-The first list consisting of the symbol corresponding the
-output type defined in `TeX-view-predicate-list' or
-`TeX-view-predicate-list-builtin' (PDF) and a human readable
-string. The format is for `tex-view-program-selection'
-variable.\n
-
-The second list consisting of a human readable string, and
-one of the following:
-
-- A string corresponding to a command line to be run as a
-process
-- An elisp function to execute through `TeX-command-master'
-- An elisp function to execute through `TeX-command-master'
-and a list of strings with arguments to the function (I
-think?).
-
-The format is for `TeX-view-program-list'. The format is
-well non-well documented there."
-  :type
-  '(list
-    (list symbol string)
-    (list string
-          (choice (repeat string)
-                  function
-                  (list function (repeat
-                                  string))
-                  (list string
-                        (list symbol
-                              (choice
-                               string
-                               (repeat string)
-                               ))))
-          sexp))
-  :group 'elib-helm-tex-okular)
-
-
-
-#+END_SRC
-***** PDF-Tools
-:PROPERTIES:
-:ID:       f8e6e669-5391-4c1c-aaf7-6313500c2ed1
-:END:
-Here we define everything necessary for PDF-tools, the pdf
-viewer that we install over in [[*PDF-Handling][PDF-Handling]]. Unlike evince
-and okular, pdf-tools is displaying within emacs which means
-you have access to all the powers that emacs entails.
-
-The variables you can customize in the
-[[elisp:(customize-group 'elib-helm-tex-pdf-tools)][`elib-helm-tex-pdf-tools']]-subgroup are
-- [[elisp:(describe-variable 'elib-helm-tex-pdf-tools-human-readable)][`elib-helm-tex-pdf-tools-human-readable']]
-- [[elisp:(describe-variable 'elib-helm-tex-pdf-tools)][`elib-helm-tex-pdf-tools']]
-
-#+BEGIN_SRC emacs-lisp 
-(defcustom elib-helm-tex-pdf-tools-human-readable
-  "PDF-tools"
-  "Human readable name for the PDF-tools PDF viewer."
-  :type 'string
-  :group 'elib-helm-tex-pdf-tools)
-
-(defcustom elib-helm-tex-pdf-tools
-  `((output-pdf ,elib-helm-tex-pdf-tools-human-readable)
-    (,elib-helm-tex-pdf-tools-human-readable TeX-pdf-tools-sync-view))
-  "Settings for the PDF-tools viewer. Consists of two\
- lists:\n
-The first list consisting of the symbol corresponding the
-output type defined in `TeX-view-predicate-list' or
-`TeX-view-predicate-list-builtin' (PDF) and a human readable
-string. The format is for `tex-view-program-selection'
-variable.\n
-
-The second list consisting of a human readable string, and
-one of the following:
-
-- A string corresponding to a command line to be run as a
-process
-- An elisp function to execute through `TeX-command-master'
-- An elisp function to execute through `TeX-command-master'
-and a list of strings with arguments to the function (I
-think?).
-
-The format is for `TeX-view-program-list'. The format is
-well non-well documented there."
-  :type
-  '(list
-    (list symbol string)
-    (list string
-          (choice (repeat string)
-                  function
-                  (list function (repeat
-                                  string))
-                  (list string
-                        (list symbol
-                              (choice
-                               string
-                               (repeat string)
-                               ))))
-          sexp))
-  :group 'elib-helm-tex-pdf-tools)
-#+END_SRC
-***** Helm-TeX-View Selection
-:PROPERTIES:
-:ID:       a5d08609-09fa-4699-ad06-1565a2929276
-:END:
-#+BEGIN_SRC emacs-lisp
-(defcustom elib-helm-tex-sources
-  (helm-build-sync-source
-      "TeX View Selection"
-    :candidates 'elib-helm-tex-candidates
-    :action 'elib-helm-tex-set-variables
-    :persistent-action 'elib-helm-tex-set-variables)
-  "A `helm-sync-source' for TeX View Selection. You
-  probably don't need to modify this."
-  :type 'helm-source-sync
-  :group 'elib-helm-tex)
-
-(defun elib-helm-tex-choose-program ()
-  (interactive)
-  (helm :sources elib-helm-tex-sources :buffer
-	"*elib-helm-tex-view*"))
-
-(defun elib-helm-tex-set-variables (choice)
-  (setf (alist-get 'output-pdf TeX-view-program-selection)
-	(cdr (cadr (assoc choice
-                          elib-helm-tex-alist)))))
-
-(defcustom elib-helm-tex-candidates
-  `(,elib-helm-tex-pdf-tools-human-readable
-    ,elib-helm-tex-evince-human-readable
-    ,elib-helm-tex-okular-human-readable)
-  "List of human readable names for all pdf viewers to\
- choose from."
-  :type '(repeat string)
-  :group 'elib-helm-tex)
-
-(defvar elib-helm-tex-alist
-  `((,elib-helm-tex-pdf-tools-human-readable
-     . ,elib-helm-tex-pdf-tools)
-    (,elib-helm-tex-evince-human-readable
-     . ,elib-helm-tex-evince)
-    (,elib-helm-tex-okular-human-readable
-     . ,elib-helm-tex-okular)))
-
-(defvar elib-helm-tex-program-list
-  (let ((value))
-    (dolist (x elib-helm-tex-alist value)
-      (add-to-list 'value (caddr x)))))
-
-(add-to-list-multi 'TeX-view-program-list
-		   elib-helm-tex-program-list)
-#+END_SRC
-#+BEGIN_SRC emacs-lisp
-))))
-#+END_SRC
 ** Improve Basic Emacs Experience
 :PROPERTIES:
 :ID:       0c5f0b2e-abdf-41c3-90d1-fab40849003d
@@ -714,7 +56,7 @@ you give it one universal argument, it returns you to [[elisp:(describe-variable
   (cond ((equal current-prefix-arg '(4))
          (find-file user-org-gtd-inbox))
         ((equal current-prefix-arg '(16))
-         (find-file user-org-directory))
+         (find-file elib-user-org-directory))
         ((equal current-prefix-arg '(64))
          (restart-emacs))
         (t (find-file config-file-file-name))))
@@ -805,6 +147,7 @@ Otherwise, use nlinum for line-numbering.
 Other stuff which may or may not work...
 #+BEGIN_SRC emacs-lisp
 (use-package tramp
+  :defer 3
   :config
   (setq tramp-default-method "ssh"))
 (setq backup-directory-alist `((".*" . ,temporary-file-directory))
@@ -842,6 +185,7 @@ again to return!
 
 #+BEGIN_SRC emacs-lisp
 (use-package winner
+  :defer nil
   :bind (("C-c <left>" . winner-undo)
 	 ("C-c <right>" . winner-redo))
   :config
@@ -861,7 +205,7 @@ pastes between emacs and the rest of your operating
 system.
 #+BEGIN_SRC emacs-lisp
 (use-package clipmon
-  :defer 1
+  :defer 4
   :config (setq clipmon-autoinsert-timeout nil
 		clipmon-autoinsert-sound nil
 		clipmon-autoinsert-color nil
@@ -894,8 +238,8 @@ you're tired.
 Zygospore replaces the default kill all other windows with
 a version which lets you go back if you use it again.
 #+BEGIN_SRC emacs-lisp
-
-			 (use-package zygospore
+(use-package zygospore
+  :defer 1
 	 :bind (("C-x 1" . zygospore-toggle-delete-other-windows)))
 #+END_SRC
 **** Help window management
@@ -919,11 +263,14 @@ only one which currently exists is C-M-o for
 window 	management.
 #+BEGIN_SRC emacs-lisp
 (use-package hydra
+  :defer 2
+  ;;        ("C-M-s" . hydra-spelling/body))
   :commands (hydra-add-font-lock
-	     hydra-default-pre hydra-keyboard-quit
-	     hydra--call-interactively-remap-maybe
-	     hydra-show-hint hydra-set-transient-map)
+             hydra-default-pre hydra-keyboard-quit
+             hydra--call-interactively-remap-maybe
+             hydra-show-hint hydra-set-transient-map)
   :config
+  (define-key global-map (kbd "C-M-o")  'hydra-window/body)
   (hydra-add-font-lock)
   (use-package ace-window)
   (use-package transpose-frame)
@@ -963,8 +310,7 @@ window 	management.
 
   (eval-after-load "flyspell"
     (defhydra hydra-spelling (:color blue)
-      "
-  ^
+      "^
   ^Spelling^          ^Errors^            ^Checker^
   ^────────^──────────^──────^────────────^───────^───────
   _q_ quit            _<_ previous        _c_ correction
@@ -979,8 +325,8 @@ window 	management.
       ("d" ispell-change-dictionary)
       ("f" flyspell-buffer)
       ("m" flyspell-mode)) )
-  :bind (("C-M-o" . hydra-window/body)
-         ("C-M-s" . hydra-spelling/body)))
+  (print "")
+  )
 
 
 #+END_SRC
@@ -1545,7 +891,7 @@ with.
   :config
   (setq avy-all-windows nil)
   (use-package avy-zap
-    :defer t)
+    :defer 3)
   :bind (("C-:" . avy-goto-char)
 	 ("C-;" . avy-goto-word-1)))
 #+END_SRC
@@ -1638,8 +984,9 @@ Ironically, this talk is the reason I got started... with Emacs.
 
 #+BEGIN_SRC emacs-lisp
 (use-package evil
-  :defer 2
+
   :config
+
   (setq evil-default-state 'emacs)
   (use-package org-evil)
   (use-package evil-tutor)
@@ -1974,13 +1321,16 @@ pretty nifty.
 	company-tooltip-idle-delay 0.01)
 ;;; Back-ends
 ;;; C/C++
-  (use-package company-clang :ensure nil
+  (use-package company-clang
+    :disabled t
+    :ensure nil
     :config
     (setq
      company-clang-arguments
      (list "-std=c++1z" "-Wall" "-Werror"
 	   "-Wpedantic -I./ -I./include/ -I../include/ -I../")))
   (use-package company-c-headers
+    :disabled t
     :after cc-mode
     :config
     ;; (define-key c-mode-map  [(tab)] 'company-complete)
@@ -1996,6 +1346,7 @@ pretty nifty.
 	(add-to-list 'company-c-headers-path-system name)))
     (add-to-list 'company-backends 'company-c-headers))
   (use-package company-irony
+    :disabled t
     :after irony
     :hook (irony-mode . company-irony-setup-begin-commands)
     :config
@@ -2032,6 +1383,7 @@ pretty nifty.
 :END:
 	 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
+  :disabled t
   :init
   (defun disable-flycheck-temporarily ()
     "Disables flycheck in current buffer."
@@ -2097,15 +1449,47 @@ pretty nifty.
 :PROPERTIES:
 :ID:       94f26649-6cec-4874-816a-ed192e52b7be
 :END:
+**** CCLS/LSP
+
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-mode
+  :commands lsp
+  :config
+  (use-package lsp-ui
+    :commands lsp-ui-mode)
+  (use-package company-lsp
+    :commands company-lsp)
+  )
+
+
+(use-package ccls
+  :preface
+  (defun ccls-enable ()
+    (require 'lsp)
+    (require 'ccls)
+    (lsp))
+  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+  :defer nil
+  :hook (c-mode-common . #'ccls-enable)
+  :config
+  (setq ccls-executable (potential-load-paths '("/usr/local/bin/ccls" "~/.local/bin/ccls")))
+  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+  (add-to-list 'company-backends 'company-lsp)
+  )
+(use-package helm-xref
+  :config
+  (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
+  )
+#+END_SRC
+
+
 **** Irony Mode
 Irony provides auto completion for C++ which is helpful. It
 uses a server program that has to be compiled before you can
 use it. After installation, simply call [[elisp:(describe-function 'irony-install-server)][irony-install-server]]
-:PROPERTIES:
-:ID:       2e68a23b-3d71-4e76-af1f-4c36b383815d
-:END:
 		 #+BEGIN_SRC emacs-lisp
 (use-package irony
+  :disabled t
   :after cc-mode
   :hook ((irony-mode . irony-cdb-autosetup-compile-options)
          (c-mode-common . irony-mode)))
@@ -2116,6 +1500,7 @@ use it. After installation, simply call [[elisp:(describe-function 'irony-instal
 :END:
 		 #+BEGIN_SRC emacs-lisp
 (use-package rtags
+  :disabled t
   :after cc-mode
   :when (executable-find "rdm")
   :commands rtags-diagnostics
@@ -2186,10 +1571,10 @@ use it. After installation, simply call [[elisp:(describe-function 'irony-instal
 :END:
 		 #+BEGIN_SRC emacs-lisp
 (use-package cmake-mode
-  :defer t
+  :defer 3
   :config
   (use-package cmake-font-lock
-    :defer t
+    :defer 3
     :hook (cmake-mode . cmake-font-lock-activate)
     :config
     (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)))
@@ -2282,7 +1667,6 @@ Lispy is an intersting package. At the moment, I don't use it.
           emacs-lisp-mode) . lispy-mode))
 #+END_SRC
 
-
 * Org Mode
 :PROPERTIES:
 :ID:       bb4a983b-23e4-4f42-be11-7a7c062bcc9b
@@ -2294,6 +1678,8 @@ Lispy is an intersting package. At the moment, I don't use it.
 	 #+BEGIN_SRC emacs-lisp
 (use-package org
   :commands (org-mode org-babel-load-file org-babel-tangle-file)
+  :ensure org-plus-contrib
+  :pin org
   :preface
   (fset 'org-call-export-to-pdf
         (lambda (&optional arg) "Keyboard macro."
@@ -2308,38 +1694,51 @@ Lispy is an intersting package. At the moment, I don't use it.
   :init
   (setq-default major-mode 'org-mode)
   (setq initial-major-mode 'org-mode)
-
+  :config
   ;; Pressing enter on an org link follows the link
   (setq org-return-follows-link t)
-
-
-  :config
   (add-hook 'org-mode-hook 'variable-pitch-mode)
-
+  (setq org-export-async-init-file
+        elib-org-async-init-file)
   (use-package org-bullets
     :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
-  (defvar user-org-todo-key-sequences
+  (defvar elib-user-org-todo-key-sequences
     '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "|"   "DONE(d)" "DELEGATED(D)" "CANCELLED(c)")))
-
-  (setq org-todo-keywords user-org-todo-key-sequences)
-
+  (setq org-todo-keywords elib-user-org-todo-key-sequences)
   (setq org-pretty-entities t)
   (setq org-pretty-entities-include-sub-superscripts nil)
   (setq org-hide-emphasis-markers t)
   (setq org-startup-indented t)
-  (setq org-export-async-init-file
-        (expand-file-name
-         (concat user-emacs-config-directory
-                 "orginit.el"))
-        org-export-in-background t
+  (setq org-export-in-background t
         org-export-async-debug nil)
+  (setq org-src-preserve-indentation t)
+  (setq org-src-tab-acts-natively t)
+(setq org-src-fontify-natively t)
+  (plist-put org-format-latex-options :scale 1.5)
 
+  (setq org-default-notes-file elib-user-org-gtd-inbox
+        org-use-fast-todo-selection t
+        org-src-window-setup 'current-window)
 
+  :bind (("\C-cl" . org-store-link)
+         ("\C-cb" . org-iswitchb)
+         :map org-mode-map
+         ("C-c C-p" . org-previous-visible-heading)
+         ("C-c M-o" . org-toggle-link-display)
+         ("S-<f5>" . org-call-export-to-pdf)
+         ;;("<f5>" . org-call-export-to-beamer)
+         ("C-c ." . org-time-stamp)
+         ("\M-\C-g" . org-plot/gnuplot)))
 
+	 #+END_SRC
 
-  (use-package ob
-    :ensure nil
+** Org Babel and Exports
+#+BEGIN_SRC emacs-lisp
+(use-package ob
+  :after org
+    :ensure org-plus-contrib
+    :pin org
     :bind (:map org-mode-map
                   ("C-c d" . elib-ob-execute-next-block)
                   ("C-c M-d" . elib-ob-reset-and-run-all-blocks-in-buffer))
@@ -2357,7 +1756,7 @@ Lispy is an intersting package. At the moment, I don't use it.
         (org-babel-execute-src-block)))
     :config
     (use-package ox-latex
-      :ensure nil
+      :ensure org-plus-contrib
       :config
       (setq org-startup-with-latex-preview nil)
       (unless (getenv "TEXMFHOME")
@@ -2365,8 +1764,7 @@ Lispy is an intersting package. At the moment, I don't use it.
       (setq org-preview-latex-default-process 'imagemagick)
       ;; Format is ("options" "package)
       (add-to-list 'org-latex-packages-alist '("" "eetex"))
-      (add-to-list 'org-latex-packages-alist '("" "tikz"))
-)
+      (add-to-list 'org-latex-packages-alist '("" "tikz")))
     (use-package ox-twbs)
     (use-package ob-asymptote
       :ensure org)
@@ -2375,9 +1773,6 @@ Lispy is an intersting package. At the moment, I don't use it.
                 (file-exists-p (concat (getenv "HOME") "/.local/bin/jupyter")))
 
       :preface
-
-
-      :config
       (defun ob-ipython--collect-json ()
         ;; hacks here
         (when (re-search-forward "{" nil t)
@@ -2389,6 +1784,7 @@ Lispy is an intersting package. At the moment, I don't use it.
               (setq acc (cons (json-read) acc))
               (forward-line))
             (nreverse acc))))
+      :config
       (setq ob-ipython-command "jupyter")
       (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
       (add-to-list 'org-latex-minted-langs '(ipython "python")))
@@ -2401,99 +1797,66 @@ Lispy is an intersting package. At the moment, I don't use it.
                                         ;(sh . t)
        (gnuplot . t)))
     (setq org-confirm-babel-evaluate nil))
+#+END_SRC
 
-
-  (setq org-src-preserve-indentation t)
-  (setq org-src-tab-acts-natively t)
-  (plist-put org-format-latex-options :scale 1.5)
-
-  (setq org-default-notes-file user-org-todo-file-name
-        org-use-fast-todo-selection t
-        org-src-window-setup 'current-window)
-
-  :bind (("\C-cl" . org-store-link)
-         ("\C-cb" . org-iswitchb)
-         :map org-mode-map
-         ("C-c C-p" . org-previous-visible-heading)
-         ("C-c M-o" . org-toggle-link-display)
-         ("S-<f5>" . org-call-export-to-pdf)
-         ;;("<f5>" . org-call-export-to-beamer)
-         ("C-c ." . org-time-stamp)
-         ("\M-\C-g" . org-plot/gnuplot)))
-
-	 #+END_SRC
 ** Capture
 :PROPERTIES:
 :ID:       284aed85-1e89-4404-833c-9fee55c367f0
 :END:
-
 #+BEGIN_SRC emacs-lisp
-(defvar org-gtd-inbox (expand-file-name "~/nextcloud/org/inbox.org"))
-(defvar user-org-gtd-inbox
-  (expand-file-name
-   (concat "~/nextcloud/org/inbox@"
-           (replace-regexp-in-string
-            "\n$" ""
-            (shell-command-to-string "uname -n") )".org"  )))
-(defvar user-org-gtd-file (expand-file-name "~/nextcloud/org/main-gtd.org"))
-(defvar user-org-shopping-file (expand-file-name "~/nextcloud/org/shopping.org"))
-(defvar user-org-tickler-file (expand-file-name "~/nextcloud/org/tickler.org"))
-(defvar user-org-someday-file (expand-file-name "~/nextcloud/org/someday.org"))
-
-(defvar org-capture-quote-tempalate
-  `("q" "Quote " entry (file ,user-org-quotes-file-name)
-    "* %?\n%U\n   "
-    :empty-lines 1 :prepend t
-    :kill-buffer t))
-
-(defvar org-capture-event-template
-  `("e" "Event" entry (file ,user-org-gtd-inbox)
-    "* EVENT %i%? :event:\n"
-    :empty-lines 1 :prepend t
-    :kill-buffer t))
-
-
-
-(defvar org-capture-tickler-template
-  `("T" "Tickler" entry
-    (file user-org-tickler-file)
-    "* %i%? \n %U"
-    :kill-buffer t :prepend t))
-
-(defvar org-capture-stuff-to-buy-template
-  `("b" "Buy" entry
-    (file+headline
-     ,user-org-shopping-file
-     "Shopping")
-    "* TODO Buy %i%? :shopping:"
-    :empty-lines 1 :prepend t
-    :kill-buffer t))
-
-(defvar org-capture-todo-template
-  `("t" "Todo [inbox]" entry
-    (file ,user-org-gtd-inbox )
-    "* TODO %i%?\n"
-    :empty-lines 1 :kill-buffer t :prepend t))
-
-
-
-(setq org-capture-templates nil)
-(add-to-list-multi 'org-capture-templates
-                   `(,org-capture-stuff-to-buy-template
-                     ,org-capture-todo-template
-                     ,org-capture-tickler-template
-                     ,org-capture-quote-tempalate
-                     ,org-capture-event-template
-                     ))
-
-
 (use-package org-capture
-  :ensure nil
+  :ensure org-plus-contrib
+  :pin org
   :after org
   :commands org-capture
-  :bind	 (("C-c c"  . org-capture))
+  :bind	 ("C-c c"  . org-capture)
   :config
-  )
+  (setq org-capture-templates
+        '(("a" "Appointment" entry (file  elib-org-gcal-calendar-file-name)
+           "* %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n" :prepend t)
+          ("d" "Deadline" entry (file+headline elib-user-org-gtd-inbox "Inbox: Deadlines")
+           "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n")
+          ("t" "To Do Item" entry (file+headline elib-user-org-gtd-inbox "Inbox: Todo")
+           "* TODO %?\n%T" :prepend t)
+          ("i" "Idea/Thought" entry (file+headline elib-user-org-gtd-inbox "Inbox: Thoughts")
+           "* Thought:  %?\n%T" :prepend t)
+          ("n" "Note" entry (file+headline elib-user-org-notes-file-name "Unsorted Notes")
+           "* Note %?\n%T")
+          ("r" "Resource" entry
+           (file+headline elib-user-org-resources-file-name "Unsorted")
+           "* %? %^L %^g \n%T" :prepend t)
+          ("l" "Link" entry (file+headline elib-user-org-links-file-name "Unsorted")
+           "* %? \n%^C %^g \n%T" :prepend t)
+
+          ))
+  (defun elib-export-org-link-file ()
+    (interactive)
+    (with-current-buffer
+        (find-file elib-user-org-links-file-name)
+      (org-twbs-export-to-html)))
+
+  (defadvice org-capture-finalize
+      (after delete-capture-frame activate)
+    "Advise capture-finalize to close the frame"
+    (if (equal "capture" (frame-parameter nil 'name))
+        (delete-frame)))
+
+  (defadvice org-capture-destroy
+      (after delete-capture-frame activate)
+    "Advise capture-destroy to close the frame"
+    (if (equal "capture" (frame-parameter nil 'name))
+        (delete-frame)))
+
+  (use-package noflet
+    :ensure t )
+  (defun make-capture-frame ()
+    "Create a new frame and run org-capture."
+    (interactive)
+    (make-frame '((name . "capture")))
+    (select-frame-by-name "capture")
+    (delete-other-windows)
+    (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+      (org-capture))))
 #+END_SRC
 ** Agenda
 :PROPERTIES:
@@ -2501,187 +1864,24 @@ Lispy is an intersting package. At the moment, I don't use it.
 :END:
 #+BEGIN_SRC emacs-lisp
 (use-package org-agenda
-  :ensure org
+  :ensure org-plus-contrib
+  :pin org
   :commands org-agenda
   :bind (("\C-ca" . org-agenda))
   :after org
-  :init
-  (defun org-current-is-todo ()
-    (string= "TODO" (org-get-todo-state)))
-  (defun org-current-is-next ()
-    (string= "NEXT" (org-get-todo-state)))
-  (defun org-current-is-actionable ()
-    (or (org-current-is-todo)
-        (org-current-is-next)))
-  (defun my-org-agenda-skip-all-siblings-but-first ()
-    "Skip all but the first non-done entry."
-    (let (should-skip-entry)
-      (unless (org-current-is-actionable)
-        (setq should-skip-entry t))
-      (save-excursion
-        (while (and (not should-skip-entry) (org-goto-sibling t))
-          (when (org-current-is-actionable)
-            (setq should-skip-entry t))))
-      (when should-skip-entry
-        (or (outline-next-heading)
-            (goto-char (point-max))))))
-  (defun my-org-agenda-skip-all-siblings-but-first--next-only ()
-    "Skip all but the first NEXT entry."
-    (let (should-skip-entry)
-      (unless (org-current-is-next)
-        (setq should-skip-entry t))
-      (save-excursion
-        (while (and (not should-skip-entry) (org-goto-sibling t))
-          (when (org-current-is-next)
-            (setq should-skip-entry t))))
-      (when should-skip-entry
-        (or (outline-next-heading)
-            (goto-char (point-max))))))
-
   :config
+  (setq org-agenda-custom-commands
+        '(("c" "Simple agenda view"
+           ((agenda "")
+            (alltodo "")))))
   (setq org-agenda-dim-blocked-tasks nil)
   (setq org-agenda-compact-blocks t)
   (setq org-agenda-files (list
-                          user-current-events-file
-                          config-file-file-name
-                          user-org-todo-file-name
-                          user-org-gtd-file
-                          user-org-gtd-inbox
-                          user-org-shopping-file
-                          user-org-tickler-file
-                          ))
-  ;; Luna related contexts
-  (defvar user-org-luna-context
-    '("l" . "Luna Contexts"))
-  (defvar user-org-luna-agenda
-    '("lt" "Luna " tags-todo "@luna"
-      ((org-agenda-overriding-header "Luna")
-       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))))
-  (defvar user-org-luna-agenda-next-only
-    '("ln" "Luna --- Next Only " tags-todo "@luna"
-      ((org-agenda-overriding-header "Luna")
-       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first--next-only))))
-  (defvar user-org-luna-agenda-next-all
-    '("la"
-      "Luna --- All Next"
-      ((tags-todo "@luna"))
-      ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if
-          'todo
-          '("TODO" "WAITING")))
-       (org-agenda-overriding-header
-        "Luna"))))
-
-  ;; Emacs related context
-  (defvar user-org-emacs-context '("E" . "Emacs Contexts"))
-  (defvar user-org-emacs-agenda '("Et" "Emacs " tags-todo "@emacs"
-                                  ((org-agenda-overriding-header "Emacs")
-                                   (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))))
-
-  (defvar user-org-emacs-agenda-next-only
-    '("En" "Emacs --- Next Only " tags-todo "@emacs"
-      ((org-agenda-overriding-header "Emacs")
-       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first--next-only))))
-
-
-  (defvar user-org-emacs-agenda-all-next
-    '("Ea"
-      "Emacs --- All Next"
-      ((tags-todo "@emacs"))
-      ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if
-          'todo
-          '("TODO" "WAITING")))
-       (org-agenda-overriding-header
-        "Emacs"))))
-
-  ;; Studies/Physics related context
-
-  (defvar user-org-physics-context '("p" . "Physics Contexts"))
-  (defvar user-org-physics-agenda '("pt" "Physics " tags-todo "@studies"
-                                    ((org-agenda-overriding-header "Studies")
-                                     (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))))
-
-  (defvar user-org-physics-agenda-next-only
-    '("pn" "Physics --- Next Only " tags-todo "@studies"
-      ((org-agenda-overriding-header "Studies")
-       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first--next-only))))
-
-
-  (defvar user-org-physics-agenda-all-next
-    '("pa"
-      "Physics --- All Next"
-      ((tags-todo "@studies"))
-      ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if
-          'todo
-          '("TODO" "WAITING")))
-       (org-agenda-overriding-header
-        "Studies"))))
-
-
-
-  ;; Home context
-  (defvar user-org-home-context '("h" . "Home Contexts"))
-  (defvar user-org-home-agenda '("ht" "Home " tags-todo "@home"
-                                 ((org-agenda-overriding-header "Home")
-                                  (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))))
-
-  (defvar user-org-home-agenda-next-only
-    '("hn" "Home --- Next Only " tags-todo "@home"
-      ((org-agenda-overriding-header "Home")
-       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first--next-only))))
-
-
-  (defvar user-org-home-agenda-all-next
-    '("ha"
-      "Home --- All Next"
-      ((tags-todo "@home"))
-      ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if
-          'todo
-          '("TODO" "WAITING")))
-       (org-agenda-overriding-header
-        "Home"))))
-  ;; Generic
-
-  (defvar user-org-generic-context '("n" . "All Contexts"))
-  (defvar user-org-generic-agenda-next-only
-    '("nn"
-      "All --- Next Only "
-      ((todo))
-      ((org-agenda-skip-function
-        #'my-org-agenda-skip-all-siblings-but-first--next-only))))
-  (defvar user-org-generic-agenda-all-next
-    '("na"
-      "All --- All Next"
-      ((todo))
-      ((org-agenda-skip-function '(org-agenda-skip-entry-if
-                                   'todo '("TODO" "WAITING"))))))
-  ;; Finally
-  (setq org-agenda-custom-commands
-        (list
-         user-org-luna-context
-         user-org-luna-agenda
-         user-org-luna-agenda-next-only
-         user-org-luna-agenda-next-all
-         user-org-emacs-context
-         user-org-emacs-agenda
-         user-org-emacs-agenda-next-only
-         user-org-emacs-agenda-all-next
-         user-org-physics-context
-         user-org-physics-agenda
-         user-org-physics-agenda-next-only
-         user-org-physics-agenda-all-next
-         user-org-home-context
-         user-org-home-agenda
-         user-org-home-agenda-next-only
-         user-org-home-agenda-all-next
-         user-org-generic-context
-         user-org-generic-agenda-next-only
-         user-org-generic-agenda-all-next)))
+                        elib-user-org-gtd-file
+                        elib-user-org-gtd-inbox
+                        elib-user-org-phone-file
+                        elib-org-gcal-calendar-file-name)))
 #+END_SRC
-
 
 ** Refile
 :PROPERTIES:
@@ -2713,10 +1913,11 @@ functionality of Emacs.
 :PROPERTIES:
 :ID:       84501e67-62f7-4d9b-9af8-37fdd13d20f3
 :END:
- #+BEGIN_SRC emacs-lisp
+*** Calfw
+#+BEGIN_SRC emacs-lisp
 (use-package calfw
   :when (file-exists-p
-         (expand-file-name "~/nextcloud/org/orgsettings.el"))
+         elib-user-org-calendar-secrets-file)
   :config
   (defun elib-open-calendar-template ()
     (interactive)
@@ -2739,35 +1940,20 @@ functionality of Emacs.
       )))
   (use-package calfw-org)
   (use-package calfw-ical)
-  ;; (use-package calfw-org)
-  ;; (use-package calfw-gcal)
-  (use-package org-gcal
-    :disabled t
-    :after org
-    :ensure nil
-    :commands (org-gcal
-               org-gcal-sync org-gcal-fetch
-               org-gcal-refresh-token)
-    :hook ((org-agenda-mode . org-gcal-fetch)
-           (org-capture-after-finalize . org-gcal-fetch))
-    :load-path elib-org-gcal-load-path
-    :config
 
-    )
-  (load-file (expand-file-name "~/nextcloud/org/orgsettings.el"))
+
+  (load-file elib-user-org-calendar-secrets-file)
   (bind-key "C-c q" 'elib-open-calendar)
   ;; (setq cfw:org-agenda-schedule-args '(:timestamp))
   (setq cfw:org-overwrite-default-keybinding t)
   (setq calendar-week-start-day 1) ;; 1 = Monday, 0 = Sunday
-
   )
-
-(defvar org-caldavsettings-file (concat org-gcal-calendar-location "caldavsettings.el"))
-
-
-(load-file org-caldavsettings-file)
-
+#+END_SRC
+*** Org-Caldav
+#+BEGIN_SRC emacs-lisp
+(load-file elib-user-org-caldav-settings-file)
 (use-package org-caldav
+  :disabled t
   :after org
   :config
   ;; this hook saves an ics file once an org-buffer is saved
@@ -2792,12 +1978,53 @@ functionality of Emacs.
 (setq org-icalendar-use-scheduled '(event-if-todo event-if-not-todo))
 (setq org-icalendar-store-UID t)
 	 #+END_SRC
+*** Org Gcal
+**** Org-Fetch
+#+BEGIN_SRC emacs-lisp
+(defun elib-sync-icals ()
+  (interactive)
+  (save-window-excursion
+    (with-temp-buffer
+      (let ((default-directory elib-org-calendar-directory))
+        (dolist (element elib-org-gcal-ics-list)
+          (let ((url (elt element 0))
+                (ics-file (elt element 1))
+                (org-file (elt element 2)))
+            (shell-command (concat "wget " url " -O " ics-file) t)
+            (async-shell-command (concat "cabal exec ical-org " ics-file " " org-file) t)
+            ))))))
+(run-with-idle-timer 3600 t #'elib-sync-icals)
+(run-with-idle-timer 5 nil #'elib-sync-icals)
+#+END_SRC
+
+**** Package
+#+BEGIN_SRC emacs-lisp
+(use-package org-gcal
+  :after org, calfw, org-agenda
+  :commands org-gcal-sync
+  :init
+
+  :config
+  (add-hook 'after-init-hook (lambda ()
+                               (message "Starting org-gcal-refresh-timer!")
+                               (run-with-timer t 3000 #'org-gcal-refresh-token)
+                               ) )
+  )
+(eval-after-load "org-agenda"
+  (run-with-idle-timer 5 nil (lambda ()
+   (progn (dolist (element elib-org-gcal-ics-list)
+           (add-to-list 'org-agenda-files (elt element 2)))
+(add-hook 'org-agenda-mode-hook  (lambda () (org-gcal-sync) ))
+))))
+
+#+END_SRC
 ** Table of Content Generation
 :PROPERTIES:
 :ID:       e4967c66-567f-4fd9-a13c-e41e8b0ad444
 :END:
 #+BEGIN_SRC emacs-lisp
 (use-package toc-org
+  :defer 2
   :hook ((org-mode . toc-org-enable)))
 #+END_SRC
 * Communication
@@ -2905,7 +2132,9 @@ Secretary of the steering group (SWAN)
            ("C-c d" . start-mu4e-attachment-dired)
            )
     :when (executable-find "mu")
+    :defer 1
     :init
+
     (defun choose-msmtp-account ()
       (if (message-mail-p)
           (save-excursion
@@ -2967,7 +2196,13 @@ Secretary of the steering group (SWAN)
       :after org
       :config
       (setq org-mu4e-link-query-in-headers-mode nil))
-    (use-package mu4e-alert)
+    (use-package mu4e-alert
+      :commands (mu4e-alert-enable-notifications
+                 mu4e-alert-enable-mode-line-display)
+      :config
+      (add-hook 'after-init-hook #'mu4e-alert-enable-notifications)
+      (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display)
+      (mu4e-alert-set-default-style 'libnotify))
     (use-package mu4e-jump-to-list)
     (use-package mu4e-conversation)
     (use-package mu4e-maildirs-extension)
@@ -2977,7 +2212,7 @@ Secretary of the steering group (SWAN)
           mu4e-attachment-dir "~/Downloads/"
           mu4e-view-show-images t
           mu4e-get-mail-command "mbsync -a"
-          mu4e-update-interval 3600)
+          mu4e-update-interval 360)
     (setq mu4e-sent-folder "/gmail/sent-mail"
           mu4e-drafts-folder "/gmail/drafts"
           mu4e-trash-folder "/gmail/trash"
@@ -3078,9 +2313,7 @@ maildir:/info/[Gmail]/Skickat"
     (setq shr-color-visible-luminance-min 80)
 
     ;; Experimental
-    (setq mu4e-compose-format-flowed t)
-
-    ))
+    (setq mu4e-compose-format-flowed t)))
 
 (use-package org-mime
   :init
@@ -3122,7 +2355,6 @@ maildir:/info/[Gmail]/Skickat"
   )
 
 #+END_SRC
-
 ** Web Browsing
 :PROPERTIES:
 :ID:       d26d51a3-2894-4a4b-abf3-a47859d99fd3
@@ -3134,7 +2366,7 @@ maildir:/info/[Gmail]/Skickat"
   :load-path "/usr/share/emacs/site-lisp/w3m/"
   :ensure nil
   )
-#+END_SRC
+#+END_SRC
 * Utilities
 :PROPERTIES:
 :ID:       d3f405a0-845a-4217-8767-9ac286ce1107
@@ -3148,17 +2380,15 @@ maildir:/info/[Gmail]/Skickat"
 :ID:       e06b732b-55ae-45d2-914e-924681806857
 :END:
 #+BEGIN_SRC emacs-lisp
+(setq abbrev-file-name abbrev-location)
 (use-package abbrev
   :disabled t
   :ensure nil
-  :defer t
-  :custom
-  (abbrev-file-name abbrev-location)
-  (abbrev-mode t)
+  :defer 3
   :config
+  (abbrev-mode t)
   (if (file-exists-p abbrev-file-name)
-      (quietly-read-abbrev-file))
-  )
+      (quietly-read-abbrev-file)) )
 #+END_SRC
 *** Flyspell
 :PROPERTIES:
@@ -3190,43 +2420,6 @@ maildir:/info/[Gmail]/Skickat"
     :config
     (setq google-translate-translation-directions-alist
 	  '(("sv" . "en") ("en" . "sv")))))
-	 #+END_SRC
-** Lastpass
-:PROPERTIES:
-:ID:       6bc5ecbf-e884-43b4-858a-cc59853b1a71
-:END:
-	 #+BEGIN_SRC emacs-lisp
-(defun lp-login (login-name)
-  "Testing"
-  (interactive "sLastpass account: ")
-  (shell-command (concat "lpass login " login-name)))
-(defun lp-ls
-    (&optional args output-buffer error-buffer)
-  "Derp"
-  (interactive "s(Optional) Group name:
-	 s(Optional) Output buffer: ")
-  (if (string= output-buffer "")
-      (shell-command (concat "lpass ls " args))
-    (shell-command (concat "lpass ls " args) output-buffer error-buffer)))
-
-(defun lp-show (name &optional output-buffer error-buffer)
-  "darp"
-  (interactive "sName: ")
-  (if (string= output-buffer "") (shell-command (concat "lpass show" name))(shell-command (concat "lpass show " name) output-buffer error-buffer)))
-
-(defun lp-insert-show (name)
-  "dlarp"
-  (interactive "sName: ") (lp-show name t))
-(defun lp-insert-ls (&optional args)
-  "Derp"
-  (interactive "s(Optional) Group name:") (lp-ls args t))
-(defun lp-get-password (name &optional output-buffer error-buffer)
-  (interactive "sName: ")
-  (lp-show (concat name "| grep password | grep -v sudo | cut -d\" \" -f2 ") output-buffer error-buffer))
-
-(defun lp-insert-password (name)
-  (interactive "sName: ")
-  (lp-get-password name t))
 	 #+END_SRC
 ** Presentations
 :PROPERTIES:
@@ -3287,7 +2480,15 @@ maildir:/info/[Gmail]/Skickat"
 	:commands (ert-deftest ert))
 	 #+END_SRC
 * To be integrated
+** LastPass
+#+BEGIN_SRC emacs-lisp
+(use-package lastpass
+  :config
+  (setq lastpass-user user-mail-address))
+#+END_SRC
+
 ** Python
+
 #+BEGIN_SRC emacs-lisp
 (use-package python-mode
   :config
@@ -3439,7 +2640,7 @@ context-help to false"
 		(xah-replace-pairs-region first second multireplace-list)
 		(setq multireplace-list nil multireplace-pair-first nil
 					multireplace-pair-second nil))
-	:defer t)
+	:defer 3)
 
 
 (use-package multiple-cursors
@@ -3516,7 +2717,7 @@ and insert region contents at top."
 	)
 
 (use-package expand-region
-	:defer t
+	:defer 3
 	:config
 	(global-set-key (kbd "C-=") 'er/expand-region)
 	)
@@ -3627,7 +2828,7 @@ and insert region contents at top."
 :END:
 	 #+BEGIN_SRC emacs-lisp
 (use-package f
-	:defer t
+	:defer 3
 	)
 (use-package esup
 	:after f
@@ -3815,7 +3016,7 @@ work. My startup script calls emacs with the argument
       (elib-exwm-config)
       (exwm-enable)
       (helm-themes))
-  (load-theme 'spacemacs-dark))
+  (load-theme 'spacemacs-dark t))
 #+END_SRC
 
 * Enable Custom Keybindings
