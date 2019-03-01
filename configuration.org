@@ -4,6 +4,7 @@
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes
 #+STARTUP: noinlineimages
+
 * Emacs
 :PROPERTIES:
 :ID:       98e63f19-0f9f-4d64-8679-f73f25010c4e
@@ -134,7 +135,13 @@ If we are using an emacs with native line-numbering, use it!
 Otherwise, use nlinum for line-numbering.
 #+BEGIN_SRC emacs-lisp
 (if (boundp 'display-line-numbers)
-    (global-display-line-numbers-mode t)
+   (progn
+     (global-display-line-numbers-mode t)
+     (setq display-line-numbers-widen t)
+     (setq display-line-numbers-width 4)
+     (setq display-line-numbers 'visual)
+     )
+
   (use-package nlinum
     :defer 3
     :preface
@@ -453,7 +460,7 @@ the starting buffer to this file.
 #+END_SRC
 *** Fonts
 #+BEGIN_SRC emacs-lisp
-(set-frame-font "Hack 13" nil t)
+(set-frame-font "Source Code Pro 13" nil t)
 #+END_SRC
 
 ** Text Editing
@@ -950,11 +957,13 @@ agenda items.
 #+BEGIN_SRC emacs-lisp
 (use-package dashboard
   :defer nil
+  :init
   :config
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
   (dashboard-setup-startup-hook)
   (add-to-list 'dashboard-items '(agenda) t)
-  (setq show-week-agenda-p t))
+  (setq show-week-agenda-p t)
+(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+)
 #+END_SRC
 ** Neotree
 Neotree is a nice little file browser. I have it bound to f1.
@@ -983,14 +992,13 @@ available by Aaron Bieber]]
 Ironically, this talk is the reason I got started... with Emacs.
 
 #+BEGIN_SRC emacs-lisp
-(use-package evil
-
-  :config
-
-  (setq evil-default-state 'emacs)
-  (use-package org-evil)
-  (use-package evil-tutor)
-  (evil-mode t))
+;; (use-package evil
+;;   :config
+;;   :disabled t
+;;   (setq evil-default-state 'emacs)
+;;   ;; (use-package org-evil)
+;;   ;; (use-package evil-tutor)
+;;   (evil-mode t))
 #+END_SRC
 * Development/Writing
 :PROPERTIES:
@@ -1258,13 +1266,16 @@ pretty nifty.
 :ID:       1b9bd876-1078-4366-9bde-9db814381c77
 :END:
 #+BEGIN_SRC emacs-lisp
+
 (use-package tex
   :ensure auctex
   :mode (("\\.tex$" . TeX-mode))
   :defines TeX-run-TeX
   :bind (:map TeX-mode-map
 	      ("C-c v" . elib-helm-tex-choose-program))
-
+  :init
+  (unless (getenv "TEXMFHOME")
+        (setenv "TEXMFHOME" (concat (getenv "HOME") "/texmf")))
 
   :commands
   (TeX-revert-document-buffer
@@ -1452,6 +1463,7 @@ pretty nifty.
 **** CCLS/LSP
 
 #+BEGIN_SRC emacs-lisp
+
 (use-package lsp-mode
   :commands lsp
   :config
@@ -1459,27 +1471,31 @@ pretty nifty.
     :commands lsp-ui-mode)
   (use-package company-lsp
     :commands company-lsp)
-  )
+  (use-package ccls
+    :preface
 
+    (add-hook 'c-mode-common-hook #'ccls-enable)
+    (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+    :defer nil
+    :config
 
-(use-package ccls
-  :preface
-  (defun ccls-enable ()
-    (require 'lsp)
-    (require 'ccls)
-    (lsp))
-  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
-  :defer nil
-  :hook (c-mode-common . #'ccls-enable)
-  :config
-  (setq ccls-executable (potential-load-paths '("/usr/local/bin/ccls" "~/.local/bin/ccls")))
-  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
-  (add-to-list 'company-backends 'company-lsp)
-  )
-(use-package helm-xref
+    (setq ccls-executable (potential-load-paths '("/usr/local/bin/ccls" "~/.local/bin/ccls")))
+    (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+    (add-to-list 'company-backends 'company-lsp)
+  (use-package helm-xref
   :config
   (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
   )
+    )
+  )
+
+
+(defun ccls-enable ()
+    (require 'lsp)
+    (require 'ccls)
+    (lsp))
+
+
 #+END_SRC
 
 
@@ -1597,6 +1613,13 @@ use it. After installation, simply call [[elisp:(describe-function 'irony-instal
 	:config
 	(cmake-ide-setup))
 		 #+END_SRC
+**** ASM
+
+#+BEGIN_SRC emacs-lisp
+(use-package demangle-mode
+  :hook asm-mode
+)
+#+END_SRC
 ** Emacs Lisp
 :PROPERTIES:
 :ID:       078eee9e-e320-40f5-a4b5-a9b75c5c6358
@@ -1675,10 +1698,9 @@ Lispy is an intersting package. At the moment, I don't use it.
 :PROPERTIES:
 :ID:       bb4db413-5085-44e5-9606-f29c20891f43
 :END:
-	 #+BEGIN_SRC emacs-lisp
+	 #+BEGIN_SRC emacs-lisp :noweb yes
 (use-package org
   :commands (org-mode org-babel-load-file org-babel-tangle-file)
-  :ensure org-plus-contrib
   :pin org
   :preface
   (fset 'org-call-export-to-pdf
@@ -1695,35 +1717,22 @@ Lispy is an intersting package. At the moment, I don't use it.
   (setq-default major-mode 'org-mode)
   (setq initial-major-mode 'org-mode)
   :config
-  ;; Pressing enter on an org link follows the link
-  (setq org-return-follows-link t)
-  (add-hook 'org-mode-hook 'variable-pitch-mode)
-  (setq org-export-async-init-file
-        elib-org-async-init-file)
-  (use-package org-bullets
-    :config
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
-  (defvar elib-user-org-todo-key-sequences
-    '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "|"   "DONE(d)" "DELEGATED(D)" "CANCELLED(c)")))
-  (setq org-todo-keywords elib-user-org-todo-key-sequences)
-  (setq org-pretty-entities t)
-  (setq org-pretty-entities-include-sub-superscripts nil)
-  (setq org-hide-emphasis-markers t)
-  (setq org-startup-indented t)
-  (setq org-export-in-background t
-        org-export-async-debug nil)
-  (setq org-src-preserve-indentation t)
-  (setq org-src-tab-acts-natively t)
-(setq org-src-fontify-natively t)
-  (plist-put org-format-latex-options :scale 1.5)
-
-  (setq org-default-notes-file elib-user-org-gtd-inbox
-        org-use-fast-todo-selection t
-        org-src-window-setup 'current-window)
-
+  <<org-config-basic-settings>>
+  <<org-config-style>>
+  <<org-config-babel>>
+  <<org-config-capture>>
+  <<org-config-agenda>>
+  <<org-config-refile>>
+<<org-config-export>>
+<<org-config-calendar-fetch>>
+  <<org-config-calendar-calfw>>
+<<org-config-calendar-gcal>>
+<<org-config-calendar-caldav>>
+<<org-config-ref>>
   :bind (("\C-cl" . org-store-link)
          ("\C-cb" . org-iswitchb)
          :map org-mode-map
+         ("C-c m" . org-toggle-latex-fragment)
          ("C-c C-p" . org-previous-visible-heading)
          ("C-c M-o" . org-toggle-link-display)
          ("S-<f5>" . org-call-export-to-pdf)
@@ -1733,81 +1742,195 @@ Lispy is an intersting package. At the moment, I don't use it.
 
 	 #+END_SRC
 
-** Org Babel and Exports
-#+BEGIN_SRC emacs-lisp
-(use-package ob
-  :after org
-    :ensure org-plus-contrib
-    :pin org
-    :bind (:map org-mode-map
-                  ("C-c d" . elib-ob-execute-next-block)
-                  ("C-c M-d" . elib-ob-reset-and-run-all-blocks-in-buffer))
-    :preface
-    (defun elib-ob-execute-next-block ()
-      (interactive)
-      (org-babel-next-src-block)
-      (org-babel-execute-src-block))
-    (defun elib-ob-reset-and-run-all-blocks-in-buffer ()
-      (interactive)
-      (when (ob-ipython--running-p)
-        (ob-ipython-kill-kernel (car (ob-ipython--choose-kernel))))
-      (beginning-of-buffer)
-      (while (re-search-forward org-babel-src-block-regexp nil t)
-        (org-babel-execute-src-block)))
-    :config
-    (use-package ox-latex
-      :ensure org-plus-contrib
-      :config
-      (setq org-startup-with-latex-preview nil)
-      (unless (getenv "TEXMFHOME")
-        (setenv "TEXMFHOME" (concat (getenv "HOME") "/texmf")))
-      (setq org-preview-latex-default-process 'imagemagick)
-      ;; Format is ("options" "package)
-      (add-to-list 'org-latex-packages-alist '("" "eetex"))
-      (add-to-list 'org-latex-packages-alist '("" "tikz")))
-    (use-package ox-twbs)
-    (use-package ob-asymptote
-      :ensure org)
-    (use-package ob-ipython
-      :when (or (file-exists-p "/usr/bin/jupyter")
-                (file-exists-p (concat (getenv "HOME") "/.local/bin/jupyter")))
+** Basic Settings
+#+NAME: org-config-basic-settings
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; Pressing enter on an org link follows the link
+  (setq org-return-follows-link t)
+  (defvar elib-user-org-todo-key-sequences
+    '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "|"   "DONE(d)" "DELEGATED(D)" "CANCELLED(c)")))
+(setq org-tag-alist (quote (("@errand" . ?e)
+                            ("@office" . ?o)
+                            ("@home" . ?h)
+                            ("@school" . ?s)
+                            (:newline)
+                            ("WAITING" . ?w)
+                            ("HOLD" . ?H)
+                            ("CANCELLED" . ?c))))
 
-      :preface
-      (defun ob-ipython--collect-json ()
-        ;; hacks here
-        (when (re-search-forward "{" nil t)
-          (backward-char))
-        ;; hacks end
-        (let ((json-array-type 'list))
-          (let (acc)
-            (while (not (= (point) (point-max)))
-              (setq acc (cons (json-read) acc))
-              (forward-line))
-            (nreverse acc))))
-      :config
-      (setq ob-ipython-command "jupyter")
-      (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
-      (add-to-list 'org-latex-minted-langs '(ipython "python")))
-    (use-package ox-ipynb
-      :load-path user-emacs-config-directory
-      :ensure nil)
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((C . t) (emacs-lisp . t) (python . t) (ipython . t) (asymptote . t)
-                                        ;(sh . t)
-       (gnuplot . t)))
-    (setq org-confirm-babel-evaluate nil))
+(setq org-fast-tag-selection-single-key nil)
+
+  (setq org-todo-keywords elib-user-org-todo-key-sequences)
+  (setq org-src-tab-acts-natively t)
+  (setq org-default-notes-file elib-user-org-gtd-inbox
+        org-use-fast-todo-selection t
+        org-src-window-setup 'current-window)
+(setq org-preview-latex-default-process 'imagemagick)
+      ;; Format is ("options" "package)
+      (setq org-startup-with-latex-preview nil)
+#+END_SRC
+
+** Style/Look
+#+NAME: org-config-style
+#+BEGIN_SRC emacs-lisp :tangle no
+;; (add-hook 'org-mode-hook 'variable-pitch-mode)
+  (use-package org-bullets
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
+
+  (setq org-pretty-entities t)
+  (setq org-pretty-entities-include-sub-superscripts nil)
+  (setq org-hide-emphasis-markers t)
+(setq org-startup-indented t)
+(setq org-src-preserve-indentation t)
+(setq org-src-fontify-natively t)
+  (plist-put org-format-latex-options :scale 2)
+#+END_SRC
+
+** Org Babel
+#+NAME: org-config-babel
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package ob
+  :ensure nil
+  :after org
+  :bind (:map org-mode-map
+              ("C-c d" . elib-ob-execute-next-block)
+              ("C-c M-d" . elib-ob-reset-and-run-all-blocks-in-buffer))
+  :preface
+  (defun elib-ob-execute-next-block ()
+    (interactive)
+    (org-babel-next-src-block)
+    (org-babel-execute-src-block))
+  (defun elib-ob-reset-and-run-all-blocks-in-buffer ()
+    (interactive)
+    (when (ob-ipython--running-p)
+      (ob-ipython-kill-kernel (car (ob-ipython--choose-kernel))))
+    (beginning-of-buffer)
+    (while (re-search-forward org-babel-src-block-regexp nil t)
+      (org-babel-execute-src-block)))
+  (defun ob-ipython--collect-json ()
+    ;; hacks here
+    (when (re-search-forward "{" nil t)
+      (backward-char))
+    ;; hacks end
+    (let ((json-array-type 'list))
+      (let (acc)
+        (while (not (= (point) (point-max)))
+          (setq acc (cons (json-read) acc))
+          (forward-line))
+        (nreverse acc))))
+  :config
+  (setq org-confirm-babel-evaluate nil)
+  (use-package ob-asymptote
+    :ensure org)
+  (use-package ob-ipython
+    :after ox-latex
+    :when (or (file-exists-p "/usr/bin/jupyter")
+              (file-exists-p (concat (getenv "HOME") "/.local/bin/jupyter")))
+    :config
+    (setq ob-ipython-command "jupyter")
+    (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+    )
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((C . t)
+     (emacs-lisp . t)
+     (python . t)
+     (ipython . t)
+     (asymptote . t)
+     (shell . t)
+     (makefile . t)
+     (shell . t)
+     (latex . t)
+     ;; (asm . t)
+     (gnuplot . t))))
+
+
+
+#+END_SRC
+
+** Exporting and Preview
+#+NAME: org-config-export
+#+BEGIN_SRC emacs-lisp :tangle no
+(setq org-export-async-init-file
+      elib-org-async-init-file
+      )
+(setq org-export-in-background nil
+      org-export-async-debug nil)
+(load-file (concat user-emacs-config-directory "org-export-config.el"))
+#+END_SRC
+
+Since the configuration is used both by the async exporter
+and the syncronous one, the configuration is kept in a
+separate file that both exporters load. This prevents the
+setups from getting out of sync (haha) with each other.
+#+BEGIN_SRC emacs-lisp :tangle org-export-config.el
+(use-package ox-latex
+  :ensure nil
+  :config
+  (add-to-list-multi 'org-latex-minted-langs
+                     (list
+                      '(ipython "python")
+                      '(C++ "c++")
+                      '(c++ "c++")
+                      '(C "c++")
+                      '(shell "bash")
+                      '(sh "bash")
+                      '(python "python")
+                      '(ruby "ruby")
+                      ))
+  ;; tell org to use listings
+  (setq org-latex-listings 'minted)
+  ;; you must include the listings package
+ ;; Include shell-espace so we can use minted...
+  (setq org-latex-pdf-process
+        '("latexmk -pdflatex='pdflatex -shell-escape -bibtex -interaction nonstopmode -output-directory %o'  -pdf -f %f"
+          ;; "latexmk -shell-escape -bibtex -interaction nonstopmode -output-directory %o %f"
+          ;; "latexmk -shell-escape -bibtex -interaction nonstopmode -output-directory %o %f"
+          ))
+
+  (add-to-list-multi 'org-latex-packages-alist
+                     (list '("altindent,wide" "eetex")
+                           '("newfloat" "minted")
+                           '("" "tikz")
+                           ;; '("" "listingsutf8")
+                           '("" "color")
+                           )
+                     )
+
+  )
+(use-package ox-twbs)
+(use-package ox-html
+:ensure nil
+)
+(use-package ox-odt
+:ensure nil
+)
+(use-package ox-md
+:ensure nil
+)
+(use-package ox-ipynb
+  :load-path user-emacs-config-directory
+  :ensure nil)
+(use-package
+  ox-reveal
+  :config
+  (use-package htmlize)
+  (setq org-reveal-root "https://cdn.jsdelivr.net/reveal.js/3.0.0/"))
+(use-package ox-beamer
+  :ensure nil
+  )
 #+END_SRC
 
 ** Capture
 :PROPERTIES:
 :ID:       284aed85-1e89-4404-833c-9fee55c367f0
 :END:
-#+BEGIN_SRC emacs-lisp
+#+NAME: org-config-capture
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package org-capture
-  :ensure org-plus-contrib
-  :pin org
-  :after org
+  :ensure nil
   :commands org-capture
   :bind	 ("C-c c"  . org-capture)
   :config
@@ -1862,25 +1985,34 @@ Lispy is an intersting package. At the moment, I don't use it.
 :PROPERTIES:
 :ID:       5132d5c7-4885-4fed-a77f-1421c6684ae9
 :END:
-#+BEGIN_SRC emacs-lisp
+#+NAME: org-config-agenda
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package org-agenda
-  :ensure org-plus-contrib
-  :pin org
   :commands org-agenda
+  :ensure nil
   :bind (("\C-ca" . org-agenda))
-  :after org
+  :init
+(add-to-list-multi 'org-agenda-files (list
+                          elib-user-org-gtd-file
+                          elib-user-org-gtd-inbox
+                          elib-user-org-phone-file
+                          elib-org-gcal-calendar-file-name))
+(dolist (element elib-org-gcal-ics-list)
+           (add-to-list 'org-agenda-files (elt element 2)))
+(defvar elib-org-agenda-silent-view
+  (delete  elib-org-gcal-hemsidan-ics-org org-agenda-files))
   :config
   (setq org-agenda-custom-commands
-        '(("c" "Simple agenda view"
-           ((agenda "")
-            (alltodo "")))))
+        '(("C" "Block agenda"
+           ((agenda "" )
+            ;; limits the agenda display to a single day
+            (todo "" ((org-agenda-files elib-org-agenda-silent-view))))
+           ((org-agenda-compact-blocks t))) ;; options set here apply to the entire block
+          ;; ...other commands here
+          ))
   (setq org-agenda-dim-blocked-tasks nil)
   (setq org-agenda-compact-blocks t)
-  (setq org-agenda-files (list
-                        elib-user-org-gtd-file
-                        elib-user-org-gtd-inbox
-                        elib-user-org-phone-file
-                        elib-org-gcal-calendar-file-name)))
+  )
 #+END_SRC
 
 ** Refile
@@ -1894,10 +2026,9 @@ telling emacs to run some code either once it loads [[elisp:(describe-function
  'org-agenda)][`org-agenda']] or, if [[elisp:(describe-function 'org-agenda)][`org-agenda']] is already loaded just load
 it immediately. This is done by the [[elisp:(describe-function 'eval-after-load)][`eval-after-load']]
 functionality of Emacs.
-#+BEGIN_SRC emacs-lisp
-(eval-after-load
-    "org-agenda"
-  '(progn
+#+NAME: org-config-refile
+#+BEGIN_SRC emacs-lisp :tangle no
+(progn
      (setq org-refile-targets
            '((nil :maxlevel . 3)
              (user-org-gtd-file
@@ -1907,14 +2038,51 @@ functionality of Emacs.
              (config-file-file-name
               :maxlevel . 3)
              (user-org-tickler-file
-              :maxlevel . 2)))))
+              :maxlevel . 2))))
+#+END_SRC
+
+** Org-ref
+#+NAME: org-config-ref
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package org-ref
+  :init
+  :config
+(setq org-ref-bibtex-hydra-key-binding "C-c j")
+(require 'org-ref-bibtex)
+(bind-key "C-c j" 'org-ref-bibtex-hydra/body org-mode-map)
+  (use-package helm-bibtex
+    :config
+    (setq bibtex-completion-bibliography "~/nextcloud/bibliography/general.bib"
+          bibtex-completion-library-path "~/nextcloud/bibliography/bibtex-pdfs"
+          bibtex-completion-notes-path "~/nextcloud/bibliography/helm-bibtex-notes")
+    )
+
+
+
+  (setq reftex-default-bibliography "~/nextcloud/bibliography/general.bib")
+  (setq org-ref-bibliography-notes "~/nextcloud/bibliography/notes.org"
+        org-ref-default-bibliography '("~/nextcloud/bibliography/general.bib")
+        org-ref-pdf-directory "~/nextcloud/bibliography/bibtex-pdfs/")
+  ;; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f")
+  ;; )
+  )
 #+END_SRC
 ** Calendar
 :PROPERTIES:
 :ID:       84501e67-62f7-4d9b-9af8-37fdd13d20f3
 :END:
+*** Code Import
+#+NAME: org-config-calendar
+#+BEGIN_SRC emacs-lisp :tangle no
+<<org-calendar-calfw>>
+<<org-calendar-fetch>>
+<<org-calendar-gcal>>
+<<org-calendar-caldav>>
+#+END_SRC
+
 *** Calfw
-#+BEGIN_SRC emacs-lisp
+#+NAME: org-config-calendar-calfw
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package calfw
   :when (file-exists-p
          elib-user-org-calendar-secrets-file)
@@ -1950,7 +2118,8 @@ functionality of Emacs.
   )
 #+END_SRC
 *** Org-Caldav
-#+BEGIN_SRC emacs-lisp
+#+NAME: org-config-calendar-caldav
+#+BEGIN_SRC emacs-lisp :tangle no
 (load-file elib-user-org-caldav-settings-file)
 (use-package org-caldav
   :disabled t
@@ -1980,7 +2149,8 @@ functionality of Emacs.
 	 #+END_SRC
 *** Org Gcal
 **** Org-Fetch
-#+BEGIN_SRC emacs-lisp
+#+NAME: org-config-calendar-fetch
+#+BEGIN_SRC emacs-lisp :tangle no
 (defun elib-sync-icals ()
   (interactive)
   (save-window-excursion
@@ -1998,7 +2168,8 @@ functionality of Emacs.
 #+END_SRC
 
 **** Package
-#+BEGIN_SRC emacs-lisp
+#+NAME: org-config-calendar-gcal
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package org-gcal
   :after org, calfw, org-agenda
   :commands org-gcal-sync
@@ -2009,13 +2180,11 @@ functionality of Emacs.
                                (message "Starting org-gcal-refresh-timer!")
                                (run-with-timer t 3000 #'org-gcal-refresh-token)
                                ) )
-  )
-(eval-after-load "org-agenda"
-  (run-with-idle-timer 5 nil (lambda ()
-   (progn (dolist (element elib-org-gcal-ics-list)
-           (add-to-list 'org-agenda-files (elt element 2)))
-(add-hook 'org-agenda-mode-hook  (lambda () (org-gcal-sync) ))
-))))
+(progn
+(add-hook 'org-agenda-mode-hook  (lambda () (org-gcal-sync))))
+
+   )
+
 
 #+END_SRC
 ** Table of Content Generation
@@ -2186,6 +2355,13 @@ Secretary of the steering group (SWAN)
                   :map mu4e-view-mode-map
                   ("s" . helm-mu))
       :config
+      (use-package mu4e-maildirs-extension)
+      (use-package mu4e-alert
+        :when elib-mu4e-load-path
+        :config
+        (mu4e-alert-enable-notifications)
+        (mu4e-alert-enable-mode-line-display)
+        (mu4e-alert-set-default-style 'libnotify))
       (setq helm-mu-contacts-after "01-Jan-2017 00:00:00"))
     (use-package mu4e-contrib
       :ensure nil
@@ -2196,16 +2372,10 @@ Secretary of the steering group (SWAN)
       :after org
       :config
       (setq org-mu4e-link-query-in-headers-mode nil))
-    (use-package mu4e-alert
-      :commands (mu4e-alert-enable-notifications
-                 mu4e-alert-enable-mode-line-display)
-      :config
-      (add-hook 'after-init-hook #'mu4e-alert-enable-notifications)
-      (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display)
-      (mu4e-alert-set-default-style 'libnotify))
+
     (use-package mu4e-jump-to-list)
     (use-package mu4e-conversation)
-    (use-package mu4e-maildirs-extension)
+
     (setq mu4e-maildir "~/Maildir"
           mu4e-sent-messages-behavior 'delete
           mu4e-use-fancy-chars t
@@ -2274,7 +2444,8 @@ Secretary of the steering group (SWAN)
     ;; before sending message.
 
     (setq message-sendmail-envelope-from 'header)
-    (add-to-list-multi
+
+(add-to-list-multi
      'mu4e-bookmarks
      `(,(make-mu4e-bookmark
          :name "All New Inbox Mail"
@@ -2284,9 +2455,9 @@ maildir:/lu/Inbox OR maildir:/info/Inbox and flag:unread"
        ,(make-mu4e-bookmark
          :name "All Sent Mail"
          :query
-         "\"maildir:/gmail/[Gmail]/Sent Mail\" OR \
-\"maildir:/lu/[Gmail]/Sent Mail\" OR \
-maildir:/info/[Gmail]/Skickat"
+         "\"maildir:/gmail/sent-mail\" OR \
+\"maildir:/lu/sent-mail\" OR \
+maildir:/info/sent-mail"
          :key ?s)
        ,(make-mu4e-bookmark
          :name "With PDF Files"
@@ -2296,9 +2467,9 @@ maildir:/info/[Gmail]/Skickat"
 
     (setq mu4e-maildir-shortcuts
           '(("/gmail/Inbox" . ?g)
-            ("/gmail/[Gmail]/Sent Mail" . ?G)
+            ("/gmail/sent-mail" . ?G)
             ("/lu/Inbox" . ?l)
-            ("/lu/[Gmail]/Sent Mail" . ?L)
+            ("/lu/sent-mail" . ?L)
             ("/info/Inbox" . ?i)
             ("/info/[Gmail]/Skickat" . ?I)
             ("/gmail/[Gmail]/Trash" . ?t)
@@ -2313,7 +2484,8 @@ maildir:/info/[Gmail]/Skickat"
     (setq shr-color-visible-luminance-min 80)
 
     ;; Experimental
-    (setq mu4e-compose-format-flowed t)))
+    (setq mu4e-compose-format-flowed nil)
+))
 
 (use-package org-mime
   :init
@@ -2386,7 +2558,7 @@ maildir:/info/[Gmail]/Skickat"
   :ensure nil
   :defer 3
   :config
-  (abbrev-mode t)
+  ;; (abbrev-mode t)
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file)) )
 #+END_SRC
@@ -2429,13 +2601,7 @@ maildir:/info/[Gmail]/Skickat"
 (use-package demo-it
 	:config)
 
-(use-package
-  ox-reveal
-  :after org
-  :config
-  (use-package htmlize)
-  (setq org-reveal-root "https://cdn.jsdelivr.net/reveal.js/3.0.0/")
-  )
+
 ;(demo-it-create (demo-it-presentation "./configuration.org"))
 
 ;(demo-it-start)
@@ -2651,26 +2817,7 @@ context-help to false"
 	#+END_SRC
 	#+BEGIN_SRC emacs-lisp
 (global-prettify-symbols-mode t)
-(defun eshell-here ()
-		"Opens up a new shell in the directory associated with the
-current buffer's file. The eshell is renamed to match that
-directory to make multiple eshell windows easier."
-		(interactive)
-		(let* ((parent (if (buffer-file-name)
-											 (file-name-directory (buffer-file-name))
-										 default-directory))
-					 (height (/ (window-total-height) 3))
-					 (name   (car (last (split-string parent "/" t))))
-					 (_eshell-name (concat "*eshell: " name "*"))
-					 (already-existing (get-buffer _eshell-name)))
-			(split-window-vertically (- height))
-			(other-window 1)
-			(if already-existing
-					(switch-to-buffer _eshell-name)
-					(eshell "new")
-					(rename-buffer _eshell-name))
-			(insert (concat "ls"))
-			(eshell-send-input)))
+
 (defun scratch-here (&optional region-begin region-end)
 	"Opens a new scratch-buffer associated with the current buffer to the side of
 the current buffer.
@@ -2697,30 +2844,399 @@ and insert region contents at top."
 		(when region-string (insert region-string)))
 	(goto-char (point-min)))
 
-(bind-key "<f7>" 'scratch-here)
+
+(bind-key "<f7>" 'eshell)
 (use-package "eshell"
-	:ensure nil
-	:commands (eshell-here eshell eshell-send-input)
-	:init
-	(bind-key "<f9>" 'eshell-here)
-	:config
-	(use-package "em-smart"
-		:ensure nil
-		:config
-		(setq eshell-where-to-jump 'begin)
-		(setq eshell-review-quick-commands nil)
-		(setq eshell-smart-space-goes-to-end t))
-	(defun eshell/x ()
-		(insert "exit")
-		(eshell-send-input)
-		(delete-window))
-	)
+  :ensure nil
+  :init
+  (bind-key "<f9>" 'eshell-here)
+  :config
+  (defun eshell-here ()
+    "Opens up a new shell in the directory associated with the
+current buffer's file. The eshell is renamed to match that
+directory to make multiple eshell windows easier."
+    (interactive)
+    (let* ((parent (if (buffer-file-name)
+		       (file-name-directory (buffer-file-name))
+		     default-directory))
+	   (height (/ (window-total-height) 3))
+	   (name   (car (last (split-string parent "/" t))))
+	   (_eshell-name (concat "*eshell: " name "*"))
+	   (already-existing (get-buffer _eshell-name)))
+      (split-window-vertically (- height))
+      (other-window 1)
+      (if already-existing
+	  (switch-to-buffer _eshell-name)
+	(eshell "new")
+	(rename-buffer _eshell-name))
+      (insert (concat "ls"))
+      (eshell-send-input)))
+
+  (require 'em-tramp)
+  (setq password-cache t)
+  (setq password-cache-expiry 3600)
+
+  (with-eval-after-load 'esh-module
+    ;; REVIEW: It used to work, but now the early `provide' seems to backfire.
+    (unless (boundp 'eshell-modules-list)
+      (load "esh-module"))
+    ;; Don't print the banner.
+    (delq 'eshell-banner eshell-modules-list)
+    (push 'eshell-tramp eshell-modules-list))
+
+  (setq
+   eshell-ls-use-colors t
+   ;; ffap-shell-prompt-regexp changes the behaviour of `helm-find-files' when
+   ;; point is on prompt. I find this disturbing.
+   ffap-shell-prompt-regexp nil
+   eshell-history-size 262144
+   eshell-hist-ignoredups t
+   eshell-destroy-buffer-when-process-dies t)
+
+  (defun ambrevar/eshell-prompt ()
+    (let ((path (abbreviate-file-name (eshell/pwd))))
+      (concat
+       (when ambrevar/eshell-status-p
+         (propertize (or (ambrevar/eshell-status-display) "") 'face font-lock-comment-face))
+       (format
+        (propertize "(%s@%s)" 'face '(:weight bold))
+        (propertize (user-login-name) 'face '(:foreground "cyan"))
+        (propertize (system-name) 'face '(:foreground "cyan")))
+       (if (and (require 'magit nil t) (or (magit-get-current-branch) (magit-get-current-tag)))
+           (let* ((prefix (abbreviate-file-name (magit-rev-parse "--show-prefix")))
+                  (before-prefix (substring-no-properties path nil (when (/= 0 (length prefix)) (- (length prefix))))))
+             (format
+              (propertize "[%s/%s@%s]" 'face '(:weight bold))
+              (propertize before-prefix 'face `(:foreground ,(if (= (user-uid) 0) "red" "green") :weight bold))
+              (propertize prefix 'face `(:foreground ,(if (= (user-uid) 0) "orange" "gold")))
+              (or (magit-get-current-branch) (magit-get-current-tag))))
+         (format
+          (propertize "[%s]" 'face '(:weight bold))
+          (propertize path 'face `(:foreground ,(if (= (user-uid) 0) "red" "green") :weight bold))))
+       (propertize "\nÎ»$" 'face '(:weight bold))
+       " ")))
+
+;;; Leave `eshell-highlight-prompt' to t as it sets the read-only property.
+  (setq eshell-prompt-function #'ambrevar/eshell-prompt)
+;;; If the prompt spans over multiple lines, the regexp should match
+;;; last line only.
+  (setq-default eshell-prompt-regexp "^Î»$ ")
+
+  (with-eval-after-load 'em-term
+    (dolist (p '("abook" "alsamixer" "cmus" "fzf" "gtypist" "htop" "mpsyt" "mpv" "mutt" "ncdu" "newsbeuter" "pinentry-curses" "ranger" "ssh" "watch" "wifi-menu"))
+      (add-to-list 'eshell-visual-commands p))
+    (setq eshell-visual-subcommands
+          ;; Some Git commands use a pager by default.
+          ;; Either invoke the subcommands in a term ("visual") or configure Git
+          ;; to disable the pager globally.
+          ;; '(("git" "log" "diff" "show")
+          '(("sudo" "wifi-menu")        ; Arch Linux
+            ("sudo" "vi" "visudo"))))
+
+;;; Alias management possibilities:
+;;; - Version eshell-alias and store it in user-emacs-directory. Simplest and
+;;; fastest, but aliases cannot be included conditionnaly, e.g. depending on the
+;;; existence of a program.
+;;; - Store eshell-alias in cache and populate it dynamically on startup.
+  ;; (setq eshell-aliases-file (concat user-emacs-directory "eshell-alias"))
+;;;
+;;; `eshell/alias' is too slow as it reads and write the file on each definition.
+;;; Let's write manually instead.
+  (with-eval-after-load 'em-alias
+;;; If we read the alias list here, it means we make commandline-defined aliases persistent.
+    ;; (eshell-read-aliases-list)
+    (dolist
+        (alias
+         '(("l" "ls -1 $*")
+           ("la" "ls -lAh $*")
+           ("ll" "ls -lh $*")
+           ;; TODO: Aliasing eshell/{cp,mv,ln} does not work.
+           ;; REVIEW: Eshell/TRAMP's sudo does not work with aliases.
+           ;; See #28320, #27168.
+           ;; ("ls" "ls -F $*") ; not supported
+           ;; ("emacs" "find-file $1")
+           ;; ("cp" "eshell/cp -iv $*")
+           ;; ("mv" "eshell/mv -iv $*")
+	   ("ff" "find-file $1")
+	   ("FF" "sudo-find-file $1")
+	   ("d" "dired $1")
+           ("cpv" "cp -iv $*")
+           ("mvv" "mv -iv $*")
+           ("rmv" "rm -v $*")
+           ("md" "eshell/mkdir -p $*")
+           ("mkcd" "eshell/mkdir -p $* ; cd $1"))) ; TODO: '&&' does not work because mkdir exits with nil?
+      (add-to-list 'eshell-command-aliases-list alias))
+    (eshell-write-aliases-list))
+
+;;; Hooks
+;;; `nobreak-char-display' makes some output look weird, e.g. with 'tree'.
+                                        ;(add-hook 'eshell-mode-hook 'ambrevar/turn-off-nobreak-char-display)
+
+;;; History
+;;; Filter out space-beginning commands from history.
+;;; TODO: history/command hook: trim spaces.  Check `eshell-rewrite-command-hook'.
+;;; TODO: history: do not save failed Eshell commands (See `eshell-last-command-status')
+;;; Eshell commands always return 0.
+  (setq eshell-input-filter
+        (lambda (str)
+          (not (or
+                ;; Here we can filter out failing commands.  This is usually a bad
+                ;; idea since a lot of useful commands have non-zero exit codes
+                ;; (including Emacs/Eshell functions).
+                ;; (/= eshell-last-command-status 0)
+                (string= "" str)
+                (string-prefix-p " " str)))))
+
+;;; Shared history.
+  (defvar ambrevar/eshell-history-global-ring nil
+    "The history ring shared across Eshell sessions.")
+
+  (defun ambrevar/eshell-hist-use-global-history ()
+    "Make Eshell history shared across different sessions."
+    (unless ambrevar/eshell-history-global-ring
+      (when eshell-history-file-name
+        (eshell-read-history nil t))
+      (setq ambrevar/eshell-history-global-ring (or eshell-history-ring (make-ring eshell-history-size))))
+    (setq eshell-history-ring ambrevar/eshell-history-global-ring))
+  (add-hook 'eshell-mode-hook 'ambrevar/eshell-hist-use-global-history)
+
+;;; Spawning
+  (defun ambrevar/eshell-or-new-session (&optional arg)
+    "Create an interactive Eshell buffer.
+Switch to last Eshell session if any.
+Otherwise create a new one and switch to it.
+See `eshell' for the numeric prefix ARG."
+    (interactive "P")
+    (if (or arg (eq major-mode 'eshell-mode))
+        (eshell (or arg t))
+      (let ((last (buffer-list)))
+        (while (and last
+                    (not (with-current-buffer (car last)
+                           (eq major-mode 'eshell-mode))))
+          (setq last (cdr last)))
+        (if last
+            (switch-to-buffer (car last))
+          (eshell (or arg t))))))
+
+;;; Auto-suggestion - esh-autosuggest
+  (use-package esh-autosuggest
+    :ensure t)
+  (when (require 'esh-autosuggest nil t)
+    (setq esh-autosuggest-delay 0.75)
+    (add-hook 'eshell-mode-hook 'esh-autosuggest-mode)
+    (define-key esh-autosuggest-active-map (kbd "<tab>") 'company-complete-selection)
+    (when (require 'helm-config nil t)
+      (define-key company-active-map (kbd "M-p") 'helm-eshell-history)))
+
+;;; Kaushal's seconds to human-readable time - https://scripter.co/convert-seconds-to-human-time/ [Your car will be ready in 8000 seconds]
+  (defun modi/seconds-to-human-time (&optional seconds)
+    "Convert SECONDS to \"DDd HHh MMm SSs\" string.
+
+SECONDS is a non-negative integer or fractional number.
+
+SECONDS can also be a list of such numbers, which is the case
+when this function is called recursively.
+
+When called interactively, if a region is selected SECONDS is
+extracted from that, else the user is prompted to enter those."
+    (interactive)
+    (let ((inter (called-interactively-p 'interactive)))
+      (when inter
+        (let ((seconds-str (if (use-region-p)
+                               (buffer-substring-no-properties (region-beginning) (region-end))
+                             (read-string "Enter seconds: "))))
+          (setq seconds (string-to-number seconds-str)))) ;"1" -> 1, "1.2" -> 1.2, "" -> 0
+      (let* ((MINUTE 60)
+             (HOUR (* 60 MINUTE))
+             (DAY (* 24 HOUR))
+             (sec (cond
+                   ((listp seconds) ;This is entered only by recursive calls
+                    (car (last seconds)))
+                   ((and (numberp seconds) ;This is entered only in the first entry
+                         (>= seconds 0))
+                    seconds)
+                   (t
+                    (user-error "Invalid argument %S" seconds))))
+             (gen-time-string
+              (lambda (time inter)
+                "Return string representation of TIME.
+TIME is of the type (DD HH MM SS), where each of those elements
+are numbers.  If INTER is non-nil, echo the time string in a
+well-formatted manner instead of returning it."
+                (let ((filler "    ")
+                      (str ""))
+                  (dolist (unit '("d" "h" "m" "s"))
+                    (let* ((val (car (rassoc unit time)))
+                           (val-str (cond
+                                     ((and (string= unit "s") ;0 seconds
+                                           (= val 0)
+                                           (string-match-p "\\`\\s-*\\'" str))
+                                      " 0s")
+                                     ((and (string= unit "s")
+                                           (> val 0))
+                                      (if (integerp val)
+                                          (format "%2d%s" val unit)
+                                        (format "%5.2f%s" val unit)))
+                                     ((and val (> val 0))
+                                      (format "%2d%s " val unit))
+                                     (t
+                                      filler))))
+                      (setq str (concat str val-str))))
+                  ;; (message "debug: %S" time)
+                  (if inter
+                      (message "%0.2f seconds â %s"
+                               seconds
+                               (string-trim (replace-regexp-in-string " +"  " " str)))
+                    (string-trim-right str)))))
+             (time (cond
+                    ((>= sec DAY)       ;> day
+                     (let* ((days (/ (floor sec) DAY))
+                            (rem (- sec (* days DAY))))
+                       ;; Note that (list rem) instead of just `rem' is
+                       ;; being passed to the recursive call to
+                       ;; `modi/seconds-to-human-time'.  This helps us
+                       ;; distinguish between direct and re-entrant
+                       ;; calls to this function.
+                       (append (list (cons days "d")) (modi/seconds-to-human-time (list rem)))))
+                    ((>= sec HOUR)      ;> hour AND < day
+                     (let* ((hours (/ (floor sec) HOUR))
+                            (rem (- sec (* hours HOUR))))
+                       (append (list (cons hours "h")) (modi/seconds-to-human-time (list rem)))))
+                    ((>= sec MINUTE)    ;> minute AND < hour
+                     (let* ((mins (/ (floor sec) MINUTE))
+                            (rem (- sec (* mins MINUTE))))
+                       (append (list (cons mins "m")) (modi/seconds-to-human-time (list rem)))))
+                    (t                  ;< minute
+                     (list (cons sec "s"))))))
+        ;; If `seconds' is a number and not a list, this is *not* a
+        ;; recursive call.  Return the time as a string only then.  For
+        ;; re-entrant executions, return the `time' list instead.
+        (if (numberp seconds)
+            (funcall gen-time-string time inter)
+          time))))
+
+;;; Extra execution information
+  (defvar ambrevar/eshell-status-p t
+    "If non-nil, display status before prompt.")
+  (defvar ambrevar/eshell-status--last-command-time nil)
+  (make-variable-buffer-local 'ambrevar/eshell-status--last-command-time)
+  (defvar ambrevar/eshell-status-min-duration-before-display 1
+    "If a command takes more time than this, display its duration.")
+
+  (defun ambrevar/eshell-status-display ()
+    (when ambrevar/eshell-status--last-command-time
+      (let ((duration (time-subtract (current-time) ambrevar/eshell-status--last-command-time)))
+        (setq ambrevar/eshell-status--last-command-time nil)
+        (when (> (time-to-seconds duration) ambrevar/eshell-status-min-duration-before-display)
+          (format "#[STATUS] End time %s, duration: %s\n"
+                  (format-time-string "%F %T" (current-time))
+                  (modi/seconds-to-human-time (time-to-seconds duration)))))))
+  ;; (format "#[STATUS] End time %s, duration %.3fs\n"
+  ;;         (format-time-string "%F %T" (current-time))
+  ;;         (time-to-seconds duration))))))
+
+
+  (defun ambrevar/eshell-status-record ()
+    (setq ambrevar/eshell-status--last-command-time (current-time)))
+
+  (add-hook 'eshell-pre-command-hook 'ambrevar/eshell-status-record)
+
+;;; Detach
+  (when (require 'package-eshell-detach nil t)
+    (defun ambrevar/eshell-detach-set-keys ()
+      (define-key eshell-mode-map (kbd "C-c C-z") 'eshell-detach-stop)
+      (define-key eshell-mode-map (kbd "S-<return>") 'eshell-detach-send-input)
+      (define-key eshell-mode-map (kbd "C-<return>") 'eshell-detach-attach))
+    (add-hook 'eshell-mode-hook 'ambrevar/eshell-detach-set-keys))
+
+  ;; Man
+  (when (string= (file-symlink-p (executable-find "man")) "mandoc")
+    ;; Some systems like Void Linux use mandoc instead of man and do not know the
+    ;; --nj, --nh flags.
+    (defun ambrevar/pcmpl-args-mandoc-man-function (name)
+      (let ((process-environment process-environment))
+        ;; Setting MANWIDTH to a high number makes most paragraphs fit on a single
+        ;; line, reducing the number of false positives that result from lines
+        ;; starting with `-' that aren't really options.
+        (push "MANWIDTH=10000" process-environment)
+        (pcmpl-args-process-file "man" "--" name)))
+    (setq pcmpl-args-man-function 'ambrevar/pcmpl-args-mandoc-man-function))
+
+  ;; Completion
+  (when (require 'bash-completion nil t)
+    (when (and (or (executable-find "fish")
+                   ;; "fish" needs not be in PATH with guix.
+                   (executable-find "guix"))
+               (require 'fish-completion nil t))
+      (setq fish-completion-fallback-on-bash-p t)
+      (global-fish-completion-mode)))
+
+
+
+  (use-package "em-smart"
+    :ensure nil
+    :config
+    (setq eshell-where-to-jump 'begin)
+    (setq eshell-review-quick-commands nil)
+    (setq eshell-smart-space-goes-to-end t))
+  (require 'em-smart)
+  (setq eshell-where-to-jump 'begin)
+  (setq eshell-review-quick-commands nil)
+  (setq eshell-smart-space-goes-to-end t)
+  (add-hook 'eshell-mode-hook 'eshell-smart-initialize)
+  (eshell-smart-initialize)
+  (defun eshell/x ()
+    (insert "exit")
+    (eshell-send-input)
+    (delete-window))
+  (setq eshell-aliases-file
+        (concat user-emacs-config-directory ".eshell-aliases"))
+
+  (use-package helm-eshell
+    :ensure nil
+    )
+
+  ;; (add-hook 'eshell-mode-hook
+  ;;           (lambda ()
+  ;;             (define-key eshell-mode-map
+  ;;               (kbd "M-p")
+  ;;               'helm-eshell-history)))
+  ;; (defun pcomplete/sudo ()
+  ;;   (let ((prec (pcomplete-arg 'last -1)))
+  ;;     (cond ((string= "sudo" prec)
+  ;;            (while (pcomplete-here*
+  ;;                    (funcall pcomplete-command-completion-function)
+  ;;                    (pcomplete-arg 'last) t))))))
+  ;; (add-hook 'eshell-mode-hook
+  ;;           (lambda ()
+  ;;             (eshell-cmpl-initialize)
+  ;;             (define-key eshell-mode-map
+  ;;               [remap eshell-pcomplete] 'helm-esh-pcomplete)
+  ;;             (define-key eshell-mode-map
+  ;;               (kbd "M-p") 'helm-eshell-history)))
+  )
+
+(use-package dash)
+(use-package tco)
+(use-package equake
+  :ensure t
+
+  :config
+
+                                        ; some examples of optional settings follow:
+  (global-set-key (kbd "C-x C-c") 'equake-check-if-in-equake-frame-before-closing) ; prevent accidental frame-closure
+  (setq equake-size-width 0.99) ; set width a bit less than full-screen (prevent 'overflow' on multi-monitor)
+  ;; set distinct face for Equake: white foreground with dark blue background, and different font
+  (set-face-attribute 'equake-buffer-face 'nil :inherit 'default :family "DejaVu Sans Mono" :background "#000000" :foreground "white"))
+
+
+
 
 (use-package expand-region
-	:defer 3
-	:config
-	(global-set-key (kbd "C-=") 'er/expand-region)
-	)
+  :defer 3
+  :config
+  (global-set-key (kbd "C-=") 'er/expand-region)
+  )
 	#+END_SRC
 	#+BEGIN_SRC emacs-lisp
 (defun xah-change-bracket-pairs ( *fromType *toType *begin *end)

@@ -29,7 +29,7 @@
  (package-initialize)
  (defvar debuginit-p nil)
  (setq gc-cons-threshold 64000000)
- (setq user-emacs-directory
+(setq user-emacs-directory
        (file-name-as-directory
         (expand-file-name (concat
                            "~/.emacs.d/"
@@ -49,9 +49,9 @@
 
  (setq package-enable-at-startup nil)
  (add-to-list 'package-archives
-              '("melpa" . "http://melpa.org/packages/") t)
+              '("melpa" . "https://melpa.org/packages/") t)
  (add-to-list 'package-archives
-              '("org" . "http://orgmode.org/elpa/") t)
+              '("org" . "https://orgmode.org/elpa/") t)
  (setq use-package-debug nil)
  (setq use-package-verbose nil)
  (setq use-package-always-ensure t)
@@ -70,6 +70,7 @@
      (package-install 'diminish)
      (package-install 'bind-key))
    (require 'use-package)
+   (package-install 'org-plus-contrib)
    (use-package bind-key)
    (use-package diminish)
    (unless (package-installed-p 'helm)
@@ -96,10 +97,15 @@
 
  (if (not debuginit-p)
      (progn (when elib-tangle?
+	      (package-install 'org-plus-contrib)
+	      (require 'org)
               (require 'ob)
 	      (org-babel-tangle-file custom-org)
               (org-babel-tangle-file config-org)
-              (when elib-compile? (byte-compile-file config-el)))
+              (when elib-compile? (byte-compile-file config-el))
+	      (use-package restart-emacs)
+	      (restart-emacs)
+)
             (let ((time (current-time)))
               (load-file custom-el)
               (load-file elib-user-org-calendar-secrets-file)
@@ -123,12 +129,15 @@
    ["#d2ceda" "#f2241f" "#67b11d" "#b1951d" "#3a81c3" "#a31db1" "#21b8c7" "#655370"])
  '(custom-safe-themes
    '("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default))
+ '(org-agenda-files
+   '("~/FYSN23/exercises.org" "/home/einarelen/Nextcloud/org/cal/elib-hemsidan.org" "/home/einarelen/Nextcloud/org/cal/elib-lu.org" "/home/einarelen/Nextcloud/org/cal/elib-info.org" "/home/einarelen/Nextcloud/org/cal/gmail.org" "/home/einarelen/Nextcloud/org/phone.org" "/home/einarelen/Nextcloud/org/inbox@elfriede.org" "/home/einarelen/Nextcloud/org/gtd.org"))
  '(org-twbs-extension "html")
  '(package-selected-packages
-   '(org-mks cmake-font-lock org-evil evil evil-commands org-gcal lastpass noflet helm-xref lsp emacs-ccls ccls company-lsp lsp-ui lsp-mode company-irony-c-headers doom-themes org-plus-contrib spacemacs dmenu helm-exwm exwm mu4e-maildirs-extension mu4e-conversation mu4e-jump-to-list mu4e-alert helm-mu evil-tutor neotree treemacs esup macrostep expand-region multiple-cursors xah-replace-pairs nameless lorem-ipsum ein python-mode htmlize ox-reveal demo-it google-translate org-mime toc-org oauth2 org-caldav calfw-ical calfw-org calfw ob-ipython ox-twbs org-bullets cider lispy cmake-ide meson-mode cmake-mode clang-format web-mode flycheck company-auctex company-irony company-c-headers company latex-preview-pane auctex multi-term yasnippet-snippets eglot helm-projectile helm-swoop helm-dash helm-themes helm-descbinds helm-ag helm-c-yasnippet helm-google helm-gtags magit projectile dumb-jump avy-zap iedit anzu comment-dwim-2 smartparens undo-tree ws-butler dtrt-indent volatile-highlights which-key aggressive-indent rainbow-delimiters spacemacs-theme spaceline color-identifiers-mode restart-emacs default-text-scale transpose-frame ace-window hydra zygospore clipmon all-the-icons pdf-tools helm bind-key diminish use-package))
+   '(helm-eshell helm-esh eshell-helm esh-autosuggest tco ox-beamer org-ref-bibtex org-ref ox-md ox-markdown demangle-mode ob-gnuplot elisp--witness--lisp org-mks cmake-font-lock org-evil evil evil-commands org-gcal lastpass noflet helm-xref lsp emacs-ccls ccls company-lsp lsp-ui lsp-mode company-irony-c-headers doom-themes org-plus-contrib spacemacs dmenu helm-exwm exwm mu4e-maildirs-extension mu4e-conversation mu4e-jump-to-list mu4e-alert helm-mu evil-tutor neotree treemacs esup macrostep expand-region multiple-cursors xah-replace-pairs nameless lorem-ipsum ein python-mode htmlize ox-reveal demo-it google-translate org-mime toc-org oauth2 org-caldav calfw-ical calfw-org calfw ob-ipython ox-twbs org-bullets cider lispy cmake-ide meson-mode cmake-mode clang-format web-mode flycheck company-auctex company-irony company-c-headers company latex-preview-pane auctex multi-term yasnippet-snippets eglot helm-projectile helm-swoop helm-dash helm-themes helm-descbinds helm-ag helm-c-yasnippet helm-google helm-gtags magit projectile dumb-jump avy-zap iedit anzu comment-dwim-2 smartparens undo-tree ws-butler dtrt-indent volatile-highlights which-key aggressive-indent rainbow-delimiters spacemacs-theme spaceline color-identifiers-mode restart-emacs default-text-scale transpose-frame ace-window hydra zygospore clipmon all-the-icons pdf-tools helm bind-key diminish use-package))
  '(pdf-view-midnight-colors '("#655370" . "#fbf8ef"))
  '(safe-local-variable-values
-   '((eval defadvice org-babel-tangle
+   '((org-use-property-inheritance . t)
+     (eval defadvice org-babel-tangle
            (after change-script-modes activate)
            (let
                ((file-lst

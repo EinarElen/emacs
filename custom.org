@@ -268,7 +268,7 @@ edit them.
       :group 'elib-file-paths
       )
 (defcustom elib-user-org-notes-file-name
-      (concat elib-user-org-directory "notes.org")
+      (concat elib-user-org-directory "writing.org")
       ""
       :group 'elib-org
       :group 'elib-file-paths
