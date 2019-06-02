@@ -1,0 +1,89 @@
+#+BEGIN_SRC emacs-lisp :tangle yes
+(ignore-errors
+    (use-package exwm
+      :init
+      (setq exwm-workspace-show-all-buffers t)
+      (defun elib-exwm-launch  (command)
+        (interactive (list (read-shell-command "$ ")))
+        (start-process-shell-command command nil command))
+      (defvar elib-exwm-workspace-window-assignments
+        '(("Google-chrome")))
+      (defun elib-toggle-kbd-language ()
+        (interactive)
+        (shell-command "xkb-switch -n"))
+      (defun elib-exwm-config ()
+	;; (exwm-config-default)
+	(setq mouse-autoselect-window nil)
+	(setq focus-follows-mouse t)
+	(setq exwm-workspace-number 4)
+	(setq exwm-systemtray-height 34)
+	(define-key exwm-mode-map (kbd "C-c C-j") 'exwm-input-grab-keyboard)
+  ;; Make class name the buffer name
+	(add-hook 'exwm-update-class-hook
+		  (lambda ()
+		    (exwm-workspace-rename-buffer exwm-class-name)))
+	(exwm-input-set-key (kbd "s-<return>") #'dmenu)
+  ;; 's-r': Reset
+	(exwm-input-set-key (kbd "s-r") #'exwm-reset)
+	(exwm-input-set-key (kbd "s-C-r") #'exwm-restart)
+  ;; 's-w': Switch workspace
+	(exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
+	(exwm-input-set-key (kbd "s-SPC") #'elib-toggle-kbd-language)
+  ;; 's-N': Switch to certain workspace
+	(dotimes (i 10)
+	  (exwm-input-set-key (kbd (format "s-%d" i))
+                              `(lambda ()
+				 (interactive)
+				 (exwm-workspace-switch-create ,i))))
+  ;; 's-&': Launch application
+	(exwm-input-set-key (kbd "s-&") #'elib-exwm-launch)
+	(exwm-input-set-key (kbd "s-o") #'other-window)
+	(exwm-input-set-key (kbd "s-j") #'exwm-input-grab-keyboard)
+
+  (setq exwm-input-simulation-keys
+        '(
+          ;; movement
+          ([?\C-b] . [left])
+          ([?\M-b] . [C-left])
+          ([?\C-f] . [right])
+          ([?\M-f] . [C-right])
+          ([?\C-p] . [up])
+          ([?\C-n] . [down])
+          ([?\C-a] . [home])
+          ([?\C-e] . [end])
+          ([?\M-v] . [prior])
+          ([?\C-v] . [next])
+          ([?\C-d] . [delete])
+          ([?\C-k] . [S-end delete])
+          ;; cut/paste.
+          ([?\C-w] . [?\C-x])
+          ([?\M-w] . [?\C-c])
+          ([?\C-y] . [?\C-v])
+          ;; search
+          ([?\C-s] . [?\C-f])))
+  (menu-bar-mode 1)
+  (tool-bar-mode -1)
+  (use-package dmenu
+    :config
+    (exwm-input-set-key (kbd "C-s-SPC") #'dmenu))
+  (require 'exwm-systemtray)
+  (require 'exwm-randr)
+  (setq exwm-randr-workspace-output-plist '(0 "eDP-1" 1 "eDP-1" 2 "HDMI-2" 3 "HDMI-2"))
+  (add-hook
+   'exwm-randr-screen-change-hook
+   (lambda ()
+     (start-process-shell-command
+      "xrandr" nil "xrandr --output eDP-1 --auto --rotate normal --pos 0x0 --output HDMI-2 --auto --left-of eDP-1")))
+  (exwm-randr-enable)
+  (exwm-systemtray-enable)
+  (exwm-enable)
+  )
+
+    (use-package helm-exwm
+      :config
+      (add-to-list 'helm-source-names-using-follow "EXWM buffers"))
+    (require 'exwm-config)
+    :config
+    (elib-exwm-config)
+    ))
+#+END_SRC

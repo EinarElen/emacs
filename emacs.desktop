@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=EXWM
+Comment=Emacs is awesome
+Exec=launch_exwm
+Type=Application

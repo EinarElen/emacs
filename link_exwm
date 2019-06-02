@@ -1,0 +1,3 @@
+#!/bin/bash
+ln -sv  /home/einarelen/.emacs.d/launch_exwm  /usr/local/bin/launch_exwm
+ln -sv  /home/einarelen/.emacs.d/emacs.desktop  /usr/share/xsessions/emacs.desktop

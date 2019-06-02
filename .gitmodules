@@ -4,3 +4,6 @@
 [submodule "pamparam"]
 	path = pamparam
 	url = https://github.com/abo-abo/pamparam
+[submodule "ert-bdd"]
+	path = ert-bdd
+	url = https://github.com/functionreturnfunction/ert-bdd.git
