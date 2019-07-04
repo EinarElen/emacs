@@ -214,6 +214,42 @@ edit them.
       :type 'string
       :group 'elib-file-paths
       :group 'elib-org)
+    (defcustom elib-drive-dir
+      (expand-file-name "../Nextcloud"
+                        user-emacs-config-directory)
+      "Filename of the user's personal
+drive (e.g. nextcloud/google drive/dropbox)"
+      :type 'string
+      :group 'elib-file-paths
+      :group 'elib-org)
+(defcustom elib-bibliography-dir
+      (expand-file-name "bibliography"
+                        elib-drive-dir)
+      "Filename of the user's personal bibliography folder "
+      :type 'string
+      :group 'elib-file-paths
+      :group 'elib-org)
+(defcustom elib-default-bibtex-file
+      (expand-file-name "general.bib"
+                        elib-bibliography-dir)
+      "Filename of the user's personal bibliography bibtex-file"
+      :type 'string
+      :group 'elib-file-paths
+      :group 'elib-org)
+(defcustom elib-default-bibtex-notes-file
+      (expand-file-name "notes.org"
+                        elib-bibliography-dir)
+      "Filename of the user's personal bibliography notes-file"
+      :type 'string
+      :group 'elib-file-paths
+      :group 'elib-org)
+(defcustom elib-default-bibtex-pdf-dir
+      (expand-file-name "bibtex-pdfs/"
+                        elib-bibliography-dir)
+      "Filename of the user's personal bibliography pdf folder"
+      :type 'string
+      :group 'elib-file-paths
+      :group 'elib-org)
 
     (defcustom script-file-file-name
       (expand-file-name
@@ -225,7 +261,7 @@ edit them.
 
 
     (defcustom elib-user-org-directory
-      (expand-file-name "~/Nextcloud/org/")
+      (expand-file-name "org/" elib-drive-dir)
       "Directory where most org files are stored."
       :type 'string
       :group 'elib-file-paths
@@ -251,7 +287,6 @@ edit them.
 
 (defcustom elib-user-org-calendar-secrets-file
       (concat elib-org-calendar-directory "orgsettings.el")
-
       ""
       :group 'elib-org
       :group 'elib-file-paths

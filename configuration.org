@@ -139,6 +139,10 @@
   "w" '(nil :wk "Window/fonts/looks")
   "wf" '(nil :wk "Fonts")
   "wt" '(nil :wk "Themes")
+  "wo" 'openwith-mode
+  "p" '(nil :wk "PDF/TeX")
+  "po" 'openwith-mode
+  "ph" '(hydra-pdftools/body :wk "PDF-tools hydra")
   "wts" '(helm-themes :wk "Select Theme")
   "wtd" `(,(lambda () (load-theme 'spacemacs-dark)) :wk "Dark Theme")
   "wtl" `(,(lambda () (load-theme 'spacemacs-light)) :wk "Light Theme")
@@ -454,7 +458,6 @@ only one which currently exists is C-M-o for
 window 	management.
 #+BEGIN_SRC emacs-lisp
 (use-package hydra
-  :disabled t
   :defer 2
   ;;        ("C-M-s" . hydra-spelling/body))
   :commands (hydra-add-font-lock
@@ -499,7 +502,55 @@ window 	management.
     ("C-f" default-text-scale-increase
      "Global Text Scale++")
     ("M-f" default-text-scale-decrease "Global Text Scale--"))
+  (defhydra hydra-pdftools (:color blue :hint nil)
+        "
+         Move    History Scale/Fit     Annotations    Search/Link         PDF Tools
+         ^^_g_^^      _B_    ^↓^      _+_    ^ ^    [_al_] list     [_s_] search       [_u_] revert buffer
+         ^^^↑^^^      ^↑^    _H_      ^↑^  → _W_ ←  [_am_] markup   [_o_] outline      [_i_] info
+         ^^_p_^^      ^ ^    ^↑^      _0_    ^ ^    [_at_] text     [_F_] link         [_d_] dark mode
+         ^^^↑^^^      ^↓^    ^ ^      ^↓^    ^ ^    [_ad_] delete   [_f_] search link  [_m_] midnight mode
+    _h_ ←pag_e_→ _l_  _N_    _P_      _-_    _b_    [_aa_] dired
+         ^^^↓^^^      ^ ^    ^ ^      ^-^    ^ ^    [_y_]  yank
+         ^^_n_^^      ^ ^   _r_eset slice box
+         ^^^↓^^^
+         ^^_G_^^
+   --------------------------------------------------------------------------------
+        "
+        ("\\" hydra-master/body "back")
+        ("<ESC>" nil "quit")
+        ("q" nil "quit")
+        ("m"  pdf-view-midnight-minor-mode :color red)
+        ("d" pdf-view-dark-minor-mode :color red)
+        ("al" pdf-annot-list-annotations)
+        ("ad" pdf-annot-delete)
+        ("aa" pdf-annot-attachment-dired)
+        ("am" pdf-annot-add-markup-annotation)
+        ("at" pdf-annot-add-text-annotation)
+        ("y"  pdf-view-kill-ring-save)
+        ("+" pdf-view-enlarge :color red)
+        ("-" pdf-view-shrink :color red)
+        ("0" pdf-view-scale-reset)
+        ("H" pdf-view-fit-height-to-window)
+        ("W" pdf-view-fit-width-to-window)
+        ("P" pdf-view-fit-page-to-window)
+        ("n" pdf-view-next-page-command :color red)
+        ("p" pdf-view-previous-page-command :color red)
 
+        ("b" pdf-view-set-slice-from-bounding-box)
+        ("r" pdf-view-reset-slice)
+        ("g" pdf-view-first-page)
+        ("G" pdf-view-last-page)
+        ("e" pdf-view-goto-page)
+        ("o" pdf-outline)
+        ("s" pdf-occur)
+        ("i" pdf-misc-display-metadata)
+        ("u" pdf-view-revert-buffer)
+        ("F" pdf-links-action-perfom)
+        ("f" pdf-links-isearch-link)
+        ("B" pdf-history-backward :color red)
+        ("N" pdf-history-forward :color red)
+        ("l" image-forward-hscroll :color red)
+        ("h" image-backward-hscroll :color red))
   (eval-after-load "flyspell"
     (defhydra hydra-spelling (:color blue)
       "^
@@ -517,7 +568,6 @@ window 	management.
       ("d" ispell-change-dictionary)
       ("f" flyspell-buffer)
       ("m" flyspell-mode)) )
-  (print "")
   )
 
 
@@ -650,7 +700,10 @@ the starting buffer to this file.
 #+END_SRC
 *** Fonts
 #+BEGIN_SRC emacs-lisp
-(set-frame-font "Source Code Pro 13" nil t)
+;; (set-frame-font "Source Code Pro 11" nil t)
+;; (set-frame-font "Inconsolata 11" nil t)
+(set-frame-font "Hack 11" nil t)
+
 #+END_SRC
 
 ** Text Editing
@@ -1164,9 +1217,10 @@ It is currently only enabled on linux, mac, and cygwin.
       (define-key pdf-annot-edit-contents-minor-mode-map (kbd "<S-return>") 'newline)
       ;; save after adding comment
       (advice-add 'pdf-annot-edit-contents-commit :after 'bjm/save-buffer-no-args))
-    (use-package openwith)
-    (openwith-mode t)
-    (setq openwith-associations '(("\\.pdf\\'" "evince" (file))))
+
+
+
+
 
 
     )
@@ -1422,7 +1476,7 @@ Helm makes emacs a lot better.
 An emacs language server protocol client. Kind of new.
 Hopefully it gets useful in the future.
 #+BEGIN_SRC emacs-lisp
-(use-package eglot)
+;; (use-package eglot)
 #+END_SRC
 ** Yasnippet
 :PROPERTIES:
@@ -1498,14 +1552,20 @@ pretty nifty.
   :init
   (unless (getenv "TEXMFHOME")
         (setenv "TEXMFHOME" (concat (getenv "HOME") "/texmf")))
-
+  (defvar elib-auctex-auto-folder (concat user-emacs-directory "auctex/auto/"))
+  (setq TeX-auto-private '(elib-auctex-auto-folder))
   :commands
   (TeX-revert-document-buffer
    TeX-command TeX-master-file)
   :config
+  (add-hook 'TeX-mode-hook (lambda ()
+                             (setq TeX-command-extra-options "-shell-escape")
+                             ))
   ;; (setq TeX-source-correlate-start-server t)
+  (TeX-source-correlate-mode)
   (add-hook 'LaTeX-mode-hook #'TeX-source-correlate-mode)
   (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+
   ;; (define-key TeX-mode-map (kbd "TAB") 'company-complete)
   ;; (define-key TeX-mode-map (kbd "TAB") 'company-complete)
   (use-package tex-buf :ensure nil)
@@ -1536,9 +1596,9 @@ pretty nifty.
       )
     (add-to-list 'TeX-command-list
 		 '("Asymptote" "asy *.asy" TeX-run-TeX nil t :help "Run Asymptote")))
-  (setq TeX-auto-save t)
+  (setq TeX-auto-save nil)
   (setq TeX-parse-self t)
-  (setq-default TeX-master nil))
+  (setq-default TeX-master t))
 	 #+END_SRC
 ** Company
 :PROPERTIES:
@@ -2010,7 +2070,7 @@ Lispy is an intersting package. At the moment, I don't use it.
 (setq org-startup-indented t)
 (setq org-src-preserve-indentation t)
 (setq org-src-fontify-natively t)
-  (plist-put org-format-latex-options :scale 2)
+  (plist-put org-format-latex-options :scale 1)
 #+END_SRC
 
 ** Org Babel
@@ -2144,6 +2204,10 @@ setups from getting out of sync (haha) with each other.
                       '(python "python")
                       '(ruby "ruby")
                       ))
+       (setq org-latex-minted-options
+           '(("frame" "lines")
+             ("fontsize" "\\scriptsize")
+             ("linenos" "")))
   ;; tell org to use listings
   (setq org-latex-listings 'minted)
   ;; you must include the listings package
@@ -2279,7 +2343,10 @@ line are justified."
 )
 (use-package ox-ipynb
   :load-path user-emacs-config-directory
-  :ensure nil)
+  :ensure nil
+  :config
+  (setq ob-ipython-resources-dir (concat user-emacs-directory "obipy-resources/"))
+  )
 (use-package
   ox-reveal
   :config
@@ -2413,26 +2480,40 @@ functionality of Emacs.
 #+BEGIN_SRC emacs-lisp :tangle no
 (use-package org-ref
   :init
+  (defvar elib-org-ref-pdf-viewer "evince")
   :config
 (setq org-ref-bibtex-hydra-key-binding "C-c j")
 (require 'org-ref-bibtex)
 (bind-key "C-c j" 'org-ref-bibtex-hydra/body org-mode-map)
   (use-package helm-bibtex
     :config
-    (setq bibtex-completion-bibliography "~/nextcloud/bibliography/general.bib"
-          bibtex-completion-library-path "~/nextcloud/bibliography/bibtex-pdfs"
-          bibtex-completion-notes-path "~/nextcloud/bibliography/helm-bibtex-notes")
+    (setq bibtex-completion-bibliography elib-default-bibtex-file
+          bibtex-completion-library-path elib-default-bibtex-pdf-dir
+          bibtex-completion-notes-path elib-default-bibtex-notes-file)
+    (use-package openwith
+      :config
+      ;; (openwith-mode t)
+      (setq openwith-associations `(("\\.pdf\\'" ,elib-org-ref-pdf-viewer (file))))
+      )
+    (setq bibtex-completion-pdf-open-function
+          (lambda (fpath)
+            (let ((openwith-mode-on? openwith-mode))
+              (if (not openwith-mode-on?)
+                  (openwith-mode))
+              (find-file fpath)
+              (if (not openwith-mode-on?)
+                  (openwith-mode))))))
 
-    )
 
 
-
-  (setq reftex-default-bibliography "~/nextcloud/bibliography/general.bib")
-  (setq org-ref-bibliography-notes "~/nextcloud/bibliography/notes.org"
-        org-ref-default-bibliography '("~/nextcloud/bibliography/general.bib")
-        org-ref-pdf-directory "~/nextcloud/bibliography/bibtex-pdfs/")
+  (setq reftex-default-bibliography elib-default-bibtex-file)
+  (setq org-ref-bibliography-notes elib-default-bibtex-notes-file
+        org-ref-default-bibliography `(,elib-default-bibtex-file)
+        org-ref-pdf-directory elib-default-bibtex-pdf-dir)
   (setq org-latex-prefer-user-labels t)
   (setq org-ref-default-ref-type "autoref")
+
+
   ;; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f")
   ;; )
   )
@@ -3030,6 +3111,71 @@ maildir:/info/sent-mail"
 	:commands (ert-deftest ert))
 	 #+END_SRC
 * To be integrated
+** Increment Integers
+
+#+BEGIN_SRC emacs-lisp
+(defun thing-at-point-goto-end-of-integer ()
+  "Go to end of integer at point."
+  (let ((inhibit-changing-match-data t))
+    ;; Skip over optional sign
+    (when (looking-at "[+-]")
+      (forward-char 1))
+    ;; Skip over digits
+    (skip-chars-forward "[[:digit:]]")
+    ;; Check for at least one digit
+    (unless (looking-back "[[:digit:]]")
+      (error "No integer here"))))
+(put 'integer 'beginning-op 'thing-at-point-goto-end-of-integer)
+
+(defun thing-at-point-goto-beginning-of-integer ()
+  "Go to end of integer at point."
+  (let ((inhibit-changing-match-data t))
+    ;; Skip backward over digits
+    (skip-chars-backward "[[:digit:]]")
+    ;; Check for digits and optional sign
+    (unless (looking-at "[+-]?[[:digit:]]")
+      (error "No integer here"))
+    ;; Skip backward over optional sign
+    (when (looking-back "[+-]")
+        (backward-char 1))))
+(put 'integer 'beginning-op 'thing-at-point-goto-beginning-of-integer)
+
+(defun thing-at-point-bounds-of-integer-at-point ()
+  "Get boundaries of integer at point."
+  (save-excursion
+    (let (beg end)
+      (thing-at-point-goto-beginning-of-integer)
+      (setq beg (point))
+      (thing-at-point-goto-end-of-integer)
+      (setq end (point))
+      (cons beg end))))
+(put 'integer 'bounds-of-thing-at-point 'thing-at-point-bounds-of-integer-at-point)
+
+(defun thing-at-point-integer-at-point ()
+  "Get integer at point."
+  (let ((bounds (bounds-of-thing-at-point 'integer)))
+    (string-to-number (buffer-substring (car bounds) (cdr bounds)))))
+(put 'integer 'thing-at-point 'thing-at-point-integer-at-point)
+
+(defun increment-integer-at-point (&optional inc)
+  "Increment integer at point by one.
+
+With numeric prefix arg INC, increment the integer by INC amount."
+  (interactive "p")
+  (let ((inc (or inc 1))
+        (n (thing-at-point 'integer))
+        (bounds (bounds-of-thing-at-point 'integer)))
+    (delete-region (car bounds) (cdr bounds))
+    (insert (int-to-string (+ n inc)))))
+
+(defun decrement-integer-at-point (&optional dec)
+  "Decrement integer at point by one.
+
+With numeric prefix arg DEC, decrement the integer by DEC amount."
+  (interactive "p")
+  (increment-integer-at-point (- (or dec 1))))
+#+END_SRC
+
 ** LastPass
 #+BEGIN_SRC emacs-lisp
 (use-package lastpass

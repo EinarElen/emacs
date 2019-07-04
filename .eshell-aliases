@@ -6,8 +6,7 @@ alias cpv cp -iv $*
 alias d dired $1
 alias FF sudo-find-file $1
 alias ff find-file $1
+alias dnf sudo dnf $*
 alias ll ls -lh $*
 alias la ls -lAh $*
 alias l ls -1 $*
-alias dnf sudo dnf
-alias sysctl sudo systemctl
