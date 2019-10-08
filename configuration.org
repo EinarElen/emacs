@@ -7,6 +7,36 @@
 #+BEGIN_SRC emacs-lisp
 (use-package guix)
 (use-package desktop-environment)
+(use-package tab-bar
+  :ensure nil
+  :when (>= emacs-major-version 27)
+  :config
+  (tab-bar-mode 1)
+  :init
+
+  ;; (defun elib-find-next-tab (&optional tabs)
+  ;;   (unless tabs
+  ;;     (setq tabs (tab-bar-tabs)))
+  ;;   ()
+
+  ;;   )
+  ;; (defun tab-cycle ()
+  ;;   (let* ((tabs (tab-bar-tabs))
+  ;;          (prev-tab (tab-bar-find-prev-tab tabs))
+  ;;          )
+  ;;     (if prev-tab
+  ;;         (message "Previous tab? ")
+  ;;       (message "Not previous tab?")
+  ;;         )
+
+  ;;     )
+  ;;   )
+  ;; (tab-next)
+  :bind (("s-<tab>" . tab-next))
+
+  )
+(setq org-export-allow-bind-keywords t)
+(setq org-export-use-babel nil)
 #+END_SRC
 
 * General.el
@@ -169,8 +199,8 @@
   "ct" 'org-babel-tangle
   "o" '(nil :wk "Org-mode")
   "ot" '(hydra-org-toggle/body :wk "Org toggles")
-  "ok" '(ob-ipython-kill-kernel :wk "Kill ipython kernel")
-  "or" '(elib-ob-reset-and-run-all-blocks-in-buffer :wk "Reset ipython kernel")
+  ;; "ok" '(ob-ipython-kill-kernel :wk "Kill ipython kernel")
+  ;; "or" '(elib-ob-reset-and-run-all-blocks-in-buffer :wk "Reset ipython kernel")
   "op" '(org-publish-all :wk "Publish")
   "od" '(org-time-stamp :wk "Date")
   "ob" '(nil :wk "Org brain")
@@ -2070,12 +2100,34 @@ Lispy is an intersting package. At the moment, I don't use it.
 (setq org-startup-indented t)
 (setq org-src-preserve-indentation t)
 (setq org-src-fontify-natively t)
-  (plist-put org-format-latex-options :scale 1)
+  (plist-put org-format-latex-options :scale 1.2)
 #+END_SRC
 
 ** Org Babel
 #+NAME: org-config-babel
 #+BEGIN_SRC emacs-lisp :tangle no
+
+;; (defun ob-ipython--get-kernels ()
+;;   "Return a list of available jupyter kernels and their corresponding languages.
+;; The elements of the list have the form (\"kernel\" \"language\")."
+;;   (and ob-ipython-command
+;;        (let* ((str  (shell-command-to-string
+;;                     (s-concat
+;;                      ob-ipython-command " kernelspec list --json")
+;; ))
+;;          (kernelspecs (cdar (json-read-from-string (substring str (string-match "{" str))
+;;                                                    )))))
+;;          (-map (lambda (spec)
+;;                  (cons (symbol-name (car spec))
+;;                        (->> (cdr spec)
+;;                             (assoc 'spec)
+;;                             cdr
+;;                             (assoc 'language)
+;;                             cdr)))
+;;                kernelspecs))
+
+
+
 (use-package ob
   :ensure nil
   :after org
@@ -2087,47 +2139,49 @@ Lispy is an intersting package. At the moment, I don't use it.
     (interactive)
     (org-babel-next-src-block)
     (org-babel-execute-src-block))
-  (defun elib-ob-reset-and-run-all-blocks-in-buffer ()
-    (interactive)
-    (when (ob-ipython--running-p)
-      (ob-ipython-kill-kernel (car (ob-ipython--choose-kernel))))
-    (beginning-of-buffer)
-    (while (re-search-forward org-babel-src-block-regexp nil t)
-      (org-babel-execute-src-block)))
-  (defun ob-ipython--collect-json ()
-    ;; hacks here
-    (when (re-search-forward "{" nil t)
-      (backward-char))
-    ;; hacks end
-    (let ((json-array-type 'list))
-      (let (acc)
-        (while (not (= (point) (point-max)))
-          (setq acc (cons (json-read) acc))
-          (forward-line))
-        (nreverse acc))))
+  ;; (defun elib-ob-reset-and-run-all-blocks-in-buffer ()
+  ;;   (interactive)
+  ;;   (when (ob-ipython--running-p)
+  ;;     (ob-ipython-kill-kernel (car (ob-ipython--choose-kernel))))
+  ;;   (beginning-of-buffer)
+  ;;   (while (re-search-forward org-babel-src-block-regexp nil t)
+  ;;     (org-babel-execute-src-block)))
+
+
+  ;; (defun ob-ipython--collect-json ()
+  ;;   ;; hacks here
+  ;;   (when (re-search-forward "{" nil t)
+  ;;     (backward-char))
+  ;;   ;; hacks end
+  ;;   (let ((json-array-type 'list))
+  ;;     (let (acc)
+  ;;       (while (not (= (point) (point-max)))
+  ;;         (setq acc (cons (json-read) acc))
+  ;;         (forward-line))
+  ;;       (nreverse acc))))
+
+
   :config
   (setq org-confirm-babel-evaluate nil)
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
   (use-package ob-asymptote
     :ensure org)
-  (use-package ob-ipython
-    :after ox-latex
-    :when (or (file-exists-p "/usr/bin/jupyter")
-              (file-exists-p (concat (getenv "HOME") "/.local/bin/jupyter"))
-              (file-exists-p (concat (getenv "HOME") "/anaconda3/bin/jupyter")))
-    :config
-    (setq ob-ipython-command "jupyter")
-    (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
-    (defun ob-ipython-inline-image (b64-string)
-      "Write the b64-string to a temporary file.
-Returns an org-link to the file."
-      (let* ((tfile (make-temp-file "ob-ipython-" nil ".png"))
-             (link (format "[[file:%s]]" tfile)))
-        (ob-ipython--write-base64-string tfile b64-string)
-        link))
-
-
-    ;; (defun org-babel-execute:ipython (body params)
+  ;; (use-package ob-ipython
+;;     :after ox-latex
+;;     :when (or (file-exists-p "/usr/bin/jupyter")
+;;               (file-exists-p (concat (getenv "HOME") "/.local/bin/jupyter"))
+;;               (file-exists-p (concat (getenv "HOME") "/anaconda3/bin/jupyter")))
+;;     :config
+;;     (setq ob-ipython-command "jupyter")
+;;     (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+;;     (defun ob-ipython-inline-image (b64-string)
+;;       "Write the b64-string to a temporary file.
+;; Returns an org-link to the file."
+;;       (let* ((tfile (make-temp-file "ob-ipython-" nil ".png"))
+;;              (link (format "[[file:%s]]" tfile)))
+;;         (ob-ipython--write-base64-string tfile b64-string)
+;;         link))
+;;     (defun org-babel-execute:ipython (body params)
 ;;       "Execute a block of IPython code with Babel.
 ;; This function is called by `org-babel-execute-src-block'."
 ;;       (let* ((file (cdr (assoc :file params)))
@@ -2157,22 +2211,28 @@ Returns an org-link to the file."
 ;;                      (->> result (assoc 'image/svg+xml) cdr (ob-ipython--write-string-to-file file)))
 ;;                     (file (error "%s is currently an unsupported file extension." (f-ext file)))
 ;;                     (t (->> result (assoc 'text/plain) cdr))))))))
-    )
+;;     )
 
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((C . t)
      (emacs-lisp . t)
      (python . t)
-     (ipython . t)
+
+     ;; (ipython . t)
      (asymptote . t)
      (shell . t)
      (makefile . t)
      (shell . t)
      (latex . t)
      ;; (asm . t)
-     (gnuplot . t))))
+     (gnuplot . t)
+     (jupyter . t)
+)))
 #+END_SRC
+
+#+RESULTS: org-config-babel
+: elib-ob-reset-and-run-all-blocks-in-buffer
 
 ** Exporting and Preview
 #+NAME: org-config-export
@@ -2195,7 +2255,7 @@ setups from getting out of sync (haha) with each other.
   :config
   (add-to-list-multi 'org-latex-minted-langs
                      (list
-                      '(ipython "python")
+                      ;'(ipython "python")
                       '(C++ "c++")
                       '(c++ "c++")
                       '(C "c++")
@@ -2207,7 +2267,9 @@ setups from getting out of sync (haha) with each other.
        (setq org-latex-minted-options
            '(("frame" "lines")
              ("fontsize" "\\scriptsize")
-             ("linenos" "")))
+             ("linenos" "")
+             ("breaklines" "true")
+             ("breakanywhere" "true")))
   ;; tell org to use listings
   (setq org-latex-listings 'minted)
   ;; you must include the listings package
@@ -2265,44 +2327,44 @@ setups from getting out of sync (haha) with each other.
                (car args)))))
     (apply orig-func args))
   (advice-add 'org-create-formula-image :around #'kitchin-org-renumber-environment)
-(use-package ov)
+;(use-package ov)
 (plist-put org-format-latex-options :justify 'left)
 
-(defun kitchin-org-justify-fragment-overlay (beg end image imagetype)
-  "Adjust the justification of a LaTeX fragment.
-The justification is set by :justify in
-`org-format-latex-options'. Only equations at the beginning of a
-line are justified."
-  (cond
-   ;; Centered justification
-   ((and (eq 'center (plist-get org-format-latex-options :justify))
-	 (= beg (line-beginning-position)))
-    (let* ((img (create-image image 'imagemagick t))
-	   (width (car (image-size img)))
-	   (offset (floor (- (/ (window-text-width) 2) (/ width 2)))))
-      (overlay-put (ov-at) 'before-string (make-string offset ? ))))
-   ;; Right justification
-   ((and (eq 'right (plist-get org-format-latex-options :justify))
-	 (= beg (line-beginning-position)))
-    (let* ((img (create-image image 'imagemagick t))
-	   (width (car (image-display-size (overlay-get (ov-at) 'display))))
-	   (offset (floor (- (window-text-width) width (- (line-end-position) end)))))
-      (overlay-put (ov-at) 'before-string (make-string offset ? ))))))
+;; (defun kitchin-org-justify-fragment-overlay (beg end image imagetype)
+;;   "Adjust the justification of a LaTeX fragment.
+;; The justification is set by :justify in
+;; `org-format-latex-options'. Only equations at the beginning of a
+;; line are justified."
+;;   (cond
+;;    ;; Centered justification
+;;    ((and (eq 'center (plist-get org-format-latex-options :justify))
+;; 	 (= beg (line-beginning-position)))
+;;     (let* ((img (create-image image 'imagemagick t))
+;; 	   (width (car (image-size img)))
+;; 	   (offset (floor (- (/ (window-text-width) 2) (/ width 2)))))
+;;       (overlay-put (ov-at) 'before-string (make-string offset ? ))))
+;;    ;; Right justification
+;;    ((and (eq 'right (plist-get org-format-latex-options :justify))
+;; 	 (= beg (line-beginning-position)))
+;;     (let* ((img (create-image image 'imagemagick t))
+;; 	   (width (car (image-display-size (overlay-get (ov-at) 'display))))
+;; 	   (offset (floor (- (window-text-width) width (- (line-end-position) end)))))
+;;       (overlay-put (ov-at) 'before-string (make-string offset ? ))))))
 
-(defun kitchin-org-latex-fragment-tooltip (beg end image imagetype)
-  "Add the fragment tooltip to the overlay and set click function to toggle it."
-  (overlay-put (ov-at) 'help-echo
-	       (concat (buffer-substring beg end)
-		       "mouse-1 to toggle."))
-  (overlay-put (ov-at) 'local-map (let ((map (make-sparse-keymap)))
-				    (define-key map [mouse-1]
-				      `(lambda ()
-					 (interactive)
-					 (org-remove-latex-fragment-image-overlays ,beg ,end)))
-				    map)))
+;; (defun kitchin-org-latex-fragment-tooltip (beg end image imagetype)
+;;   "Add the fragment tooltip to the overlay and set click function to toggle it."
+;;   (overlay-put (ov-at) 'help-echo
+;; 	       (concat (buffer-substring beg end)
+;; 		       "mouse-1 to toggle."))
+;;   (overlay-put (ov-at) 'local-map (let ((map (make-sparse-keymap)))
+;; 				    (define-key map [mouse-1]
+;; 				      `(lambda ()
+;; 					 (interactive)
+;; 					 (org-remove-latex-fragment-image-overlays ,beg ,end)))
+;; 				    map)))
 
-(advice-add 'org--format-latex-make-overlay :after 'kitchin-org-justify-fragment-overlay)
-(advice-add 'org--format-latex-make-overlay :after 'kitchin-org-latex-fragment-tooltip)
+;(advice-add 'org--format-latex-make-overlay :after 'kitchin-org-justify-fragment-overlay)
+;(advice-add 'org--format-latex-make-overlay :after 'kitchin-org-latex-fragment-tooltip)
 (defvar kitchin-image-tooltip-re (concat  "\\(?3:'\\|\"\\)\\(?1:.*\\."
                                   (regexp-opt '("png" "PNG" "JPG" "jpeg"
                                                 "jpg" "JPEG" "eps" "EPS"
@@ -2345,7 +2407,7 @@ line are justified."
   :load-path user-emacs-config-directory
   :ensure nil
   :config
-  (setq ob-ipython-resources-dir (concat user-emacs-directory "obipy-resources/"))
+  ;; (setq ob-ipython-resources-dir (concat user-emacs-directory "obipy-resources/"))
   )
 (use-package
   ox-reveal
@@ -2431,17 +2493,21 @@ line are justified."
                           elib-user-org-gtd-inbox
                           elib-user-org-phone-file
                           elib-org-gcal-calendar-file-name))
-(dolist (element elib-org-gcal-ics-list)
-           (add-to-list 'org-agenda-files (elt element 2)))
+;; (dolist (element elib-org-gcal-ics-list)
+;;            (add-to-list 'org-agenda-files (elt element 2)))
 (defvar elib-org-agenda-silent-view
   (delete  elib-org-gcal-hemsidan-ics-org org-agenda-files))
   :config
   (setq org-agenda-custom-commands
-        '(("C" "Block agenda"
-           ((agenda "" )
+        '(
+          ; 1   2
+          ("C" "Block agenda"
+           ; 3
+           ;((agenda "" )
             ;; limits the agenda display to a single day
-            (todo "" ((org-agenda-files elib-org-agenda-silent-view))))
-           ((org-agenda-compact-blocks t))) ;; options set here apply to the entire block
+            ((todo "" ((org-agenda-files elib-org-agenda-silent-view))))
+            ((org-agenda-compact-blocks t)))
+          ;; options set here apply to the entire block
           ;; ...other commands here
           ))
   (setq org-agenda-dim-blocked-tasks nil)
@@ -3995,7 +4061,7 @@ work. My startup script calls emacs with the argument
 
 
 * Ob-root
-#+BEGIN_SRC emacs-lisp :tangle ob-root.el
+#+BEGIN_SRC emacs-lisp :tangle nil 
 ;;; Code:
 (bind-key "<f2>" 'ert)
 (require 'ob)
@@ -4546,4 +4612,17 @@ Return the initialized session."
       (helm-org-rifle-directories (list org-brain-path)))
     )
     )
+#+END_SRC
+* Emacs Jupyter
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode)
+(use-package websocket)
+(use-package simple-httpd)
+(use-package zmq)
+(use-package ob-async)
+(use-package jupyter
+:config
+(setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia" "jupyter-c++" "jupyter-C"))
+)
 #+END_SRC
