@@ -1,0 +1,227 @@
+#+AUTHOR: Einar Elén
+#+EMAIL: einar.elen@gmail.com
+#+OPTIONS: toc:3 html5-fancy:t org-html-preamble:nil
+#+HTML_DOCTYPE_HTML5: t
+#+PROPERTY: header-args :tangle yes :comments both
+#+STARTUP: noinlineimages
+* Some optimization
+  #+BEGIN_SRC emacs-lisp
+(setq load-prefer-newer t)
+;;; Temporarily reduce garbage collection during startup. Inspect `gcs-done'.
+(defun ambrevar/reset-gc-cons-threshold ()
+  (setq gc-cons-threshold (car (get 'gc-cons-threshold 'standard-value))))
+(setq gc-cons-threshold (* 64 1024 1024))
+(add-hook 'after-init-hook #'ambrevar/reset-gc-cons-threshold)
+
+;;; Temporarily disable the file name handler.
+(setq default-file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(defun ambrevar/reset-file-name-handler-alist ()
+  (setq file-name-handler-alist
+	(append default-file-name-handler-alist
+		file-name-handler-alist))
+  (cl-delete-duplicates file-name-handler-alist :test 'equal))
+(add-hook 'after-init-hook #'ambrevar/reset-file-name-handler-alist)
+
+  #+END_SRC
+
+* Initialization of Emacs
+** Dealing with local files 
+#+BEGIN_SRC emacs-lisp :tangle init.el
+    (defcustom user-emacs-config-directory
+    (file-name-as-directory 
+    (expand-file-name "~/.emacs.d"))
+	  "The emacs configuration directory."
+	  :type 'string
+	  :group :elib-file-paths)
+    (setq user-emacs-directory
+	   (file-name-as-directory
+	    (expand-file-name (concat
+			       "~/.emacs.d/"
+			       "machine-local-files"))))
+			     
+    (defalias 'yes-or-no-p 'y-or-n-p)
+    (setq recentf-save-file (expand-file-name "recentf" user-emacs-directory))
+     (setq auto-save-list-file-prefix (concat
+     user-emacs-directory "auto-save-list/.saves"))
+     (setq auto-revert-verbose nil)
+  (setq custom-file (concat user-emacs-directory "emacs-managed-customizations.el"))
+#+END_SRC
+
+** Package.el
+ Before emacs 27, package.el needed to be initalized which was done by
+ inserting a call to package-initialize. This is no longer needed!
+
+ #+BEGIN_SRC emacs-lisp :tangle init.el
+ (if (< 27 emacs-major-version)
+     (package-initialize))
+ #+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (setq package-user-dir (expand-file-name (concat
+  user-emacs-directory "elpa/")))
+    (require 'package)
+     (add-to-list 'package-archives '("melpa"
+		  . "https://melpa.org/packages/") t)
+     (add-to-list 'package-archives '("org"
+		  . "https://orgmode.org/elpa/") t)
+
+     (package-initialize)
+    (defvar elib-init-needs-installation?
+	  (null (ignore-errors (directory-files
+	  package-user-dir))))
+	  (setq use-package-always-ensure t)
+
+#+END_SRC
+
+
+** Variables for initialization files 
+#+BEGIN_SRC emacs-lisp :tangle init.el
+
+(defvar elib-init-startup-org (expand-file-name
+		    (concat user-emacs-config-directory "init.org")))
+(defvar elib-init-startup-el (expand-file-name
+		    (concat user-emacs-config-directory "init.el")))
+(defvar elib-init-custom-org (expand-file-name
+		    (concat user-emacs-config-directory "custom.org")))
+(defvar elib-init-custom-el (expand-file-name
+		    (concat user-emacs-config-directory "custom.el")))
+(defvar elib-init-config-org (expand-file-name
+		    (concat user-emacs-config-directory "configuration.org")))
+(defvar elib-init-config-el (expand-file-name
+		    (concat user-emacs-config-directory "configuration.el")))
+(defvar elib-init-exwm-org (expand-file-name
+		    (concat user-emacs-config-directory "init-exwm.org")))
+(defvar elib-init-exwm-el (expand-file-name
+		   (concat user-emacs-config-directory "init-exwm.el")))
+
+(defvar elib-tangle-needs-to-tangle?
+  (or 
+  (file-newer-than-file-p elib-init-startup-org
+                              elib-init-startup-el)
+  (file-newer-than-file-p elib-init-config-org
+                              elib-init-config-el)
+  (file-newer-than-file-p elib-init-config-org
+                              elib-init-config-el)
+      (file-newer-than-file-p elib-init-custom-org
+                              elib-init-custom-el)
+      (file-newer-than-file-p elib-init-exwm-org
+                              elib-init-exwm-el)
+			      elib-init-needs-installation?
+      ))
+#+END_SRC
+
+
+* Use Package 
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+
+
+  (when elib-init-needs-installation?
+  (message "Setting always ensure!")
+    (setq use-package-always-ensure t)
+    )
+
+  (eval-and-compile
+  (unless (and (package-installed-p 'use-package)
+	     (package-installed-p 'diminish)
+	     (package-installed-p 'bind-key)
+	     (package-installed-p 'org-plus-contrib)
+	     (package-installed-p 'helm))
+
+  (package-refresh-contents)
+
+  (package-install 'use-package)
+  (package-install 'use-package-hydra)
+  (require 'use-package)
+  (require 'use-package-hydra)
+  (package-install 'org-plus-contrib)
+  (package-install 'diminish)
+  (package-install 'bind-key)
+  (package-install 'helm)
+  )
+  )
+
+    (require 'use-package)
+    (use-package diminish)
+    (use-package bind-key)
+#+END_SRC
+
+* Install packages with dependencies
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (setq use-package-verbose nil)
+  (unless (daemonp)
+    (when elib-init-needs-installation?
+     (cl-letf (((symbol-function 'yes-or-no-p)
+		(lambda (&rest args) t))
+		((symbol-function 'y-or-n-p)
+		(lambda (&rest args) t))
+	       )
+      (save-window-excursion
+	(use-package irony)
+	(use-package zmq)
+	(zmq-load)
+	(irony-install-server (format
+		 (concat "%s %s %s %s && %s --build . "
+			 "--use-stderr --config Release --target install")
+		 (shell-quote-argument irony-cmake-executable)
+		 (shell-quote-argument (concat "-DCMAKE_INSTALL_PREFIX="
+					       (expand-file-name
+						irony-server-install-prefix)))
+		 (mapconcat 'shell-quote-argument irony-extra-cmake-args " ")
+		 (shell-quote-argument
+		  (or irony-server-source-dir
+		      (expand-file-name "server"
+					(file-name-directory
+					 (find-library-name "irony")))))
+		 (shell-quote-argument irony-cmake-executable)))
+	(use-package pdf-tools)
+	(pdf-tools-install t)
+
+	(when window-system
+	  (use-package all-the-icons)
+	  (all-the-icons-install-fonts t))
+
+	)
+      )))
+
+
+#+END_SRC
+
+
+
+* Tangle org mode files when needed 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (if elib-tangle-needs-to-tangle?
+      (progn
+	(use-package org
+      :ensure org
+      )
+    (use-package ob
+      :ensure org
+      )
+    (org-babel-tangle-file elib-init-startup-org)
+    (byte-compile-file elib-init-startup-el)
+    (org-babel-tangle-file elib-init-custom-org)
+    (org-babel-tangle-file elib-init-config-org)
+    (byte-compile-file elib-init-custom-org )
+    (byte-compile-file elib-init-config-org ) 
+    (use-package restart-emacs
+    :init 
+
+    )
+        (restart-emacs)
+   ;;(org-babel-tangle-file exwm-org)
+
+
+    ;;(load-file elib-user-org-calendar-secrets-file)
+    )
+    (progn
+      (load elib-init-custom-el)
+      (load elib-init-config-el)
+      ))
+    #+END_SRC
+

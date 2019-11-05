@@ -1,0 +1,4 @@
+# key: olinkv
+# name: Org Create Variable Link
+# --
+[[elisp:(describe-variable '${1:`yas-selected-text`})][\`$1']]

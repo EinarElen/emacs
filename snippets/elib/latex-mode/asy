@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: asymptote
+# key: asy
+# --
+\begin{figure}[ht!]
+\begin{center}
+\begin{asy}
+`(if (region-active-p) yas-selected-text)`$0
+\end{asy}
+\caption{$1}
+\end{center}
+\end{figure}

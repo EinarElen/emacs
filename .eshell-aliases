@@ -7,6 +7,8 @@ alias d dired $1
 alias FF sudo-find-file $1
 alias ff find-file $1
 alias dnf sudo dnf $*
+alias clean-emacs rm -r #*# *~
+alias clean-latex rm -r *.aux *.bbl *.blg *.pyg *.out *.log *.toc *.lof *.lot *.fdb_latexmk *.fls _minted*
 alias ll ls -lh $*
 alias la ls -lAh $*
 alias l ls -1 $*

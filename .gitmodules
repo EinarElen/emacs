@@ -1,5 +1,5 @@
 [submodule "tuhdosnippets"]
-	path = tuhdosnippets
+	path = snippets/tuhdosnippets
 	url = https://github.com/tuhdo/yasnippet-snippets
 [submodule "pamparam"]
 	path = pamparam

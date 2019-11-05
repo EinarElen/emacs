@@ -44,7 +44,6 @@
  (setq auto-save-list-file-prefix (concat user-emacs-directory "auto-save-list/.saves"))
  (add-hook 'after-init-hook #'(lambda ()
                                 ;; restore after startup
-
                                 (setq gc-cons-threshold 800000)
                                 ))
  (require 'package)
@@ -54,10 +53,7 @@
 
 
  (setq package-enable-at-startup nil)
- (add-to-list 'package-archives
-              '("melpa" . "https://melpa.org/packages/") t)
- (add-to-list 'package-archives
-              '("org" . "https://orgmode.org/elpa/") t)
+
  (setq use-package-debug nil)
  (setq use-package-verbose nil)
  (setq use-package-always-ensure t)
@@ -81,10 +77,6 @@
    (use-package diminish)
    (unless (package-installed-p 'helm)
      (use-package helm)))
-
-
-
-
 
 (unless (daemonp)
    (save-window-excursion (unless (package-installed-p 'irony)

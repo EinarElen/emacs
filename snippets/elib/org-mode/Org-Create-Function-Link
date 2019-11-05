@@ -1,0 +1,4 @@
+# key: olinkf
+# name: Org Create Function Link
+# --
+[[elisp:(describe-function '${1:`yas-selected-text`})][\`$1']]

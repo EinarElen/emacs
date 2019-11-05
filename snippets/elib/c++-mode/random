@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: random 
+# key: ran
+# --
+std::random_device $1;
+std::mt19937 $2($1());
+
+
+
