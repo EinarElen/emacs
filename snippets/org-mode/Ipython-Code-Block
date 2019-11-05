@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: Ipython Code Block
-# key: <jp
-# --
-#+BEGIN_SRC jupyter-python :session $1
-$0
-#+END_SRC

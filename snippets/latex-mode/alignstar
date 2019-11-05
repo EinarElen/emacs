@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: alignstar
-# key: als
-# --
-\begin{align*}
-`(if (region-active-p) yas-selected-text)`$0
-\end{align*}
