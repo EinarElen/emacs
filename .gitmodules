@@ -10,3 +10,9 @@
 [submodule "ob-ipython"]
 	path = ob-ipython
 	url = https://github.com/gregsexton/ob-ipython
+[submodule "external/lisp/scimax"]
+	path = external/lisp/scimax
+	url = https://github.com/jkitchin/scimax
+[submodule "external/lisp/frame-workflow"]
+	path = external/lisp/frame-workflow
+	url = https://github.com/akirak/frame-workflow

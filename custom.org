@@ -13,7 +13,27 @@
       (dolist (elt list value)
 	(when (and (not value) (file-exists-p elt))
 	  (setq value (expand-file-name elt))))
-      value)))
+      value))
+  (defun elib-extend-leader (title name prefix &rest keymaps)
+	(let* ((symbol-str (concat "elib-leader-" name))
+	       (definer-str (concat symbol-str "-def"))
+	       (symbol (intern symbol-str))
+	       (definer (intern definer-str)))
+	  (set symbol (concat elib-leader " " prefix))
+
+	  (if keymaps
+	      (progn
+		(eval `(elib-leader-def ,prefix'(nil :wk ,title) :keymaps ',keymaps))
+		(eval `(general-create-definer ,definer :prefix ,symbol :keymaps ',keymaps)))
+	    (progn (eval `(general-create-definer ,definer :prefix ,symbol))
+		   (eval `(elib-leader-def ,prefix'(nil :wk ,title) )))
+	    )))
+	    (use-package general)
+	    (setq elib-leader "M-m")
+      (eval `(general-unbind ,elib-leader))
+      (general-create-definer elib-leader-def
+	:prefix elib-leader)
+)
 (defmacro alist-get-equal (key alist &optional default
 			       remove)
   "A call to `alist-get' with testfn set to `equal'"
@@ -155,34 +175,45 @@ handy [[elisp:(describe-function 'executable-find)][`executable-find']] function
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (eval-when-compile
-(defvar elib-mu4e-load-path
-    (potential-load-paths
-     '("~/.local/share/emacs/site-lisp/mu4e"
-       "/usr/local/share/emacs/site-lisp/mu4e"
-       "/usr/local/share/emacs/site-lisp/mu/mu4e"
-       "~/.emacs.d/mu4e")))
-(defcustom elib-snippets-base-directory
+    (defvar elib-external-lisp-dir (concat user-emacs-config-directory "external/lisp/"))
+      (defvar elib-external-lisp-spacemacs-dir (concat user-emacs-config-directory "external/lisp/spacemacs/"))
+      (defvar elib-external-lisp-scimax-dir (concat user-emacs-config-directory "external/lisp/scimax/"))
+      (defvar elib-cache-dir (concat user-emacs-directory ".cache/"))
+    (defvar elib-mu4e-load-path
+      (potential-load-paths
+       '("~/.local/share/emacs/site-lisp/mu4e"
+	 "/usr/local/share/emacs/site-lisp/mu4e"
+	 "/usr/local/share/emacs/site-lisp/mu/mu4e"
+	 "~/.emacs.d/mu4e")))
+    (defcustom elib-snippets-base-directory
       (expand-file-name
        (concat user-emacs-config-directory
 	       "snippets/"))
       "Location of custom yasnippet files."
       :type 'string
       :group 'elib-file-paths)
-(defcustom elib-snippets-directory
+      (defcustom elib-external-lisp-dir 
+      (expand-file-name
+       (concat user-emacs-config-directory
+	       "external/lisp/"))
+      "Location of lisp from other sources."
+      :type 'string
+      :group 'elib-file-paths )
+    (defcustom elib-snippets-directory
       (expand-file-name
        (concat elib-snippets-base-directory
 	       "elib/"))
       "Location of custom yasnippet files."
       :type 'string
       :group 'elib-file-paths)
-  (defcustom tuhdo-snippets-directory
+    (defcustom tuhdo-snippets-directory
       (expand-file-name
        (concat elib-snippets-base-directory
 	       "/tuhdosnippets/"))
       "Location of extra yasnippet files from Tuhdo."
       :type 'string
       :group 'elib-file-paths)
-    
+
 
     (defcustom elib-config-file-file-name
       (expand-file-name
@@ -197,38 +228,38 @@ handy [[elisp:(describe-function 'executable-find)][`executable-find']] function
 
     (defcustom elib-drive-dir
       (expand-file-name "../Nextcloud"
-                        user-emacs-config-directory)
+			user-emacs-config-directory)
       "Filename of the user's personal
-      drive (e.g. nextcloud/google drive/dropbox)"
+	drive (e.g. nextcloud/google drive/dropbox)"
       :type 'string
       :group 'elib-file-paths
       :group 'elib-org)
-      
 
-(defcustom elib-bibliography-dir
+
+    (defcustom elib-bibliography-dir
       (expand-file-name "bibliography"
-                        elib-drive-dir)
+			elib-drive-dir)
       "Filename of the user's personal bibliography folder "
       :type 'string
       :group 'elib-file-paths
       :group 'elib-org)
-(defcustom elib-default-bibtex-file
+    (defcustom elib-default-bibtex-file
       (expand-file-name "general.bib"
-                        elib-bibliography-dir)
+			elib-bibliography-dir)
       "Filename of the user's personal bibliography bibtex-file"
       :type 'string
       :group 'elib-file-paths
       :group 'elib-org)
-(defcustom elib-default-bibtex-notes-file
-      (expand-file-name "notes.org"
-                        elib-bibliography-dir)
+    (defcustom elib-default-bibtex-notes-file
+      (expand-file-name "notes"
+			elib-bibliography-dir)
       "Filename of the user's personal bibliography notes-file"
       :type 'string
       :group 'elib-file-paths
       :group 'elib-org)
-(defcustom elib-default-bibtex-pdf-dir
+    (defcustom elib-default-bibtex-pdf-dir
       (expand-file-name "bibtex-pdfs/"
-                        elib-bibliography-dir)
+			elib-bibliography-dir)
       "Filename of the user's personal bibliography pdf folder"
       :type 'string
       :group 'elib-file-paths
@@ -246,7 +277,7 @@ handy [[elisp:(describe-function 'executable-find)][`executable-find']] function
       (concat
        elib-user-org-directory "cal/")
       "The directory where calendar files for `org-gcal' are
-      stored."
+	stored."
       :group 'elib-calendar
       :group 'elib-file-paths
       :group 'elib-org
@@ -254,14 +285,14 @@ handy [[elisp:(describe-function 'executable-find)][`executable-find']] function
 
 
 
-(defcustom elib-user-org-calendar-secrets-file
+    (defcustom elib-user-org-calendar-secrets-file
       (concat elib-org-calendar-directory "calendar.org")
       ""
       :group 'elib-org
       :group 'elib-file-paths
       :group 'elib-calendar
       )
-(defcustom elib-user-org-caldav-secrets-file
+    (defcustom elib-user-org-caldav-secrets-file
       (concat elib-org-calendar-directory "caldav.org")
       ""
       :group 'elib-org
@@ -271,14 +302,14 @@ handy [[elisp:(describe-function 'executable-find)][`executable-find']] function
 
 
 
-(defcustom elib-org-async-init-file (concat user-emacs-config-directory
+    (defcustom elib-org-async-init-file (concat user-emacs-config-directory
 						"orginit.el")
       ""
       :group 'elib-org
       :group 'elib-file-paths
       )
 
-  
-)
+
+    )
 
 #+END_SRC 
