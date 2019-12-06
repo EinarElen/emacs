@@ -1,0 +1,109 @@
+#+AUTHOR: Einar Elén
+#+EMAIL: einar.elen@gmail.com
+#+OPTIONS: toc:3 html5-fancy:t org-html-preamble:nil
+#+HTML_DOCTYPE_HTML5: t
+#+PROPERTY: header-args :tangle yes :comments both 
+#+STARTUP: noinlineimages
+
+* Help functions
+#+BEGIN_SRC emacs-lisp
+(use-package help-fns+
+    :load-path elib-external-lisp-dir)
+#+END_SRC
+
+* Dependencies 
+#+BEGIN_SRC emacs-lisp
+;; Required before
+(use-package undo-tree)
+(eval-after-load 'undo-tree
+  '(remove-hook 'menu-bar-update-hook 'undo-tree-update-menu-bar))
+(use-package hydra)
+(use-package elpy)
+(use-package lispy)
+(use-package org
+  :ensure org-plus-contrib)
+(use-package ob
+  :ensure org-plus-contrib)
+(use-package org-mouse
+  :ensure org-plus-contrib)
+(use-package s)
+(use-package rx)
+(use-package easymenu
+  :ensure nil)
+(use-package dash)
+(use-package avy)
+(use-package ox
+  :ensure org-plus-contrib)
+(use-package ox-publish
+  :ensure org-plus-contrib)
+(use-package url)
+(use-package xml)
+(use-package font-lock :ensure nil)
+(use-package cl :ensure nil)
+(use-package color :ensure nil)
+(setq clipmon--autoinsert nil)
+#+END_SRC
+
+* Scimax 
+#+BEGIN_SRC emacs-lisp :tangle no 
+  (setq scimax-user-dir user-emacs-directory)
+  (setq scimax-dir user-emacs-directory)
+  ;; No variables to clean
+  (ignore-errors (use-package scimax-utils 
+    :load-path elib-external-lisp-scimax-dir))
+  ;; No variables to clean 
+  (use-package scimax-mode
+    :load-path elib-external-lisp-scimax-dir
+    :config
+    (scimax-mode)) 
+  (use-package scimax-ob
+    :disabled t
+    :load-path
+    elib-external-lisp-scimax-dir)
+  ;; Important variable: scimax-src-block-keymaps 
+  (use-package scimax-email
+    :load-path
+    elib-external-lisp-scimax-dir)
+  (setq elib-ox-manuscript-load-path
+	(concat elib-external-lisp-scimax-dir "ox-manuscript/"))
+  (use-package ox-manuscript
+    :load-path elib-ox-manuscript-load-path)
+  (use-package words
+    :load-path elib-external-lisp-scimax-dir)
+  (use-package emacs-keybinding-command-tooltip-mode
+    :load-path elib-external-lisp-scimax-dir)
+  (unless (file-exists-p (concat elib-external-lisp-scimax-dir "scimax-editmarks.el"))
+    (org-babel-tangle-file (concat elib-external-lisp-scimax-dir "scimax-editmarks.org")))   
+  (use-package scimax-editmarks
+    :load-path elib-external-lisp-scimax-dir
+    :hook (org-mode . sem-mode))
+#+END_SRC
+
+* Spacemacs 
+
+
+#+BEGIN_SRC emacs-lisp 
+    (setq spacemacs-cache-directory elib-cache-dir)
+
+    (defun load-in-spacemacs (file)
+      (load-file (concat elib-external-lisp-spacemacs-dir file ".el")))
+
+    (load-in-spacemacs "core-load-paths")
+    (load-in-spacemacs "core-dotspacemacs")
+    (load-in-spacemacs "core-funcs")
+    (load-in-spacemacs "core")
+    (load-in-spacemacs "core-toggle")
+    (load-in-spacemacs "core-transient-state")
+    (load-in-spacemacs "core-auto-completion")
+  (load-in-spacemacs "helm-funcs")
+#+END_SRC
+
+
+
+
+
+
+
+
+
+ 

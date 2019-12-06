@@ -16,3 +16,6 @@
 [submodule "external/lisp/frame-workflow"]
 	path = external/lisp/frame-workflow
 	url = https://github.com/akirak/frame-workflow
+[submodule "external/lisp/emacs-application-framework"]
+	path = external/lisp/emacs-application-framework
+	url = https://github.com/manateelazycat/emacs-application-framework

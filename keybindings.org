@@ -1,0 +1,384 @@
+#+AUTHOR: Einar Elén
+#+EMAIL: einar.elen@gmail.com
+#+OPTIONS: toc:3 html5-fancy:t org-html-preamble:nil
+#+HTML_DOCTYPE_HTML5: t
+#+PROPERTY: header-args :tangle yes :comments both 
+#+STARTUP: noinlineimages
+#+BEGIN_SRC emacs-lisp
+(use-package bind-key)
+#+END_SRC
+
+* Unbind keys 
+** Replaced by General 
+*** Files
+ #+BEGIN_SRC emacs-lisp :tangle no
+(general-unbind "C-x C-f" "C-x s" "C-x C-s")
+ #+END_SRC
+#+RESULTS:
+
+*** Helm 
+#+BEGIN_SRC emacs-lisp :tangle no
+(general-unbind "M-x" "C-s" "C-r" "C-x b")
+#+END_SRC
+
+*** Org
+#+BEGIN_SRC emacs-lisp 
+(general-unbind  org-mode-map
+    "C-c C-e"   ; Export
+    "C-c a"     ; Agenda
+    "C-c c"     ; Capture
+    "C-c C-d"   ; deadline
+    "C-c ."     ; Timestamp
+    "C-c C-x p" ; Set property
+    "C-k"       ; Kill line
+    "C-c '"     ; Open special
+    )
+#+END_SRC
+
+#+RESULTS:
+
+** Windows  
+#+BEGIN_SRC emacs-lisp :tangle no
+(general-unbind "C-x o" "C-x 0" "C-x 2" "C-x 3" "C-x 1")
+#+END_SRC
+
+** Annoying defaults 
+#+BEGIN_SRC emacs-lisp
+(general-unbind "C-<down-mouse-1>")
+(general-unbind "C-<down-mouse-2>")
+(general-unbind "C-<down-mouse-3>")
+(general-unbind "C-<mouse-1>")
+(general-unbind "C-<mouse-2>")
+(general-unbind "C-<mouse-3>")
+#+END_SRC
+
+#+RESULTS:
+** Help 
+Get rid of hello help, cute but annoying
+#+BEGIN_SRC emacs-lisp
+(general-unbind "C-h h")
+#+END_SRC
+
+
+* Leader definitions
+#+BEGIN_SRC emacs-lisp 
+
+(elib-extend-leader "Major Mode" "mode" "m") 
+(elib-extend-leader "Applications" "apps" "a")
+(elib-extend-leader "Special" "special" "s")
+(elib-extend-leader "Multiple Cursors" "mc" "sm")
+(elib-extend-leader "Helm" "helm" "sh")
+(elib-extend-leader "Window Management"  "windows" "w") 
+(elib-extend-leader "Toggles"  "toggles" "t")
+(elib-extend-leader "Files"  "files" "f")
+(elib-extend-leader "Help"  "help" "h")
+(elib-extend-leader "Projects"  "projects" "p")
+(elib-extend-leader "Shells"  "shells" "as")
+(elib-extend-leader "Org"  "a/org" "ao")
+(elib-extend-leader "Org-ref"  "org-ref" "aor")
+(elib-extend-leader "Brain"  "org-brain" "aob")
+(elib-extend-leader "Errors/export"  "errors" "e")
+(elib-extend-leader "Jump"  "jump" "j")
+(elib-extend-leader "Buffers"  "buffers" "b")
+(elib-extend-leader "PDF-Tools" "pdfview" "m" 'pdf-view-mode-map 'pdf-annot-list-mode-map)
+(elib-extend-leader "Org Mode" "org" "m" 'org-mode-map) 
+(elib-extend-leader "Elisp" "elisp" "m" 'emacs-lisp-mode-map 'lisp-interaction-mode-map)
+#+END_SRC
+
+#+RESULTS:
+
+* Helm
+#+BEGIN_SRC emacs-lisp 
+  (bind-key "M-y"  'helm-show-kill-ring)
+  (bind-key "M-p" 'helm-minibuffer-history minibuffer-local-map)
+  (bind-key "M-n" 'helm-minibuffer-history minibuffer-local-map)
+  (bind-key "C-r" 'helm-previous-line helm-swoop-map)
+  (bind-key "C-s" 'helm-previous-line helm-swoop-map)
+;; Add helm-descbinds
+#+END_SRC
+* Text editing 
+#+BEGIN_SRC emacs-lisp
+(bind-key "C-a" 'mwim-beginning)
+(bind-key "C-e" 'mwim-end)
+(bind-key "M-;"  'comment-dwim-2)
+(bind-key "M-c" 'capitalize-dwim)
+(bind-key "M-C" 'sentence-case-region)
+#+END_SRC
+
+#+RESULTS:
+: sentence-case-region
+
+* Mail
+#+BEGIN_SRC emacs-lisp
+      (general-def 
+	"s" 'helm-mu
+	"c" 'helm-mu-contacts
+	:keymaps '(mu4e-main-mode-map mu4e-headers-mode-map))
+    (general-def 
+      "C-M-c" 'helm-mu-contacts
+      :keymaps '(mu4e-compose-mode-map mu4e-org-mode-map))
+    (general-def
+    "s" 'helm-mu
+  :keymaps 'mu4e-view-mode-map)
+#+END_SRC
+
+#+RESULTS:
+
+* Snippets and completion 
+#+BEGIN_SRC emacs-lisp 
+;; :bind (("C-c y d" . yas-load-directory)
+;;          ("C-c y i" . yas-insert-snippet)
+;;          ("C-c y f" . yas-visit-snippet-file)
+;;          ("C-c y n" . yas-new-snippet)
+;;          ("C-c y t" . yas-tryout-snippet)
+;;          ("C-c y l" . yas-describe-tables)
+;;          ("C-c y g" . yas/global-mode)
+;;          ("C-c y m" . yas/minor-mode)
+;;          ("C-c y r" . yas-reload-all)
+;;          ("C-c y x" . yas-expand))
+#+END_SRC
+* General setup 
+** Basic 
+#+BEGIN_SRC emacs-lisp
+(elib-leader-def
+  "SPC" '(helm-M-x :wk "M-x")
+  "v" '(er/expand-region :wk "Expand region")
+  "?" '(helm-descbinds :wk "Keybindings")
+  "/" '(spacemacs/helm-project-smart-do-search :wk "Search")
+  "-" '(spacemacs/helm-project-smart-do-search :wk "Search")
+  "M-/" '(helm-swoop-without-pre-input :wk "Search")
+  "M--" '(helm-swoop-without-pre-input :wk "Search")
+  "," '(elib-repeat-previous-command :wk "Repeat Previous Command")
+					;"TAB"'(spacemacs/alternate-window :wk "Previous Windows")
+  "TAB"'(ace-window :wk "Switch Windows")
+  ";" '(comment-dwim-2 :wk "Comment")
+  "ö" '(comment-dwim-2 :wk "Comment")
+  "u" '(undo-tree-visualize :wk "Undo"))
+#+END_SRC
+
+#+RESULTS:
+
+** Helm 
+#+BEGIN_SRC emacs-lisp
+(elib-leader-helm-def
+    "m" '(helm-man-woman :wk "Manpages")
+    "i" '(helm-info :wk "Info")
+    "o" '(helm-org-rifle :wk "Org rifle")
+    "s" '(helm-flyspell-correct :wk "Flyspell")
+    "r" '(helm-resume :wk "Resume"))
+#+END_SRC
+#+RESULTS:
+** Insert / Complete 
+#+BEGIN_SRC emacs-lisp
+(elib-leader-def
+	 "is" 'helm-yas-complete
+	 )
+(let ((map company-active-map))
+                    ;(define-key map (kbd "C-/")   'company-search-candidates)
+    (define-key map (kbd "M-n") 'company-select-next)
+    (define-key map (kbd "M-p") 'company-select-previous)
+    (define-key map (kbd "C-M-/") 'company-filter-candidates)
+    (define-key map (kbd "C-d")   'company-show-doc-buffer)
+    (define-key map (kbd "M-/") 'helm-company)
+    )
+
+#+END_SRC
+
+** Help 
+#+BEGIN_SRC emacs-lisp
+(elib-leader-help-def
+     "d" '(nil :wk "Describe")
+     "a" '(helm-apropos :wk "Apropos")
+     "da" '(helm-apropos :wk "Apropos")
+     "df" '(describe-function :wk "Function")
+     "dv" '(describe-variable :wk "Function")
+     "D" '(helm-descbinds :wk "Descbinds")
+     "dl" '(elisp-slime-nav-describe-elisp-thing-at-point :wk "Describe LISP thing at point")
+     "dk" '(describe-key :wk "Key")
+     "dm" '(elib-weird-mode-binding-fix :wk "Mode"))
+#+END_SRC
+
+#+RESULTS:
+
+** Applications 
+#+BEGIN_SRC emacs-lisp
+  (elib-leader-apps-def
+    "c" '(calc-dispatch :wk "Calc Dispatch")
+    "d" '(dired :wk "Dired")
+    "P" '(nil :wk "Processes")
+    "Pp" '(proced :wk "Proced")
+    "Pl" '(list-processes :wk "List Processes")
+    "lp" '(package-list-packages :wk "List packages")
+      "m" '(nil :wk "Mu4e")
+      "mm" '(mu4e :wk "Mu4e")
+      "mc" '(mu4e-compose-new :wk "Compose")
+      "t" '(twit :wk "Twitter"))
+#+END_SRC
+
+** Buffers 
+#+BEGIN_SRC emacs-lisp
+(elib-leader-buffers-def
+  "b" '(helm-mini :wk "Helm-mini"))
+#+END_SRC
+** Org 
+ #+BEGIN_SRC emacs-lisp 
+(elib-leader-org-def 
+  "" '(nil :wk "Org mode")
+  "." '(elib-org-transient-hydra/body :wk "Transient")
+  "e" '(nil :wk "Export")
+  "ee" '(org-export-dispatch :wk "Export Dispatch")
+  "el" '(elib-org-to-pdf-and-open :wk "Latex")
+  "eL" `(,(lambda () (interactive) (elib-org-to-pdf-and-open t)) :wk "Latex Subtree")
+  "t" '(nil :wk "Tables")
+  " SPC" '(org-time-stamp :wk "Time Stamp")
+  "s" '(org-schedule :wk "Schedule")
+  "d" '(org-deadline :wk "Deadline")
+  "a" '(org-agenda  :wk  "Agenda")
+  "c" '(org-capture :wk  "Capture")
+  "p" '(org-set-property :wk "Set Property")
+  "T" '(org-set-tags :wk "Set Tags")
+  "D" '(org-insert-drawer :wk "Insert Drawer")
+  "'" '(org-edit-special :wk "Edit Block")
+  "ä" '(org-edit-special :wk "Edit Block")
+  "t" '(nil :wk "Toggle")
+  "tl" '(org-toggle-link-display :wk "Toggle Link Display")
+  "l" '(nil :wk "Links")
+  "lo" '(org-open-at-point :wk "Open link")
+  "li" '(org-insert-link :wk "Insert link")
+  "ls" '(org-store-link :wk "Store link")
+  "lc" '(org-cliplink :wk "Copy link"))
+(elib-leader-def
+  :keymaps '(org-mode-map)
+  ";" '(org-comment-dwim :wk "Comment")
+  "ö" '(org-comment-dwim :wk "Comment"))
+(elib-leader-def
+  :keymaps '(org-src-mode-map)
+  "m'" '(org-edit-src-exit :wk "Edit Block")
+  "mä" '(org-edit-src-exit :wk "Edit Block"))
+(general-def :keymaps 'org-mode-map
+  "C-k" 'elib-kill-line-org-sp
+  "M-n" '(elib-org-pdf-scroll-down :wk "Scroll pdf in other window down")
+  "M-p" '(elib-org-pdf-scroll-up :wk "Scroll pdf in other window up")
+  "M-;" '(org-comment-dwim :wk "Comment")
+  "M-ö" '(org-comment-dwim :wk "Comment"))
+#+END_SRC
+
+#+RESULTS:
+
+** Windows 
+#+BEGIN_SRC emacs-lisp
+(elib-leader-windows-def
+  "s" '(nil :wk "Split")
+  "sb" '(elib-split-window-below :wk "Split Below/Horizontally")
+  "sn" '(elib-split-window-below :wk "Split Below/Horizontally")
+  "sr" '(elib-split-window-right :wk "Split Right/Vertically")
+  "sf" '(elib-split-window-right :wk "Split Right/Vertically")
+  "a" '(ace-window :wk "Ace Window")
+  "w" '(ace-window :wk "Ace Window")
+  "o" '(other-window :wk "Other window")
+  "t" '(elib-ace-swap-window :wk "Transpose")
+  "d" '(elib-ace-delete-window :wk "Delete")
+  "." '(elib-windows-transient-hydra/body :wk "Transient")
+  "O" '(delete-other-windows :wk "Delete Others")
+  "z" '(elib-zoom-transient-hydra/body :wk "Zoom")
+  " TAB" '(spacemacs/alternate-window :wk "Previous Windows")
+  " SPC" '(elib-windows-transient-hydra/body :wk "Transient"))
+#+END_SRC
+
+#+RESULTS:
+
+** Projectile 
+#+BEGIN_SRC emacs-lisp
+(elib-leader-projects-def
+  "b" '(projectile-switch-to-buffer :wk "Switch to Buffer")
+  "d" '(projectile-find-dir :wk "Find Directory")
+  "f" '(projectile-find-file :wk "Find File")
+  "F" '(projectile-find-file-dwim :wk "Find File")
+  "p" '(projectile-switch-project :wk "Switch")
+  "h" '(helm-projectile :wk "Helm")
+  "r" '(projectile-recentf :wk "Recent")
+  "a" '(projectile-ag :wk "Ag")
+  "c" '(projectile-compile-project :wk "Compile")
+  "g" '(projectile-grep :wk "Grep")
+  "s" '(projectile-multi-occur :wk "Search/Occur"))
+#+END_SRC
+** Frames 
+ #+BEGIN_SRC emacs-lisp 
+(elib-leader-def
+      "l" '(frame-workflow-prefix-map :wk "Layouts/frames")
+      "." '(helm-frame-workflow :wk "Switch frame"))
+
+ #+END_SRC
+** PDF-view 
+#+BEGIN_SRC emacs-lisp 
+(general-def :keymaps 'pdf-view-mode-map
+  "/" '(pdf-occur :wk "Search")
+  "M-m /" '(pdf-occur :wk "Search"))
+(elib-leader-pdfview-def
+  "r" '(pdf-view-revert-buffer :wk "Revert buffer")
+  "a" '(nil :wk "Annotations")
+  "d" '(pdf-annot-attachment-dired :wk )
+  "am" '(pdf-annot-add-markup-annotation :wk "Add Markup")
+  "as" '(pdf-annot-add-squiggly-markup-annotation :wk "Add Squiggly")
+  "aS" '(pdf-annot-add-strikeout-markup-annotation :wk "Add Strikeout")
+  "at" '(pdf-annot-add-text-annotation :wk "Add Text")
+  "aS" '(pdf-annot-add-underline-markup-annotation :wk "Add Underline")
+  "aD" '(pdf-annot-delete :wk "Remove Annotation")
+  "af" '(pdf-annot-list-follow-minor-mode :wk "Follow Mode")
+  "n" '(pdf-view-midnight-minor-mode :wk "Midnight Mode")
+  "o" '(pdf-outline :wk "Outline")
+  "l" '(pdf-annot-list-annotations
+        :wk "List annotations")
+  "f" '(nil :wk "Fit")
+  "fh" '(pdf-view-fit-height-to-window :wk "Fit Height to Window")
+  "fp" '(pdf-view-fit-page-to-window :wk "Fit Page to Window")
+  "fw" '(pdf-view-fit-width-to-window :wk "Fit Height to Window")
+  "s" '(pdf-occur :wk "Search")
+  "g" '(pdf-view-goto-page :wk "Goto page")
+  "." '(elib-spacemacs-pdf-tools-transient-hydra/body :wk "Transient State")
+  " SPC" '(elib-spacemacs-pdf-tools-transient-hydra/body :wk "Transient State") 
+  )
+
+
+#+END_SRC
+** Files 
+#+BEGIN_SRC emacs-lisp
+(elib-leader-files-def
+    "s" '(save-buffer :wk "Save Buffer")
+    "S" '(save-some-buffers :wk "Save Some Buffers")
+    "f" '(helm-find-files :wk "Find file")
+    "l" '(helm-locate :wk "Locate file")
+    "a" '(helm-ag :wk "Ag")
+    "e" '(nil :wk "Emacs Files")
+    "ec" '(elib-open-configuration :wk "Configuration")
+    "eC" '(elib-open-custom :wk "Customization")
+    "ei" '(elib-open-init :wk "Init File")
+    "eI" '(elib-open-init :wk "Init File (Lisp)")
+    "eb" '(elib-open-bib :wk "Bibliography")
+    "b"  '(elib-open-brain-dir :wk "Brain Directory")
+    "c"  '(copy-file :wk "Copy file")
+    "D" '(spacemacs/delete-current-buffer-file :wk "Delete current file")
+    "E" '(spacemacs/sudo-edit :wk "Sudo edit")
+    "r" '(spacemacs/rename-current-buffer-file :wk "Rename current file")
+    "t" '(treemacs :wk "Treemacs")
+    "y" '(spacemacs/show-and-copy-buffer-filename :wk "Copy buffer file name"))
+#+END_SRC
+
+#+RESULTS:
+
+* Keymap variables 
+#+BEGIN_SRC emacs-lisp 
+(setq scimax-src-block-keymaps
+      `(("python" . ,(let ((map (make-composed-keymap
+				 `(,elpy-mode-map ,python-mode-map ,pyvenv-mode-map)
+				 org-mode-map)))
+		       ;; In org-mode I define RET so we f
+		       (define-key map (kbd "<return>") 'newline)
+		       (define-key map (kbd "C-c C-c") 'org-ctrl-c-ctrl-c)
+		       map))
+	("emacs-lisp" . ,(let ((map (make-composed-keymap `(,emacs-lisp-mode-map ;; ,lispy-mode-map
+							    ,outline-minor-mode-map)
+							  org-mode-map)))
+			   (define-key map (kbd "C-c C-c") 'org-ctrl-c-ctrl-c)
+			   map))))
+#+END_SRC

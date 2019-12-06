@@ -1,0 +1,723 @@
+#+AUTHOR: Einar Elén
+#+EMAIL: einar.elen@gmail.com
+#+OPTIONS: toc:3 html5-fancy:t org-html-preamble:nil
+#+HTML_DOCTYPE_HTML5: t
+#+PROPERTY: header-args :tangle yes :comments both 
+#+STARTUP: noinlineimages
+* Handy lisp functions and macros 
+#+BEGIN_SRC emacs-lisp :tangle yes
+(eval-when-compile
+  (defun potential-load-paths (list)
+    (let ((value))
+      (dolist (elt list value)
+	(when (and (not value) (file-exists-p elt))
+	  (setq value (expand-file-name elt))))
+      value))
+  
+)
+(defmacro alist-get-equal (key alist &optional default
+			       remove)
+  "A call to `alist-get' with testfn set to `equal'"
+  `(alist-get ,key ,alist ,default ,remove 'equal))
+
+
+(defmacro alist-get-equal-simple (key alist)
+  "A call to `alist-get' with default and remove set to
+  nil and testfn set to `equal'
+
+  In reality, a call to `alist-get-equal' with default and
+  remove set to nil."
+  `(alist-get-equal ,key ,alist nil nil))
+
+(defmacro add-to-list-multi (lst elts &optional append compare-fn)
+  "Call `add-to-list' for each element in ELTS to LST."
+  `(dolist (x ,elts)
+     (add-to-list ,lst x ,append ,compare-fn)))
+
+
+(defun add-to-list-force (lst elt)
+  "If the car of ELT is a key in LST, replace the value with the
+value from ELT. Otherwise, call `add-to-list'"
+  (if (assoc (car elt) lst)
+      (setf
+       (cdr (assoc (car elt) lst))
+       (cdr elt))
+    (add-to-list 'lst elt)))
+#+END_SRC
+
+#+RESULTS:
+: add-to-list-force
+ 
+Run code ignoring queries for yes/no
+#+BEGIN_SRC emacs-lisp
+(eval-when-compile 
+(defmacro elib-with-always-yes (&rest body)
+  `(cl-letf (((symbol-function 'y-or-n-p) (lambda (&rest args) t))
+	     ((symbol-function 'yes-or-no-p) (lambda (&rest args) t)))
+     ,@body
+    ))
+(defmacro elib-with-always-no (&rest body)
+  `(cl-letf (((symbol-function 'y-or-n-p) (lambda (&rest args) nil))
+	     ((symbol-function 'yes-or-no-p) (lambda (&rest args) nil)))
+     ,@body
+    )))
+#+END_SRC
+* Email 
+#+BEGIN_SRC emacs-lisp
+  ;; make the `gnus-dired-mail-buffers' function also work on
+  ;; message-mode derived modes, such as mu4e-compose-mode
+  (defun gnus-dired-mail-buffers ()
+    "Return a list of active message buffers."
+    (let (buffers)
+      (save-current-buffer
+	(dolist (buffer (buffer-list t))
+	  (set-buffer buffer)
+	  (when (and (derived-mode-p 'message-mode)
+		     (null message-sent-message-via))
+	    (push (buffer-name buffer) buffers))))
+      (nreverse buffers)))
+  (defun elib-mu4e-view-request-attachments-dir (path)
+    "Ask the user where to save multiple attachments (default is PATH)."
+    (let ((fpath 
+	   (expand-file-name
+	    (read-directory-name
+	     (mu4e-format "Save in directory ")
+	     path nil nil nil) path)))
+      (if (file-directory-p fpath) fpath
+	(if elib-create-attachments-directories?
+	    (progn (mkdir fpath t) fpath)))))
+  (defun elib-choose-msmtp-account ()
+    (if (message-mail-p)
+	(save-excursion
+	  (let*
+	      ((from (save-restriction
+		       (message-narrow-to-headers)
+		       (message-fetch-field "from")))
+	       (case-fold-search t)
+	       (account
+		(cond
+		 ((string-match "gmail.com" from) "gmail")
+		 ((string-match "student.lu.se" from) "lu")
+		 ((string-match "luna.lu.se" from) "jol")
+		 ((string-match "cern.ch" from) "cern")
+		 )))
+	    (setq message-sendmail-extra-arguments 
+		  (append 
+		   message-sendmail-extra-arguments (list '"-a" account)))))))
+
+  (defun elib-loop-and-set-vars ( list)
+    (mapc #'(lambda (var)
+	      (set (car var) (cadr var)))
+	  list))
+
+  (defun elib-mu4e-set-account ()
+    "Set the account for composing a message."
+    (let* ((account
+	    (completing-read (format "Compose with account: (%s) "
+				     (mapconcat #'(lambda (var) (car var))
+						elib-mu4e-account-alist "/"))
+			     (mapcar #'(lambda (var) (car var)) elib-mu4e-account-alist)
+			     nil t nil nil (caar elib-mu4e-account-alist)))
+	   (account-vars (cdr (assoc account elib-mu4e-account-alist))))
+      (if account-vars
+	  (elib-loop-and-set-vars account-vars)
+	(error "No email account found"))))
+#+END_SRC
+** Fix org msg
+#+BEGIN_SRC emacs-lisp
+  ;; Until fixed upstream
+  (eval-after-load "org-msg"
+    `(defun org-msg-build ()
+    "Build and return the XML tree for current OrgMsg buffer."
+    (let ((css (org-msg-load-css)))
+      (cl-flet ((enforce (xml)
+	     (let* ((tag (car xml))
+		(tmp (assq 'class (cadr xml)))
+		(class (when tmp
+		     (intern (cdr tmp))))
+		(style (org-msg-build-style tag class css)))
+	   (when style
+	     (setf (cadr xml) (assq-delete-all 'style (cadr xml)))
+	     (setf (cadr xml) (assq-delete-all 'class (cadr xml)))
+	     (push `(style . ,style) (cadr xml)))))
+	    (fix-img-src (xml)
+		 (let ((src (assq 'src (cadr xml))))
+		   (when (string-prefix-p "file://" (cdr src))
+		     (setcdr src (substring (cdr src) (length "file://")))))))
+	(let* ((org (buffer-substring-no-properties (org-msg-start) (org-msg-end)))
+	   (reply (org-msg-org-to-xml org default-directory))
+	   (temp-files (org-msg-get-prop "reply-to"))
+	   (original (when temp-files
+	       (org-msg-load-html-file (car temp-files)))))
+      (assq-delete-all 'h1 (assq 'div (assq 'body reply)))
+      (org-msg-xml-walk (assq 'body reply) #'fix-img-src)
+      (when css
+	(assq-delete-all 'style (assq 'head reply))
+	(org-msg-xml-walk (assq 'body reply) #'enforce))
+      (if (not original)
+	  (assq-delete-all 'script (assq 'head reply))
+	(org-msg-improve-reply-header original css)
+	 (push (or (assq 'article (assq 'body reply))
+	       (assq 'div (assq 'body reply)))
+	   ;(push (assq (if org-html-html5-fancy 'article 'div) (assq 'body reply))
+	  (cddr (assq 'body original))))
+      (or original reply))))))
+#+END_SRC
+
+* Hooks
+#+BEGIN_SRC emacs-lisp 
+(defun elib-disable-line-numbers-hook ()
+  (interactive)
+  (display-line-numbers-mode -1)
+  (when (featurep 'nlinum)
+    (nlinum-mode -1))
+  (when (featurep 'linum)
+    (linum-mode -1)))
+#+END_SRC
+
+#+RESULTS:
+: elib-disable-line-numbers-hook
+
+* Files
+** Finding emacs files quickly 
+#+BEGIN_SRC emacs-lisp
+(defun elib-make-find-config-file (subject)
+  `(defun ,(intern (concat "elib-open-" (downcase subject))) ()
+     (interactive)
+     (if-let ((frame (frame-workflow--find-frame-by-subject ,subject)))
+	 (frame-workflow-select-frame ,subject)
+       (frame-workflow-switch-frame ,subject))
+     (find-file ,(intern (concat "elib-init-" (downcase subject) "-org")))
+					      ))
+(dolist (subj
+	 '("Init" "Custom" "Custom_functions" "Configuration" "Keybindings" "Load-External"))
+  (eval (elib-make-find-config-file subj)))
+
+(defun elib-open-bib ()  
+  (interactive)
+    (if-let ((frame (frame-workflow--find-frame-by-subject "Bibtex")))
+	(frame-workflow-select-frame "Bibtex")
+      (frame-workflow-switch-frame "Bibtex"))
+    (find-file elib-default-bibtex-file))
+  (defun elib-open-init-lisp ()
+    (interactive)
+    (find-file elib-init-startup-el))
+
+  (defun elib-open-brain-dir ()
+    (interactive)
+    (if-let ((frame (frame-workflow--find-frame-by-subject "Brain")))
+	 (frame-workflow-select-frame "Brain")
+      (frame-workflow-switch-frame "Brain"))
+    (find-file org-brain-path))
+
+
+
+
+#+END_SRC
+
+#+RESULTS:
+: elib-open-brain-dir
+
+* Help
+For some reason, describe mode canot be called directly...
+#+BEGIN_SRC emacs-lisp
+(defun elib-weird-mode-binding-fix () 
+    (interactive)
+    (call-interactively 'describe-mode))
+#+END_SRC
+#+RESULTS:
+: elib-weird-mode-binding-fix
+
+Make debugging things you know the keybinding
+#+BEGIN_SRC emacs-lisp
+  (defun elib-edebug-next-command (&optional key-list)
+    (interactive (list (help--read-key-sequence)))
+
+    (let* ((key (caar key-list))
+	   (raw (cdar key-list))
+	   ;; Very unclear
+	   ;; (raw [,(cdr key-list)])
+	   (fnc (elt (help--analyze-key key raw) 1 )))
+      (when (fboundp fnc)
+	(save-window-excursion
+	  (find-function fnc)
+	  (xref-push-marker-stack)
+	  (edebug-defun)))))
+#+END_SRC
+
+#+RESULTS:
+: elib-edebug-next-command
+
+* General 
+#+BEGIN_SRC emacs-lisp 
+  (use-package general)
+
+(setq evil-want-integration t)
+(setq evil-want-keybinding nil) 
+  (use-package evil)
+  (evil-mode)
+  (setq elib-non-normal-leader "M-m")
+  (setq elib-leader "SPC")
+  ;; (eval `(general-unbind :states '(emacs insert hybrid iedit-insert)
+  ;; 	 ,elib-non-normal-leader))
+  ;; (eval `(general-unbind :states '(normal visual motion)))
+  ;; (general-unbind; :states '(normal visual motion)
+  ;;   ,elib-leader)
+  
+  (general-auto-unbind-keys)
+  (general-create-definer elib-leader-def
+    :prefix elib-leader
+    :non-normal-prefix elib-non-normal-leader
+    :states '(normal emacs hybrid insert iedit-insert visual motion))
+  (defun elib-extend-leader (title name prefix &rest keymaps)
+    (let* ((leader-str (concat "elib-leader-" name))
+	   (non-normal-leader-str (concat "elib-non-normal-leader-" name))
+	 
+	   (definer-str (concat leader-str "-def"))
+	   (non-normal-definer-str (concat non-normal-leader-str "-def"))
+	   (normal-definer-str (concat "elib-normal-leader-" name "-def"))
+
+	   (leader (intern leader-str))
+	   (non-normal-leader (intern non-normal-leader-str))
+	   (definer (intern definer-str))
+	   (non-normal-definer (intern non-normal-definer-str))
+	   (normal-definer (intern normal-definer-str)))
+      (set leader (concat elib-leader " " prefix))
+      (set non-normal-leader (concat elib-non-normal-leader " " prefix))
+      (progn
+	(eval `(general-create-definer ,definer ,@(when keymaps
+						    `(:keymaps ',keymaps)) :prefix ,leader :non-normal-prefix
+						    ,non-normal-leader :states '(normal emacs hybrid insert iedit-insert visual motion)))
+
+
+	(eval `(general-create-definer ,non-normal-definer
+		 ,@(when keymaps `(:keymaps ',keymaps)) :prefix ,leader
+		 :non-normal-prefix ,non-normal-leader :states '(emacs
+								 insert hybrid iedit-insert)))
+
+
+	(eval `(general-create-definer ,normal-definer ,@(when keymaps
+							   `(:keymaps ',keymaps))
+		 :prefix ,leader :non-normal-prefix
+		 ,non-normal-leader :states '(normal visual motion)))
+	(eval `(elib-leader-def ,@(when keymaps
+				    `(:keymaps ',keymaps)) ,prefix '(nil :wk ,title) )))))
+#+END_SRC
+* Org 
+** Org brain 
+#+BEGIN_SRC emacs-lisp 
+(defun org-brain-insert-resource-icon (link)
+       "Insert an icon, based on content of org-mode LINK."
+       (insert (format "%s "
+                       (cond ((string-prefix-p "http" link)
+                              (cond ((string-match "wikipedia\\.org" link)
+                                     (all-the-icons-faicon "wikipedia-w"))
+                                    ((string-match "github\\.com" link)
+                                     (all-the-icons-octicon "mark-github"))
+                                    ((string-match "vimeo\\.com" link)
+                                     (all-the-icons-faicon "vimeo"))
+                                    ((string-match "youtube\\.com" link)
+                                     (all-the-icons-faicon "youtube"))
+                                    (t
+                                     (all-the-icons-faicon "globe"))))
+                             ((string-prefix-p "brain:" link)
+                              (all-the-icons-fileicon "brain"))
+                             ((string-prefix-p "mu4e:" link)
+                              (all-the-icons-faicon "envelope"))
+                             (t
+                              (all-the-icons-icon-for-file link))))))
+#+END_SRC
+** Org speed commands
+ #+BEGIN_SRC emacs-lisp
+  (defun elib-org-tree-to-indirect-buffer-and-move ()
+     (interactive)
+     (let ((window (call-interactively 'org-tree-to-indirect-buffer)))
+       (pop-to-buffer org-last-indirect-buffer)))
+ #+END_SRC
+
+ #+RESULTS:
+ : elib-org-tree-to-indirect-buffer-and-move
+* PDF Tools and Org 
+#+BEGIN_SRC emacs-lisp
+(defun elib-org-pdf-scroll (num)
+  (let ((l (length (window-list))))
+    (when (= l 2)
+      (save-window-excursion
+        (save-excursion
+          (ignore-errors
+            (other-window 1)
+            (if (> num 0)
+		(if (equal major-mode 'pdf-view-mode) 
+		    (pdf-view-next-line-or-next-page 1)
+		  (next-line))
+	      (if (equal major-mode 'pdf-view-mode)
+		  (pdf-view-previous-line-or-previous-page 1)
+		(previous-line)))))))))
+(defun elib-org-pdf-scroll-up ()
+  (interactive)
+  (elib-org-pdf-scroll -1))
+(defun elib-org-pdf-scroll-down ()
+  (interactive)
+  (elib-org-pdf-scroll 1))
+(defun elib-kill-line-org-sp (&optional arg)
+  (interactive "P")
+  (let* ((element (org-element-at-point))
+         (element-type (org-element-type element))
+         (orig (line-number-at-pos))
+         (next))
+    (if (and (bolp)
+             (or (and (not (org-in-src-block-p t))
+                      (eq 'src-block element-type))
+		 (eq 'headline element-type)
+		 (eq 'plain-list element-type)))
+        (progn (save-excursion
+		 (next-line)
+		 (setq next (line-number-at-pos))
+		 (previous-line)
+		 (if (eq (1+ orig) next)
+		     (org-cycle)))
+               (org-kill-line arg))
+      (sp-kill-hybrid-sexp arg))))
+#+END_SRC
+
+#+RESULTS:
+: elib-kill-line-org-sp
+
+* Frame purpose  and windows
+** Action for frame projectile
+ #+BEGIN_SRC emacs-lisp 
+(defun elib-do-projectile-frame-and-helm (&optional dir)
+      (interactive)
+      (frame-workflow-switch-directory-frame dir)
+      (helm-projectile))
+ #+END_SRC
+
+** Managing the splitter 
+#+BEGIN_SRC emacs-lisp
+(defun hydra-move-splitter-left (arg)
+  "Move window splitter left."
+  (interactive "p")
+  (if (let ((windmove-wrap-around))
+        (windmove-find-other-window 'right))
+      (shrink-window-horizontally arg)
+    (enlarge-window-horizontally arg)))
+
+(defun hydra-move-splitter-right (arg)
+  "Move window splitter right."
+  (interactive "p")
+  (if (let ((windmove-wrap-around))
+        (windmove-find-other-window 'right))
+      (enlarge-window-horizontally arg)
+    (shrink-window-horizontally arg)))
+
+(defun hydra-move-splitter-up (arg)
+  "Move window splitter up."
+  (interactive "p")
+  (if (let ((windmove-wrap-around))
+        (windmove-find-other-window 'up))
+      (enlarge-window arg)
+    (shrink-window arg)))
+
+(defun hydra-move-splitter-down (arg)
+  "Move window splitter down."
+  (interactive "p")
+  (if (let ((windmove-wrap-around))
+        (windmove-find-other-window 'up))
+      (shrink-window arg)
+    (enlarge-window arg)))
+#+END_SRC
+
+#+RESULTS:
+: hydra-move-splitter-down
+
+** Switching windows 
+#+BEGIN_SRC emacs-lisp
+(defun elib-split-window-right ()
+    (interactive)
+    (split-window-right)
+    (windmove-right))
+  (defun elib-split-window-below ()
+    (interactive)
+    (split-window-below)
+    (windmove-down))
+#+END_SRC
+
+#+RESULTS:
+: elib-split-window-below
+
+** Ace windows
+
+#+BEGIN_SRC emacs-lisp
+(defun elib-ace-swap-window ()
+  (interactive)
+  (ace-window 4))
+
+(defun elib-ace-delete-window ()
+  (interactive)
+  (ace-window 16))
+#+END_SRC
+* Utility from other sites
+From
+https://stackoverflow.com/questions/14489848/emacs-name-of-current-local-keymap
+from when I wanted to debug pdf-view. 
+#+BEGIN_SRC emacs-lisp
+(defun keymap-symbol (keymap)
+  "Return the symbol to which KEYMAP is bound, or nil if no such symbol exists."
+  (catch 'gotit
+    (mapatoms (lambda (sym)
+                (and (boundp sym)
+                     (eq (symbol-value sym) keymap)
+                     (not (eq sym 'keymap))
+                     (throw 'gotit sym))))))
+(defun elib-current-keymap ()
+  (interactive)
+  (message (symbol-name (keymap-symbol (current-local-map)))))
+#+END_SRC
+** Backups 
+From [[http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/][Pragmatic Emacs]], used in [[file:configuration.org::*Backups][Backups]].
+
+#+BEGIN_SRC emacs-lisp
+
+(defun elib-backup-every-save ()
+  "Backup files every time they are saved.
+
+Files are backed up to `elib-backup-location' in subdirectories \"per-session\" once per Emacs session, and \"per-save\" every time a file is saved.
+
+Files whose names match the REGEXP in `elib-backup-exclude-regexp' are copied to `elib-backup-trash-dir' instead of the normal backup directory.
+
+Files larger than `elib-backup-file-size-limit' are not backed up."
+
+  ;; Make a special "per session" backup at the first save of each
+  ;; emacs session.
+  (when (not buffer-backed-up)
+    ;;
+    ;; Override the default parameters for per-session backups.
+    ;;
+    (let ((backup-directory-alist
+           `(("." . ,(expand-file-name "per-session" elib-backup-location))))
+          (kept-new-versions 3))
+      ;;
+      ;; add trash dir if needed
+      ;;
+      (if elib-backup-exclude-regexp
+          (add-to-list
+           'backup-directory-alist
+           `(,elib-backup-exclude-regexp . ,elib-backup-trash-dir)))
+      ;;
+      ;; is file too large?
+      ;;
+      (if (<= (buffer-size) elib-backup-file-size-limit)
+          (progn
+            (message "Made per session backup of %s" (buffer-name))
+            (backup-buffer))
+        (message "WARNING: File %s too large to backup - increase value of elib-backup-file-size-limit" (buffer-name)))))
+  ;;
+  ;; Make a "per save" backup on each save.  The first save results in
+  ;; both a per-session and a per-save backup, to keep the numbering
+  ;; of per-save backups consistent.
+  ;;
+  (let ((buffer-backed-up nil))
+    ;;
+    ;; is file too large?
+    ;;
+    (if (<= (buffer-size) elib-backup-file-size-limit)
+        (progn
+          (message "Made per save backup of %s" (buffer-name))
+          (backup-buffer))
+      (message "WARNING: File %s too large to backup - increase value of elib-backup-file-size-limit" (buffer-name)))))
+#+END_SRC
+
+ 
+** Spacemacs
+*** Diminish 
+#+BEGIN_SRC emacs-lisp
+(defmacro spacemacs|hide-lighter (mode)
+  "Diminish MODE name in mode line to LIGHTER."
+  `(eval-after-load 'diminish '(diminish ',mode)))
+#+END_SRC
+
+*** Files
+#+BEGIN_SRC emacs-lisp
+(defun spacemacs/show-and-copy-buffer-filename ()
+    "Show and copy the full path to the current file in the minibuffer."
+    (interactive)
+    ;; list-buffers-directory is the variable set in dired buffers
+    (let ((file-name (or (buffer-file-name) list-buffers-directory)))
+      (if file-name
+      (message (kill-new file-name))
+    (error "Buffer not visiting a file"))))
+
+(defun spacemacs/rename-current-buffer-file ()
+    "Renames current buffer and file it is visiting."
+    (interactive)
+    (let* ((name (buffer-name))
+       (filename (buffer-file-name)))
+      (if (not (and filename (file-exists-p filename)))
+      (error "Buffer '%s' is not visiting a file!" name)
+    (let* ((dir (file-name-directory filename))
+           (new-name (read-file-name "New name: " dir)))
+      (cond ((get-buffer new-name)
+         (error "A buffer named '%s' already exists!" new-name))
+        (t
+         (let ((dir (file-name-directory new-name)))
+           (when (and (not (file-exists-p
+                    dir))
+                  (yes-or-no-p (format "Create directory'%s'?" dir)))
+             (make-directory dir t)))
+         (rename-file filename new-name 1)
+         (rename-buffer new-name)
+         (set-visited-file-name new-name)
+         (set-buffer-modified-p nil)
+         (when (fboundp 'recentf-add-file)
+           (recentf-add-file new-name)
+           (recentf-remove-if-non-kept filename))
+         (when (and (package-installed-p 'projectile)
+                (projectile-project-p))
+           (call-interactively #'projectile-invalidate-cache))
+         (message "File '%s' successfully renamed to '%s'"
+              name (file-name-nondirectory new-name))))))))
+(defun spacemacs/delete-current-buffer-file ()
+    "Removes file connected to current buffer and kills buffer."
+    (interactive)
+    (let ((filename (buffer-file-name))
+      (buffer (current-buffer))
+      (name (buffer-name)))
+      (if (not (and filename (file-exists-p filename)))
+      (ido-kill-buffer)
+    (when (yes-or-no-p "Are you sure you want to delete this file? ")
+      (delete-file filename t)
+      (kill-buffer buffer)
+      (when (and  (projectile-project-p))
+        (call-interactively #'projectile-invalidate-cache))
+      (message "File '%s' successfully removed" filename)))))
+  (defun spacemacs/sudo-edit (&optional arg)
+    (interactive "P")
+    (let ((fname (if (or arg (not buffer-file-name))
+             (read-file-name "File: ")
+           buffer-file-name)))
+      (find-file
+       (cond ((string-match-p "^/ssh:" fname)
+          (with-temp-buffer
+        (insert fname)
+        (search-backward ":")
+        (let ((last-match-end nil)
+              (last-ssh-hostname nil))
+          (while (string-match "@\\\([^:|]+\\\)" fname last-match-end)
+            (setq last-ssh-hostname (or (match-string 1 fname)
+                        last-ssh-hostname))
+            (setq last-match-end (match-end 0)))
+          (insert (format "|sudo:%s" (or last-ssh-hostname "localhost"))))
+        (buffer-string)))
+         (t (concat "/sudo:root@localhost:" fname))))))
+(defun spacemacs/alternate-window ()
+  "Switch back and forth between current and last window in the
+current frame."
+  (interactive)
+  (let (;; switch to first window previously shown in this frame
+        (prev-window (get-mru-window nil t t)))
+    ;; Check window was not found successfully
+    (unless prev-window (user-error "Last window not found."))
+    (select-window prev-window)))  
+ #+END_SRC
+#+END_SRC
+*** Searching
+ #+BEGIN_SRC emacs-lisp
+(defun spacemacs//helm-do-search-find-tool (base tools default-inputp)
+    "Create a cond form given a TOOLS string list and evaluate it."
+    (eval
+     `(cond
+       ,@(mapcar
+      (lambda (x)
+        `((executable-find ,x)
+          ',(let ((func
+               (intern
+            (format (if default-inputp
+                    "spacemacs/%s-%s-region-or-symbol"
+                  "spacemacs/%s-%s")
+                base x))))
+          (if (fboundp func)
+              func
+            (intern (format "%s-%s"  base x))))))
+      tools)
+       (t 'helm-do-grep))))
+  (defun spacemacs//helm-do-ag-region-or-symbol (func &optional dir)
+    "Search with `ag' with a default input."
+    (require 'helm-ag)
+    (cl-letf* (((symbol-value 'helm-ag-insert-at-point) 'symbol)
+           ;; make thing-at-point choosing the active region first
+           ((symbol-function 'this-fn) (symbol-function 'thing-at-point))
+           ((symbol-function 'thing-at-point)
+        (lambda (thing)
+          (let ((res (if (region-active-p)
+                 (buffer-substring-no-properties
+                  (region-beginning) (region-end))
+                   (this-fn thing))))
+            (when res (rxt-quote-pcre res))))))
+      (funcall func dir)))
+  (defun spacemacs/helm-file-do-ag-region-or-symbol ()
+    "Search in current file with `ag' using a default input."
+    (interactive)
+    (spacemacs//helm-do-ag-region-or-symbol 'spacemacs/helm-file-do-ag))
+
+  (defun spacemacs/helm-file-smart-do-search (&optional default-inputp)
+    "Search in current file using `dotspacemacs-search-tools'.
+   Search for a search tool in the order provided by `dotspacemacs-search-tools'
+  If DEFAULT-INPUTP is non nil then the current region or symbol at point
+   are used as default input."
+    (interactive)
+    (call-interactively
+     (spacemacs//helm-do-search-find-tool "helm-file-do"
+                   dotspacemacs-search-tools
+                   default-inputp)))
+
+  (defun spacemacs/helm-file-smart-do-search-region-or-symbol ()
+    "Search in current file using `dotspacemacs-search-tools' with
+   default input.
+   Search for a search tool in the order provided by `dotspacemacs-search-tools'."
+    (interactive)
+    (spacemacs/helm-file-smart-do-search t))
+ #+END_SRC
+
+ #+RESULTS:
+ : spacemacs/helm-file-smart-do-search-region-or-symbol
+* Indent buffers 
+#+BEGIN_SRC emacs-lisp
+(defun indent-buffer ()
+  "Indent the currently visited buffer."
+  (interactive)
+  (indent-region (point-min) (point-max)))
+(defun indent-region-or-buffer ()
+  "Indent a region if selected, otherwise the whole buffer."
+  (interactive)
+  (unless (member major-mode prelude-indent-sensitive-modes)
+    (save-excursion
+      (if (region-active-p)
+          (progn
+            (indent-region (region-beginning) (region-end))
+            (message "Indented selected region."))
+        (progn
+          (indent-buffer)
+          (message "Indented buffer.")))
+      (whitespace-cleanup))))
+#+END_SRC
+* Evaluate buffer
+#+BEGIN_SRC emacs-lisp 
+(defun elib-eval-region-or-buffer (beg end )
+      (interactive (list (mark) (point)))
+      (if (region-active-p)
+      (eval-region beg end)
+    (eval-buffer)))
+#+END_SRC
+#+RESULTS:
+: indent-region-or-buffer
+* Yasnippet 
+#+BEGIN_SRC emacs-lisp 
+(defun elib-org-latex-yas ()
+  (yas-activate-extra-mode  'latex-mode))
+#+END_SRC
+* Checkers 
+#+BEGIN_SRC emacs-lisp 
+(defun elib-disable-flycheck-if-in-org-src-emacs-lisp ()
+  (when (equal major-mode 'emacs-lisp-mode) 
+      (flycheck-mode -1)))
+#+END_SRC

@@ -4,65 +4,7 @@
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes :comments both 
 #+STARTUP: noinlineimages
-* Handy lisp functions and macros 
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-(eval-when-compile
-  (defun potential-load-paths (list)
-    (let ((value))
-      (dolist (elt list value)
-	(when (and (not value) (file-exists-p elt))
-	  (setq value (expand-file-name elt))))
-      value))
-  (defun elib-extend-leader (title name prefix &rest keymaps)
-	(let* ((symbol-str (concat "elib-leader-" name))
-	       (definer-str (concat symbol-str "-def"))
-	       (symbol (intern symbol-str))
-	       (definer (intern definer-str)))
-	  (set symbol (concat elib-leader " " prefix))
-
-	  (if keymaps
-	      (progn
-		(eval `(elib-leader-def ,prefix'(nil :wk ,title) :keymaps ',keymaps))
-		(eval `(general-create-definer ,definer :prefix ,symbol :keymaps ',keymaps)))
-	    (progn (eval `(general-create-definer ,definer :prefix ,symbol))
-		   (eval `(elib-leader-def ,prefix'(nil :wk ,title) )))
-	    )))
-	    (use-package general)
-	    (setq elib-leader "M-m")
-      (eval `(general-unbind ,elib-leader))
-      (general-create-definer elib-leader-def
-	:prefix elib-leader)
-)
-(defmacro alist-get-equal (key alist &optional default
-			       remove)
-  "A call to `alist-get' with testfn set to `equal'"
-  `(alist-get ,key ,alist ,default ,remove 'equal))
-
-
-(defmacro alist-get-equal-simple (key alist)
-  "A call to `alist-get' with default and remove set to
-  nil and testfn set to `equal'
-
-  In reality, a call to `alist-get-equal' with default and
-  remove set to nil."
-  `(alist-get-equal ,key ,alist nil nil))
-
-(defmacro add-to-list-multi (lst elts &optional append compare-fn)
-  "Call `add-to-list' for each element in ELTS to LST."
-  `(dolist (x ,elts)
-     (add-to-list ,lst x ,append ,compare-fn)))
-
-
-(defun add-to-list-force (lst elt)
-  "If the car of ELT is a key in LST, replace the value with the
-value from ELT. Otherwise, call `add-to-list'"
-  (if (assoc (car elt) lst)
-      (setf
-       (cdr (assoc (car elt) lst))
-       (cdr elt))
-    (add-to-list 'lst elt)))
-#+END_SRC
 * Customization groups 
 
 Customization groups makes making changes simpler and exploring the
@@ -170,146 +112,446 @@ handy [[elisp:(describe-function 'executable-find)][`executable-find']] function
    company-gtags-executable (or (executable-find "global")
 				(executable-find "gtags"))))
 #+END_SRC
-* File paths 
+* TODO File paths  
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
-  (eval-when-compile
-    (defvar elib-external-lisp-dir (concat user-emacs-config-directory "external/lisp/"))
-      (defvar elib-external-lisp-spacemacs-dir (concat user-emacs-config-directory "external/lisp/spacemacs/"))
-      (defvar elib-external-lisp-scimax-dir (concat user-emacs-config-directory "external/lisp/scimax/"))
-      (defvar elib-cache-dir (concat user-emacs-directory ".cache/"))
-    (defvar elib-mu4e-load-path
-      (potential-load-paths
-       '("~/.local/share/emacs/site-lisp/mu4e"
-	 "/usr/local/share/emacs/site-lisp/mu4e"
-	 "/usr/local/share/emacs/site-lisp/mu/mu4e"
-	 "~/.emacs.d/mu4e")))
-    (defcustom elib-snippets-base-directory
-      (expand-file-name
-       (concat user-emacs-config-directory
-	       "snippets/"))
-      "Location of custom yasnippet files."
-      :type 'string
-      :group 'elib-file-paths)
-      (defcustom elib-external-lisp-dir 
-      (expand-file-name
-       (concat user-emacs-config-directory
-	       "external/lisp/"))
-      "Location of lisp from other sources."
-      :type 'string
-      :group 'elib-file-paths )
-    (defcustom elib-snippets-directory
-      (expand-file-name
-       (concat elib-snippets-base-directory
-	       "elib/"))
-      "Location of custom yasnippet files."
-      :type 'string
-      :group 'elib-file-paths)
-    (defcustom tuhdo-snippets-directory
-      (expand-file-name
-       (concat elib-snippets-base-directory
-	       "/tuhdosnippets/"))
-      "Location of extra yasnippet files from Tuhdo."
-      :type 'string
-      :group 'elib-file-paths)
-
-
-    (defcustom elib-config-file-file-name
-      (expand-file-name
-       (concat
-	user-emacs-config-directory
-	"configuration.org"))
-      "The filename of the user configuration file."
-      :type 'string
-      :group 'elib-file-paths
-      :group 'elib-org)
+(eval-when-compile
+  (defvar elib-external-lisp-dir (concat user-emacs-config-directory "external/lisp/"))
+  (defvar elib-external-lisp-spacemacs-dir (concat user-emacs-config-directory "external/lisp/spacemacs/"))
+  (defvar elib-external-lisp-scimax-dir (concat user-emacs-config-directory "external/lisp/scimax/"))
+  (defvar elib-cache-dir (concat user-emacs-directory ".cache/"))
+  (defvar elib-frame-workflow-dir (concat elib-external-lisp-dir "frame-workflow/"))
+  (defvar elib-mu4e-load-path
+    (potential-load-paths
+     '("~/.local/share/emacs/site-lisp/mu4e"
+       "/usr/local/share/emacs/site-lisp/mu4e"
+       "/usr/local/share/emacs/site-lisp/mu/mu4e"
+       "~/.emacs.d/mu4e")))
+  (defcustom elib-preview-latex-dir
+    (expand-file-name (concat user-emacs-directory "ltximg/"))
+    "Where to story latex fragment pictures"
+    :type 'string
+    :group 'elib-file-paths
+    )
+  (defcustom elib-snippets-base-directory
+    (expand-file-name
+     (concat user-emacs-config-directory
+	     "snippets/"))
+    "Location of custom yasnippet files."
+    :type 'string
+    :group 'elib-file-paths)
+  (defcustom elib-external-lisp-dir 
+    (expand-file-name
+     (concat user-emacs-config-directory
+	     "external/lisp/"))
+    "Location of lisp from other sources."
+    :type 'string
+    :group 'elib-file-paths )
+  (defcustom elib-snippets-directory
+    (expand-file-name
+     (concat elib-snippets-base-directory
+	     "elib/"))
+    "Location of custom yasnippet files."
+    :type 'string
+    :group 'elib-file-paths)
+  (defcustom tuhdo-snippets-directory
+    (expand-file-name
+     (concat elib-snippets-base-directory
+	     "/tuhdosnippets/"))
+    "Location of extra yasnippet files from Tuhdo."
+    :type 'string
+    :group 'elib-file-paths)
 
 
-    (defcustom elib-drive-dir
-      (expand-file-name "../Nextcloud"
-			user-emacs-config-directory)
-      "Filename of the user's personal
+  (defcustom elib-config-file-file-name
+    (expand-file-name
+     (concat
+      user-emacs-config-directory
+      "configuration.org"))
+    "The filename of the user configuration file."
+    :type 'string
+    :group 'elib-file-paths
+    :group 'elib-org)
+
+
+  (defcustom elib-drive-dir
+    (expand-file-name "../Nextcloud"
+		      user-emacs-config-directory)
+    "Filename of the user's personal
 	drive (e.g. nextcloud/google drive/dropbox)"
-      :type 'string
-      :group 'elib-file-paths
-      :group 'elib-org)
+    :type 'string
+    :group 'elib-file-paths
+    :group 'elib-org)
 
 
-    (defcustom elib-bibliography-dir
-      (expand-file-name "bibliography"
-			elib-drive-dir)
-      "Filename of the user's personal bibliography folder "
-      :type 'string
-      :group 'elib-file-paths
-      :group 'elib-org)
-    (defcustom elib-default-bibtex-file
-      (expand-file-name "general.bib"
-			elib-bibliography-dir)
-      "Filename of the user's personal bibliography bibtex-file"
-      :type 'string
-      :group 'elib-file-paths
-      :group 'elib-org)
-    (defcustom elib-default-bibtex-notes-file
-      (expand-file-name "notes"
-			elib-bibliography-dir)
-      "Filename of the user's personal bibliography notes-file"
-      :type 'string
-      :group 'elib-file-paths
-      :group 'elib-org)
-    (defcustom elib-default-bibtex-pdf-dir
-      (expand-file-name "bibtex-pdfs/"
-			elib-bibliography-dir)
-      "Filename of the user's personal bibliography pdf folder"
-      :type 'string
-      :group 'elib-file-paths
-      :group 'elib-org)
+  
 
-    (defcustom elib-user-org-directory
-      (expand-file-name "org/" elib-drive-dir)
-      "Directory where most org files are stored."
-      :type 'string
-      :group 'elib-file-paths
-      :group 'elib-org)
+  
 
-
-    (defcustom elib-org-calendar-directory
-      (concat
-       elib-user-org-directory "cal/")
-      "The directory where calendar files for `org-gcal' are
+  (defcustom elib-user-org-directory
+    (expand-file-name "org/" elib-drive-dir)
+    "Directory where most org files are stored."
+    :type 'string
+    :group 'elib-file-paths
+    :group 'elib-org
+)
+(defcustom elib-bibliography-dir
+    (expand-file-name "bibliography"
+		      elib-drive-dir)
+    "Filename of the user's personal bibliography folder "
+    :type 'string
+    :group 'elib-file-paths
+    :group 'elib-org)
+  (defcustom elib-default-bibtex-file
+    (expand-file-name "general.bib"
+		      elib-bibliography-dir)
+    "Filename of the user's personal bibliography bibtex-file"
+    :type 'string
+    :group 'elib-file-paths
+    :group 'elib-org)
+(defcustom elib-default-bibtex-notes-file
+    (expand-file-name "notes/"
+		      elib-bibliography-dir)
+    "Filename of the user's personal bibliography notes-file"
+    :type 'string
+    :group 'elib-file-paths
+    :group 'elib-org)
+  (defcustom elib-default-bibtex-pdf-dir
+    (expand-file-name "bibtex-pdfs/"
+		      elib-bibliography-dir)
+    "Filename of the user's personal bibliography pdf folder"
+    :type 'string
+    :group 'elib-file-paths
+    :group 'elib-org)
+  (defcustom elib-org-brain-dir (concat elib-user-org-directory "brain")
+    "Directory for org-brain."
+    :type 'string
+    :group 'elib-file-paths
+    )
+  (defcustom elib-org-ref-pdf-viewer "evince"
+    "PDF viewer for org-ref"
+    :type 'string)
+  (defcustom elib-org-ref-bibtex-notes-dir (concat elib-bibliography-dir "/notes/")
+    "Notes directory for org ref"
+    :type 'string 
+    :group 'elib-file-paths)
+  (defcustom elib-org-calendar-directory
+    (concat
+     elib-user-org-directory "cal/")
+    "The directory where calendar files for `org-gcal' are
 	stored."
-      :group 'elib-calendar
-      :group 'elib-file-paths
-      :group 'elib-org
-      :type 'string)
+    :group 'elib-calendar
+    :group 'elib-file-paths
+    :group 'elib-org
+    :type 'string)
 
 
 
-    (defcustom elib-user-org-calendar-secrets-file
-      (concat elib-org-calendar-directory "calendar.org")
-      ""
-      :group 'elib-org
-      :group 'elib-file-paths
-      :group 'elib-calendar
-      )
-    (defcustom elib-user-org-caldav-secrets-file
-      (concat elib-org-calendar-directory "caldav.org")
-      ""
-      :group 'elib-org
-      :group 'elib-file-paths
-      :group 'elib-calendar
-      )
-
-
-
-    (defcustom elib-org-async-init-file (concat user-emacs-config-directory
-						"orginit.el")
-      ""
-      :group 'elib-org
-      :group 'elib-file-paths
-      )
-
-
+  (defcustom elib-user-org-calendar-secrets-file
+    (concat elib-org-calendar-directory "calendar.org")
+    ""
+    :group 'elib-org
+    :group 'elib-file-paths
+    :group 'elib-calendar
+    )
+  (defcustom elib-user-org-caldav-secrets-file
+    (concat elib-org-calendar-directory "caldav.org")
+    ""
+    :group 'elib-org
+    :group 'elib-file-paths
+    :group 'elib-calendar
     )
 
+
+
+  (defcustom elib-org-async-init-file (concat user-emacs-config-directory
+					      "orginit.el")
+    ""
+    :group 'elib-org
+    :group 'elib-file-paths
+    )
+
+
+  )
+
 #+END_SRC 
+
+#+RESULTS:
+: elib-org-async-init-file
+* Other 
+** Backups and auto saves
+ #+BEGIN_SRC emacs-lisp
+(defvar elib-backup-file-size-limit (* 5 1024 1024)
+  "Maximum size of a file (in bytes) that should be copied at each savepoint.
+
+If a file is greater than this size, don't make a backup of it.
+Default is 5 MB")
+
+
+(defvar elib-backup-location (expand-file-name "emacs-backups/" user-emacs-directory)
+  "Base directory for backup files.")
+
+(defvar elib-backup-trash-dir (expand-file-name ".trash/" elib-backup-location)
+  "Directory for unwanted backups.")
+
+(defvar elib-backup-exclude-regexp "\\[Gmail\\]"
+  "Don't back up files matching this regexp.
+
+Files whose full name matches this regexp are backed up to `elib-backup-trash-dir'. Set to nil to disable this.")
+ #+END_SRC
+
+ #+RESULTS:
+ : elib-backup-exclude-regexp
+
+* Mail
+#+BEGIN_SRC emacs-lisp
+(defvar elib-create-attachments-directories? t)
+(defvar elib-mail-attachments-dir (expand-file-name "files/attachments" elib-user-org-directory))
+(defvar elib-mail-get-command "mbsync -a")
+(defvar elib-mail-gmail
+  '("gmail"
+    (mu4e-sent-folder "/gmail/[Gmail]/Sent Mail")
+    (mu4e-drafts-folder "/gmail/[Gmail]/Drafts")
+    (mu4e-trash-folder "/gmail/[Gmail]/Trash")
+    (user-full-name "Einar Elén")
+    (user-mail-address "einar.elen@gmail.com")
+    (smtpmail-default-smtp-server "smtp.gmail.com")
+    (smtpmail-smtp-server "smtp.gmail.com")
+    (smtpmail-stream-type 'starttls)
+    (smtpmail-smtp-service 587)
+    (org-msg-signature "
+
+	 Cheers,
+	 ,#+begin_signature
+	 Einar 
+	 ,#+end_signature")))
+(defvar elib-mail-lu
+  '("lu"
+    (mu4e-sent-folder "/lu/[Gmail]/Sent Maill")
+    (mu4e-drafts-folder "/lu/[Gmail]/Drafts")
+    (mu4e-trash-folder "/lu/[Gmail]/Trash")
+    (user-mail-address "nat13eel@student.lu.se")
+    (user-full-name "Einar Elén")
+    (smtpmail-default-smtp-server "smtp.gmail.com")
+    (smtpmail-smtp-user "nat13eel")
+    (smtpmail-smtp-server "smtp.gmail.com")
+    (smtpmail-stream-type starttls)
+    (smtpmail-smtp-service 465)
+  (org-msg-signature "
+
+	 Cheers,
+	 ,#+begin_signature
+	 Einar 
+	 ,#+end_signature")))
+
+(defvar elib-mail-jol
+  '("jol"
+    (mu4e-sent-folder "/jol/[Gmail]/Skickat")
+    (mu4e-drafts-folder "/jol/[Gmail]/Utkast")
+    (mu4e-trash-folder "/jol/[Gmail]/Papperskorgen")
+    (user-mail-address "jol-ordf@luna.lu.se")
+    (user-full-name "Gender and Equality Committee Spokesperson (LUNA)")
+    (smtpmail-default-smtp-server "smtp.gmail.com")
+    (smtpmail-smtp-user "jol-ordf")
+    (smtpmail-smtp-server "smtp.gmail.com")
+    (smtpmail-stream-type starttls)
+    (smtpmail-smtp-service 587)
+    (org-msg-signature "
+
+	 Cheers,
+
+	 ,*Einar Elén & Jenny Spiik*\\\\
+	 Spokesperson // Talesperson of the Gender and Equality Committee\\\\
+	 The Science Student Union (LUNA) at Lund University\\\\
+
+	 [[/home/einarelen/emacs/files/LUNA_small.png]]\\\\
+	 [[mailto:jol-ordf@luna.lu.se][jol-ordf@luna.lu.se]], [[https://www.lundsnaturvetarkar.se/jol][www.lundsnaturvetarkar.se/jol]]\\\\
+	 ,#+begin_signature
+	 Office address: [[https://maps.google.com/?q=S%C3%B6lvegatan+27,%C2%A0223+62+Lund&entry=gmail&source=g][Sölvegatan 27, 223 62 Lund]] Post address: Box 117, 221 00 Lund\\\\
+	 Office phone: +4646-222 03 18
+
+	 The Science Student Union represents about 1800 students studying at the Faculty of Science at Lund University. The union works mainly with   education monitoring and student representation but also with aiding students with corporate relations and hosting social events. 
+	 ,#+end_signature")))
+(defvar elib-mail-cern
+  '("cern"
+    (mu4e-sent-folder "/cern/Sent")
+    (mu4e-drafts-folder "/cern/Drafts")
+    (mu4e-trash-folder "/cern/Trash")
+    (user-mail-address "einar.alfred.elen@cern.ch")
+    (user-full-name "Einar Elén (Lund)")
+    (smtpmail-default-smtp-server "smtp.cern.ch")
+    (smtpmail-smtp-user "einar.alfred.elen")
+    (smtpmail-smtp-server "smtp.cern.ch")
+    (smtpmail-stream-type starttls)
+    (smtpmail-smtp-service 587)
+    (org-msg-signature"
+
+	 Cheers,
+	 ,#+begin_signature
+	 Einar 
+	 ,#+end_signature 
+      ")))
+
+(defvar elib-mail-css
+  '((del nil
+	 (#1=(font-family . "Garamond, EB Garamond, Georgia, Arial, Serif")
+	     #2=(font-size . "10pt")
+	     (color . "grey")
+	     (border-left . "none")
+	     (text-decoration . "line-through")
+	     (margin-bottom . "0px")
+	     (margin-top . "10px")
+	     (line-height . "11pt")))
+    (a nil
+       (#7=(color . #8="#0071c5")))
+    (a reply-header
+       ((color . "black")
+	(text-decoration . "none")))
+    (div reply-header
+	 ((padding . "3.0pt 0in 0in 0in")
+	  (border-top . "solid #e1e1e1 1.0pt")
+	  (margin-bottom . "20px")))
+    (li nil
+	(#1# #2# #3=(line-height . "10pt")
+	     (margin-bottom . "0px")
+	     (margin-top . "2px")))
+    (nil org-ul
+	 ((list-style-type . "square")))
+    (nil org-ol
+	 (#1# #2# #3#
+	      (margin-bottom . "0px")
+	      (margin-top . "0px")
+	      (margin-left . "30px")
+	      (padding-top . "0px")
+	      (padding-left . "5px")))
+    (nil signature
+	 (#2#
+	  (font-family . "Garamond, EB Garamond, Georgia, Arial, Serif")
+	  (margin-bottom . "20px")
+	  (font-size . "110pt")
+	  (color . "#9b9b9b")
+					;(background . "#f9f9f9")
+	  ))
+    (blockquote nil
+		((padding-left . "5px")
+		 (margin-left . "10px")
+		 (margin-top . "20px")
+		 (margin-bottom . "0")
+		 (border-left . "3px solid #ccc")
+		 (font-style . "italic")
+		 (background . "#f9f9f9")))
+    (code nil
+	  (#2#
+	   (font-family . "monospace")
+	   (background . "#f9f9f9")))
+    (code src\ src-asl #4=(#5=(color . "#655370")
+			      #6=(background-color . "#fbf8ef")))
+    (code src\ src-c #4#)
+    (code src\ src-c++ #4#)
+    (code src\ src-conf #4#)
+    (code src\ src-cpp #4#)
+    (code src\ src-csv #4#)
+    (code src\ src-diff #4#)
+    (code src\ src-ditaa #4#)
+    (code src\ src-emacs-lisp #4#)
+    (code src\ src-fundamental #4#)
+    (code src\ src-ini #4#)
+    (code src\ src-json #4#)
+    (code src\ src-makefile #4#)
+    (code src\ src-man #4#)
+    (code src\ src-org #4#)
+    (code src\ src-plantuml #4#)
+    (code src\ src-python #4#)
+    (code src\ src-sh #4#)
+    (code src\ src-xml #4#)
+    (nil linenr
+	 ((padding-right . "1em")
+	  (color . "black")
+	  (background-color . "#aaaaaa")))
+    (pre nil
+	 ((line-height . "12pt")
+	  #5# #6#
+	  (margin . "0px")
+	  (font-size . "9pt")
+	  (font-family . "monospace")))
+    (div org-src-container
+	 ((margin-top . "10px")))
+    (nil figure-number #10=(#1# #2# #7# #9=(font-weight . "bold")
+				(text-align . "left")))
+    (nil table-number)
+    (caption nil
+	     ((text-align . "left")
+	      (background . #8#)
+	      (color . "white")
+	      #9#))
+    (nil t-above
+	 ((caption-side . "top")))
+    (nil t-bottom
+	 ((caption-side . "bottom")))
+    (nil listing-number #10#)
+    (nil figure #10#)
+    (nil org-src-name #10#)
+    (table nil
+	   (#1# #2# #11=(margin-top . "0px")
+		#3#
+		(border-collapse . "collapse")))
+    (th nil
+	((border . "1px solid white")
+	 (background-color . #8#)
+	 (color . "white")
+	 (padding-left . "10px")
+	 (padding-right . "10px")))
+    (td nil
+	(#1# #2# #11#
+	     (padding-left . "10px")
+	     (padding-right . "10px")
+	     (background-color . "#f9f9f9")
+	     (border . "1px solid white")))
+    (td org-left
+	((text-align . "left")))
+    (td org-right
+	((text-align . "right")))
+    (td org-center
+	((text-align . "center")))
+    (div outline-text-4
+	 ((margin-left . "15px")))
+    (div outline-4
+	 ((margin-left . "10px")))
+    (h4 nil
+	((margin-bottom . "0px")
+	 (font-size . "11pt")
+	 #1#))
+    (h3 nil
+	((margin-bottom . "0px")
+	 (text-decoration . "underline")
+	 #7#
+	 (font-size . "12pt")
+	 #1#))
+    (h2 nil
+	((margin-top . "20px")
+	 (margin-bottom . "20px")
+	 (font-style . "italic")
+	 #7#
+	 (font-size . "13pt")
+	 #1#))
+    (h1 nil
+	((margin-top . "20px")
+	 (margin-bottom . "0px")
+	 #7#
+	 (font-size . "12pt")
+	 #1#))
+    (p nil
+       ((text-decoration . "none")
+	(margin-bottom . "0px")
+	(margin-top . "10px")
+	(line-height . "11pt")
+	#2# #1#
+	(max-width . "100ch")))
+    (div nil 
+	 (#1# #2#
+	      (line-height . "11pt")))))
+#+END_SRC
+
+#+RESULTS:
+: elib-mail-cern
+
