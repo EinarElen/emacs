@@ -339,6 +339,16 @@ Make debugging things you know the keybinding
  : elib-org-tree-to-indirect-buffer-and-move
 * PDF Tools and Org 
 #+BEGIN_SRC emacs-lisp
+
+      (defun elib-org-to-pdf-and-open (&optional subtreep)
+    (interactive)
+    (let ((log-buf (get-buffer-create elib-org-latex-output-name)))
+      (let ((output-file (ignore-errors
+                   (org-latex-export-to-pdf elib-do-async-org-export subtreep))))
+        (if (eq 'error (org-latex--collect-warnings log-buf))
+        (switch-to-buffer-other-window log-buf)
+          (letf (((symbol-function 'yes-or-no-p) (lambda (&rest args) t) ))
+        (org-open-file output-file t))))))
 (defun elib-org-pdf-scroll (num)
   (let ((l (length (window-list))))
     (when (= l 2)

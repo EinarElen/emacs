@@ -19,3 +19,6 @@
 [submodule "external/lisp/emacs-application-framework"]
 	path = external/lisp/emacs-application-framework
 	url = https://github.com/manateelazycat/emacs-application-framework
+[submodule "external/lisp/org-pdftools"]
+	path = external/lisp/org-pdftools
+	url = https://github.com/fuxialexander/org-pdftools

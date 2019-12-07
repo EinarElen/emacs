@@ -67,8 +67,7 @@
 :config
    (evil-collection-init))
 (use-package evil-tutor :ensure t)
-(use-package evil-org :ensure t
-:hook (org-mode . evil-org-mode)
+(use-package org-evil :ensure t
 )
 (use-package evil-surround :ensure t 
 :config 
@@ -83,7 +82,30 @@
 (setq evil-visual-state-tag "VISUAL")
 ;(use-package evil-mu4e :ensure t)
 (use-package evil-avy :ensure t)
+(use-package evil-multiedit :ensure t)
+(use-package evil-args :ensure t)
+(use-package evil-easymotion :ensure t)
+(use-package evil-embrace :ensure t)
+(use-package evil-escape :ensure t)
+(use-package evil-exchange :ensure t)
+(use-package evil-indent-plus :ensure t)
+(use-package evil-nerd-commentary :ensure t)
+(use-package evil-matchit :ensure t)
+(use-package evil-numbers :ensure t)
+(use-package evil-textobj-anyblock :ensure t)
+(use-package evil-snipe :ensure t)
+(use-package evil-surround :ensure t)
+(use-package evil-vimish-fold :ensure t)
+(use-package evil-visualstar :ensure t)
+(use-package exato :ensure t)
+(use-package evil-collection :ensure t)
+(use-package evil-quick-diff :ensure t)
+
+(use-package treemacs-evil :ensure t)
 #+END_SRC
+
+#+RESULTS:
+
 * General 
 #+BEGIN_SRC emacs-lisp 
 (use-package general)
@@ -284,7 +306,14 @@
   (add-hook 'pdf-view-mode-hook 'elib-disable-line-numbers-hook))
 (use-package pdf-annot
   :ensure nil)
-(use-package org-pdfview)
+;(use-package org-pdfview)
+;(use-package org-pdftools :ensure t)  
+(setq elib-org-pdftools (concat elib-external-lisp-dir "org-pdftools"))
+(use-package org-pdftools 
+:load-path elib-org-pdftools
+) 
+
+
 #+END_SRC
 ** Org Mode
 *** Main package 
@@ -345,7 +374,6 @@
 #+END_SRC
 
  
-  
 ** Smartparens
 #+BEGIN_SRC emacs-lisp 
   (use-package smartparens
@@ -476,6 +504,7 @@ Dependencies
    (use-package company-elisp
      :ensure nil)
    (use-package company-box
+:disabled t
      :ensure t
      :hook (company-mode . company-box-mode))
 #+END_SRC
@@ -672,11 +701,16 @@ Winner mode
 : t
 * EAF
 #+BEGIN_SRC emacs-lisp
-(use-package eaf)
+(use-package eaf
+:load-path "/home/einarelen/.emacs.d/external/lisp/emacs-application-framework/"
+:config 
+)
 #+END_SRC
 
+#+RESULTS:
 
-* Visuals F
+
+* Visuals 
 ** Text 
 #+BEGIN_SRC emacs-lisp
 (global-visual-line-mode t)
@@ -798,7 +832,8 @@ frame we are in.
 
 *** Variables
  #+BEGIN_SRC emacs-lisp 
-   (setq org-html-with-latex 'dvipng) ;; Important for emails, we dont want mathjax.
+ ;; Important for emails, we dont want mathjax.
+(setq org-html-with-latex elib-org-html-with-latex-use)
    (setq org-return-follows-link t)
    (setq org-latex-remove-logfiles t)
    (setq org-src-window-setup 'current-window)

@@ -554,4 +554,13 @@ Files whose full name matches this regexp are backed up to `elib-backup-trash-di
 
 #+RESULTS:
 : elib-mail-cern
+* TODO TODO 
 
+#+BEGIN_SRC emacs-lisp
+(defvar elib-org-latex-output-name "*Org PDF LaTeX Output*")
+(defvar elib-org-html-with-latex-use 'dvipng)
+      (defvar elib-do-async-org-export nil)
+#+END_SRC
+
+#+RESULTS:
+: elib-do-async-org-export
