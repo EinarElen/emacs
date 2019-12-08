@@ -1,1 +1,7 @@
 
+[submodule "external/lisp/frame-workflow"]
+	path = external/lisp/frame-workflow
+	url = https://github.com/akirak/frame-workflow
+[submodule "external/lisp/scimax"]
+	path = external/lisp/scimax
+	url = https://github.com/jkitchin/scimax
