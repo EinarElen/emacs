@@ -5,3 +5,15 @@
 [submodule "external/lisp/scimax"]
 	path = external/lisp/scimax
 	url = https://github.com/jkitchin/scimax
+[submodule "external/lisp/help-fns-plus"]
+	path = external/lisp/help-fns-plus
+	url = https://github.com/emacsmirror/help-fns-plus
+[submodule "external/lisp/org-pdftools"]
+	path = external/lisp/org-pdftools
+	url = https://github.com/fuxialexander/org-pdftools
+[submodule "snippets/tuhdosnippets"]
+	path = snippets/tuhdosnippets
+	url = https://github.com/tuhdo/yasnippet-snippets
+[submodule "external/lisp/spacemacs"]
+	path = external/lisp/spacemacs
+	url = https://github.com/syl20bnr/spacemacs
