@@ -58,7 +58,7 @@
 
  #+RESULTS:
 * Evil mode 
-  #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package evil :ensure t
 :config 
 )
@@ -69,6 +69,8 @@
 (use-package evil-tutor :ensure t)
 (use-package org-evil :ensure t
 )
+(use-package evil-mc :ensure t)
+(use-package evil-textobj-column :ensure t)
 (use-package evil-surround :ensure t 
 :config 
 (global-evil-surround-mode)
@@ -81,25 +83,41 @@
 (setq evil-insert-state-tag "INSERT")
 (setq evil-visual-state-tag "VISUAL")
 ;(use-package evil-mu4e :ensure t)
-(use-package evil-avy :ensure t)
+(use-package evil-numbers :ensure t) 
+;; (use-package evil-avy :ensure t)
 (use-package evil-multiedit :ensure t)
+(evil-multiedit-default-keybinds)
 (use-package evil-args :ensure t)
+ 
 (use-package evil-easymotion :ensure t)
 (use-package evil-embrace :ensure t)
+(evil-embrace-enable-evil-surround-integration)
 (use-package evil-escape :ensure t)
+(evil-escape-mode t)
 (use-package evil-exchange :ensure t)
 (use-package evil-indent-plus :ensure t)
-(use-package evil-nerd-commentary :ensure t)
+;(use-package evil-nerd-commenter :ensure t)
+(use-package evil-commentary :ensure t)
+(evil-commentary-mode)
 (use-package evil-matchit :ensure t)
+(global-evil-matchit-mode t)
 (use-package evil-numbers :ensure t)
 (use-package evil-textobj-anyblock :ensure t)
+
 (use-package evil-snipe :ensure t)
 (use-package evil-surround :ensure t)
 (use-package evil-vimish-fold :ensure t)
+(use-package evil-exchange :ensure t )
+(evil-exchange-install)
+(use-package evil-extra-operator :ensure t )
+(global-evil-extra-operator-mode 1)
+
 (use-package evil-visualstar :ensure t)
+(global-evil-visualstar-mode)
 (use-package exato :ensure t)
 (use-package evil-collection :ensure t)
-(use-package evil-quick-diff :ensure t)
+(use-package evil-quickscope :ensure t)
+
 
 (use-package treemacs-evil :ensure t)
 #+END_SRC
@@ -151,6 +169,21 @@
 #+END_SRC
 
  #+RESULTS:
+*** Master
+#+BEGIN_SRC emacs-lisp
+(frame-workflow-define-subject "Master"
+  :make-frame
+  '(frame-purpose-make-frame
+    :filenames (rx-to-string `(seq bos ,(expand-file-name "/home/einarelen/master/")))
+    :title "Master"
+    :sidebar nil
+    :sidebar-buffers-fn '(lambda ()
+                           (list (current-buffer))
+			   ))
+  :layout `(,(lambda () (find-file "/home/einarelen/master/code.org")))
+  )
+
+#+END_SRC 
 *** FYTN14
 #+BEGIN_SRC emacs-lisp
 (frame-workflow-define-subject "FYTN14"
@@ -183,6 +216,30 @@
 	       (find-file elib-init-keybindings-org)
 	       (set-frame-name "Keybindings"))))
 #+END_SRC
+*** Ansible 
+#+BEGIN_SRC emacs-lisp
+(frame-workflow-define-subject "Ansible"
+  :make-frame
+  '(frame-purpose-make-frame
+    :filenames (rx-to-string `(seq bos ,(expand-file-name "/home/einarelen/ansible/")))
+    :title "Ansible"
+    :sidebar nil
+    :sidebar-buffers-fn '(lambda ()
+                           (list (current-buffer))
+			   ))
+  :layout `(,(lambda () 
+(find-file "/home/einarelen/ansible/local.yml")
+(split-window-right)
+(find-file "/home/einarelen/ansible/tasks/")
+(split-window)
+(find-file "/home/einarelen/ansible/files/")
+)))
+  
+#+END_SRC
+
+#+RESULTS:
+: #s(frame-workflow-subject unbound "Ansible" "Ansible" frame-workflow-observer (frame-purpose-make-frame :filenames (rx-to-string `(seq bos ,(expand-file-name "/home/einarelen/ansible/"))) :title "Ansible" :sidebar nil :sidebar-buffers-fn '(lambda nil (list (current-buffer)))) ((lambda nil (find-file "/home/einarelen/ansible/local.yml") (split-window-right) (find-file "/home/einarelen/ansible/tasks/") (split-window) (find-file "/home/einarelen/ansible/files/"))) nil nil)
+
 *** Init subject 
 #+BEGIN_SRC emacs-lisp
 (frame-workflow-define-subject "Init"
@@ -420,6 +477,20 @@
 
 #+RESULTS:
 
+* Key Chords 
+
+#+BEGIN_SRC emacs-lisp
+(use-package key-chord
+:config 
+)
+#+END_SRC
+
+* Magit 
+
+#+BEGIN_SRC emacs-lisp
+(use-package magit)
+#+END_SRC
+
 * Jupyter
 
 Dependencies
@@ -475,8 +546,9 @@ Dependencies
     (mu4e-alert-set-default-style 'libnotify))
   (use-package org-mime)
   (use-package org-msg
-    :config 
-    (org-msg-mode))
+    :config
+    )
+(org-msg-mode)
 #+END_SRC
 
 * Dependencies 
@@ -514,7 +586,7 @@ Dependencies
 
 *** Backends
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (spacemacs|defvar-company-backends erc-mode)
   (spacemacs|defvar-company-backends org-mode)
   (spacemacs|defvar-company-backends emacs-lisp-mode)
@@ -548,7 +620,7 @@ Dependencies
   (add-to-list  'company-backends-erc-mode 'company-capf)
 #+END_SRC
 *** Hooks
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no 
 (defun configuration-layer/package-usedp (&rest args) t)
  (spacemacs|add-company-hook erc-mode)
  (spacemacs|add-company-hook ielm-mode)
@@ -702,13 +774,56 @@ Winner mode
 * EAF
 #+BEGIN_SRC emacs-lisp
 (use-package eaf
+:disabled t
 :load-path "/home/einarelen/.emacs.d/external/lisp/emacs-application-framework/"
 :config 
 )
 #+END_SRC
 
 #+RESULTS:
+* Eshell and Equake 
 
+  #+BEGIN_SRC emacs-lisp
+(require 'eshell)
+(require 'esh-module)
+(require 'em-smart)
+(add-to-list 'eshell-modules-list 'eshell-tramp)
+(use-package equake
+  :config  ; some examples of optional settings follow:
+  (global-set-key (kbd "C-x C-c") 'equake-check-if-in-equake-frame-before-closing) ; prevent accidental frame-closure
+  (setq equake-size-width 0.99) ; set width a bit less than full-screen (prevent 'overflow' on multi-monitor)
+  (setq equake-size-height 0.4)
+  (setq equake-use-xdotool-probe t)
+  ;; set distinct face for Equake: white foreground with dark blue background,
+  ;; and different font
+;;(set-face-attribute 'equake-buffer-face 'nil :inherit 'default :family "DejaVu Sans Mono" :background "#000022" :foreground "white")
+  
+(setq equake-opacity-active 100) (setq equake-opacity-inactive 100)
+)
+
+
+
+
+ 
+  #+END_SRC
+
+  #+RESULTS:
+  : t
+
+* Server
+
+#+BEGIN_SRC emacs-lisp
+
+(when (and dotspacemacs-enable-server (not (spacemacs-is-dumping-p)))
+      (require 'server)
+      (when dotspacemacs-server-socket-dir
+        (setq server-socket-dir dotspacemacs-server-socket-dir))
+      (unless (server-running-p)
+        (message "Starting a server...")
+        (server-start)))
+#+END_SRC
+
+#+RESULTS:
 
 * Visuals 
 ** Text 
@@ -739,7 +854,10 @@ Winner mode
  Spacemacs, spaceline, and all-the-icons. 
  #+BEGIN_SRC emacs-lisp 
 (use-package spaceline
+  :disabled t
   :config
+
+
   (require 'spaceline-config)
   (spaceline-spacemacs-theme)
   (spaceline-helm-mode t)
@@ -748,19 +866,29 @@ Winner mode
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode))
 (use-package spaceline-all-the-icons
+  :disabled t
   :config          
-  (spaceline-all-the-icons-theme))
+  ;; (spaceline-all-the-icons-theme)
+  )
 
  #+END_SRC
 
  #+RESULTS:
  : t
 
+*** Doom 
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+
+    
+
 ** Spaceline and frames
 This sets up a small thing in the mode line so that we can see what
 frame we are in.
 
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp :tangle no 
+
 (spaceline-define-segment frame-workflow
      "The current frame-workflow subject."
      (when-let ((subject (frame-workflow--frame-subject-name)))
@@ -1108,7 +1236,7 @@ frame we are in.
     "If non nil the docstring appears in a tooltip.
   If set to `manual', help tooltip appears only when invoked
   manually.")
-(setq-default company-backends spacemacs-default-company-backends)
+;(setq-default company-backends spacemacs-default-company-backends)
   (setq company-idle-delay 0.2
     company-minimum-prefix-length 2
     company-require-match nil

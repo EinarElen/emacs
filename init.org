@@ -90,7 +90,7 @@ See [[help:selection-coding-system][selection-coding-system]]. Important for cli
      (add-to-list 'package-archives '("org"
 		  . "https://orgmode.org/elpa/") t)
 
-     (package-initialize)
+     ;; (package-initialize)
     (defvar elib-init-needs-installation?
 	  (null (ignore-errors (directory-files
 	  package-user-dir))))
@@ -101,6 +101,44 @@ See [[help:selection-coding-system][selection-coding-system]]. Important for cli
 : t
 
 ** Variables for initialization files 
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(defvar elib-init-startup-org (expand-file-name
+(concat user-emacs-config-directory "init.org")))
+		    (defvar elib-init-startup-el (expand-file-name
+
+		    (concat user-emacs-config-directory "init.el")))	  (defvar elib-init-custom-org (expand-file-name
+(defvar elib-init-custom-org (expand-file-name			      (concat user-emacs-config-directory "custom.org")))
+		    (concat user-emacs-config-directory "custom.org")))	  (defvar elib-init-custom-el (expand-file-name
+(defvar elib-init-custom-el (expand-file-name			      (concat user-emacs-config-directory "custom.el")))
+		    (concat user-emacs-config-directory "custom.el")))	  (defvar elib-init-config-org (expand-file-name
+(defvar elib-init-config-org (expand-file-name			      (concat user-emacs-config-directory "configuration.org")))
+		    (concat user-emacs-config-directory "configuration.org")))	  (defvar elib-init-config-el (expand-file-name
+(defvar elib-init-config-el (expand-file-name			      (concat user-emacs-config-directory "configuration.el")))
+		    (concat user-emacs-config-directory "configuration.el")))	  (defvar elib-init-exwm-org (expand-file-name
+(defvar elib-init-exwm-org (expand-file-name			      (concat user-emacs-config-directory "init-exwm.org")))
+		    (concat user-emacs-config-directory "init-exwm.org")))	  (defvar elib-init-exwm-el (expand-file-name
+(defvar elib-init-exwm-el (expand-file-name			     (concat user-emacs-config-directory "init-exwm.el")))
+		   (concat user-emacs-config-directory "init-exwm.el")))	
+
+  (defvar elib-tangle-needs-to-tangle?
+(defvar elib-tangle-needs-to-tangle?	    (or 
+  (or 	    (file-newer-than-file-p elib-init-startup-org
+  (file-newer-than-file-p elib-init-startup-org					elib-init-startup-el)
+                              elib-init-startup-el)	    (file-newer-than-file-p elib-init-config-org
+  (file-newer-than-file-p elib-init-config-org					elib-init-config-el)
+                              elib-init-config-el)	    (file-newer-than-file-p elib-init-config-org
+  (file-newer-than-file-p elib-init-config-org					elib-init-config-el)
+                              elib-init-config-el)		(file-newer-than-file-p elib-init-custom-org
+      (file-newer-than-file-p elib-init-custom-org					elib-init-custom-el)
+                              elib-init-custom-el)		(file-newer-than-file-p elib-init-exwm-org
+      (file-newer-than-file-p elib-init-exwm-org					elib-init-exwm-el)
+                              elib-init-exwm-el)					elib-init-needs-installation?
+			      elib-init-needs-installation?		))
+      ))	
+#+END_SRC	
+
+
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (defun elib-create-startup-pair (list)
   (let ((el-file)
@@ -125,19 +163,20 @@ See [[help:selection-coding-system][selection-coding-system]]. Important for cli
 * Use Package 
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(when elib-init-needs-installation?
-  (save-window-excursion
-    (load-file (concat user-emacs-config-directory "packages.el"))
-    (elib-do-install-packages)))
-
-(require 'use-package)
-(use-package diminish)
-(use-package bind-key)
+  ;; (when elib-init-needs-installation?
+  ;;   (save-window-excursion
+  ;;     (load-file (concat user-emacs-config-directory "packages.el"))
+  ;;     (elib-do-install-packages)))
+(setq use-package-always-ensure t)
+(package-initialize)
+(package-install 'use-package)
+  (require 'use-package)
+  (use-package diminish)
+  (use-package bind-key)
 #+END_SRC
 
 #+RESULTS:
 : general
-
 
 * Tangle org mode files when needed 
 #+BEGIN_SRC emacs-lisp :tangle yes

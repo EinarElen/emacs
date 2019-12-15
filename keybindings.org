@@ -75,12 +75,25 @@ Get rid of hello help, cute but annoying
 (elib-extend-leader "Projects"  "projects" "p")
 (elib-extend-leader "Shells"  "shells" "as")
 (elib-extend-leader "Org"  "a/org" "ao")
+; (describe-keymap evil-lisp-state-local-map)
 (elib-extend-leader "Org-ref"  "org-ref" "aor")
 (elib-extend-leader "Brain"  "org-brain" "aob")
 (elib-extend-leader "Errors/export"  "errors" "e")
 (elib-extend-leader "Jump"  "jump" "j")
 (elib-extend-leader "Buffers"  "buffers" "b")
+(elib-extend-leader "Text" "text" "x")
+;(elib-extend-leader "Lisp" "lisp" "k")
+(general-create-definer elib-lisp-state-def 
+:keymaps 'evil-lisp-state-map
+)
+(general-def :prefix elib-leader :non-normal-prefix elib-non-normal-leader
+:states '(normal visual iedit motion emacs)
+"k" evil-lisp-state-map
+)
+
 (elib-extend-leader "PDF-Tools" "pdfview" "m" 'pdf-view-mode-map 'pdf-annot-list-mode-map)
+
+
 (elib-extend-leader "Org Mode" "org" "m" 'org-mode-map) 
 (elib-extend-leader "Elisp" "elisp" "m" 'emacs-lisp-mode-map 'lisp-interaction-mode-map)
 #+END_SRC
@@ -89,17 +102,17 @@ Get rid of hello help, cute but annoying
 
 * Helm
 #+BEGIN_SRC emacs-lisp 
-  (bind-key "M-y"  'helm-show-kill-ring)
-  (bind-key "M-p" 'helm-minibuffer-history minibuffer-local-map)
-  (bind-key "M-n" 'helm-minibuffer-history minibuffer-local-map)
-  (bind-key "C-r" 'helm-previous-line helm-swoop-map)
-  (bind-key "C-s" 'helm-previous-line helm-swoop-map)
+(bind-key "M-y"  'helm-show-kill-ring)
+(bind-key "M-p" 'helm-minibuffer-history minibuffer-local-map)
+(bind-key "M-n" 'helm-minibuffer-history minibuffer-local-map)
+(bind-key "C-r" 'helm-previous-line helm-swoop-map)
+(bind-key "C-s" 'helm-previous-line helm-swoop-map)
 ;; Add helm-descbinds
 #+END_SRC
 * Text editing 
 #+BEGIN_SRC emacs-lisp
-(bind-key "C-a" 'mwim-beginning)
-(bind-key "C-e" 'mwim-end)
+(general-def :states general-non-normal-states "C-a" 'mwim-beginning)
+(general-def :states general-non-normal-states "C-e" 'mwim-end)
 (bind-key "M-;"  'comment-dwim-2)
 (bind-key "M-c" 'capitalize-dwim)
 (bind-key "M-C" 'sentence-case-region)
@@ -110,16 +123,16 @@ Get rid of hello help, cute but annoying
 
 * Mail
 #+BEGIN_SRC emacs-lisp
-      (general-def 
-	"s" 'helm-mu
-	"c" 'helm-mu-contacts
-	:keymaps '(mu4e-main-mode-map mu4e-headers-mode-map))
     (general-def 
-      "C-M-c" 'helm-mu-contacts
-      :keymaps '(mu4e-compose-mode-map mu4e-org-mode-map))
-    (general-def
-    "s" 'helm-mu
-  :keymaps 'mu4e-view-mode-map)
+"s" 'helm-mu
+"c" 'helm-mu-contacts
+:keymaps '(mu4e-main-mode-map mu4e-headers-mode-map))
+  (general-def 
+    "C-M-c" 'helm-mu-contacts
+    :keymaps '(mu4e-compose-mode-map mu4e-org-mode-map))
+  (general-def
+  "s" 'helm-mu
+:keymaps 'mu4e-view-mode-map)
 #+END_SRC
 
 #+RESULTS:
@@ -141,19 +154,19 @@ Get rid of hello help, cute but annoying
 ** Basic 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-def
-  "SPC" '(helm-M-x :wk "M-x")
-  "v" '(er/expand-region :wk "Expand region")
-  "?" '(helm-descbinds :wk "Keybindings")
-  "/" '(spacemacs/helm-project-smart-do-search :wk "Search")
-  "-" '(spacemacs/helm-project-smart-do-search :wk "Search")
-  "M-/" '(helm-swoop-without-pre-input :wk "Search")
-  "M--" '(helm-swoop-without-pre-input :wk "Search")
-  "," '(elib-repeat-previous-command :wk "Repeat Previous Command")
-					;"TAB"'(spacemacs/alternate-window :wk "Previous Windows")
-  "TAB"'(ace-window :wk "Switch Windows")
-  ";" '(comment-dwim-2 :wk "Comment")
-  "ö" '(comment-dwim-2 :wk "Comment")
-  "u" '(undo-tree-visualize :wk "Undo"))
+"SPC" '(helm-M-x :wk "M-x")
+"v" '(er/expand-region :wk "Expand region")
+"?" '(helm-descbinds :wk "Keybindings")
+"/" '(spacemacs/helm-project-smart-do-search :wk "Search")
+"-" '(spacemacs/helm-project-smart-do-search :wk "Search")
+"M-/" '(helm-swoop-without-pre-input :wk "Search")
+"M--" '(helm-swoop-without-pre-input :wk "Search")
+"," '(elib-repeat-previous-command :wk "Repeat Previous Command")
+        ;"TAB"'(spacemacs/alternate-window :wk "Previous Windows")
+"TAB"'(ace-window :wk "Switch Windows")
+";" '(comment-dwim-2 :wk "Comment")
+"ö" '(comment-dwim-2 :wk "Comment")
+"u" '(undo-tree-visualize :wk "Undo"))
 #+END_SRC
 
 #+RESULTS:
@@ -161,106 +174,107 @@ Get rid of hello help, cute but annoying
 ** Helm 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-helm-def
-    "m" '(helm-man-woman :wk "Manpages")
-    "i" '(helm-info :wk "Info")
-    "o" '(helm-org-rifle :wk "Org rifle")
-    "s" '(helm-flyspell-correct :wk "Flyspell")
-    "r" '(helm-resume :wk "Resume"))
+  "m" '(helm-man-woman :wk "Manpages")
+  "i" '(helm-info :wk "Info")
+  "o" '(helm-org-rifle :wk "Org rifle")
+  "s" '(helm-flyspell-correct :wk "Flyspell")
+  "r" '(helm-resume :wk "Resume"))
 #+END_SRC
 #+RESULTS:
 ** Insert / Complete 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-def
-	 "is" 'helm-yas-complete
-	 )
+  "is" 'helm-yas-complete
+  )
 (let ((map company-active-map))
-                    ;(define-key map (kbd "C-/")   'company-search-candidates)
-    (define-key map (kbd "M-n") 'company-select-next)
-    (define-key map (kbd "M-p") 'company-select-previous)
-    (define-key map (kbd "C-M-/") 'company-filter-candidates)
-    (define-key map (kbd "C-d")   'company-show-doc-buffer)
-    (define-key map (kbd "M-/") 'helm-company)
-    )
+                  ;(define-key map (kbd "C-/")   'company-search-candidates)
+  (define-key map (kbd "M-n") 'company-select-next)
+  (define-key map (kbd "M-p") 'company-select-previous)
+  (define-key map (kbd "C-M-/") 'company-filter-candidates)
+  (define-key map (kbd "C-d")   'company-show-doc-buffer)
+  (define-key map (kbd "M-/") 'helm-company)
+  )
 
 #+END_SRC
 
 ** Help 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-help-def
-     "d" '(nil :wk "Describe")
-     "a" '(helm-apropos :wk "Apropos")
-     "da" '(helm-apropos :wk "Apropos")
-     "df" '(describe-function :wk "Function")
-     "dv" '(describe-variable :wk "Function")
-     "D" '(helm-descbinds :wk "Descbinds")
-     "dl" '(elisp-slime-nav-describe-elisp-thing-at-point :wk "Describe LISP thing at point")
-     "dk" '(describe-key :wk "Key")
-     "dm" '(elib-weird-mode-binding-fix :wk "Mode"))
+    "d" '(nil :wk "Describe")
+    "a" '(helm-apropos :wk "Apropos")
+    "da" '(helm-apropos :wk "Apropos")
+    "df" '(helpful-callable :wk "Function")
+    "dv" '(helpful-variable :wk "Function")
+    "D" '(helm-descbinds :wk "Descbinds")
+    "d." '(helpful-at-point :wk "At Point")
+    "dl" '(elisp-slime-nav-describe-elisp-thing-at-point :wk "Describe LISP thing at point")
+    "dk" '(helpful-key :wk "Key")
+    "dm" '(elib-weird-mode-binding-fix :wk "Mode")) 
 #+END_SRC
 
 #+RESULTS:
 
 ** Applications 
 #+BEGIN_SRC emacs-lisp
-  (elib-leader-apps-def
-    "c" '(calc-dispatch :wk "Calc Dispatch")
-    "d" '(dired :wk "Dired")
-    "P" '(nil :wk "Processes")
-    "Pp" '(proced :wk "Proced")
-    "Pl" '(list-processes :wk "List Processes")
-    "lp" '(package-list-packages :wk "List packages")
-      "m" '(nil :wk "Mu4e")
-      "mm" '(mu4e :wk "Mu4e")
-      "mc" '(mu4e-compose-new :wk "Compose")
-      "t" '(twit :wk "Twitter"))
+(elib-leader-apps-def
+  "c" '(calc-dispatch :wk "Calc Dispatch")
+  "d" '(dired :wk "Dired")
+  "P" '(nil :wk "Processes")
+  "Pp" '(proced :wk "Proced")
+  "Pl" '(list-processes :wk "List Processes")
+  "lp" '(package-list-packages :wk "List packages")
+    "m" '(nil :wk "Mu4e")
+    "mm" '(mu4e :wk "Mu4e")
+    "mc" '(mu4e-compose-new :wk "Compose")
+    "t" '(twit :wk "Twitter"))
 #+END_SRC
 
 ** Buffers 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-buffers-def
-  "b" '(helm-mini :wk "Helm-mini"))
+"b" '(helm-mini :wk "Helm-mini"))
 #+END_SRC
 ** Org 
- #+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp 
 (elib-leader-org-def 
-  "" '(nil :wk "Org mode")
-  "." '(elib-org-transient-hydra/body :wk "Transient")
-  "e" '(nil :wk "Export")
-  "ee" '(org-export-dispatch :wk "Export Dispatch")
-  "el" '(elib-org-to-pdf-and-open :wk "Latex")
-  "eL" `(,(lambda () (interactive) (elib-org-to-pdf-and-open t)) :wk "Latex Subtree")
-  "t" '(nil :wk "Tables")
-  " SPC" '(org-time-stamp :wk "Time Stamp")
-  "s" '(org-schedule :wk "Schedule")
-  "d" '(org-deadline :wk "Deadline")
-  "a" '(org-agenda  :wk  "Agenda")
-  "c" '(org-capture :wk  "Capture")
-  "p" '(org-set-property :wk "Set Property")
-  "T" '(org-set-tags :wk "Set Tags")
-  "D" '(org-insert-drawer :wk "Insert Drawer")
-  "'" '(org-edit-special :wk "Edit Block")
-  "ä" '(org-edit-special :wk "Edit Block")
-  "t" '(nil :wk "Toggle")
-  "tl" '(org-toggle-link-display :wk "Toggle Link Display")
-  "l" '(nil :wk "Links")
-  "lo" '(org-open-at-point :wk "Open link")
-  "li" '(org-insert-link :wk "Insert link")
-  "ls" '(org-store-link :wk "Store link")
-  "lc" '(org-cliplink :wk "Copy link"))
+"" '(nil :wk "Org mode")
+"." '(elib-org-transient-hydra/body :wk "Transient")
+"e" '(nil :wk "Export")
+"ee" '(org-export-dispatch :wk "Export Dispatch")
+"el" '(elib-org-to-pdf-and-open :wk "Latex")
+"eL" `(,(lambda () (interactive) (elib-org-to-pdf-and-open t)) :wk "Latex Subtree")
+"t" '(nil :wk "Tables")
+" SPC" '(org-time-stamp :wk "Time Stamp")
+"s" '(org-schedule :wk "Schedule")
+"d" '(org-deadline :wk "Deadline")
+"a" '(org-agenda  :wk  "Agenda")
+"c" '(org-capture :wk  "Capture")
+"p" '(org-set-property :wk "Set Property")
+"T" '(org-set-tags :wk "Set Tags")
+"D" '(org-insert-drawer :wk "Insert Drawer")
+"'" '(org-edit-special :wk "Edit Block")
+"ä" '(org-edit-special :wk "Edit Block")
+"t" '(nil :wk "Toggle")
+"tl" '(org-toggle-link-display :wk "Toggle Link Display")
+"l" '(nil :wk "Links")
+"lo" '(org-open-at-point :wk "Open link")
+"li" '(org-insert-link :wk "Insert link")
+"ls" '(org-store-link :wk "Store link")
+"lc" '(org-cliplink :wk "Copy link"))
 (elib-leader-def
-  :keymaps '(org-mode-map)
-  ";" '(org-comment-dwim :wk "Comment")
-  "ö" '(org-comment-dwim :wk "Comment"))
+:keymaps '(org-mode-map)
+";" '(org-comment-dwim :wk "Comment")
+"ö" '(org-comment-dwim :wk "Comment"))
 (elib-leader-def
-  :keymaps '(org-src-mode-map)
-  "m'" '(org-edit-src-exit :wk "Edit Block")
-  "mä" '(org-edit-src-exit :wk "Edit Block"))
+:keymaps '(org-src-mode-map)
+"m'" '(org-edit-src-exit :wk "Edit Block")
+"mä" '(org-edit-src-exit :wk "Edit Block"))
 (general-def :keymaps 'org-mode-map
-  "C-k" 'elib-kill-line-org-sp
-  "M-n" '(elib-org-pdf-scroll-down :wk "Scroll pdf in other window down")
-  "M-p" '(elib-org-pdf-scroll-up :wk "Scroll pdf in other window up")
-  "M-;" '(org-comment-dwim :wk "Comment")
-  "M-ö" '(org-comment-dwim :wk "Comment"))
+"C-k" 'elib-kill-line-org-sp
+"M-n" '(elib-org-pdf-scroll-down :wk "Scroll pdf in other window down")
+"M-p" '(elib-org-pdf-scroll-up :wk "Scroll pdf in other window up")
+"M-;" '(org-comment-dwim :wk "Comment")
+"M-ö" '(org-comment-dwim :wk "Comment"))
 #+END_SRC
 
 #+RESULTS:
@@ -268,21 +282,21 @@ Get rid of hello help, cute but annoying
 ** Windows 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-windows-def
-  "s" '(nil :wk "Split")
-  "sb" '(elib-split-window-below :wk "Split Below/Horizontally")
-  "sn" '(elib-split-window-below :wk "Split Below/Horizontally")
-  "sr" '(elib-split-window-right :wk "Split Right/Vertically")
-  "sf" '(elib-split-window-right :wk "Split Right/Vertically")
-  "a" '(ace-window :wk "Ace Window")
-  "w" '(ace-window :wk "Ace Window")
-  "o" '(other-window :wk "Other window")
-  "t" '(elib-ace-swap-window :wk "Transpose")
-  "d" '(elib-ace-delete-window :wk "Delete")
-  "." '(elib-windows-transient-hydra/body :wk "Transient")
-  "O" '(delete-other-windows :wk "Delete Others")
-  "z" '(elib-zoom-transient-hydra/body :wk "Zoom")
-  " TAB" '(spacemacs/alternate-window :wk "Previous Windows")
-  " SPC" '(elib-windows-transient-hydra/body :wk "Transient"))
+"s" '(nil :wk "Split")
+"sb" '(elib-split-window-below :wk "Split Below/Horizontally")
+"sn" '(elib-split-window-below :wk "Split Below/Horizontally")
+"sr" '(elib-split-window-right :wk "Split Right/Vertically")
+"sf" '(elib-split-window-right :wk "Split Right/Vertically")
+"a" '(ace-window :wk "Ace Window")
+"w" '(ace-window :wk "Ace Window")
+"o" '(other-window :wk "Other window")
+"t" '(elib-ace-swap-window :wk "Transpose")
+"d" '(elib-ace-delete-window :wk "Delete")
+"." '(elib-windows-transient-hydra/body :wk "Transient")
+"O" '(delete-other-windows :wk "Delete Others")
+"z" '(elib-zoom-transient-hydra/body :wk "Zoom")
+" TAB" '(spacemacs/alternate-window :wk "Previous Windows")
+" SPC" '(elib-windows-transient-hydra/body :wk "Transient"))
 #+END_SRC
 
 #+RESULTS:
@@ -290,57 +304,128 @@ Get rid of hello help, cute but annoying
 ** Projectile 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-projects-def
-  "b" '(projectile-switch-to-buffer :wk "Switch to Buffer")
-  "d" '(projectile-find-dir :wk "Find Directory")
-  "f" '(projectile-find-file :wk "Find File")
-  "F" '(projectile-find-file-dwim :wk "Find File")
-  "p" '(projectile-switch-project :wk "Switch")
-  "h" '(helm-projectile :wk "Helm")
-  "r" '(projectile-recentf :wk "Recent")
-  "a" '(projectile-ag :wk "Ag")
-  "c" '(projectile-compile-project :wk "Compile")
-  "g" '(projectile-grep :wk "Grep")
-  "s" '(projectile-multi-occur :wk "Search/Occur"))
+"b" '(projectile-switch-to-buffer :wk "Switch to Buffer")
+"d" '(projectile-find-dir :wk "Find Directory")
+"f" '(projectile-find-file :wk "Find File")
+"F" '(projectile-find-file-dwim :wk "Find File")
+"p" '(projectile-switch-project :wk "Switch")
+"h" '(helm-projectile :wk "Helm")
+"r" '(projectile-recentf :wk "Recent")
+"a" '(projectile-ag :wk "Ag")
+"c" '(projectile-compile-project :wk "Compile")
+"g" '(projectile-grep :wk "Grep")
+"s" '(projectile-multi-occur :wk "Search/Occur"))
 #+END_SRC
 ** Frames 
- #+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp 
 (elib-leader-def
-      "l" '(frame-workflow-prefix-map :wk "Layouts/frames")
-      "." '(helm-frame-workflow :wk "Switch frame"))
+    "l" '(frame-workflow-prefix-map :wk "Layouts/frames")
+    "." '(helm-frame-workflow :wk "Switch frame"))
 
- #+END_SRC
-** PDF-view 
+#+END_SRC
+** PDF-vie 
 #+BEGIN_SRC emacs-lisp 
 (general-def :keymaps 'pdf-view-mode-map
-  "/" '(pdf-occur :wk "Search")
-  "M-m /" '(pdf-occur :wk "Search"))
+"/" '(pdf-occur :wk "Search")
+"M-m /" '(pdf-occur :wk "Search"))
 (elib-leader-pdfview-def
-  "r" '(pdf-view-revert-buffer :wk "Revert buffer")
-  "a" '(nil :wk "Annotations")
-  "d" '(pdf-annot-attachment-dired :wk )
-  "am" '(pdf-annot-add-markup-annotation :wk "Add Markup")
-  "as" '(pdf-annot-add-squiggly-markup-annotation :wk "Add Squiggly")
-  "aS" '(pdf-annot-add-strikeout-markup-annotation :wk "Add Strikeout")
-  "at" '(pdf-annot-add-text-annotation :wk "Add Text")
-  "aS" '(pdf-annot-add-underline-markup-annotation :wk "Add Underline")
-  "aD" '(pdf-annot-delete :wk "Remove Annotation")
-  "af" '(pdf-annot-list-follow-minor-mode :wk "Follow Mode")
-  "n" '(pdf-view-midnight-minor-mode :wk "Midnight Mode")
-  "o" '(pdf-outline :wk "Outline")
-  "l" '(pdf-annot-list-annotations
-        :wk "List annotations")
-  "f" '(nil :wk "Fit")
-  "fh" '(pdf-view-fit-height-to-window :wk "Fit Height to Window")
-  "fp" '(pdf-view-fit-page-to-window :wk "Fit Page to Window")
-  "fw" '(pdf-view-fit-width-to-window :wk "Fit Height to Window")
-  "s" '(pdf-occur :wk "Search")
-  "g" '(pdf-view-goto-page :wk "Goto page")
-  "." '(elib-spacemacs-pdf-tools-transient-hydra/body :wk "Transient State")
-  " SPC" '(elib-spacemacs-pdf-tools-transient-hydra/body :wk "Transient State") 
-  )
+"r" '(pdf-view-revert-buffer :wk "Revert buffer")
+"a" '(nil :wk "Annotations")
+"d" '(pdf-annot-attachment-dired :wk )
+"am" '(pdf-annot-add-markup-annotation :wk "Add Markup")
+"as" '(pdf-annot-add-squiggly-markup-annotation :wk "Add Squiggly")
+"aS" '(pdf-annot-add-strikeout-markup-annotation :wk "Add Strikeout")
+"at" '(pdf-annot-add-text-annotation :wk "Add Text")
+"aS" '(pdf-annot-add-underline-markup-annotation :wk "Add Underline")
+"aD" '(pdf-annot-delete :wk "Remove Annotation")
+"af" '(pdf-annot-list-follow-minor-mode :wk "Follow Mode")
+"n" '(pdf-view-midnight-minor-mode :wk "Midnight Mode")
+"o" '(pdf-outline :wk "Outline")
+"l" '(pdf-annot-list-annotations
+      :wk "List annotations")
+"f" '(nil :wk "Fit")
+"fh" '(pdf-view-fit-height-to-window :wk "Fit Height to Window")
+"fp" '(pdf-view-fit-page-to-window :wk "Fit Page to Window")
+"fw" '(pdf-view-fit-width-to-window :wk "Fit Height to Window")
+"s" '(pdf-occur :wk "Search")
+"g" '(pdf-view-goto-page :wk "Goto page")
+"." '(elib-spacemacs-pdf-tools-transient-hydra/body :wk "Transient State")
+" SPC" '(elib-spacemacs-pdf-tools-transient-hydra/body :wk "Transient State") 
+)
 
 
 #+END_SRC
+** Text
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+** Jump
+
+#+BEGIN_SRC emacs-lisp
+(setq avy-all-windows t) 
+(elib-leader-jump-def
+  "b" '(avy-pop-mark :wk "Back")
+  "j" '(evil-avy-goto-char-timer :wk "Character (motion)")
+  "l" '(evil-avy-goto-line :wk "Line (motion)")
+  "u" '(spacemacs/avy-goto-url :wk "URL")
+  "U" '(spacemacs/avy-open-url :wk "URL (open)")
+  "w" '(evil-avy-goto-word-or-subword-1 :wk "Word (motion)"
+         )
+  "n" '(sp-newline :wk "Split newline")
+  "s" '(sp-split-sexp :wk "Split sexp")
+
+"o" '(open-line :wk "Open line")
+"d" '(dired-jump :wk "Jump to directory")
+"(" '(check-parens :wk "Check Parens")
+"f" '(find-function :wk "Lisp Function" )
+"v" '(find-variable :wk "Lisp Variable")
+"c" '(goto-last-change :wk "Last change")
+"q" '(dumb-jump-quick-look :wk "Quick look")
+"D" '(dired-jump-other-window :wk "Jump to directory (Other window)")
+"S" '(spacemacs/split-and-new-line :wk "Split + New line")
+"i" '(spacemacs/helm-jump-in-buffer :wk "Helm in buffer" )
+"+" '(spacemacs/iwb-region-or-buffer :wk "IWB region or buffer")
+"=" '(spacemacs/indent-region-or-buffer :wk "Indent region or buffer" )
+"I" '(helm-imenu-in-all-buffers :wk "Helm Imenu in all buffers")
+"$" '(spacemacs/push-mark-and-goto-end-of-line :wk "End of line")
+"k" '(spacemacs/evil-goto-next-line-and-indent :wk "Next line and indent")
+"0" '(spacemacs/push-mark-and-goto-beginning-of-line :wk "Beginning of line")
+
+)
+
+#+END_SRC
+
+** Special Symbol
+   #+BEGIN_SRC emacs-lisp
+(elib-leader-special-def 
+   "s" '(spacemacs/helm-file-smart-do-search :wk "Search in file")
+
+"f" '(spacemacs/helm-files-smart-do-search :wk "Search in other file(s)")
+"b" '(spacemacs/helm-buffers-smart-do-search :wk "Search in open buffers")
+"j" '(spacemacs/helm-jump-in-buffer :wk "Jump in buffer")
+"e" '(evil-iedit-state/iedit-mode :wk "Iedit")
+)
+(use-package macrostep)
+ (elib-leader-mc-def
+    "m" '(mc/mark-more-like-this-extended :wk "Mark more like this")
+    "a" '(mc/mark-all-dwim :wk "Mark all DWIM")
+    "b" '(mc/mark-all-like-this :wk "Mark all like this")
+    "e" '(nil :wk "Edit")
+    "el" '(mc/edit-lines :wk "Edit lines")
+    "eb" '(mc/edit-beginnings-of-lines :wk "Edit Beginnings")
+    "ee" '(mc/edit-ends-of-lines :wk "Edit Ends")
+    "r" '(set-rectangular-region-anchor :wk "Rectangular Region")
+  
+    "t" '(mc/mark-sgml-tag-pair :wk "Mark SGML Tag Pair")
+    "s" '(nil :wk "Sort")
+    "sr" '(mc/reverse-regions :wk "Reverse Region")
+    "ss" '(mc/sort-regions :wk "Sort regions")
+    "i" '(nil :wk "Insert")
+    "il" '(mc/insert-letters :wk "Letters")
+    "in" '(mc/insert-numbers :wk "Numbers")
+    )
+   #+END_SRC
+
 ** Files 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-files-def
@@ -365,6 +450,190 @@ Get rid of hello help, cute but annoying
 #+END_SRC
 
 #+RESULTS:
+
+* Lisp
+#+BEGIN_SRC emacs-lisp
+(elib-lisp-state-def 
+  "m"        '(nil :wk "Macrostep")
+  "me"       '(macrostep-expand :wk "Expand")
+  "mm"       '(macrostep-mode :wk "Mode")
+  "mc"       '(macrostep-collapse :wk "Collapse")
+  "$"        '(evil-lisp-state-sp-end-of-sexp :wk "end-of-sexp" )
+  "%"        '(evil-lisp-state-evil-jump-item :wk "evil-jump-item")
+  "("        '(evil-lisp-state-insert-sexp-before :wk "insert-sexp-before" )
+  ")"        '(evil-lisp-state-insert-sexp-after :wk "insert-sexp-after" )
+  "."        '(lisp-state-toggle-lisp-state :wk "toggle-lisp-state" )
+  "0"        '(evil-lisp-state-beginning-of-sexp :wk "beginning-of-sexp" )
+  "1"        '(evil-lisp-state-digit-argument :wk "digit-argument" )
+  "2"        '(evil-lisp-state-digit-argument :wk "digit-argument" )
+  "3"        '(evil-lisp-state-digit-argument :wk "digit-argument" )
+  "4"        '(evil-lisp-state-digit-argument :wk "digit-argument" )
+  "5"        '(evil-lisp-state-digit-argument :wk "digit-argument" )
+  "6"        '(evil-lisp-state-digit-argument :wk "digit-argument" )
+  "7"        '(evil-lisp-state-digit-argument :wk "digit-argument" )
+  "8"        '(evil-lisp-state-digit-argument :wk "digit-argument" )
+  "9"        '(evil-lisp-state-digit-argument :wk "digit-argument" )
+  ":"        '(evil-lisp-state-evil-ex :wk "evil-ex" )
+  "<escape>" '(evil-lisp-state/quit :wk "quit" )
+  "B"        '(evil-lisp-state-sp-backward-barf-sexp :wk "backward-barf-sexp" )
+  "C-r"      '(evil-lisp-state-undo-tree-redo :wk "undo-tree-redo" )
+  "C-v"      '(evil-lisp-state-evil-visual-block :wk "evil-visual-block" )
+  "D s"      '(evil-lisp-state-sp-backward-kill-symbol :wk "backward-kill-symbol" )
+  "D w"      '(evil-lisp-state-sp-backward-kill-word :wk "backward-kill-word" )
+  "D x"      '(evil-lisp-state-sp-backward-kill-sexp :wk "backward-kill-sexp" )
+  "E"        '(evil-lisp-state-sp-splice-sexp-killing-backward :wk "splice-sexp-killing-backward" )
+  "H"        '(evil-lisp-state-sp-backward-sexp :wk "backward-sexp" )
+  "I"        '(evil-lisp-state-evil-insert-line :wk "evil-insert-line" )
+  "J"        '(evil-lisp-state-sp-join-sexp :wk "join-sexp" )
+  "L"        '(evil-lisp-state-sp-forward-sexp :wk "forward-sexp" )
+  "P"        '(evil-lisp-state-evil-paste-before :wk "evil-paste-before" )
+  "S"        '(evil-lisp-state-sp-backward-slurp-sexp :wk "backward-slurp-sexp" )
+  "U"        '(evil-lisp-state-sp-backward-up-sexp :wk "backward-up-sexp" )
+  "V"        '(evil-lisp-state-evil-visual-line :wk "evil-visual-line" )
+  "W"        '(evil-lisp-state-sp-unwrap-sexp :wk "unwrap-sexp" )
+  "`"        '(nil :wk "Hybrid sexp")
+  "` k"      '(evil-lisp-state-sp-kill-hybrid-sexp :wk "kill-hybrid-sexp" )
+  "` p"      '(evil-lisp-state-sp-push-hybrid-sexp :wk "push-hybrid-sexp" )
+  "` s"      '(evil-lisp-state-sp-slurp-hybrid-sexp :wk "slurp-hybrid-sexp" )
+  "` t"      '(evil-lisp-state-sp-transpose-hybrid-sexp :wk "transpose-hybrid-sexp" )
+  "a"        '(evil-lisp-state-sp-absorb-sexp :wk "absorb-sexp" )
+  "b"        '(evil-lisp-state-sp-forward-barf-sexp :wk "forward-barf-sexp" )
+  "c"        '(evil-lisp-state-sp-convolute-sexp :wk "convolute-sexp" )
+  "d s"      '(evil-lisp-state-sp-kill-symbol :wk "kill-symbol" )
+  "d w"      '(evil-lisp-state-sp-kill-word :wk "kill-word" )
+  "d x"      '(evil-lisp-state-sp-kill-sexp :wk "kill-sexp" )
+  "e"        '(evil-lisp-state-sp-splice-sexp-killing-forward :wk "splice-sexp-killing-forward" )
+  "h"        '(evil-lisp-state-sp-backward-symbol :wk "backward-symbol" )
+  "i"        '(evil-lisp-state-evil-insert-state :wk "evil-insert-state" )
+  "j"        '(evil-lisp-state-next-closing-paren :wk "next-closing-paren" )
+  "k"        '(evil-lisp-state-prev-opening-paren :wk "prev-opening-paren" )
+  "l"        '(evil-lisp-state-forward-symbol :wk "forward-symbol" )
+  "p"        '(evil-lisp-state-evil-paste-after :wk "evil-paste-after" )
+  "r"        '(evil-lisp-state-sp-raise-sexp :wk "raise-sexp" )
+  "s"        '(evil-lisp-state-sp-forward-slurp-sexp :wk "forward-slurp-sexp" )
+  "t"        '(evil-lisp-state-sp-transpose-sexp :wk "transpose-sexp" )
+  "u"        '(evil-lisp-state-undo-tree-undo :wk "undo-tree-undo" )
+  "v"        '(evil-lisp-state-evil-visual-char :wk "evil-visual-char" )
+  "w"        '(evil-lisp-state-wrap :wk "wrap" )
+  "y"        '(evil-lisp-state-sp-copy-sexp :wk "copy-sexp" )
+)
+#+END_SRC
+
+* Evil mode 
+
+#+BEGIN_SRC emacs-lisp
+(general-def :states '(normal motion visual)
+
+    "C-a" 'evil-numbers/inc-at-pt
+"C-S-a" 'evil-numbers/dec-at-pt
+)
+
+;; (modify-syntax-entry ?- "w" emacs-lisp-mode-syntax-table)
+;; (modify-syntax-entry ?_ "w" emacs-lisp-mode-syntax-table)
+ 
+  
+(general-def evil-outer-text-objects-map
+"i" 'evil-indent-plus-a-indent
+"I" 'evil-indent-plus-a-indent-up
+"J" 'evil-indent-plus-a-indent-up-down
+"a" 'evil-outer-arg
+) 
+(general-def evil-operator-state-map :prefix "a"
+"\""               '(evil-a-double-quote :wk "evil-a-double-quote")
+"$"               '(evil-outer-dollar :wk "evil-outer-dollar")
+"%"               '(evilmi-outer-text-object :wk "text-object"  )
+"'"               '(evil-a-single-quote :wk "single-quote" )
+"("               '(evil-a-paren :wk "paren")
+")"               '(evil-a-paren :wk "paren")
+"*"               '(evil-outer-star :wk "star")
+"-"               '(evil-outer-hyphen :wk "hyphen"  )
+"/"               '(evil-outer-slash :wk "slash"  )
+"8"               '(evil-outer-block-star :wk "block-star"  )
+"<"               '(evil-an-angle :wk "angle"  )
+"="               '(evil-outer-equal :wk "equal"  )
+">"               '(evil-an-angle :wk "angle"  )
+"B"               '(evil-a-curly :wk "curly"  )
+"I"               '(evil-indent-plus-a-indent-up :wk "indent-up"  )
+"J"               '(evil-indent-plus-a-indent-up-down :wk "indent-up-down"  )
+"W"               '(evil-a-WORD :wk "WORD"  )
+"["               '(evil-a-bracket :wk "bracket")
+"]"               '(evil-a-bracket :wk "bracket")
+"_"               '(evil-outer-underscore :wk "underscore"  )
+"`"               '(evil-a-back-quote :wk "back-quote")
+"a"               '(evil-outer-arg :wk "arg"  )
+"b"               '(evil-a-paren :wk "paren"  )
+"c"               '(evil-cp-a-comment :wk "comment"  )
+"d"               '(evil-cp-a-defun :wk "defun"  )
+"f"               '(evil-cp-a-form :wk "form"  )
+"i"               '(evil-indent-plus-a-indent :wk "indent"  )
+"l"               '(evil-a-line :wk "line"  )
+"o"               '(evil-a-symbol :wk "symbol"  )
+"p"               '(evil-a-paragraph :wk "paragraph"  )
+"s"               '(evil-a-sentence :wk "sentence"  )
+"t"               '(evil-a-tag :wk "tag"  )
+"w"               '(evil-a-word :wk "word"  )
+"x"               '(evil-outer-xml-attr :wk "xml-attr"  )
+"{"               '(evil-a-curly :wk "curly")
+"}"               '(evil-a-curly :wk "curly")
+"|"               '(evil-outer-bar :wk "bar"  )
+"~"               '(evil-outer-tilde :wk "tilde"  )
+"«"               '(evil-outer-double-angle-bracket :wk "double-angle-bracket"  )
+"‘"               '(evil-outer-single-quotation-mark :wk "single-quotation-mark"  )
+"“"               '(evil-outer-double-quotation-mark :wk "double-quotation-mark"  )
+"｢"               '(evil-outer-corner-bracket :wk "corner-bracket"  )
+  )  
+(general-def evil-operator-state-map :prefix "i"
+  
+  "f" '(evil-cp-inner-form :wk "form")
+  "c" '(evil-cp-inner-comment :wk "comment")
+  "d" '(evil-cp-inner-defun :wk "defun")
+"\""             '(evil-inner-double-quote :wk "double-quote")
+"$"              '(evil-inner-dollar :wk "dollar")
+"%"              '(evilmi-inner-text-object :wk "text-object")
+"'"              '(evil-inner-single-quote :wk "single-quote")
+"("         '(evil-inner-paren :wk "paren")
+")"          '(evil-inner-paren :wk "paren")
+"*"              '(evil-inner-star :wk "star")
+"-"              '(evil-inner-hyphen :wk "hyphen")
+"/"              '(evil-inner-slash :wk "slash")
+"8"              '(evil-inner-block-star :wk "block-star") 
+"<"              '(evil-inner-angle :wk "angle") 
+"="              '(evil-inner-equal :wk "equal") 
+">"            '(evil-inner-angle :wk "angle") 
+"B"              '(evil-inner-curly :wk "curly") 
+"I"              '(evil-indent-plus-i-indent-up :wk "indent+up") 
+"J"              '(evil-indent-plus-i-indent-up-down :wk "indent+down") 
+"K"              '(evil-textobj-column-WORD :wk "column-WORD") 
+"P"              '(evil-pasted :wk "pasted") 
+"W"              '(evil-inner-WORD :wk "WORD") 
+"["              '(evil-inner-bracket :wk "bracket") 
+"]"              '(evil-inner-bracket :wk "bracket") 
+"_"              '(evil-inner-underscore :wk "underscore") 
+"`"              '(evil-inner-back-quote :wk "back-quote") 
+"a"              '(evil-inner-arg :wk "arg") 
+"b"              '(evil-inner-paren :wk "paren") 
+"g"              '(evil-inner-buffer :wk "buffer") 
+"i"              '(evil-indent-plus-i-indent :wk "indent") 
+"k"              '(evil-textobj-column-word :wk "column-word") 
+"l"              '(evil-inner-line :wk "line") 
+"o"              '(evil-inner-symbol :wk "symbol") 
+"p"              '(evil-inner-paragraph :wk "paragraph") 
+"s"              '(evil-inner-sentence :wk "sentence") 
+"t"              '(evil-inner-tag :wk "tag") 
+"w"              '(evil-inner-word :wk "word") 
+"x"              '(evil-inner-xml-attr :wk "xml-attr") 
+"{"              '(evil-inner-curly :wk "curly") 
+"|"              '(evil-inner-bar :wk "bar") 
+"}"              '(evil-inner-curly :wk "curly") 
+"~"              '(evil-inner-tilde :wk "tilde") 
+"«"              '(evil-inner-double-angle-bracket :wk "double-angle-bracket") 
+"‘"              '(evil-inner-single-quotation-mark :wk "single-quotation-mark") 
+"“"              '(evil-inner-double-quotation-mark :wk "double-quotation-mark") 
+"｢"              '(evil-inner-corner-bracket :wk "corner-bracket"))  
+#+END_SRC
+
+#+RESULTS:
+
 
 * Keymap variables 
 #+BEGIN_SRC emacs-lisp 
