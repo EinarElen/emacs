@@ -12,7 +12,7 @@
         (dolist (elt list value)
     (when (and (not value) (file-exists-p elt))
       (setq value (expand-file-name elt))))
-        (or value ""))))
+       value )))
   (defmacro alist-get-equal (key alist &optional default
                remove)
     "A call to `alist-get' with testfn set to `equal'"
