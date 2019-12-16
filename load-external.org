@@ -23,6 +23,7 @@
 (use-package hydra)
 (use-package elpy)
 (use-package lispy)
+(use-package which-key)
 (use-package org
   :ensure org-plus-contrib)
 (use-package ob

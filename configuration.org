@@ -488,7 +488,7 @@
 * Magit 
 
 #+BEGIN_SRC emacs-lisp
-(use-package magit)
+(use-package magit) 
 #+END_SRC
 
 * Jupyter
