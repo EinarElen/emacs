@@ -490,7 +490,7 @@
 #+BEGIN_SRC emacs-lisp
 (use-package magit) 
 #+END_SRC
-
+ 
 * Jupyter
 
 Dependencies
@@ -530,7 +530,8 @@ Dependencies
 ** Email 
 #+BEGIN_SRC emacs-lisp
   (use-package mu4e
-    :when (file-exists-p elib-mu4e-load-path) 
+    :when (and (file-exists-p elib-mu4e-load-path)
+           elib-mu4e-load-path )  
     :load-path elib-mu4e-load-path
     :config
     (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
