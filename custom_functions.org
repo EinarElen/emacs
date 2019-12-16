@@ -6,43 +6,41 @@
 #+STARTUP: noinlineimages
 * Handy lisp functions and macros 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(eval-when-compile
+  (eval-when-compile
   (defun potential-load-paths (list)
-    (let ((value))
-      (dolist (elt list value)
-	(when (and (not value) (file-exists-p elt))
-	  (setq value (expand-file-name elt))))
-      value))
-  
-)
-(defmacro alist-get-equal (key alist &optional default
-			       remove)
-  "A call to `alist-get' with testfn set to `equal'"
-  `(alist-get ,key ,alist ,default ,remove 'equal))
+      (let ((value))
+        (dolist (elt list value)
+    (when (and (not value) (file-exists-p elt))
+      (setq value (expand-file-name elt))))
+        (or value ""))))
+  (defmacro alist-get-equal (key alist &optional default
+               remove)
+    "A call to `alist-get' with testfn set to `equal'"
+    `(alist-get ,key ,alist ,default ,remove 'equal))
 
 
-(defmacro alist-get-equal-simple (key alist)
-  "A call to `alist-get' with default and remove set to
-  nil and testfn set to `equal'
+  (defmacro alist-get-equal-simple (key alist)
+    "A call to `alist-get' with default and remove set to
+    nil and testfn set to `equal'
 
-  In reality, a call to `alist-get-equal' with default and
-  remove set to nil."
-  `(alist-get-equal ,key ,alist nil nil))
+    In reality, a call to `alist-get-equal' with default and
+    remove set to nil."
+    `(alist-get-equal ,key ,alist nil nil))
 
-(defmacro add-to-list-multi (lst elts &optional append compare-fn)
-  "Call `add-to-list' for each element in ELTS to LST."
-  `(dolist (x ,elts)
-     (add-to-list ,lst x ,append ,compare-fn)))
+  (defmacro add-to-list-multi (lst elts &optional append compare-fn)
+    "Call `add-to-list' for each element in ELTS to LST."
+    `(dolist (x ,elts)
+       (add-to-list ,lst x ,append ,compare-fn)))
 
 
-(defun add-to-list-force (lst elt)
-  "If the car of ELT is a key in LST, replace the value with the
-value from ELT. Otherwise, call `add-to-list'"
-  (if (assoc (car elt) lst)
-      (setf
-       (cdr (assoc (car elt) lst))
-       (cdr elt))
-    (add-to-list 'lst elt)))
+  (defun add-to-list-force (lst elt)
+    "If the car of ELT is a key in LST, replace the value with the
+  value from ELT. Otherwise, call `add-to-list'"
+    (if (assoc (car elt) lst)
+        (setf
+         (cdr (assoc (car elt) lst))
+         (cdr elt))
+      (add-to-list 'lst elt)))
 #+END_SRC
 
 #+RESULTS:
