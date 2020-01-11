@@ -65,6 +65,9 @@ Get rid of hello help, cute but annoying
 
 (elib-extend-leader "Major Mode" "mode" "m") 
 (elib-extend-leader "Applications" "apps" "a")
+(elib-extend-leader "Insert" "insert" "i")
+(elib-extend-leader "Yasnippet" "yas" "iy")
+(elib-extend-leader "Insert completion" "icomp" "ic")
 (elib-extend-leader "Special" "special" "s")
 (elib-extend-leader "Multiple Cursors" "mc" "sm")
 (elib-extend-leader "Helm" "helm" "sh")
@@ -75,21 +78,20 @@ Get rid of hello help, cute but annoying
 (elib-extend-leader "Projects"  "projects" "p")
 (elib-extend-leader "Shells"  "shells" "as")
 (elib-extend-leader "Org"  "a/org" "ao")
-; (describe-keymap evil-lisp-state-local-map)
+                                        ; (describe-keymap evil-lisp-state-local-map)
 (elib-extend-leader "Org-ref"  "org-ref" "aor")
 (elib-extend-leader "Brain"  "org-brain" "aob")
 (elib-extend-leader "Errors/export"  "errors" "e")
 (elib-extend-leader "Jump"  "jump" "j")
 (elib-extend-leader "Buffers"  "buffers" "b")
 (elib-extend-leader "Text" "text" "x")
-;(elib-extend-leader "Lisp" "lisp" "k")
-(general-create-definer elib-lisp-state-def 
-:keymaps 'evil-lisp-state-map
-)
-(general-def :prefix elib-leader :non-normal-prefix elib-non-normal-leader
-:states '(normal visual iedit motion emacs)
-"k" evil-lisp-state-map
-)
+;; (general-create-definer elib-lisp-state-def 
+;;   :keymaps 'evil-lisp-state-map
+;;   )
+;; (general-def :prefix elib-leader :non-normal-prefix elib-non-normal-leader
+;;   :states '(normal visual iedit motion emacs)
+;;   "k" evil-lisp-state-map
+;;   )
 
 (elib-extend-leader "PDF-Tools" "pdfview" "m" 'pdf-view-mode-map 'pdf-annot-list-mode-map)
 
@@ -105,14 +107,14 @@ Get rid of hello help, cute but annoying
 (bind-key "M-y"  'helm-show-kill-ring)
 (bind-key "M-p" 'helm-minibuffer-history minibuffer-local-map)
 (bind-key "M-n" 'helm-minibuffer-history minibuffer-local-map)
-(bind-key "C-r" 'helm-previous-line helm-swoop-map)
+ (bind-key "C-r" 'helm-previous-line helm-swoop-map)
 (bind-key "C-s" 'helm-previous-line helm-swoop-map)
 ;; Add helm-descbinds
 #+END_SRC
 * Text editing 
 #+BEGIN_SRC emacs-lisp
-(general-def :states general-non-normal-states "C-a" 'mwim-beginning)
-(general-def :states general-non-normal-states "C-e" 'mwim-end)
+;;(general-def :states general-non-normal-states "C-a" 'mwim-beginning)
+;;(general-def :states general-non-normal-states "C-e" 'mwim-end)
 (bind-key "M-;"  'comment-dwim-2)
 (bind-key "M-c" 'capitalize-dwim)
 (bind-key "M-C" 'sentence-case-region)
@@ -133,6 +135,7 @@ Get rid of hello help, cute but annoying
   (general-def
   "s" 'helm-mu
 :keymaps 'mu4e-view-mode-map)
+
 #+END_SRC
 
 #+RESULTS:
@@ -183,17 +186,28 @@ Get rid of hello help, cute but annoying
 #+RESULTS:
 ** Insert / Complete 
 #+BEGIN_SRC emacs-lisp
-(elib-leader-def
-  "is" 'helm-yas-complete
+
+(elib-leader-icomp-def
+"c" '(company-complete :wk "Complete")
+"h" '(helm-company :wk "Helm Company") 
+)
+
+
+
+(elib-leader-yas-def
+  "c" '(helm-yas-complete :wk "Helm Complete")
+  "e" '(yas-expand :wk "Expand")
+  
   )
-(let ((map company-active-map))
-                  ;(define-key map (kbd "C-/")   'company-search-candidates)
-  (define-key map (kbd "M-n") 'company-select-next)
-  (define-key map (kbd "M-p") 'company-select-previous)
-  (define-key map (kbd "C-M-/") 'company-filter-candidates)
-  (define-key map (kbd "C-d")   'company-show-doc-buffer)
-  (define-key map (kbd "M-/") 'helm-company)
-  )
+
+;; (let ((map company-active-map))
+;;                   ;(define-key map (kbd "C-/")   'company-search-candidates)
+;;   (define-key map (kbd "M-n") 'company-select-next)
+;;   (define-key map (kbd "M-p") 'company-select-previous)
+;;   (define-key map (kbd "C-M-/") 'company-filter-candidates)
+;;   (define-key map (kbd "C-d")   'company-show-doc-buffer)
+;;   (define-key map (kbd "M-/") 'helm-company)
+;;    )
 
 #+END_SRC
 
@@ -452,7 +466,7 @@ Get rid of hello help, cute but annoying
 #+RESULTS:
 
 * Lisp
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (elib-lisp-state-def 
   "m"        '(nil :wk "Macrostep")
   "me"       '(macrostep-expand :wk "Expand")
@@ -651,3 +665,27 @@ Get rid of hello help, cute but annoying
 			   (define-key map (kbd "C-c C-c") 'org-ctrl-c-ctrl-c)
 			   map))))
 #+END_SRC
+
+* Deal with annoying packages 
+
+#+BEGIN_SRC emacs-lisp
+(general-unbind  dired-mode-map 
+"SPC" "M-m"
+)
+
+
+
+
+(general-unbind mu4e-main-mode-map 'normal 'visual "<normal state> SPC" "M-m")
+(general-unbind mu4e-view-mode-map "SPC" "M-m")
+(general-unbind mu4e-compose-mode-map "SPC" "M-m")
+(general-unbind mu4e-headers-mode-map "SPC" "M-m")
+(general-unbind mu4e~update-mail-mode-map "SPC" "M-m")
+(general-unbind mu4e-view-header-field-keymap "SPC" "M-m")
+(general-unbind mu4e-view-clickable-urls-keymap "SPC" "M-m")
+(general-unbind mu4e-view-contacts-header-keymap "SPC" "M-m")
+(general-unbind mu4e-view-attachments-header-keymap "SPC" "M-m")
+
+#+END_SRC
+
+#+RESULTS:

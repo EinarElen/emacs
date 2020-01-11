@@ -126,6 +126,7 @@ handy [[elisp:(describe-function 'executable-find)][`executable-find']] function
      '("~/.local/share/emacs/site-lisp/mu4e"
        "/usr/local/share/emacs/site-lisp/mu4e"
        "/usr/local/share/emacs/site-lisp/mu/mu4e"
+       "~/.config/emacs/mu4e"   
        "~/.emacs.d/mu4e")))
   (defcustom elib-preview-latex-dir
     (expand-file-name (concat user-emacs-directory "ltximg/"))
@@ -175,8 +176,8 @@ handy [[elisp:(describe-function 'executable-find)][`executable-find']] function
 
 
   (defcustom elib-drive-dir
-    (expand-file-name "../Nextcloud"
-		      user-emacs-config-directory)
+    (expand-file-name "Nextcloud"
+		      "~")
     "Filename of the user's personal
 	drive (e.g. nextcloud/google drive/dropbox)"
     :type 'string
@@ -307,7 +308,7 @@ Files whose full name matches this regexp are backed up to `elib-backup-trash-di
 #+BEGIN_SRC emacs-lisp
 (defvar elib-create-attachments-directories? t)
 (defvar elib-mail-attachments-dir (expand-file-name "files/attachments" elib-user-org-directory))
-(defvar elib-mail-get-command "mbsync -a")
+(defvar elib-mail-get-command (concat "mbsync -c " (expand-file-name "~/.config/isync/mbsyncrc" ) " -a"))
 (defvar elib-mail-gmail
   '("gmail"
     (mu4e-sent-folder "/gmail/[Gmail]/Sent Mail")

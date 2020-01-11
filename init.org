@@ -4,6 +4,26 @@
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes :comments both
 #+STARTUP: noinlineimages
+
+* Debug Reset
+#+BEGIN_SRC emacs-lisp :tangle no :noweb yes
+<<enc>>
+<<loc-files>>
+<<pkg>>
+<<file-vars>>
+<<use-pkg>>
+    (use-package org
+    :ensure org-plus-contrib)
+    (use-package ob
+    :ensure org-plus-contrib)
+(dolist (file elib-startup-files-org)
+(org-babel-tangle-file (symbol-value file))
+)
+
+  #+END_SRC
+
+  #+RESULTS:
+
 * Some optimization
   #+BEGIN_SRC emacs-lisp
     (setq load-prefer-newer t)
@@ -29,7 +49,7 @@
 * Encoding system 
 
 See [[help:selection-coding-system][selection-coding-system]]. Important for clipmon 
-
+#+NAME: enc
 #+BEGIN_SRC emacs-lisp
 (setq-default selection-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
@@ -45,17 +65,18 @@ See [[help:selection-coding-system][selection-coding-system]]. Important for cli
 
 * Initialization of Emacs
 ** Dealing with local files 
+#+NAME: loc-files
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (defcustom user-emacs-config-directory
     (file-name-as-directory 
-    (expand-file-name "~/.emacs.d"))
+    (expand-file-name "~/.config/emacs/"))
 	  "The emacs configuration directory."
 	  :type 'string
 	  :group :elib-file-paths)
     (setq user-emacs-directory
 	   (file-name-as-directory
 	    (expand-file-name (concat
-			       "~/.emacs.d/"
+			       "~/.config/emacs/"
 			       "machine-local-files"))))
 
     (defalias 'yes-or-no-p 'y-or-n-p)
@@ -67,21 +88,15 @@ See [[help:selection-coding-system][selection-coding-system]]. Important for cli
 #+END_SRC
 
 #+RESULTS:
-: /home/einarelen/.emacs.d/machine-local-files/emacs-managed-customizations.el
+: /home/einarelen/.config/emacs/machine-local-files/emacs-managed-customizations.el
 
 ** Package.el
  Before emacs 27, package.el needed to be initalized which was done by
  inserting a call to package-initialize. This is no longer needed!
-
+#+NAME: pkg
  #+BEGIN_SRC emacs-lisp :tangle init.el
    (if (< 27 emacs-major-version)
        (package-initialize))
- #+END_SRC
-
- #+RESULTS:
-
-
-#+BEGIN_SRC emacs-lisp :tangle init.el
   (setq package-user-dir (expand-file-name (concat
   user-emacs-directory "elpa/")))
     (require 'package)
@@ -102,66 +117,79 @@ See [[help:selection-coding-system][selection-coding-system]]. Important for cli
 
 ** Variables for initialization files 
 
-#+BEGIN_SRC emacs-lisp :tangle no
-(defvar elib-init-startup-org (expand-file-name
-(concat user-emacs-config-directory "init.org")))
-		    (defvar elib-init-startup-el (expand-file-name
-
-		    (concat user-emacs-config-directory "init.el")))	  (defvar elib-init-custom-org (expand-file-name
-(defvar elib-init-custom-org (expand-file-name			      (concat user-emacs-config-directory "custom.org")))
-		    (concat user-emacs-config-directory "custom.org")))	  (defvar elib-init-custom-el (expand-file-name
-(defvar elib-init-custom-el (expand-file-name			      (concat user-emacs-config-directory "custom.el")))
-		    (concat user-emacs-config-directory "custom.el")))	  (defvar elib-init-config-org (expand-file-name
-(defvar elib-init-config-org (expand-file-name			      (concat user-emacs-config-directory "configuration.org")))
-		    (concat user-emacs-config-directory "configuration.org")))	  (defvar elib-init-config-el (expand-file-name
-(defvar elib-init-config-el (expand-file-name			      (concat user-emacs-config-directory "configuration.el")))
-		    (concat user-emacs-config-directory "configuration.el")))	  (defvar elib-init-exwm-org (expand-file-name
-(defvar elib-init-exwm-org (expand-file-name			      (concat user-emacs-config-directory "init-exwm.org")))
-		    (concat user-emacs-config-directory "init-exwm.org")))	  (defvar elib-init-exwm-el (expand-file-name
-(defvar elib-init-exwm-el (expand-file-name			     (concat user-emacs-config-directory "init-exwm.el")))
-		   (concat user-emacs-config-directory "init-exwm.el")))	
-
-  (defvar elib-tangle-needs-to-tangle?
-(defvar elib-tangle-needs-to-tangle?	    (or 
-  (or 	    (file-newer-than-file-p elib-init-startup-org
-  (file-newer-than-file-p elib-init-startup-org					elib-init-startup-el)
-                              elib-init-startup-el)	    (file-newer-than-file-p elib-init-config-org
-  (file-newer-than-file-p elib-init-config-org					elib-init-config-el)
-                              elib-init-config-el)	    (file-newer-than-file-p elib-init-config-org
-  (file-newer-than-file-p elib-init-config-org					elib-init-config-el)
-                              elib-init-config-el)		(file-newer-than-file-p elib-init-custom-org
-      (file-newer-than-file-p elib-init-custom-org					elib-init-custom-el)
-                              elib-init-custom-el)		(file-newer-than-file-p elib-init-exwm-org
-      (file-newer-than-file-p elib-init-exwm-org					elib-init-exwm-el)
-                              elib-init-exwm-el)					elib-init-needs-installation?
-			      elib-init-needs-installation?		))
-      ))	
-#+END_SRC	
 
 
+#+NAME: file-vars
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(defun elib-create-startup-pair (list)
-  (let ((el-file)
-	(org-file)
-	(el-file-symbol)
-	(org-file-symbol))
-    (dolist (elt list )
-      (setq el-file-symbol (intern (concat "elib-init-" elt "-el")))
-      (setq org-file-symbol (intern (concat "elib-init-" elt "-org")))
-      (setq el-file (expand-file-name (concat (concat elt ".el")) user-emacs-config-directory))
-      (setq org-file (expand-file-name (concat (concat elt ".org")) user-emacs-config-directory))
-      (eval `(defvar ,el-file-symbol ,el-file))
-      (eval `(defvar ,org-file-symbol ,org-file))
-      (when (file-newer-than-file-p org-file el-file)
-	(setq elib-tangle-needs-to-tangle? t)))))
-(defvar elib-tangle-needs-to-tangle? nil)
-(elib-create-startup-pair '("init" "custom" "custom_functions" "configuration" "keybindings" "init-exwm" "load-external"))
+  (defvar elib-startup-files)
+  (defvar elib-startup-files-org)
+  (defvar elib-startup-files-el)
+  (defvar elib-tangle-needs-to-tangle? nil)
+  (defun elib-create-startup-pair (list)
+    (setq elib-startup-files nil elib-startup-files-org nil elib-startup-files-el nil)
+    (let ((el-file)
+	  (org-file)
+	  (el-file-symbol)
+	  (org-file-symbol))
+      (dolist (elt list)
+	(setq el-file-symbol (intern (concat "elib-init-" elt "-el")))
+	(setq org-file-symbol (intern (concat "elib-init-" elt "-org")))
+	(setq el-file (expand-file-name (concat (concat elt ".el")) user-emacs-config-directory))
+	(setq org-file (expand-file-name (concat (concat elt ".org")) user-emacs-config-directory))
+	(eval `(defvar ,el-file-symbol ,el-file))
+	(eval `(defvar ,org-file-symbol ,org-file))
+	(when (file-newer-than-file-p org-file el-file)
+	  (setq elib-tangle-needs-to-tangle? t))
+      (add-to-list 'elib-startup-files (cons org-file-symbol el-file-symbol))
+      (add-to-list 'elib-startup-files-org org-file-symbol)
+      (add-to-list 'elib-startup-files-el el-file-symbol)
+      (print elib-startup-files)
+  )
+  ))
+
+  (elib-create-startup-pair '("init" "custom" "custom_functions" "configuration" "keybindings"  "load-external"));  "init-exwm"
 #+END_SRC
 
 #+RESULTS:
 
-* Use Package 
+*** Old :ignore:
+ #+BEGIN_SRC emacs-lisp :tangle no
+ (defvar elib-init-startup-org (expand-file-name
+ (concat user-emacs-config-directory "init.org")))
+		     (defvar elib-init-startup-el (expand-file-name
 
+		     (concat user-emacs-config-directory "init.el")))	  (defvar elib-init-custom-org (expand-file-name
+ (defvar elib-init-custom-org (expand-file-name			      (concat user-emacs-config-directory "custom.org")))
+		     (concat user-emacs-config-directory "custom.org")))	  (defvar elib-init-custom-el (expand-file-name
+ (defvar elib-init-custom-el (expand-file-name			      (concat user-emacs-config-directory "custom.el")))
+		     (concat user-emacs-config-directory "custom.el")))	  (defvar elib-init-config-org (expand-file-name
+ (defvar elib-init-config-org (expand-file-name			      (concat user-emacs-config-directory "configuration.org")))
+		     (concat user-emacs-config-directory "configuration.org")))	  (defvar elib-init-config-el (expand-file-name
+ (defvar elib-init-config-el (expand-file-name			      (concat user-emacs-config-directory "configuration.el")))
+		     (concat user-emacs-config-directory "configuration.el")))	  (defvar elib-init-exwm-org (expand-file-name
+ (defvar elib-init-exwm-org (expand-file-name			      (concat user-emacs-config-directory "init-exwm.org")))
+		     (concat user-emacs-config-directory "init-exwm.org")))	  (defvar elib-init-exwm-el (expand-file-name
+ (defvar elib-init-exwm-el (expand-file-name			     (concat user-emacs-config-directory "init-exwm.el")))
+		    (concat user-emacs-config-directory "init-exwm.el")))	
+
+   (defvar elib-tangle-needs-to-tangle?
+ (defvar elib-tangle-needs-to-tangle?	    (or 
+   (or 	    (file-newer-than-file-p elib-init-startup-org
+   (file-newer-than-file-p elib-init-startup-org					elib-init-startup-el)
+                               elib-init-startup-el)	    (file-newer-than-file-p elib-init-config-org
+   (file-newer-than-file-p elib-init-config-org					elib-init-config-el)
+                               elib-init-config-el)	    (file-newer-than-file-p elib-init-config-org
+   (file-newer-than-file-p elib-init-config-org					elib-init-config-el)
+                               elib-init-config-el)		(file-newer-than-file-p elib-init-custom-org
+       (file-newer-than-file-p elib-init-custom-org					elib-init-custom-el)
+                               elib-init-custom-el)		(file-newer-than-file-p elib-init-exwm-org
+       (file-newer-than-file-p elib-init-exwm-org					elib-init-exwm-el)
+                               elib-init-exwm-el)					elib-init-needs-installation?
+			       elib-init-needs-installation?		))
+       ))	
+ #+END_SRC	
+* Use Package 
+#+NAME: use-pkg
 #+BEGIN_SRC emacs-lisp :tangle init.el
   ;; (when elib-init-needs-installation?
   ;;   (save-window-excursion

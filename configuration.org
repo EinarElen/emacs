@@ -10,7 +10,9 @@
 
 * Better default settings
 #+BEGIN_SRC emacs-lisp 
-
+(use-package clipmon
+:config (clipmon-mode)
+)
 #+END_SRC
 ** Backups 
  From [[http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/][Pragmatic emacs]]
@@ -126,7 +128,16 @@
 
 * General 
 #+BEGIN_SRC emacs-lisp 
-(use-package general)
+(use-package general
+  (setq general-override-states '(insert
+                                  emacs
+                                  hybrid
+                                  normal
+                                  visual
+                                  motion
+                                  operator
+                                  replace))
+)
 #+END_SRC
 
 * Frame Purpose
@@ -337,12 +348,31 @@
 	:sidebar-buffers-fn '(lambda ()
                    (delete-other-windows)
                    (mu4e)
-                 
+                 (list (current-buffer))
                    ) 
 	)
       )
  #+END_SRC
 
+ 
+** Run from emaccsclients
+   
+
+#+BEGIN_SRC emacs-lisp
+(defun elib-do-select-frame-from-emacsclient (name)
+(interactive)
+(let ((cf (selected-frame)
+ 
+)
+(symb (intern (concat "frame-workflow-switch-to-subject/" name)))
+)
+(call-interactively symb)
+(delete-frame cf)
+)
+
+)
+
+#+END_SRC
 * Key packages 
 ** Which-key 
 #+BEGIN_SRC emacs-lisp 
@@ -380,9 +410,26 @@
 #+END_SRC
 *** Org brain 
 #+BEGIN_SRC emacs-lisp 
+
+(use-package ascii-art-to-unicode 
+:config
+
+(defface aa2u-face '((t . nil))
+  "Face for aa2u box drawing characters")
+(advice-add #'aa2u-1c :filter-return
+            (lambda (str) (propertize str 'face 'aa2u-face)))
+(defun aa2u-org-brain-buffer ()
+  (let ((inhibit-read-only t))
+    (make-local-variable 'face-remapping-alist)
+    (add-to-list 'face-remapping-alist
+                 '(aa2u-face . org-brain-wires))
+    (ignore-errors (aa2u (point-min) (point-max)))))
+(add-hook 'org-brain-after-visualize-hook #'aa2u-org-brain-buffer)
+)
 (use-package org-brain
 :config 
 (add-hook 'org-brain-after-resource-button-functions #'org-brain-insert-resource-icon)
+
 )
 #+END_SRC
 *** Org ref 
@@ -411,6 +458,21 @@
 (use-package ox-latex-subfigure)
 #+END_SRC
 
+#+BEGIN_SRC sh :tangle no
+git clone https://github.com/Kungsgeten/org-brain-export ~/.config/emacs/external/lisp/org-brain-export
+#+END_SRCq
+
+#+RESULTS:
+
+
+#+BEGIN_SRC
+(defvar elib-org-brain-export-dir (concat elib-external-lisp-dir "org-brain-export/"))
+(use-package a)
+(use-package xmlgen)
+(use-package org-brain-export 
+:load-path elib-org-brain-export-dir
+) 
+#+END_SRC
 *** Reveal 
 #+BEGIN_SRC emacs-lisp 
 (use-package oer-reveal
@@ -736,6 +798,11 @@ Dependencies
 	 ))
 #+END_SRC
 ** Lisp 
+*** Slime/Common lisp
+#+BEGIN_SRC emacs-lisp
+(use-package slime)
+#+END_SRC
+
 *** Slime nav
  #+BEGIN_SRC emacs-lisp
 (use-package elisp-slime-nav
@@ -814,14 +881,10 @@ Winner mode
 * Server
 
 #+BEGIN_SRC emacs-lisp
-
-(when (and dotspacemacs-enable-server (not (spacemacs-is-dumping-p)))
-      (require 'server)
-      (when dotspacemacs-server-socket-dir
-        (setq server-socket-dir dotspacemacs-server-socket-dir))
-      (unless (server-running-p)
+(require 'server)
+(unless (server-running-p)
         (message "Starting a server...")
-        (server-start)))
+        (server-start))
 #+END_SRC
 
 #+RESULTS:
@@ -879,7 +942,9 @@ Winner mode
 
 *** Doom 
 #+BEGIN_SRC emacs-lisp
-
+(use-package doom-modeline
+:hook (after-init . doom-modeline-mode)
+)
 #+END_SRC
 
     
@@ -928,8 +993,9 @@ frame we are in.
   
 )
 
-(load-theme 'spacemacs-light t)
 
+;(load-theme 'spacemacs-light t)
+(load-theme 'dracula t)
  #+END_SRC
 
  #+RESULTS:
@@ -955,15 +1021,21 @@ frame we are in.
    'org-babel-load-languages
    (append oer-reveal-publish-babel-languages 
     '((C . t)
+      (lisp . t)
      (emacs-lisp . t)
      (latex . t)
      (gnuplot . t)
+     (python . t)
+     (lua . t)
+     (haskell . t)
      (awk . t)
      (calc . t)
      (shell . t)
      (latex . t)
      (jupyter . t))))
 #+END_SRC
+
+#+RESULTS:
 
 *** Variables
  #+BEGIN_SRC emacs-lisp 
@@ -975,7 +1047,7 @@ frame we are in.
    (setq org-src-fontify-natively t)
    (setq org-src-tab-acts-natively t)
    (setq org-src-preserve-indentation t)
-   (setq org-use-speed-commands t)
+   (setq org-use-speed-commands nil)
    (setq org-speed-commands-user
 	 '(("i" . elib-org-tree-to-indirect-buffer-and-move)))
    (setq org-id-locations-file
@@ -1185,7 +1257,7 @@ frame we are in.
 	(:from . 22)
 	(:to . 14)
 	(:subject)))
-(setq mu4e-maildir "~/.Maildir"
+(setq mu4e-maildir "~/.local/Maildir"
       mu4e-use-fancy-chars t
       mu4e-attachment-dir elib-mail-attachments-dir
       mu4e-view-show-images t
@@ -1259,7 +1331,14 @@ frame we are in.
 
 * Setup Frame 
 #+BEGIN_SRC emacs-lisp
-(frame-workflow-switch-to-subject/Configuration)
+;
 #+END_SRC
 
 
+
+
+* Todo
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package unfill)
+#+END_SRC

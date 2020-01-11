@@ -54,7 +54,7 @@
 * Scimax 
 
 [[/home/einarelen/.emacs.d/external/lisp/scimax/.][scimax-dir]]
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
   (setq scimax-user-dir user-emacs-directory)
   (setq scimax-dir user-emacs-directory)
   ;; No variables to clean
@@ -97,6 +97,12 @@
   (use-package scimax-editmarks
     :load-path elib-external-lisp-scimax-dir
     :hook (org-mode . sem-mode))
+
+(setq elib-ox-ipynb-dir (concat elib-external-lisp-scimax-dir "ox-ipynb"))
+(use-package ox-ipynb
+:load-path elib-ox-ipynb-dir
+) 
+
 #+END_SRC
 
 
@@ -104,7 +110,7 @@
 
 ** Dependencies
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package helm-org)
 (use-package bind-map :ensure t)
 (defun load-in-spacemacs (dir &rest files)
@@ -116,7 +122,7 @@
 
 ** Init
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (setq dotspacemacs-enable-server t
  dotspacemacs-persistent-server t
 dotspacemacs-smartparens-strict-mode t
@@ -137,7 +143,7 @@ dotspacemacs-line-numbers 'relative
 #+END_SRC
 
 ** Modeline 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+spacemacs/spacemacs-modeline/" "funcs" "config" "packages")
 (setq dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5))
 (spacemacs-modeline/init-doom-modeline)
@@ -263,12 +269,12 @@ dotspacemacs-line-numbers 'relative
 #+END_SRC
 
 ** Defaults 
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+spacemacs/spacemacs-defaults" "funcs" "config"  "packages" "keybindings" )
    #+END_SRC
 
 ** Bootstrap  
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+distributions/spacemacs-bootstrap" "funcs" "config" "packages" "local/evil-evilified-state/evil-evilified-state" "local/hybrid-mode/hybrid-mode")
  (spacemacs-bootstrap/init-evil)
 (spacemacs-bootstrap/init-which-key) 
@@ -301,13 +307,13 @@ dotspacemacs-line-numbers 'relative
 #+END_SRC
 
 ** Misc
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+spacemacs/spacemacs-misc" "packages") 
 (spacemacs-misc/init-dumb-jump)
 #+END_SRC
 
 ** Fonts 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+fonts/unicode-fonts" "packages" "config")
 (unicode-fonts/init-persistent-soft)
 (unicode-fonts/init-unicode-fonts)
@@ -315,7 +321,7 @@ dotspacemacs-line-numbers 'relative
 #+END_SRC
 
 ** Navigation
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+spacemacs/spacemacs-navigation" "funcs" "packages" "local/info+/info+")
 (spacemacs-navigation/init-ace-link)
 (spacemacs-navigation/init-ace-window)
@@ -333,13 +339,13 @@ dotspacemacs-line-numbers 'relative
 #+END_SRC
 
 ** Projects 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+spacemacs/spacemacs-project" "funcs" "packages")
 (spacemacs-project/init-projectile)
 #+END_SRC
 
 ** Spacemacs visual 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 
 (load-in-spacemacs "layers/+spacemacs/spacemacs-visual" "funcs" "packages" "local/zoom-frm/frame-fns" "local/zoom-frm/frame-cmds"  "local/zoom-frm/zoom-frm")
 (spacemacs-visual/init-ansi-colors)
@@ -379,7 +385,7 @@ dotspacemacs-line-numbers 'relative
 
 ** Editing + Editing Visual 
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 
 (load-in-spacemacs "layers/+spacemacs/spacemacs-editing" "funcs"  "packages" )
 (spacemacs-editing/init-aggressive-indent)
@@ -396,7 +402,7 @@ dotspacemacs-line-numbers 'relative
 #+END_SRC
 
 ** Completion 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+spacemacs/spacemacs-completion" "funcs" "config" "packages")
 (setq helm-no-header nil) 
 (spacemacs-completion/init-default-helm-config)
@@ -418,7 +424,7 @@ dotspacemacs-line-numbers 'relative
 #+END_SRC
 
 ** Current 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle yes :tangle no
 
  #+END_SRC
 
@@ -434,11 +440,11 @@ dotspacemacs-line-numbers 'relative
 
 ** Ipython 
 
-#+BEGIN_SRC emacs-lisp
-(load-in-spacemacs "layers/+lang/ipython-notebook" "packages")
-(ipython-notebook/init-ein)
+#+BEGIN_SRC emacs-lisp :tangle no
+;(load-in-spacemacs "layers/+lang/ipython-notebook" "packages")
+;(ipython-notebook/init-ein)
 
-(ipython-notebook/post-init-company)
+;(ipython-notebook/post-init-company)
 
 (load-in-spacemacs "layers/+lang/python" "config" "funcs" "packages")
 (python/pre-init-pyvenv)
@@ -449,7 +455,7 @@ dotspacemacs-line-numbers 'relative
 #+END_SRC
 
 ** Applications 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+tools/shell" "funcs" "config" "packages")
 (setq shell-enable-smart-eshell t)
 (setq shell-default-shell 'eshell)
@@ -467,7 +473,7 @@ dotspacemacs-line-numbers 'relative
 
  
 ** Emacs lisp
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+emacs/helpful" "config" "packages")
 (helpful/init-helpful)
 (load-file (concat elib-external-lisp-dir "helpful-in-helm.el"))
@@ -475,7 +481,7 @@ dotspacemacs-line-numbers 'relative
 #+END_SRC
 
 ** Vim and Evil 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (setq vim-style-visual-feedback t)
 (load-in-spacemacs "layers/+vim/" "evil-commentary/packages" "evil-snipe/config" "evil-snipe/packages")
 
@@ -486,6 +492,7 @@ dotspacemacs-line-numbers 'relative
 (spacemacs-evil/init-evil-iedit-state)
 (spacemacs-evil/init-evil-lion)
 (spacemacs-evil/init-evil-lisp-state )
+(require 'evil-lisp-state)
 (spacemacs-evil/init-evil-goggles)
 (spacemacs-evil/init-evil-exchange)
 (spacemacs-evil/init-evil-anzu)
@@ -506,14 +513,14 @@ dotspacemacs-line-numbers 'relative
 #+END_SRC
 
 ** Multiple Cursors 
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
 (load-in-spacemacs "layers/+misc/multiple-cursors" "config" "funcs" "packages")
 (multiple-cursors/init-evil-mc)
 (multiple-cursors/init-multiple-cursors)
    #+END_SRC
    
 ** Hooks
- #+BEGIN_SRC emacs-lisp 
+ #+BEGIN_SRC emacs-lisp  :tangle no
 (run-hooks 'spacemacs-post-user-config-hook)
 (setq spacemacs-post-user-config-hook-run t)
 #+END_SRC
