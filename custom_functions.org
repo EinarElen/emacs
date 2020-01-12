@@ -248,58 +248,67 @@ Make debugging things you know the keybinding
 
 * General 
 #+BEGIN_SRC emacs-lisp 
-  (use-package general)
+    (use-package general)
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil) 
+    (use-package evil)
+    (evil-mode)
+    (setq elib-non-normal-leader "M-m")
+    (setq elib-leader "SPC")
+    ;; (eval `(general-unbind :states '(emacs insert hybrid iedit-insert)
+    ;; 	 ,elib-non-normal-leader))
+    ;; (eval `(general-unbind :states '(normal visual motion)))
+    ;; (general-unbind; :states '(normal visual motion)
+    ;;   ,elib-leader)
 
-(setq evil-want-integration t)
-(setq evil-want-keybinding nil) 
-  (use-package evil)
-  (evil-mode)
-  (setq elib-non-normal-leader "M-m")
-  (setq elib-leader "SPC")
-  ;; (eval `(general-unbind :states '(emacs insert hybrid iedit-insert)
-  ;; 	 ,elib-non-normal-leader))
-  ;; (eval `(general-unbind :states '(normal visual motion)))
-  ;; (general-unbind; :states '(normal visual motion)
-  ;;   ,elib-leader)
-  
-  (general-auto-unbind-keys)
-  (general-create-definer elib-leader-def
-    :prefix elib-leader
-    :non-normal-prefix elib-non-normal-leader
-    :states '(normal emacs hybrid insert iedit-insert visual motion))
-  (defun elib-extend-leader (title name prefix &rest keymaps)
-    (let* ((leader-str (concat "elib-leader-" name))
+    (general-auto-unbind-keys)
+    (general-create-definer elib-leader-def
+      :prefix elib-leader
+      :non-normal-prefix elib-non-normal-leader
+      :states '(normal emacs hybrid insert iedit-insert visual motion))
+
+(defun elib-extend-leader (title name prefix &rest keymaps)
+    (let* ((keymaps (or keymaps))
+	   (leader-str (concat "elib-leader-" name))
 	   (non-normal-leader-str (concat "elib-non-normal-leader-" name))
-	 
 	   (definer-str (concat leader-str "-def"))
 	   (non-normal-definer-str (concat non-normal-leader-str "-def"))
 	   (normal-definer-str (concat "elib-normal-leader-" name "-def"))
-
 	   (leader (intern leader-str))
 	   (non-normal-leader (intern non-normal-leader-str))
 	   (definer (intern definer-str))
 	   (non-normal-definer (intern non-normal-definer-str))
 	   (normal-definer (intern normal-definer-str)))
       (set leader (concat elib-leader " " prefix))
-      (set non-normal-leader (concat elib-non-normal-leader " " prefix))
+      (set non-normal-leader (concat elib-non-normal-leader " " prefix)
+	   )
+
+      (add-to-list 'keymaps 'override)
       (progn
-	(eval `(general-create-definer ,definer ,@(when keymaps
-						    `(:keymaps ',keymaps)) :prefix ,leader :non-normal-prefix
-						    ,non-normal-leader :states '(normal emacs hybrid insert iedit-insert visual motion)))
-
-
+	(eval `(general-create-definer ,definer
+		 :keymaps ',keymaps
+		 :prefix ,leader
+		 :non-normal-prefix ,non-normal-leader
+		 :states '(normal emacs hybrid insert iedit-insert visual motion)))
 	(eval `(general-create-definer ,non-normal-definer
-		 ,@(when keymaps `(:keymaps ',keymaps)) :prefix ,leader
-		 :non-normal-prefix ,non-normal-leader :states '(emacs
-								 insert hybrid iedit-insert)))
+		 :keymaps ',keymaps
+		 :prefix ,leader
+		 :non-normal-prefix ,non-normal-leader
+		 :states '(emacs insert hybrid iedit-insert)))
+	(eval `(general-create-definer ,normal-definer
+		 :keymaps ',keymaps 
+		 :prefix ,leader 
+                 :non-normal-prefix ,non-normal-leader
+                 :states '(normal visual motion)))
+	(eval `(elib-leader-def
+		 :keymaps ',keymaps
+		 ,prefix '(nil :wk ,title) ))
+      )))
+    
 
 
-	(eval `(general-create-definer ,normal-definer ,@(when keymaps
-							   `(:keymaps ',keymaps))
-		 :prefix ,leader :non-normal-prefix
-		 ,non-normal-leader :states '(normal visual motion)))
-	(eval `(elib-leader-def ,@(when keymaps
-				    `(:keymaps ',keymaps)) ,prefix '(nil :wk ,title) )))))
+
+
 #+END_SRC
 * Org 
 ** Org brain 

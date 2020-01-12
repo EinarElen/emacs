@@ -4,10 +4,11 @@
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes :noweb yes :comments both
 #+STARTUP: noinlineimages
+
+
 #+BEGIN_SRC emacs-lisp :tangle on
 (set-buffer-file-coding-system 'utf-8)
 #+END_SRC
-
 * Better default settings
 #+BEGIN_SRC emacs-lisp 
 (use-package clipmon
@@ -61,6 +62,8 @@
  #+RESULTS:
 * Evil mode 
 #+BEGIN_SRC emacs-lisp
+;; Must be set before loading evil
+(setq evil-disable-insert-state-bindings t)
 (use-package evil :ensure t
 :config 
 )
@@ -129,6 +132,7 @@
 * General 
 #+BEGIN_SRC emacs-lisp 
 (use-package general
+:config 
   (setq general-override-states '(insert
                                   emacs
                                   hybrid
@@ -543,6 +547,7 @@ git clone https://github.com/Kungsgeten/org-brain-export ~/.config/emacs/externa
 
 #+BEGIN_SRC emacs-lisp
 (use-package key-chord
+:disabled t
 :config 
 )
 #+END_SRC
@@ -1333,7 +1338,6 @@ frame we are in.
 #+BEGIN_SRC emacs-lisp
 ;
 #+END_SRC
-
 
 
 

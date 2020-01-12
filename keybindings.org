@@ -59,10 +59,9 @@ Get rid of hello help, cute but annoying
 (general-unbind "C-h h")
 #+END_SRC
 
-
 * Leader definitions
 #+BEGIN_SRC emacs-lisp 
-
+(general-def edebug-mode-map "C-SPC" '(edebug-step-mode :wk "Edebug Step"))
 (elib-extend-leader "Major Mode" "mode" "m") 
 (elib-extend-leader "Applications" "apps" "a")
 (elib-extend-leader "Insert" "insert" "i")
@@ -120,8 +119,6 @@ Get rid of hello help, cute but annoying
 (bind-key "M-C" 'sentence-case-region)
 #+END_SRC
 
-#+RESULTS:
-: sentence-case-region
 
 * Mail
 #+BEGIN_SRC emacs-lisp
@@ -672,10 +669,6 @@ Get rid of hello help, cute but annoying
 (general-unbind  dired-mode-map 
 "SPC" "M-m"
 )
-
-
-
-
 (general-unbind mu4e-main-mode-map 'normal 'visual "<normal state> SPC" "M-m")
 (general-unbind mu4e-view-mode-map "SPC" "M-m")
 (general-unbind mu4e-compose-mode-map "SPC" "M-m")
