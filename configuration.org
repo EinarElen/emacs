@@ -556,6 +556,7 @@ git clone https://github.com/Kungsgeten/org-brain-export ~/.config/emacs/externa
 
 #+BEGIN_SRC emacs-lisp
 (use-package magit) 
+(use-package evil-magit)
 #+END_SRC
  
 * Jupyter
