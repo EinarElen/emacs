@@ -1326,7 +1326,6 @@ frame we are in.
 (setq helm-yas-space-match-any-greedy t)
 #+END_SRC
 
-
 * Todo
 
 #+BEGIN_SRC emacs-lisp :tangle no
