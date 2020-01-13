@@ -1,3 +1,4 @@
+* Initialization
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun eldebug-purge-packages () 
@@ -63,5 +64,13 @@
   :ensure org-plus-contrib)
 (use-package helm)
 (use-package general)
+(use-package magit)
 #+END_SRC
 
+
+
+* Org Brain 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-brain)
+#+END_SRC 
