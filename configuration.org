@@ -4,8 +4,6 @@
 #+HTML_DOCTYPE_HTML5: t
 #+PROPERTY: header-args :tangle yes :noweb yes :comments both
 #+STARTUP: noinlineimages
-
-
 #+BEGIN_SRC emacs-lisp :tangle on
 (set-buffer-file-coding-system 'utf-8)
 #+END_SRC
@@ -870,15 +868,8 @@ Winner mode
   (setq equake-use-xdotool-probe t)
   ;; set distinct face for Equake: white foreground with dark blue background,
   ;; and different font
-;;(set-face-attribute 'equake-buffer-face 'nil :inherit 'default :family "DejaVu Sans Mono" :background "#000022" :foreground "white")
-  
-(setq equake-opacity-active 100) (setq equake-opacity-inactive 100)
-)
-
-
-
-
- 
+  ;;(set-face-attribute 'equake-buffer-face 'nil :inherit 'default :family "DejaVu Sans Mono" :background "#000022" :foreground "white")
+  (setq equake-opacity-active 100) (setq equake-opacity-inactive 100))
   #+END_SRC
 
   #+RESULTS:
@@ -1334,12 +1325,6 @@ frame we are in.
 #+BEGIN_SRC emacs-lisp
 (setq helm-yas-space-match-any-greedy t)
 #+END_SRC
-
-* Setup Frame 
-#+BEGIN_SRC emacs-lisp
-;
-#+END_SRC
-
 
 
 * Todo
