@@ -74,6 +74,12 @@
       (setq value (expand-file-name elt))))
        value ))
 (load-file "~/.config/emacs/custom.el")
+
+(when (file-newer-than-file-p "~/.config/emacs/debug.org" "~/.config/emacs/debug.el")
+  (org-babel-tangle-file "~/.config/emacs/debug.org")
+  (kill-emacs)
+    )
+
 #+END_SRC
 
 
