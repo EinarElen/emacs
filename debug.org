@@ -72,7 +72,7 @@
         (dolist (elt list value)
     (when (and (not value) (file-exists-p elt))
       (setq value (expand-file-name elt))))
-       value )))
+       value ))
 (load-file "~/.config/emacs/custom.el")
 #+END_SRC
 
