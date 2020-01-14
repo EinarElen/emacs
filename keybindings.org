@@ -7,7 +7,6 @@
 #+BEGIN_SRC emacs-lisp
 (use-package bind-key)
 #+END_SRC
-
 * Unbind keys 
 ** Replaced by General 
 *** Files
@@ -119,7 +118,6 @@ Get rid of hello help, cute but annoying
 (bind-key "M-C" 'sentence-case-region)
 #+END_SRC
 
-
 * Mail
 #+BEGIN_SRC emacs-lisp
     (general-def 
@@ -154,6 +152,7 @@ Get rid of hello help, cute but annoying
 ** Basic 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-def
+:keymaps 'override 
 "SPC" '(helm-M-x :wk "M-x")
 "v" '(er/expand-region :wk "Expand region")
 "?" '(helm-descbinds :wk "Keybindings")
@@ -329,12 +328,13 @@ Get rid of hello help, cute but annoying
 #+END_SRC
 ** Frames 
 #+BEGIN_SRC emacs-lisp 
-(elib-leader-def
+(elib-leader-def 
+    :keymaps 'override
     "l" '(frame-workflow-prefix-map :wk "Layouts/frames")
     "." '(helm-frame-workflow :wk "Switch frame"))
 
 #+END_SRC
-** PDF-vie 
+** PDF-view
 #+BEGIN_SRC emacs-lisp 
 (general-def :keymaps 'pdf-view-mode-map
 "/" '(pdf-occur :wk "Search")
@@ -644,7 +644,6 @@ Get rid of hello help, cute but annoying
 #+END_SRC
 
 #+RESULTS:
-
 
 * Keymap variables 
 #+BEGIN_SRC emacs-lisp 
