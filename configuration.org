@@ -1,7 +1,7 @@
 #+AUTHOR: Einar Elén
 #+EMAIL: einar.elen@gmail.com
 #+OPTIONS: toc:3 html5-fancy:t org-html-preamble:nil
-#+HTML_DOCTYPE_HTML5: t
+#+HTML_DOCTYPE_HTML5: t 
 #+PROPERTY: header-args :tangle yes :noweb yes :comments both
 #+STARTUP: noinlineimages
 #+BEGIN_SRC emacs-lisp :tangle on
@@ -58,14 +58,17 @@
  #+END_SRC
 
  #+RESULTS:
+** Paradox
 * Evil mode 
 #+BEGIN_SRC emacs-lisp
 ;; Must be set before loading evil
 (setq evil-disable-insert-state-bindings t)
+(setq evil-want-keybinding nil)
 (use-package evil :ensure t
 :config 
 )
 (setq evil-move-beyond-eol t)
+
 (use-package evil-collection :ensure t 
 :config
    (evil-collection-init))
@@ -126,6 +129,12 @@
 #+END_SRC
 
 #+RESULTS:
+* Helpful
+  
+#+BEGIN_SRC emacs-lisp
+(use-package helpful)
+#+END_SRC
+
 
 * General 
 #+BEGIN_SRC emacs-lisp 
