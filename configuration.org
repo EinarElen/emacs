@@ -71,6 +71,7 @@
 
 (use-package evil-collection :ensure t 
 :config
+   (setq evil-collection-setup-minibuffer t)
    (evil-collection-init))
 (use-package evil-tutor :ensure t)
 (use-package org-evil :ensure t
@@ -121,7 +122,6 @@
 (use-package evil-visualstar :ensure t)
 (global-evil-visualstar-mode)
 (use-package exato :ensure t)
-(use-package evil-collection :ensure t)
 (use-package evil-quickscope :ensure t)
 
 
