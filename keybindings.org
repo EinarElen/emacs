@@ -232,7 +232,7 @@ Get rid of hello help, cute but annoying
   "P" '(nil :wk "Processes")
   "Pp" '(proced :wk "Proced")
   "Pl" '(list-processes :wk "List Processes")
-  "lp" '(package-list-packages :wk "List packages")
+  "lp" '(paradox-list-packages :wk "List packages")
     "m" '(nil :wk "Mu4e")
     "mm" '(mu4e :wk "Mu4e")
     "mc" '(mu4e-compose-new :wk "Compose")
