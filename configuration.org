@@ -70,8 +70,10 @@
 (setq evil-move-beyond-eol t)
 
 (use-package evil-collection :ensure t 
-:config
+:init
    (setq evil-collection-setup-minibuffer t)
+:config
+
    (evil-collection-init))
 (use-package evil-tutor :ensure t)
 (use-package org-evil :ensure t
