@@ -233,6 +233,7 @@ Get rid of hello help, cute but annoying
   "Pp" '(proced :wk "Proced")
   "Pl" '(list-processes :wk "List Processes")
   "lp" '(paradox-list-packages :wk "List packages")
+  "g" '(magit-status :wk "Magit") 
     "m" '(nil :wk "Mu4e")
     "mm" '(mu4e :wk "Mu4e")
     "mc" '(mu4e-compose-new :wk "Compose")
