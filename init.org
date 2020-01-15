@@ -196,7 +196,6 @@ See [[help:selection-coding-system][selection-coding-system]]. Important for cli
   ;;     (load-file (concat user-emacs-config-directory "packages.el"))
   ;;     (elib-do-install-packages)))
 (setq use-package-always-ensure t)
-(package-initialize)
 (package-install 'use-package)
   (require 'use-package)
   (use-package diminish)
