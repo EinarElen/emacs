@@ -132,7 +132,11 @@
 * Helpful
   
 #+BEGIN_SRC emacs-lisp
-(use-package helpful)
+(use-package helpful
+  :config
+(setq helm-describe-function-function 'helpful-callable)
+(setq helm-describe-variable-function 'helpful-variable)
+  )
 #+END_SRC
 
 
