@@ -3,7 +3,7 @@
 *.html
 *.tex
 *.el
-
+*.elc
 *#*#
 *.#*
 /*.elc
