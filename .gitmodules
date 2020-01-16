@@ -17,3 +17,6 @@
 [submodule "external/lisp/spacemacs"]
 	path = external/lisp/spacemacs
 	url = https://github.com/syl20bnr/spacemacs
+[submodule "/home/einarelen/.config/emacs/external/lisp/org-brain-export"]
+	path = /home/einarelen/.config/emacs/external/lisp/org-brain-export
+	url = https://github.com/Kungsgeten/org-brain-export

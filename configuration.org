@@ -476,8 +476,11 @@
 #+END_SRC
 
 #+BEGIN_SRC sh :tangle no
-git clone https://github.com/Kungsgeten/org-brain-export ~/.config/emacs/external/lisp/org-brain-export
-#+END_SRCq
+# git clone https://github.com/Kungsgeten/org-brain-export ~/.config/emacs/external/lisp/org-brain-export
+rm -rf ~/.config/emacs/external/lisp/org-brain-export
+cd ~/.config/emacs/ 
+git submodule add https://github.com/Kungsgeten/org-brain-export ~/.config/emacs/external/lisp/org-brain-export
+#+END_SRC
 
 #+RESULTS:
 
@@ -490,6 +493,9 @@ git clone https://github.com/Kungsgeten/org-brain-export ~/.config/emacs/externa
 :load-path elib-org-brain-export-dir
 ) 
 #+END_SRC
+
+#+RESULTS:
+
 *** Reveal 
 #+BEGIN_SRC emacs-lisp 
 (use-package oer-reveal
