@@ -16,3 +16,4 @@
 /scripts/*
 /elpa/gnupg/pubring.kbx
 /elpa/*
+/debug/
