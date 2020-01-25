@@ -251,6 +251,8 @@ Make debugging things you know the keybinding
     (use-package general)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil) 
+;; Must be set before loading evil
+(setq evil-disable-insert-state-bindings t)
     (use-package evil)
     (evil-mode)
     (setq elib-non-normal-leader "M-m")

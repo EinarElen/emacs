@@ -6,6 +6,7 @@
 #+STARTUP: noinlineimages
 #+BEGIN_SRC emacs-lisp :tangle on
 (set-buffer-file-coding-system 'utf-8)
+
 #+END_SRC
 * Better default settings
 #+BEGIN_SRC emacs-lisp 
@@ -61,9 +62,7 @@
 ** Paradox
 * Evil mode 
 #+BEGIN_SRC emacs-lisp
-;; Must be set before loading evil
-(setq evil-disable-insert-state-bindings t)
-(setq evil-want-keybinding nil)
+; Note evil is loaded first in custom_functions!
 (use-package evil :ensure t
 :config 
 )
