@@ -660,6 +660,8 @@ Get rid of hello help, cute but annoying
  #+RESULTS:
 
 ** g 
+
+*** Normal State
 #+BEGIN_SRC emacs-lisp
 (general-def evil-normal-state-map
   :prefix "g"
@@ -682,15 +684,20 @@ Get rid of hello help, cute but annoying
   "w"		'(evil-fill :wk "Fill")
   "x"		'(evil-exchange :wk "Exchange")
   "~"		'(evil-invert-case :wk "Invert Case"))
+#+END_SRC
 
-
+*** Commentary
+#+BEGIN_SRC emacs-lisp
 (general-def evil-commentary-mode-map
   :states '(normal visual motion operator)
   :prefix "g"
   "c" '(evil-commentary :wk "Comment")
   "y" '(evil-commentary-yank :wk "Comment Yank")
   )
+#+END_SRC
 
+*** Extra Operator
+ #+BEGIN_SRC emacs-lisp
 (general-def evil-extra-operator-mode-map
   :states '(normal visual motion operator)
   :prefix "g"
@@ -716,7 +723,7 @@ Get rid of hello help, cute but annoying
 "m"		'(evil-middle-of-visual-line :wk "Middle-OVL")
 "n"		'(evil-next-match :wk "Next Match")
 "v"		'(evil-visual-restore :wk "Visual Restore"))
-#+END_SRC
+ #+END_SRC
 
 * Keymap variables 
 #+BEGIN_SRC emacs-lisp 
