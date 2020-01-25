@@ -210,15 +210,20 @@ Get rid of hello help, cute but annoying
 ** Help 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-help-def
-    "d" '(nil :wk "Describe")
-    "a" '(helm-apropos :wk "Apropos")
-    "da" '(helm-apropos :wk "Apropos")
-    "df" '(helpful-callable :wk "Function")
-    "dv" '(helpful-variable :wk "Function")
-    "d." '(helpful-at-point :wk "At Point")
-    "dl" '(elisp-slime-nav-describe-elisp-thing-at-point :wk "Describe LISP thing at point")
-    "dk" '(helpful-key :wk "Key")
-    "dm" '(elib-weird-mode-binding-fix :wk "Mode")) 
+  "d" '(nil :wk "Describe")
+  "a" '(helm-apropos :wk "Apropos")
+  "da" '(helm-apropos :wk "Apropos")
+  "df" '(helpful-callable :wk "Function")
+  "dv" '(helpful-variable :wk "Function")
+  "d." '(helpful-at-point :wk "At Point")
+  "dK" '(describe-keymap :wk "Keymap")
+  "g"  '(nil :wk "Get")
+  "gk" '(elib-current-keymap "Get Current Keymap")
+  "e" '(nil :wk "Edebug")
+  "en" '(elib-edebug-next-command :wk "Debug Next Command")   
+  "dl" '(elisp-slime-nav-describe-elisp-thing-at-point :wk "Describe LISP thing at point")
+  "dk" '(helpful-key :wk "Key")
+  "dm" '(elib-weird-mode-binding-fix :wk "Mode"))  
 #+END_SRC
 
 #+RESULTS:
