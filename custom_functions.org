@@ -257,6 +257,16 @@ of the key sequence that ran this command."
 #+END_SRC
 
 
+** Which Key
+
+#+BEGIN_SRC emacs-lisp
+(defun elib-show-normal-map ()
+(interactive)
+(which-key-show-keymap 'evil-normal-state-map )
+)
+#+END_SRC
+
+
 * General 
 
 ** Setup
