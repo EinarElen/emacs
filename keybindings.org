@@ -212,6 +212,8 @@ Get rid of hello help, cute but annoying
 (elib-leader-help-def
   "d" '(nil :wk "Describe")
   "a" '(helm-apropos :wk "Apropos")
+  "b" '(describe-bindings :wk "Bindings (all)")
+  "p" '(elib-describe-binding-with-prefix :wk "Prefix")  
   "da" '(helm-apropos :wk "Apropos")
   "df" '(helpful-callable :wk "Function")
   "dv" '(helpful-variable :wk "Variable")
@@ -661,6 +663,7 @@ Get rid of hello help, cute but annoying
 #+BEGIN_SRC emacs-lisp
 (general-def )
  
+   
 #+END_SRC
 
 * Keymap variables 
