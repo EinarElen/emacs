@@ -7,6 +7,8 @@
 #+BEGIN_SRC emacs-lisp :tangle on
 (set-buffer-file-coding-system 'utf-8)
 
+
+
 #+END_SRC
 * Better default settings
 #+BEGIN_SRC emacs-lisp 
@@ -140,7 +142,6 @@
   )
 #+END_SRC
 
-
 * General 
 #+BEGIN_SRC emacs-lisp 
 (use-package general
@@ -256,10 +257,6 @@
 			   ))
   :layout `(,(lambda () 
 (find-file "/home/einarelen/ansible/local.yml")
-(split-window-right)
-(find-file "/home/einarelen/ansible/tasks/")
-(split-window)
-(find-file "/home/einarelen/ansible/files/")
 )))
   
 #+END_SRC
@@ -371,6 +368,26 @@
  #+END_SRC
 
  
+*** Terminal
+#+BEGIN_SRC emacs-lisp 
+  (frame-workflow-define-subject "Terminal"
+      :key "t"
+      :make-frame
+      '(frame-purpose-make-frame
+	:modes '(eshell-mode vterm-mode  )
+	:title "Terminal"
+	:sidebar nil
+	:sidebar-buffers-fn '(lambda ()
+                   (delete-other-windows)
+                   (vterm)
+		   (split-window-right)
+		   (eshell)
+                 (list (current-buffer))
+                   ) 
+	)
+      )
+ #+END_SRC
+
 ** Run from emaccsclients
    
 
