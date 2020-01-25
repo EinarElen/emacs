@@ -725,6 +725,40 @@ Get rid of hello help, cute but annoying
 "v"		'(evil-visual-restore :wk "Visual Restore"))
  #+END_SRC
 
+
+** []
+
+#+BEGIN_SRC emacs-lisp
+(general-def :states '(normal motion visual)
+  :prefix "["
+ "SPC"		'(evil-collection-unimpaired-insert-space-above :wk "Insert Space Above")
+ "b"		'(previous-buffer :wk "Previous Buffer")
+ "l"		'(evil-collection-unimpaired-previous-error :wk "Previous Error")
+ "("		'(evil-previous-open-paren :wk "Previous Open Paren")
+ "]"		'(evil-backward-section-end :wk "Backward Section End")
+  "["		'(evil-backward-section-begin :wk "Backward Section Begin")
+ "s"		'(evil-prev-flyspell-error :wk "Prev Flyspell Error")
+ "{"		'(evil-previous-open-brace :wk "Previous Open Brace"))
+
+(general-def :states '(normal motion visual)
+  :prefix "]"
+ "SPC"		'(evil-collection-unimpaired-insert-space-below :wk "Insert Space Below")
+ "b"		'(next-buffer :wk "Next Buffer")
+ "l"		'(evil-collection-unimpaired-next-error :wk "Next Error")
+ "("		'(evil-next-open-paren :wk "Next Open Paren")
+ "]"		'(evil-forward-section-end :wk "Forward Section End")
+  "["		'(evil-forward-section-begin :wk "Forward Section Begin")
+ "s"		'(evil-next-flyspell-error :wk "Next Flyspell Error")
+ "{"		'(evil-next-open-brace :wk "Next Open Brace"))
+
+(general-def :states '(normal motion visual) :keymaps 'org-mode-map
+  "[[" '(outline-previous-visible-heading :wk "Previous Heading")
+  "]]" '(outline-next-visible-heading :wk "Next Heading")
+  )
+
+#+END_SRC
+
+
 * Keymap variables 
 #+BEGIN_SRC emacs-lisp 
 (setq scimax-src-block-keymaps
