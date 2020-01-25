@@ -98,7 +98,6 @@
 (use-package evil-multiedit :ensure t)
 (evil-multiedit-default-keybinds)
 (use-package evil-args :ensure t)
- 
 (use-package evil-easymotion :ensure t)
 (use-package evil-embrace :ensure t)
 (evil-embrace-enable-evil-surround-integration)
@@ -121,7 +120,10 @@
 (evil-exchange-install)
 (use-package evil-extra-operator :ensure t )
 (global-evil-extra-operator-mode 1)
-
+;; Dependency
+(use-package fold-this)
+(use-package google-translate)
+(use-package highlight)
 (use-package evil-visualstar :ensure t)
 (global-evil-visualstar-mode)
 (use-package exato :ensure t)

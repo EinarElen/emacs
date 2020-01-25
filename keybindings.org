@@ -661,9 +661,61 @@ Get rid of hello help, cute but annoying
 
 ** g 
 #+BEGIN_SRC emacs-lisp
-(general-def )
- 
-   
+(general-def evil-normal-state-map
+  :prefix "g"
+  "&" '(evil-ex-repeat-global-substitute :wk "Ex: Repeat Global Substitute")
+  ","		'(goto-last-change-reverse :wk "Goto Last Change Reverse")
+  ";"		'(goto-last-change :wk "Goto Last Change")
+  "8"		'(what-cursor-position :wk "What Cursor Position")
+  "?"		'(evil-rot13 :wk "Rot13")
+  "F"		'(evil-find-file-at-point-with-line :wk "Find File at Point with Line")
+  "J"		'(evil-join-whitespace :wk "Join Whitespace")
+  "T"		nil ;'(tab-bar-switch-to-prev-tab :wk "tab-bar-switch-to-prev-tab")
+  "U"		'(evil-upcase :wk "Upcase")
+  "X"		'(evil-exchange-cancel :wk "Exchange Cancel")
+  "a"		'(what-cursor-position :wk "What Cursor Position")
+  "f"		'(find-file-at-point :wk "Find File at Point")
+  "i"		'(evil-insert-resume :wk "Insert Resume")
+  "q"		'(evil-fill-and-move :wk "Fill and Move")
+  "t"		nil ; '(tab-bar-switch-to-next-tab :wk "tab-bar-switch-to-next-tab")
+  "u"		'(evil-downcase :wk "Downcase")
+  "w"		'(evil-fill :wk "Fill")
+  "x"		'(evil-exchange :wk "Exchange")
+  "~"		'(evil-invert-case :wk "Invert Case"))
+
+
+(general-def evil-commentary-mode-map
+  :states '(normal visual motion operator)
+  :prefix "g"
+  "c" '(evil-commentary :wk "Comment")
+  "y" '(evil-commentary-yank :wk "Comment Yank")
+  )
+
+(general-def evil-extra-operator-mode-map
+  :states '(normal visual motion operator)
+  :prefix "g"
+"."		'(evil-operator-google-translate :wk "Google Translate")
+"G"		'(evil-operator-google-search :wk "Google Search")
+"h"		'(evil-operator-highlight :wk "Highlight")
+"o"		'(evil-operator-org-capture :wk "Org-Capture")
+"r"		'(evil-operator-eval :wk "Eval")
+"s"		'(evil-operator-fold :wk "Fold")
+"C-]"		'(evil-jump-to-tag :wk "Jump to Tag")
+"#"		'(evil-search-unbounded-word-backward :wk "Search Word Inclusive Backward")
+"$"		'(evil-end-of-visual-line :wk "EOVL")
+"*"		'(evil-search-unbounded-word-forward :wk  "Search Word Inclusive Forward")
+"0"		'(evil-beginning-of-visual-line :wk "BOVL")
+"E"		'(evil-backward-WORD-end :wk "WORD-end Backward")
+"N"		'(evil-previous-match :wk "Previous Match")
+"^"		'(evil-first-non-blank-of-visual-line :wk "First Non-blank-VL")
+"_"		'(evil-last-non-blank :wk "Last Non-blank")
+"e"		'(evil-backward-word-end :wk "Word End Backward")
+"g"		'(evil-goto-first-line :wk "First Line")
+"j"		'(evil-next-visual-line :wk "j-VL")
+"k"		'(evil-previous-visual-line :wk "k-VL")
+"m"		'(evil-middle-of-visual-line :wk "Middle-OVL")
+"n"		'(evil-next-match :wk "Next Match")
+"v"		'(evil-visual-restore :wk "Visual Restore"))
 #+END_SRC
 
 * Keymap variables 
