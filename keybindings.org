@@ -542,17 +542,21 @@ Get rid of hello help, cute but annoying
 
 ;; (modify-syntax-entry ?- "w" emacs-lisp-mode-syntax-table)
 ;; (modify-syntax-entry ?_ "w" emacs-lisp-mode-syntax-table)
- 
-  
+ #+END_SRC
+
+** Outer
+ #+BEGIN_SRC emacs-lisp  
 (general-def evil-outer-text-objects-map
 "i" 'evil-indent-plus-a-indent
 "I" 'evil-indent-plus-a-indent-up
 "J" 'evil-indent-plus-a-indent-up-down
 "a" 'evil-outer-arg
-) 
+)
+
+ 
 (general-def evil-operator-state-map :prefix "a"
-"\""               '(evil-a-double-quote :wk "evil-a-double-quote")
-"$"               '(evil-outer-dollar :wk "evil-outer-dollar")
+"\""               '(evil-a-double-quote :wk "double-quote")
+"$"               '(evil-outer-dollar :wk "dollar")
 "%"               '(evilmi-outer-text-object :wk "text-object"  )
 "'"               '(evil-a-single-quote :wk "single-quote" )
 "("               '(evil-a-paren :wk "paren")
@@ -594,8 +598,11 @@ Get rid of hello help, cute but annoying
 "“"               '(evil-outer-double-quotation-mark :wk "double-quotation-mark"  )
 "｢"               '(evil-outer-corner-bracket :wk "corner-bracket"  )
   )  
+#+END_SRC
+
+** Inner
+#+BEGIN_SRC emacs-lisp
 (general-def evil-operator-state-map :prefix "i"
-  
   "f" '(evil-cp-inner-form :wk "form")
   "c" '(evil-cp-inner-comment :wk "comment")
   "d" '(evil-cp-inner-defun :wk "defun")
@@ -642,9 +649,15 @@ Get rid of hello help, cute but annoying
 "‘"              '(evil-inner-single-quotation-mark :wk "single-quotation-mark") 
 "“"              '(evil-inner-double-quotation-mark :wk "double-quotation-mark") 
 "｢"              '(evil-inner-corner-bracket :wk "corner-bracket"))  
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
+ #+RESULTS:
+
+** g 
+#+BEGIN_SRC emacs-lisp
+(general-def )
+ 
+#+END_SRC
 
 * Keymap variables 
 #+BEGIN_SRC emacs-lisp 
