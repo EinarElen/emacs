@@ -215,7 +215,6 @@ Get rid of hello help, cute but annoying
     "da" '(helm-apropos :wk "Apropos")
     "df" '(helpful-callable :wk "Function")
     "dv" '(helpful-variable :wk "Function")
-    "D" '(helm-descbinds :wk "Descbinds")
     "d." '(helpful-at-point :wk "At Point")
     "dl" '(elisp-slime-nav-describe-elisp-thing-at-point :wk "Describe LISP thing at point")
     "dk" '(helpful-key :wk "Key")
