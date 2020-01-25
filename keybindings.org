@@ -214,7 +214,7 @@ Get rid of hello help, cute but annoying
   "a" '(helm-apropos :wk "Apropos")
   "da" '(helm-apropos :wk "Apropos")
   "df" '(helpful-callable :wk "Function")
-  "dv" '(helpful-variable :wk "Function")
+  "dv" '(helpful-variable :wk "Variable")
   "d." '(helpful-at-point :wk "At Point")
   "dK" '(describe-keymap :wk "Keymap")
   "g"  '(nil :wk "Get")
