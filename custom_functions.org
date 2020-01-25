@@ -275,7 +275,7 @@ Make debugging things you know the keybinding
 
 ** Extend leader
 #+BEGIN_SRC emacs-lisp
-(defun elib-extend-leader-tmp (title name prefix &rest keymaps)
+(defun elib-extend-leader (title name prefix &rest keymaps)
     (let* ((keymaps (or keymaps))
 	   (leader-str (concat "elib-leader-" name))
 	   (non-normal-leader-str (concat "elib-non-normal-leader-" name))
@@ -303,16 +303,22 @@ Make debugging things you know the keybinding
 		 :keymaps ',keymaps
 		 :prefix ,leader
 		 :non-normal-prefix ,non-normal-leader
+		 :prefix-command ',leader-command
+		 :prefix-map ',leader-map
 		 :states '(normal emacs hybrid insert iedit-insert visual motion)))
 	(eval `(general-create-definer ,non-normal-definer
 		 :keymaps ',keymaps
 		 :prefix ,leader
+		 :prefix-command ',leader-command
+		 :prefix-map ',leader-map
 		 :non-normal-prefix ,non-normal-leader
 		 :states '(emacs insert hybrid iedit-insert)))
 	(eval `(general-create-definer ,normal-definer
 		 :keymaps ',keymaps 
 		 :prefix ,leader 
-                 :non-normal-prefix ,non-normal-leader
+                 :non-normal-prefix ',non-normal-leader
+		 :prefix-command ',leader-command
+		 :prefix-map ,leader-map
                  :states '(normal visual motion)))
 	(eval `(elib-leader-def
 		 :keymaps ',keymaps
@@ -323,7 +329,7 @@ Make debugging things you know the keybinding
 ** Backup
 
 #+BEGIN_SRC emacs-lisp
-(defun elib-extend-leader (title name prefix &rest keymaps)
+(defun elib-extend-leader-backup (title name prefix &rest keymaps)
     (let* ((keymaps (or keymaps))
 	   (leader-str (concat "elib-leader-" name))
 	   (non-normal-leader-str (concat "elib-non-normal-leader-" name))
