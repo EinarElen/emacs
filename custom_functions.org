@@ -271,6 +271,8 @@ of the key sequence that ran this command."
 
 ** Setup
  #+BEGIN_SRC emacs-lisp 
+;; Dependency
+(use-package key-chord)
     (use-package general)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil) 
@@ -289,6 +291,8 @@ of the key sequence that ran this command."
     (general-auto-unbind-keys)
     (general-create-definer elib-leader-def
       :prefix elib-leader
+      ;; :prefix-map 'elib-leader-map
+      :prefix-command 'elib-leader-command
       :non-normal-prefix elib-non-normal-leader
       :states '(normal emacs hybrid insert iedit-insert visual motion))
 

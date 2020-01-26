@@ -150,6 +150,7 @@ Get rid of hello help, cute but annoying
 #+BEGIN_SRC emacs-lisp
 (elib-leader-def
 :keymaps 'override 
+
 "SPC" '(helm-M-x :wk "M-x")
 "v" '(er/expand-region :wk "Expand region")
 "?" '(helm-descbinds :wk "Keybindings")
@@ -163,6 +164,8 @@ Get rid of hello help, cute but annoying
 ";" '(comment-dwim-2 :wk "Comment")
 "ö" '(comment-dwim-2 :wk "Comment")
 "u" '(undo-tree-visualize :wk "Undo"))
+
+
 #+END_SRC
 
 #+RESULTS:
@@ -754,6 +757,16 @@ Get rid of hello help, cute but annoying
   "]]" '(outline-next-visible-heading :wk "Next Heading")
   )
 
+#+END_SRC
+
+* Key Chords
+
+#+BEGIN_SRC emacs-lisp
+
+(general-def :states '(emacs insert motion visual iedit normal)
+(general-chord ",,") '(elib-leader-command :wk "Leader")
+(general-chord ",.") '(elib-leader-command :wk "Leader")
+)
 #+END_SRC
 
 

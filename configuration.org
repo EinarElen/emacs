@@ -6,9 +6,6 @@
 #+STARTUP: noinlineimages
 #+BEGIN_SRC emacs-lisp :tangle on
 (set-buffer-file-coding-system 'utf-8)
-
-
-
 #+END_SRC
 * Better default settings
 #+BEGIN_SRC emacs-lisp 
@@ -143,6 +140,21 @@
 (setq helm-describe-variable-function 'helpful-variable)
   )
 #+END_SRC
+
+* Key Chords
+  #+BEGIN_SRC emacs-lisp
+(use-package key-chord
+:config 
+(key-chord-mode t)
+)
+
+
+
+
+
+
+
+  #+END_SRC
 
 * General 
 #+BEGIN_SRC emacs-lisp 
@@ -579,15 +591,6 @@ git submodule add https://github.com/Kungsgeten/org-brain-export ~/.config/emacs
 #+END_SRC
 
 #+RESULTS:
-
-* Key Chords 
-
-#+BEGIN_SRC emacs-lisp
-(use-package key-chord
-:disabled t
-:config 
-)
-#+END_SRC
 
 * Magit 
 
