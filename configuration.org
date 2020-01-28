@@ -481,7 +481,7 @@
 #+END_SRC
 *** Org ref 
 #+BEGIN_SRC emacs-lisp 
-(use-package org-ref 
+(use-package org-ref
 
 )
 #+END_SRC
@@ -634,8 +634,7 @@ Dependencies
 #+RESULTS:
 : t
 
-* Communication
-** Email 
+* Email 
 #+BEGIN_SRC emacs-lisp
 (when (and elib-mu4e-load-path(file-exists-p elib-mu4e-load-path))
  (use-package mu4e
@@ -896,12 +895,16 @@ Winner mode
 
 #+RESULTS:
 * Eshell and Equake 
-
+https://www.masteringemacs.org/article/complete-guide-mastering-eshell
   #+BEGIN_SRC emacs-lisp
 (require 'eshell)
 (require 'esh-module)
 (require 'em-smart)
 (add-to-list 'eshell-modules-list 'eshell-tramp)
+(setq eshell-where-to-jump 'begin)
+(setq eshell-review-quick-commands nil)
+(setq eshell-smart-space-goes-to-end t)
+(add-hook 'eshell-mode-hook 'eshell-smart-initialize)
 (use-package equake
   :config  ; some examples of optional settings follow:
   (global-set-key (kbd "C-x C-c") 'equake-check-if-in-equake-frame-before-closing) ; prevent accidental frame-closure
