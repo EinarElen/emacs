@@ -374,6 +374,9 @@ Get rid of hello help, cute but annoying
 
 
 #+END_SRC
+
+#+RESULTS:
+
 ** Text
 #+BEGIN_SRC emacs-lisp
 
@@ -766,6 +769,8 @@ Get rid of hello help, cute but annoying
 (general-def :states '(emacs insert motion visual iedit normal)
 (general-chord ",,") '(elib-leader-command :wk "Leader")
 (general-chord ",.") '(elib-leader-command :wk "Leader")
+(general-chord ".." ) '(helm-M-x :wk "Launch")
+(general-chord "mm") '(frame-workflow-switch-to-subject/Mail :wk "Mail")
 )
 #+END_SRC
 
