@@ -273,28 +273,22 @@ of the key sequence that ran this command."
  #+BEGIN_SRC emacs-lisp 
 ;; Dependency
 (use-package key-chord)
-    (use-package general)
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil) 
+(use-package general)
+(setq evil-want-integration t)
+(setq evil-want-keybinding nil) 
 ;; Must be set before loading evil
 (setq evil-disable-insert-state-bindings t)
-    (use-package evil)
-    (evil-mode)
-    (setq elib-non-normal-leader "M-m")
-    (setq elib-leader "SPC")
-    ;; (eval `(general-unbind :states '(emacs insert hybrid iedit-insert)
-    ;; 	 ,elib-non-normal-leader))
-    ;; (eval `(general-unbind :states '(normal visual motion)))
-    ;; (general-unbind; :states '(normal visual motion)
-    ;;   ,elib-leader)
+(use-package evil)
+(evil-mode)
+(setq elib-non-normal-leader "M-m")
+(setq elib-leader "SPC")
+;    (general-auto-unbind-keys)
 
-    (general-auto-unbind-keys)
-    (general-create-definer elib-leader-def
-      :prefix elib-leader
-      ;; :prefix-map 'elib-leader-map
-      :prefix-command 'elib-leader-command
-      :non-normal-prefix elib-non-normal-leader
-      :states '(normal emacs hybrid insert iedit-insert visual motion))
+(general-create-definer elib-leader-def
+  :prefix elib-leader
+  :prefix-command 'elib-leader-command
+  :non-normal-prefix elib-non-normal-leader
+  :states '(normal emacs hybrid insert iedit-insert visual motion))
 
 #+END_SRC 
 
