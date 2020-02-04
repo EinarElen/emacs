@@ -195,11 +195,14 @@ Get rid of hello help, cute but annoying
 ** Shells
 
 #+BEGIN_SRC emacs-lisp
-(elib-leader-shells-def
-  "v" '(vterm-toggle :wk "Toggle Vterm")
-  "e" '(eshell :wk "Eshell")
+(elib-leader-def
+  "as" '(nil :wk "Shells")
+  "asv" '(vterm-toggle :wk "Toggle Vterm")
+  "ase" '(eshell :wk "Eshell")
   )
 #+END_SRC
+
+#+RESULTS:
 
 ** Buffers 
 #+BEGIN_SRC emacs-lisp
