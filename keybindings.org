@@ -61,38 +61,6 @@ Get rid of hello help, cute but annoying
 * Leader definitions
 #+BEGIN_SRC emacs-lisp 
 (general-def edebug-mode-map "C-SPC" '(edebug-step-mode :wk "Edebug Step"))
-(elib-extend-leader "Major Mode" "mode" "m") 
-(elib-extend-leader "Applications" "apps" "a")
-(elib-extend-leader "Insert" "insert" "i")
-(elib-extend-leader "Yasnippet" "yas" "iy")
-(elib-extend-leader "Insert completion" "icomp" "ic")
-(elib-extend-leader "Special" "special" "s")
-(elib-extend-leader "Multiple Cursors" "mc" "sm")
-(elib-extend-leader "Helm" "helm" "sh")
-(elib-extend-leader "Window Management"  "windows" "w") 
-(elib-extend-leader "Toggles"  "toggles" "t")
-(elib-extend-leader "Files"  "files" "f")
-(elib-extend-leader "Help"  "help" "h")
-(elib-extend-leader "Projects"  "projects" "p")
-(elib-extend-leader "Shells"  "shells" "as")
-(elib-extend-leader "Org"  "a/org" "ao")
-                                        ; (describe-keymap evil-lisp-state-local-map)
-(elib-extend-leader "Org-ref"  "org-ref" "aor")
-(elib-extend-leader "Brain"  "org-brain" "aob")
-(elib-extend-leader "Errors/export"  "errors" "e")
-(elib-extend-leader "Jump"  "jump" "j")
-(elib-extend-leader "Buffers"  "buffers" "b")
-(elib-extend-leader "Text" "text" "x")
-;; (general-create-definer elib-lisp-state-def 
-;;   :keymaps 'evil-lisp-state-map
-;;   )
-;; (general-def :prefix elib-leader :non-normal-prefix elib-non-normal-leader
-;;   :states '(normal visual iedit motion emacs)
-;;   "k" evil-lisp-state-map
-;;   )
-(elib-extend-leader "PDF-Tools" "pdfview" "m" 'pdf-view-mode-map 'pdf-annot-list-mode-map)
-(elib-extend-leader "Org Mode" "org" "m" 'org-mode-map) 
-(elib-extend-leader "Elisp" "elisp" "m" 'emacs-lisp-mode-map 'lisp-interaction-mode-map)
 #+END_SRC
 
 #+RESULTS:
