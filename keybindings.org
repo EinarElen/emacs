@@ -206,9 +206,13 @@ Get rid of hello help, cute but annoying
 
 ** Buffers 
 #+BEGIN_SRC emacs-lisp
-(elib-leader-buffers-def
-"b" '(helm-mini :wk "Helm-mini"))
+(elib-leader-def
+"b" '(nil :wk "Buffers")
+"bb" '(helm-mini :wk "Helm-mini"))
 #+END_SRC
+
+#+RESULTS:
+
 ** Windows 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-windows-def
