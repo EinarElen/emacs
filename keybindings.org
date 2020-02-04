@@ -134,29 +134,19 @@ Get rid of hello help, cute but annoying
 ** Insert / Complete 
 #+BEGIN_SRC emacs-lisp
 
-(elib-leader-icomp-def
-"c" '(company-complete :wk "Complete")
-"h" '(helm-company :wk "Helm Company") 
-)
+(elib-leader-def
+"ic" '(nil :wk "Complete")
+"icc" '(company-complete :wk "Complete")
+"ich" '(helm-company :wk "Helm Company"))
 
-
-
-(elib-leader-yas-def
-  "c" '(helm-yas-complete :wk "Helm Complete")
-  "e" '(yas-expand :wk "Expand")
-  
-  )
-
-;; (let ((map company-active-map))
-;;                   ;(define-key map (kbd "C-/")   'company-search-candidates)
-;;   (define-key map (kbd "M-n") 'company-select-next)
-;;   (define-key map (kbd "M-p") 'company-select-previous)
-;;   (define-key map (kbd "C-M-/") 'company-filter-candidates)
-;;   (define-key map (kbd "C-d")   'company-show-doc-buffer)
-;;   (define-key map (kbd "M-/") 'helm-company)
-;;    )
+(elib-leader-def
+   "iy" '(nil :wk "Yas")
+  "iyc" '(helm-yas-complete :wk "Helm Complete")
+  "iye" '(yas-expand :wk "Expand"))
 
 #+END_SRC
+
+#+RESULTS:
 
 ** Help 
 #+BEGIN_SRC emacs-lisp
