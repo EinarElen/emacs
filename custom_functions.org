@@ -292,56 +292,6 @@ of the key sequence that ran this command."
 
 #+END_SRC 
 
-** Extend leader
-#+BEGIN_SRC emacs-lisp
-(defvar elib--temp-fake-keymap (make-sparse-keymap))
-(defun elib-extend-leader (title name prefix &rest keymaps)
-  
-  (let* ((keymaps (or keymaps))
-	 (base-keymaps keymaps)
-	 (leader-str (concat "elib-leader-" name))
-	 (non-normal-leader-str (concat "elib-non-normal-leader-" name))
-	 (definer-str (concat leader-str "-def"))
-	 (non-normal-definer-str (concat non-normal-leader-str "-def"))
-	 (normal-definer-str (concat "elib-normal-leader-" name "-def"))
-	 (leader-command-str (concat "elib-leader-" name "-command"))
-	 (leader-map-str (concat "elib-leader-" name "-map"))
-	 (leader (intern leader-str))
-	 (non-normal-leader (intern non-normal-leader-str))
-	 (definer (intern definer-str))
-	 (non-normal-definer (intern non-normal-definer-str))
-	 (normal-definer (intern normal-definer-str))
-	 (leader-map (intern leader-map-str))
-	 (mode-definer-str (concat "elib-leader-mode-" name "-def"))
-	 (mode-definer (intern mode-definer-str))
-
-
-	 )
-    (set leader (concat elib-leader " " prefix))
-    (set non-normal-leader (concat elib-non-normal-leader " " prefix))
-    ;(add-to-list 'keymaps 'override)
-    (add-to-list 'keymaps 'elib--temp-fake-keymap)
-      (eval `(general-create-definer ,definer
-	       ,@(when base-keymaps '(:keymaps ',keymaps))
-	       :prefix ,leader
-	       :non-normal-prefix ,non-normal-leader
-	       :prefix-map ',leader-map
-	       :states '(normal emacs hybrid insert iedit-insert visual motion)))
-      (eval `(elib-leader-def
-	       ,@(when base-keymaps '(:keymaps base-keymaps)) ,prefix '(nil :wk ,title) ))
-
-      (when base-keymaps
-	(eval `(general-create-definer ,mode-definer
-	       :keymaps ',base-keymaps
-	       :prefix "SPC m"
-	       :non-normal-prefix "M-m m"
-	       :prefix-map ',leader-map
-	       :states '(normal emacs hybrid insert iedit-insert visual motion))))
-)
-
-  )
-
- #+END_SRC
 
 * Org 
 ** Org brain 
