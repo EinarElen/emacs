@@ -111,7 +111,7 @@ Get rid of hello help, cute but annoying
 "M-/" '(helm-swoop-without-pre-input :wk "Search")
 "M--" '(helm-swoop-without-pre-input :wk "Search")
 "," '(elib-repeat-previous-command :wk "Repeat Previous Command")
-        ;"TAB"'(spacemacs/alternate-window :wk "Previous Windows")
+"." '(helm-frame-workflow :wk "Switch frame")
 "TAB"'(ace-window :wk "Switch Windows")
 ";" '(comment-dwim-2 :wk "Comment")
 "ö" '(comment-dwim-2 :wk "Comment")
@@ -255,14 +255,6 @@ Get rid of hello help, cute but annoying
 
 #+RESULTS:
 
-** Frames 
-#+BEGIN_SRC emacs-lisp 
-(elib-leader-def 
-    :keymaps 'override
-    "l" '(frame-workflow-prefix-map :wk "Layouts/frames")
-    "." '(helm-frame-workflow :wk "Switch frame"))
-
-#+END_SRC
 ** PDF-view
 #+BEGIN_SRC emacs-lisp 
 (general-def :keymaps 'pdf-view-mode-map
