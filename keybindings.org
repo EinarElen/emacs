@@ -247,56 +247,20 @@ Get rid of hello help, cute but annoying
     "t" '(twit :wk "Twitter"))
 #+END_SRC
 
+** Shells
+
+#+BEGIN_SRC emacs-lisp
+(elib-leader-shells-def
+  "v" '(vterm-toggle :wk "Toggle Vterm")
+  "e" '(eshell :wk "Eshell")
+  )
+#+END_SRC
+
 ** Buffers 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-buffers-def
 "b" '(helm-mini :wk "Helm-mini"))
 #+END_SRC
-** Org 
-#+BEGIN_SRC emacs-lisp 
-(elib-leader-org-def 
-"" '(nil :wk "Org mode")
-"." '(elib-org-transient-hydra/body :wk "Transient")
-"e" '(nil :wk "Export")
-"ee" '(org-export-dispatch :wk "Export Dispatch")
-"el" '(elib-org-to-pdf-and-open :wk "Latex")
-"eL" `(,(lambda () (interactive) (elib-org-to-pdf-and-open t)) :wk "Latex Subtree")
-"t" '(nil :wk "Tables")
-" SPC" '(org-time-stamp :wk "Time Stamp")
-"s" '(org-schedule :wk "Schedule")
-"d" '(org-deadline :wk "Deadline")
-"a" '(org-agenda  :wk  "Agenda")
-"c" '(org-capture :wk  "Capture")
-"p" '(org-set-property :wk "Set Property")
-"T" '(org-set-tags :wk "Set Tags")
-"D" '(org-insert-drawer :wk "Insert Drawer")
-"'" '(org-edit-special :wk "Edit Block")
-"ä" '(org-edit-special :wk "Edit Block")
-"t" '(nil :wk "Toggle")
-"tl" '(org-toggle-link-display :wk "Toggle Link Display")
-"l" '(nil :wk "Links")
-"lo" '(org-open-at-point :wk "Open link")
-"li" '(org-insert-link :wk "Insert link")
-"ls" '(org-store-link :wk "Store link")
-"lc" '(org-cliplink :wk "Copy link"))
-(elib-leader-def
-:keymaps '(org-mode-map)
-";" '(org-comment-dwim :wk "Comment")
-"ö" '(org-comment-dwim :wk "Comment"))
-(elib-leader-def
-:keymaps '(org-src-mode-map)
-"m'" '(org-edit-src-exit :wk "Edit Block")
-"mä" '(org-edit-src-exit :wk "Edit Block"))
-(general-def :keymaps 'org-mode-map
-"C-k" 'elib-kill-line-org-sp
-"M-n" '(elib-org-pdf-scroll-down :wk "Scroll pdf in other window down")
-"M-p" '(elib-org-pdf-scroll-up :wk "Scroll pdf in other window up")
-"M-;" '(org-comment-dwim :wk "Comment")
-"M-ö" '(org-comment-dwim :wk "Comment"))
-#+END_SRC
-
-#+RESULTS:
-
 ** Windows 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-windows-def
@@ -347,7 +311,7 @@ Get rid of hello help, cute but annoying
 (general-def :keymaps 'pdf-view-mode-map
 "/" '(pdf-occur :wk "Search")
 "M-m /" '(pdf-occur :wk "Search"))
-(elib-leader-pdfview-def
+(elib-leader-mode-pdfview-def
 "r" '(pdf-view-revert-buffer :wk "Revert buffer")
 "a" '(nil :wk "Annotations")
 "d" '(pdf-annot-attachment-dired :wk )
@@ -373,6 +337,52 @@ Get rid of hello help, cute but annoying
 )
 
 
+#+END_SRC
+
+#+RESULTS:
+
+** Org 
+#+BEGIN_SRC emacs-lisp 
+(elib-leader-def
+:keymaps '(org-src-mode-map)
+"m'" '(org-edit-src-exit :wk "Edit Block")
+"mä" '(org-edit-src-exit :wk "Edit Block"))
+(elib-leader-mode-org-def 
+;"" '(nil :wk "Org mode")
+"." '(elib-org-transient-hydra/body :wk "Transient")
+"e" '(nil :wk "Export")
+"ee" '(org-export-dispatch :wk "Export Dispatch")
+"el" '(elib-org-to-pdf-and-open :wk "Latex")
+"eL" `(,(lambda () (interactive) (elib-org-to-pdf-and-open t)) :wk "Latex Subtree")
+"t" '(nil :wk "Tables")
+" SPC" '(org-time-stamp :wk "Time Stamp")
+"s" '(org-schedule :wk "Schedule")
+"d" '(org-deadline :wk "Deadline")
+"a" '(org-agenda  :wk  "Agenda")
+"c" '(org-capture :wk  "Capture")
+"p" '(org-set-property :wk "Set Property")
+"T" '(org-set-tags :wk "Set Tags")
+"D" '(org-insert-drawer :wk "Insert Drawer")
+"'" '(org-edit-special :wk "Edit Block")
+"ä" '(org-edit-special :wk "Edit Block")
+"t" '(nil :wk "Toggle")
+"tl" '(org-toggle-link-display :wk "Toggle Link Display")
+"l" '(nil :wk "Links")
+"lo" '(org-open-at-point :wk "Open link")
+"li" '(org-insert-link :wk "Insert link")
+"ls" '(org-store-link :wk "Store link")
+"lc" '(org-cliplink :wk "Copy link"))
+(elib-leader-def
+:keymaps '(org-mode-map)
+";" '(org-comment-dwim :wk "Comment")
+"ö" '(org-comment-dwim :wk "Comment"))
+
+(general-def :keymaps 'org-mode-map
+"C-k" 'elib-kill-line-org-sp
+"M-n" '(elib-org-pdf-scroll-down :wk "Scroll pdf in other window down")
+"M-p" '(elib-org-pdf-scroll-up :wk "Scroll pdf in other window up")
+"M-;" '(org-comment-dwim :wk "Comment")
+"M-ö" '(org-comment-dwim :wk "Comment"))
 #+END_SRC
 
 #+RESULTS:
@@ -768,9 +778,10 @@ Get rid of hello help, cute but annoying
 
 (general-def :states '(emacs insert motion visual iedit normal)
 (general-chord ",,") '(elib-leader-command :wk "Leader")
-(general-chord ",.") '(elib-leader-command :wk "Leader")
-(general-chord ".." ) '(helm-M-x :wk "Launch")
-(general-chord "mm") '(frame-workflow-switch-to-subject/Mail :wk "Mail")
+(general-chord ",.") '(helm-M-x :wk "M-x")
+;; (general-chord ".." ) '(helm-M-x :wk "Launch")
+;; (general-chord "mm") '(frame-workflow-switch-to-subject/Mail :wk "Mail")
+;; (general-chord "bb") '(helm-mini :wk "Buffers")
 )
 #+END_SRC
 

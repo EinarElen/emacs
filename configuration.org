@@ -1273,8 +1273,12 @@ frame we are in.
 : t
 ** Undo tree 
 #+BEGIN_SRC emacs-lisp
-(setq undo-tree-visualizer-diff t)
+ (setq undo-tree-visualizer-diff t)
 #+END_SRC
+
+#+RESULTS:
+: t
+
 ** Frames 
 #+BEGIN_SRC emacs-lisp
 (setq frame-workflow-directory-frame-action (lambda () (dired default-directory)))
