@@ -150,24 +150,25 @@ Get rid of hello help, cute but annoying
 
 ** Help 
 #+BEGIN_SRC emacs-lisp
-(elib-leader-help-def
-  "d" '(nil :wk "Describe")
-  "a" '(helm-apropos :wk "Apropos")
-  "b" '(describe-bindings :wk "Bindings (all)")
-  "p" '(elib-describe-binding-with-prefix :wk "Prefix")  
-  "da" '(helm-apropos :wk "Apropos")
-  "df" '(helpful-callable :wk "Function")
-  "dv" '(helpful-variable :wk "Variable")
-  "d." '(helpful-at-point :wk "At Point")
-  "dK" '(describe-keymap :wk "Keymap")
-  "g"  '(nil :wk "Get")
-  "n" ' (elib-show-normal-map :wk "Show normal keys" ) 
-  "gk" '(elib-current-keymap "Get Current Keymap")
-  "e" '(nil :wk "Edebug")
-  "en" '(elib-edebug-next-command :wk "Debug Next Command")   
-  "dl" '(elisp-slime-nav-describe-elisp-thing-at-point :wk "Describe LISP thing at point")
-  "dk" '(helpful-key :wk "Key")
-  "dm" '(elib-weird-mode-binding-fix :wk "Mode"))  
+(elib-leader-def
+  "h" '(nil :wk "Help")
+  "hd" '(nil :wk "Describe")
+  "ha" '(helm-apropos :wk "Apropos")
+  "hb" '(describe-bindings :wk "Bindings (all)")
+  "hp" '(elib-describe-binding-with-prefix :wk "Prefix")  
+  "hda" '(helm-apropos :wk "Apropos")
+  "hdf" '(helpful-callable :wk "Function")
+  "hdv" '(helpful-variable :wk "Variable")
+  "hd." '(helpful-at-point :wk "At Point")
+  "hdK" '(describe-keymap :wk "Keymap")
+  "hg"  '(nil :wk "Get")
+  "hn" ' (elib-show-normal-map :wk "Show normal keys" ) 
+  "hgk" '(elib-current-keymap "Get Current Keymap")
+  "he" '(nil :wk "Edebug")
+  "hen" '(elib-edebug-next-command :wk "Debug Next Command")   
+  "hdl" '(elisp-slime-nav-describe-elisp-thing-at-point :wk "Describe LISP thing at point")
+  "hdk" '(helpful-key :wk "Key")
+  "hdm" '(elib-weird-mode-binding-fix :wk "Mode"))  
 #+END_SRC
 
 #+RESULTS:
