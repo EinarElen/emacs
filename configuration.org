@@ -1321,7 +1321,9 @@ frame we are in.
   (list
    elib-mail-gmail
    elib-mail-lu
-   elib-mail-jol))
+   elib-mail-jol
+   elib-mail-cern
+))
 (setq  message-send-mail-function 'message-send-mail-with-sendmail
        sendmail-program (executable-find "msmtp"))
 (setq mu4e-view-prefer-html t)
