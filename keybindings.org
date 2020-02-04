@@ -175,19 +175,22 @@ Get rid of hello help, cute but annoying
 
 ** Applications 
 #+BEGIN_SRC emacs-lisp
-(elib-leader-apps-def
-  "c" '(calc-dispatch :wk "Calc Dispatch")
-  "d" '(dired :wk "Dired")
-  "P" '(nil :wk "Processes")
-  "Pp" '(proced :wk "Proced")
-  "Pl" '(list-processes :wk "List Processes")
-  "lp" '(paradox-list-packages :wk "List packages")
-  "g" '(magit-status :wk "Magit") 
-    "m" '(nil :wk "Mu4e")
-    "mm" '(mu4e :wk "Mu4e")
-    "mc" '(mu4e-compose-new :wk "Compose")
-    "t" '(twit :wk "Twitter"))
+(elib-leader-def
+  "a" '(nil :wk "Applications")
+  "ac" '(calc-dispatch :wk "Calc Dispatch")
+  "ad" '(dired :wk "Dired")
+  "aP" '(nil :wk "Processes")
+  "aPp" '(proced :wk "Proced")
+  "aPl" '(list-processes :wk "List Processes")
+  "alp" '(paradox-list-packages :wk "List packages")
+  "ag" '(magit-status :wk "Magit") 
+    "am" '(nil :wk "Mu4e")
+    "amm" '(mu4e :wk "Mu4e")
+    "amc" '(mu4e-compose-new :wk "Compose")
+    "at" '(twit :wk "Twitter"))
 #+END_SRC
+
+#+RESULTS:
 
 ** Shells
 
@@ -283,7 +286,7 @@ Get rid of hello help, cute but annoying
 
 #+RESULTS:
 
-** Org 
+** Org n
 #+BEGIN_SRC emacs-lisp 
 (elib-leader-def
 :keymaps '(org-src-mode-map)
