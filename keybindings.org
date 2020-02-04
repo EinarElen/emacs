@@ -70,14 +70,11 @@ Get rid of hello help, cute but annoying
 (bind-key "M-y"  'helm-show-kill-ring)
 (bind-key "M-p" 'helm-minibuffer-history minibuffer-local-map)
 (bind-key "M-n" 'helm-minibuffer-history minibuffer-local-map)
- (bind-key "C-r" 'helm-previous-line helm-swoop-map)
+(bind-key "C-r" 'helm-previous-line helm-swoop-map)
 (bind-key "C-s" 'helm-previous-line helm-swoop-map)
-;; Add helm-descbinds
 #+END_SRC
 * Text editing 
 #+BEGIN_SRC emacs-lisp
-;;(general-def :states general-non-normal-states "C-a" 'mwim-beginning)
-;;(general-def :states general-non-normal-states "C-e" 'mwim-end)
 (bind-key "M-;"  'comment-dwim-2)
 (bind-key "M-c" 'capitalize-dwim)
 (bind-key "M-C" 'sentence-case-region)
@@ -85,7 +82,7 @@ Get rid of hello help, cute but annoying
 
 * Mail
 #+BEGIN_SRC emacs-lisp
-    (general-def 
+(general-def 
 "s" 'helm-mu
 "c" 'helm-mu-contacts
 :keymaps '(mu4e-main-mode-map mu4e-headers-mode-map))
@@ -100,25 +97,12 @@ Get rid of hello help, cute but annoying
 
 #+RESULTS:
 
-* Snippets and completion 
-#+BEGIN_SRC emacs-lisp 
-;; :bind (("C-c y d" . yas-load-directory)
-;;          ("C-c y i" . yas-insert-snippet)
-;;          ("C-c y f" . yas-visit-snippet-file)
-;;          ("C-c y n" . yas-new-snippet)
-;;          ("C-c y t" . yas-tryout-snippet)
-;;          ("C-c y l" . yas-describe-tables)
-;;          ("C-c y g" . yas/global-mode)
-;;          ("C-c y m" . yas/minor-mode)
-;;          ("C-c y r" . yas-reload-all)
-;;          ("C-c y x" . yas-expand))
-#+END_SRC
+
 * General setup 
 ** Basic 
 #+BEGIN_SRC emacs-lisp
 (elib-leader-def
-:keymaps 'override 
-
+:keymaps 'override
 "SPC" '(helm-M-x :wk "M-x")
 "v" '(er/expand-region :wk "Expand region")
 "?" '(helm-descbinds :wk "Keybindings")
@@ -132,20 +116,19 @@ Get rid of hello help, cute but annoying
 ";" '(comment-dwim-2 :wk "Comment")
 "ö" '(comment-dwim-2 :wk "Comment")
 "u" '(undo-tree-visualize :wk "Undo"))
-
-
 #+END_SRC
 
 #+RESULTS:
 
 ** Helm 
 #+BEGIN_SRC emacs-lisp
-(elib-leader-helm-def
-  "m" '(helm-man-woman :wk "Manpages")
-  "i" '(helm-info :wk "Info")
-  "o" '(helm-org-rifle :wk "Org rifle")
-  "s" '(helm-flyspell-correct :wk "Flyspell")
-  "r" '(helm-resume :wk "Resume"))
+(elib-leader-def
+  "sh" '(nil :wk "Helm")
+  "shm" '(helm-man-woman :wk "Manpages")
+  "shi" '(helm-info :wk "Info")
+  "sho" '(helm-org-rifle :wk "Org rifle")
+  "shs" '(helm-flyspell-correct :wk "Flyspell")
+  "shr" '(helm-resume :wk "Resume"))
 #+END_SRC
 #+RESULTS:
 ** Insert / Complete 
