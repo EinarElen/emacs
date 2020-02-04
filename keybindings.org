@@ -215,22 +215,23 @@ Get rid of hello help, cute but annoying
 
 ** Windows 
 #+BEGIN_SRC emacs-lisp
-(elib-leader-windows-def
-"s" '(nil :wk "Split")
-"sb" '(elib-split-window-below :wk "Split Below/Horizontally")
-"sn" '(elib-split-window-below :wk "Split Below/Horizontally")
-"sr" '(elib-split-window-right :wk "Split Right/Vertically")
-"sf" '(elib-split-window-right :wk "Split Right/Vertically")
-"a" '(ace-window :wk "Ace Window")
-"w" '(ace-window :wk "Ace Window")
-"o" '(other-window :wk "Other window")
-"t" '(elib-ace-swap-window :wk "Transpose")
-"d" '(elib-ace-delete-window :wk "Delete")
-"." '(elib-windows-transient-hydra/body :wk "Transient")
-"O" '(delete-other-windows :wk "Delete Others")
-"z" '(elib-zoom-transient-hydra/body :wk "Zoom")
-" TAB" '(spacemacs/alternate-window :wk "Previous Windows")
-" SPC" '(elib-windows-transient-hydra/body :wk "Transient"))
+(elib-leader-def
+"w" '(nil :wk "Windows")
+"ws" '(nil :wk "Split")
+"wsb" '(elib-split-window-below :wk "Split Below/Horizontally")
+"wsn" '(elib-split-window-below :wk "Split Below/Horizontally")
+"wsr" '(elib-split-window-right :wk "Split Right/Vertically")
+"wsf" '(elib-split-window-right :wk "Split Right/Vertically")
+"wa" '(ace-window :wk "Ace Window")
+"ww" '(ace-window :wk "Ace Window")
+"wo" '(other-window :wk "Other window")
+"wt" '(elib-ace-swap-window :wk "Transpose")
+"wd" '(elib-ace-delete-window :wk "Delete")
+"w." '(elib-windows-transient-hydra/body :wk "Transient")
+"wO" '(delete-other-windows :wk "Delete Others")
+"wz" '(elib-zoom-transient-hydra/body :wk "Zoom")
+"w TAB" '(spacemacs/alternate-window :wk "Previous Windows")
+"w SPC" '(elib-windows-transient-hydra/body :wk "Transient"))
 #+END_SRC
 
 #+RESULTS:
