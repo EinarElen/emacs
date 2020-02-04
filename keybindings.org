@@ -238,19 +238,23 @@ Get rid of hello help, cute but annoying
 
 ** Projectile 
 #+BEGIN_SRC emacs-lisp
-(elib-leader-projects-def
-"b" '(projectile-switch-to-buffer :wk "Switch to Buffer")
-"d" '(projectile-find-dir :wk "Find Directory")
-"f" '(projectile-find-file :wk "Find File")
-"F" '(projectile-find-file-dwim :wk "Find File")
-"p" '(projectile-switch-project :wk "Switch")
-"h" '(helm-projectile :wk "Helm")
-"r" '(projectile-recentf :wk "Recent")
-"a" '(projectile-ag :wk "Ag")
-"c" '(projectile-compile-project :wk "Compile")
-"g" '(projectile-grep :wk "Grep")
-"s" '(projectile-multi-occur :wk "Search/Occur"))
+(elib-leader-def
+  "p" '(nil :wk "Projects")
+  "pb" '(projectile-switch-to-buffer :wk "Switch to ")
+  "pd" '(projectile-find-dir :wk "Find Directory")
+  "pf" '(projectile-find-file :wk "Find File")
+  "pF" '(projectile-find-file-dwim :wk "Find File")
+  "pp" '(projectile-switch-project :wk "Switch")
+  "ph" '(helm-projectile :wk "Helm")
+  "pr" '(projectile-recentf :wk "Recent")
+  "pa" '(projectile-ag :wk "Ag")
+  "pc" '(projectile-compile-project :wk "Compile")
+  "pg" '(projectile-grep :wk "Grep")
+  "ps" '(projectile-multi-occur :wk "Search/Occur"))
 #+END_SRC
+
+#+RESULTS:
+
 ** Frames 
 #+BEGIN_SRC emacs-lisp 
 (elib-leader-def 
