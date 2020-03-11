@@ -318,7 +318,7 @@ Files whose full name matches this regexp are backed up to `elib-backup-trash-di
     (user-mail-address "einar.elen@gmail.com")
     (smtpmail-default-smtp-server "smtp.gmail.com")
     (smtpmail-smtp-server "smtp.gmail.com")
-    (smtpmail-stream-type 'starttls)
+    (smtpmail-stream-type starttls)
     (smtpmail-smtp-service 587)
     (org-msg-signature "
 

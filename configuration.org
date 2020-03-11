@@ -160,14 +160,7 @@
 #+BEGIN_SRC emacs-lisp 
 (use-package general
 :config 
-  (setq general-override-states '(insert
-                                  emacs
-                                  hybrid
-                                  normal
-                                  visual
-                                  motion
-                                  operator
-                                  replace))
+  (general-auto-unbind-keys)
 )
 #+END_SRC
 
@@ -1393,4 +1386,81 @@ frame we are in.
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (use-package unfill)
+(use-package haskell-mode)
+(use-package lua-mode)
+(use-package yaml-mode)
+(use-package ansible-mode)
 #+END_SRC
+
+#+RESULTS:
+: t
+
+** C++ 
+
+#+BEGIN_SRC bash
+sudo dnf install llvm* clang* cmake 
+git clone https://github.com/MaskRay/ccls.git ~/src/ccls --depth=1 --recursive
+mkdir -pv ~/src/build/ccls
+cd ~/src/build/ccls
+cmake -GNinja -BRelease -H../../ccls -DCMAKE_INSTALL_PREFIX=~/.local 
+cd Release
+ninja
+ninja install
+cd ~/src
+git clone --recursive https://github.com/cquery-project/cquery.git
+cd cquery
+git submodule update --init
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/.local -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
+cmake --build .
+cmake --build . --target install
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC emacs-lisp
+(use-package company-lsp 
+  :ensure t
+  :commands company-lsp
+  :config (push 'company-lsp company-backends))
+;; (use-package ccls
+;;   :ensure t
+;;   :config
+;;   (setq ccls-executable "ccls")
+;;   (setq lsp-prefer-flymake nil)
+;;   (setq flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck
+;; 						 c/c++-gcc))
+;;   :hook ((c-mode c++-mode objc-mode) . (lambda () (require 'ccls (lsp))))
+;;   )
+
+(defun cquery//enable ()
+  (condition-case nil
+      (lsp)
+    (user-error nil)))
+(use-package cquery
+    :ensure t
+    :defer nil
+    :commands lsp
+    :init (add-hook 'c-mode-hook #'cquery//enable)
+          (add-hook 'c++-mode-hook #'cquery//enable)
+:config 
+(setq cquery-executable "~/.local/bin/cquery")
+(with-eval-after-load 'projectile
+  (setq projectile-project-root-files-top-down-recurring
+        (append '("compile_commands.json"
+                  ".cquery")
+                projectile-project-root-files-top-down-recurring)))
+(setq cquery-sem-highlight-method 'font-lock)
+;; alternatively, (setq cquery-sem-highlight-method 'overlay)
+
+;; For rainbow semantic highlighting
+;;(cquery-use-default-rainbow-sem-highlight)
+)
+
+
+(use-package lsp-mode :commands lsp :ensure t)
+(use-package lsp-ui :commands lsp-ui-mode :ensure t)
+
+(use-package clang-format)
+#+END_SRC
+

@@ -257,32 +257,37 @@ Get rid of hello help, cute but annoying
 
 ** PDF-view
 #+BEGIN_SRC emacs-lisp 
-(general-def :keymaps 'pdf-view-mode-map
+
+(general-def
+  :prefix elib-leader
+  :non-normal-prefix elib-non-normal-leader
+  :keymaps '(pdf-view-mode-map pdf-annot-list-map)
+:states '(normal emacs hybrid insert iedit-insert visual motion)
 "/" '(pdf-occur :wk "Search")
-"M-m /" '(pdf-occur :wk "Search"))
-(elib-leader-mode-pdfview-def
-"r" '(pdf-view-revert-buffer :wk "Revert buffer")
-"a" '(nil :wk "Annotations")
-"d" '(pdf-annot-attachment-dired :wk )
-"am" '(pdf-annot-add-markup-annotation :wk "Add Markup")
-"as" '(pdf-annot-add-squiggly-markup-annotation :wk "Add Squiggly")
-"aS" '(pdf-annot-add-strikeout-markup-annotation :wk "Add Strikeout")
-"at" '(pdf-annot-add-text-annotation :wk "Add Text")
-"aS" '(pdf-annot-add-underline-markup-annotation :wk "Add Underline")
-"aD" '(pdf-annot-delete :wk "Remove Annotation")
-"af" '(pdf-annot-list-follow-minor-mode :wk "Follow Mode")
-"n" '(pdf-view-midnight-minor-mode :wk "Midnight Mode")
-"o" '(pdf-outline :wk "Outline")
-"l" '(pdf-annot-list-annotations
+"M-m /" '(pdf-occur :wk "Search")
+"m" '(nil :wk "PDF Tools")
+"mr" '(pdf-view-revert-buffer :wk "Revert buffer")
+"ma" '(nil :wk "Annotations")
+"md" '(pdf-annot-attachment-dired :wk )
+"mam" '(pdf-annot-add-markup-annotation :wk "Add Markup")
+"mas" '(pdf-annot-add-squiggly-markup-annotation :wk "Add Squiggly")
+"maS" '(pdf-annot-add-strikeout-markup-annotation :wk "Add Strikeout")
+"mat" '(pdf-annot-add-text-annotation :wk "Add Text")
+"maS" '(pdf-annot-add-underline-markup-annotation :wk "Add Underline")
+"maD" '(pdf-annot-delete :wk "Remove Annotation")
+"maf" '(pdf-annot-list-follow-minor-mode :wk "Follow Mode")
+"mn" '(pdf-view-midnight-minor-mode :wk "Midnight Mode")
+"mo" '(pdf-outline :wk "Outline")
+"ml" '(pdf-annot-list-annotations
       :wk "List annotations")
-"f" '(nil :wk "Fit")
-"fh" '(pdf-view-fit-height-to-window :wk "Fit Height to Window")
-"fp" '(pdf-view-fit-page-to-window :wk "Fit Page to Window")
-"fw" '(pdf-view-fit-width-to-window :wk "Fit Height to Window")
-"s" '(pdf-occur :wk "Search")
-"g" '(pdf-view-goto-page :wk "Goto page")
-"." '(elib-spacemacs-pdf-tools-transient-hydra/body :wk "Transient State")
-" SPC" '(elib-spacemacs-pdf-tools-transient-hydra/body :wk "Transient State") 
+"mf" '(nil :wk "Fit")
+"mfh" '(pdf-view-fit-height-to-window :wk "Fit Height to Window")
+"mfp" '(pdf-view-fit-page-to-window :wk "Fit Page to Window")
+"mfw" '(pdf-view-fit-width-to-window :wk "Fit Height to Window")
+"ms" '(pdf-occur :wk "Search")
+"mg" '(pdf-view-goto-page :wk "Goto page")
+"m ." '(elib-spacemacs-pdf-tools-transient-hydra/body :wk "Transient State")
+"m SPC" '(elib-spacemacs-pdf-tools-transient-hydra/body :wk "Transient State") 
 )
 
 
@@ -290,41 +295,47 @@ Get rid of hello help, cute but annoying
 
 #+RESULTS:
 
-** Org n
+** Org 
 #+BEGIN_SRC emacs-lisp 
-(elib-leader-def
+(general-def
+  :prefix elib-leader
+  :non-normal-prefix elib-non-normal-leader
 :keymaps '(org-src-mode-map)
+:states '(normal emacs hybrid insert iedit-insert visual motion)
 "m'" '(org-edit-src-exit :wk "Edit Block")
 "mä" '(org-edit-src-exit :wk "Edit Block"))
-(elib-leader-mode-org-def 
-;"" '(nil :wk "Org mode")
-"." '(elib-org-transient-hydra/body :wk "Transient")
-"e" '(nil :wk "Export")
-"ee" '(org-export-dispatch :wk "Export Dispatch")
-"el" '(elib-org-to-pdf-and-open :wk "Latex")
-"eL" `(,(lambda () (interactive) (elib-org-to-pdf-and-open t)) :wk "Latex Subtree")
-"t" '(nil :wk "Tables")
-" SPC" '(org-time-stamp :wk "Time Stamp")
-"s" '(org-schedule :wk "Schedule")
-"d" '(org-deadline :wk "Deadline")
-"a" '(org-agenda  :wk  "Agenda")
-"c" '(org-capture :wk  "Capture")
-"p" '(org-set-property :wk "Set Property")
-"T" '(org-set-tags :wk "Set Tags")
-"D" '(org-insert-drawer :wk "Insert Drawer")
-"'" '(org-edit-special :wk "Edit Block")
-"ä" '(org-edit-special :wk "Edit Block")
-"t" '(nil :wk "Toggle")
-"tl" '(org-toggle-link-display :wk "Toggle Link Display")
-"l" '(nil :wk "Links")
-"lo" '(org-open-at-point :wk "Open link")
-"li" '(org-insert-link :wk "Insert link")
-"ls" '(org-store-link :wk "Store link")
-"lc" '(org-cliplink :wk "Copy link"))
-(elib-leader-def
+(general-def
+  :prefix elib-leader
+  :non-normal-prefix elib-non-normal-leader
 :keymaps '(org-mode-map)
+:states '(normal emacs hybrid insert iedit-insert visual motion)
+"m" '(nil :wk "Org mode")
+"m ." '(elib-org-transient-hydra/body :wk "Transient")
+"me" '(nil :wk "Export")
+"mee" '(org-export-dispatch :wk "Export Dispatch")
+"mel" '(elib-org-to-pdf-and-open :wk "Latex")
+"meL" `(,(lambda () (interactive) (elib-org-to-pdf-and-open t)) :wk "Latex Subtree")
+"mt" '(nil :wk "Tables")
+"m SPC" '(org-time-stamp :wk "Time Stamp")
+"ms" '(org-schedule :wk "Schedule")
+"md" '(org-deadline :wk "Deadline")
+"ma" '(org-agenda  :wk  "Agenda")
+"mc" '(org-capture :wk  "Capture")
+"mp" '(org-set-property :wk "Set Property")
+"mT" '(org-set-tags :wk "Set Tags")
+"mD" '(org-insert-drawer :wk "Insert Drawer")
+"m'" '(org-edit-special :wk "Edit Block")
+"mä" '(org-edit-special :wk "Edit Block")
+"mt" '(nil :wk "Toggle")
+"mtl" '(org-toggle-link-display :wk "Toggle Link Display")
+"ml" '(nil :wk "Links")
+"mlo" '(org-open-at-point :wk "Open link")
+"mli" '(org-insert-link :wk "Insert link")
+"mls" '(org-store-link :wk "Store link")
+"mlc" '(org-cliplink :wk "Copy link")
 ";" '(org-comment-dwim :wk "Comment")
-"ö" '(org-comment-dwim :wk "Comment"))
+"ö" '(org-comment-dwim :wk "Comment")
+)
 
 (general-def :keymaps 'org-mode-map
 "C-k" 'elib-kill-line-org-sp
@@ -344,90 +355,92 @@ Get rid of hello help, cute but annoying
 
 #+BEGIN_SRC emacs-lisp
 (setq avy-all-windows t) 
-(elib-leader-jump-def
-  "b" '(avy-pop-mark :wk "Back")
-  "j" '(evil-avy-goto-char-timer :wk "Character (motion)")
-  "l" '(evil-avy-goto-line :wk "Line (motion)")
-  "u" '(spacemacs/avy-goto-url :wk "URL")
-  "U" '(spacemacs/avy-open-url :wk "URL (open)")
-  "w" '(evil-avy-goto-word-or-subword-1 :wk "Word (motion)"
+(elib-leader-def 
+ "j" '(nil :wk "Jump")
+  "jb" '(avy-pop-mark :wk "Back")
+  "jj" '(evil-avy-goto-char-timer :wk "Character (motion)")
+  "jl" '(evil-avy-goto-line :wk "Line (motion)")
+  "ju" '(spacemacs/avy-goto-url :wk "URL")
+  "jU" '(spacemacs/avy-open-url :wk "URL (open)")
+  "jw" '(evil-avy-goto-word-or-subword-1 :wk "Word (motion)"
          )
-  "n" '(sp-newline :wk "Split newline")
-  "s" '(sp-split-sexp :wk "Split sexp")
+  "jn" '(sp-newline :wk "Split newline")
+  "js" '(sp-split-sexp :wk "Split sexp")
 
-"o" '(open-line :wk "Open line")
-"d" '(dired-jump :wk "Jump to directory")
-"(" '(check-parens :wk "Check Parens")
-"f" '(find-function :wk "Lisp Function" )
-"v" '(find-variable :wk "Lisp Variable")
-"c" '(goto-last-change :wk "Last change")
-"q" '(dumb-jump-quick-look :wk "Quick look")
-"D" '(dired-jump-other-window :wk "Jump to directory (Other window)")
-"S" '(spacemacs/split-and-new-line :wk "Split + New line")
-"i" '(spacemacs/helm-jump-in-buffer :wk "Helm in buffer" )
-"+" '(spacemacs/iwb-region-or-buffer :wk "IWB region or buffer")
-"=" '(spacemacs/indent-region-or-buffer :wk "Indent region or buffer" )
-"I" '(helm-imenu-in-all-buffers :wk "Helm Imenu in all buffers")
-"$" '(spacemacs/push-mark-and-goto-end-of-line :wk "End of line")
-"k" '(spacemacs/evil-goto-next-line-and-indent :wk "Next line and indent")
-"0" '(spacemacs/push-mark-and-goto-beginning-of-line :wk "Beginning of line")
-
+"jo" '(open-line :wk "Open line")
+"jd" '(dired-jump :wk "Jump to directory")
+"j(" '(check-parens :wk "Check Parens")
+"jf" '(find-function :wk "Lisp Function" )
+"jv" '(find-variable :wk "Lisp Variable")
+"jc" '(goto-last-change :wk "Last change")
+"jq" '(dumb-jump-quick-look :wk "Quick look")
+"jD" '(dired-jump-other-window :wk "Jump to directory (Other window)")
+"jS" '(spacemacs/split-and-new-line :wk "Split + New line")
+"ji" '(spacemacs/helm-jump-in-buffer :wk "Helm in buffer" )
+"j+" '(spacemacs/iwb-region-or-buffer :wk "IWB region or buffer")
+"j=" '(spacemacs/indent-region-or-buffer :wk "Indent region or buffer" )
+"jI" '(helm-imenu-in-all-buffers :wk "Helm Imenu in all buffers")
+"j$" '(spacemacs/push-mark-and-goto-end-of-line :wk "End of line")
+"jk" '(spacemacs/evil-goto-next-line-and-indent :wk "Next line and indent")
+"j0" '(spacemacs/push-mark-and-goto-beginning-of-line :wk "Beginning of line")
 )
 
 #+END_SRC
 
 ** Special Symbol
    #+BEGIN_SRC emacs-lisp
-(elib-leader-special-def 
-   "s" '(spacemacs/helm-file-smart-do-search :wk "Search in file")
+(elib-leader-def 
+  "s" '(nil :wk "Special")
+   "ss" '(spacemacs/helm-file-smart-do-search :wk "Search in file")
 
-"f" '(spacemacs/helm-files-smart-do-search :wk "Search in other file(s)")
-"b" '(spacemacs/helm-buffers-smart-do-search :wk "Search in open buffers")
-"j" '(spacemacs/helm-jump-in-buffer :wk "Jump in buffer")
-"e" '(evil-iedit-state/iedit-mode :wk "Iedit")
+"sf" '(spacemacs/helm-files-smart-do-search :wk "Search in other file(s)")
+"sb" '(spacemacs/helm-buffers-smart-do-search :wk "Search in open buffers")
+"sj" '(spacemacs/helm-jump-in-buffer :wk "Jump in buffer")
+"se" '(evil-iedit-state/iedit-mode :wk "Iedit")
+"sm" '(nil :wk "Multiple cursors")
+"smm" '(mc/mark-more-like-this-extended :wk "Mark more like this")
+    "sma" '(mc/mark-all-dwim :wk "Mark all DWIM")
+    "smb" '(mc/mark-all-like-this :wk "Mark all like this")
+    "sme" '(nil :wk "Edit")
+    "smel" '(mc/edit-lines :wk "Edit lines")
+    "smeb" '(mc/edit-beginnings-of-lines :wk "Edit Beginnings")
+    "smee" '(mc/edit-ends-of-lines :wk "Edit Ends")
+    "smr" '(set-rectangular-region-anchor :wk "Rectangular Region")
+  
+    "smt" '(mc/mark-sgml-tag-pair :wk "Mark SGML Tag Pair")
+    "sms" '(nil :wk "Sort")
+    "smsr" '(mc/reverse-regions :wk "Reverse Region")
+    "smss" '(mc/sort-regions :wk "Sort regions")
+    "smi" '(nil :wk "Insert")
+    "smil" '(mc/insert-letters :wk "Letters")
+    "smin" '(mc/insert-numbers :wk "Numbers")
 )
 (use-package macrostep)
- (elib-leader-mc-def
-    "m" '(mc/mark-more-like-this-extended :wk "Mark more like this")
-    "a" '(mc/mark-all-dwim :wk "Mark all DWIM")
-    "b" '(mc/mark-all-like-this :wk "Mark all like this")
-    "e" '(nil :wk "Edit")
-    "el" '(mc/edit-lines :wk "Edit lines")
-    "eb" '(mc/edit-beginnings-of-lines :wk "Edit Beginnings")
-    "ee" '(mc/edit-ends-of-lines :wk "Edit Ends")
-    "r" '(set-rectangular-region-anchor :wk "Rectangular Region")
-  
-    "t" '(mc/mark-sgml-tag-pair :wk "Mark SGML Tag Pair")
-    "s" '(nil :wk "Sort")
-    "sr" '(mc/reverse-regions :wk "Reverse Region")
-    "ss" '(mc/sort-regions :wk "Sort regions")
-    "i" '(nil :wk "Insert")
-    "il" '(mc/insert-letters :wk "Letters")
-    "in" '(mc/insert-numbers :wk "Numbers")
-    )
+
    #+END_SRC
 
 ** Files 
 #+BEGIN_SRC emacs-lisp
-(elib-leader-files-def
-    "s" '(save-buffer :wk "Save Buffer")
-    "S" '(save-some-buffers :wk "Save Some Buffers")
-    "f" '(helm-find-files :wk "Find file")
-    "l" '(helm-locate :wk "Locate file")
-    "a" '(helm-ag :wk "Ag")
-    "e" '(nil :wk "Emacs Files")
-    "ec" '(elib-open-configuration :wk "Configuration")
-    "eC" '(elib-open-custom :wk "Customization")
-    "ei" '(elib-open-init :wk "Init File")
-    "eI" '(elib-open-init :wk "Init File (Lisp)")
-    "eb" '(elib-open-bib :wk "Bibliography")
-    "b"  '(elib-open-brain-dir :wk "Brain Directory")
-    "c"  '(copy-file :wk "Copy file")
-    "D" '(spacemacs/delete-current-buffer-file :wk "Delete current file")
-    "E" '(spacemacs/sudo-edit :wk "Sudo edit")
-    "r" '(spacemacs/rename-current-buffer-file :wk "Rename current file")
-    "t" '(treemacs :wk "Treemacs")
-    "y" '(spacemacs/show-and-copy-buffer-filename :wk "Copy buffer file name"))
+(elib-leader-def
+    "f" '(nil :wk "Files")
+    "fs" '(save-buffer :wk "Save Buffer")
+    "fS" '(save-some-buffers :wk "Save Some Buffers")
+    "ff" '(helm-find-files :wk "Find file")
+    "fl" '(helm-locate :wk "Locate file")
+    "fa" '(helm-ag :wk "Ag")
+    "fe" '(nil :wk "Emacs Files")
+    "fec" '(elib-open-configuration :wk "Configuration")
+    "feC" '(elib-open-custom :wk "Customization")
+    "fei" '(elib-open-init :wk "Init File")
+    "feI" '(elib-open-init :wk "Init File (Lisp)")
+    "feb" '(elib-open-bib :wk "Bibliography")
+    "fb"  '(elib-open-brain-dir :wk "Brain Directory")
+    "fc"  '(copy-file :wk "Copy file")
+    "fD" '(spacemacs/delete-current-buffer-file :wk "Delete current file")
+    "fE" '(spacemacs/sudo-edit :wk "Sudo edit")
+    "fr" '(spacemacs/rename-current-buffer-file :wk "Rename current file")
+    "ft" '(treemacs :wk "Treemacs")
+    "fy" '(spacemacs/show-and-copy-buffer-filename :wk "Copy buffer file name"))
 #+END_SRC
 
 #+RESULTS:
